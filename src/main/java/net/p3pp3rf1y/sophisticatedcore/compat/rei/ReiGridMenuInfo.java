@@ -97,12 +97,13 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
         // This is a bit hacky to do here, but it prevents us from implementing a custom TransferHandler just to set the tab id
         context.getMenu().getOpenOrFirstCraftingContainer().ifPresent(openOrFirstCraftingContainer -> {
             if (!openOrFirstCraftingContainer.isOpen()) {
-                context.getMenu().getOpenContainer().ifPresent(c -> {
+				T container = context.getMenu();
+				container.getOpenContainer().ifPresent(c -> {
                     c.setIsOpen(false);
-                    context.getMenu().setOpenTabId(-1);
+					container.setOpenTabId(-1);
                 });
                 openOrFirstCraftingContainer.setIsOpen(true);
-                context.getMenu().setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
+				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
             }
         });
         // For some reason with REI this needs to be called after the tab id was set
