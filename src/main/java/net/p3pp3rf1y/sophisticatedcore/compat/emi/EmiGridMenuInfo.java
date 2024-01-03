@@ -47,29 +47,34 @@ public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements S
         return VanillaEmiRecipeCategories.CRAFTING.equals(recipe.getCategory()) && recipe.supportsRecipeTree();
     }
 
-    @Override
+	@Override
+	public boolean canCraft(EmiRecipe recipe, EmiCraftContext<T> context) {
+		return context.getScreenHandler().getOpenOrFirstCraftingContainer().isPresent() && StandardRecipeHandler.super.canCraft(recipe, context);
+	}
+
+	@Override
     public boolean craft(EmiRecipe recipe, EmiCraftContext<T> context) {
+		T container = context.getScreenHandler();
+		Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = container.getOpenOrFirstCraftingContainer();
+
         List<ItemStack> stacks = EmiRecipeFiller.getStacks(this, recipe, context.getScreen(), context.getAmount());
         if (stacks != null) {
+			// Can be suppressed cause emi does a canCraft check before calling the craft method, and we test for a crafting container there
+			//noinspection OptionalGetWithoutIsPresent
+			UpgradeContainerBase<?, ?> openOrFirstCraftingContainer = potentialCraftingContainer.get();
+			if (!openOrFirstCraftingContainer.isOpen()) {
+				container.getOpenContainer().ifPresent(c -> {
+					c.setIsOpen(false);
+					container.setOpenTabId(-1);
+				});
+				openOrFirstCraftingContainer.setIsOpen(true);
+				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
+			}
+
             Minecraft.getInstance().setScreen(context.getScreen());
             if (!EmiClient.onServer) {
                 return EmiRecipeFiller.clientFill(this, recipe, context.getScreen(), stacks, context.getDestination());
             } else {
-                Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = context.getScreenHandler().getOpenOrFirstCraftingContainer();
-                if (potentialCraftingContainer.isEmpty()) {
-                    return false;
-                }
-
-                UpgradeContainerBase<?, ?> openOrFirstCraftingContainer = potentialCraftingContainer.get();
-                if (!openOrFirstCraftingContainer.isOpen()) {
-                    context.getScreenHandler().getOpenContainer().ifPresent(c -> {
-                        c.setIsOpen(false);
-                        context.getScreenHandler().setOpenTabId(-1);
-                    });
-                    openOrFirstCraftingContainer.setIsOpen(true);
-                    context.getScreenHandler().setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
-                }
-
                 sendFillRecipe(this, context.getScreen(), switch(context.getDestination()) {
                     case NONE -> 0;
                     case CURSOR -> 1;
