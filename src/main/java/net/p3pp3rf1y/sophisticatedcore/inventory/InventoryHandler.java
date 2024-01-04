@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.mojang.datafixers.util.Pair;
 
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -21,7 +22,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeConfig;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.TransactionCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;

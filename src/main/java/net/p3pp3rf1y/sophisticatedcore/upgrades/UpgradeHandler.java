@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import io.github.fabricators_of_create.porting_lib.util.LogicalSidedProvider;
@@ -14,7 +15,6 @@ import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.TankPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.TransactionCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -149,7 +149,7 @@ public class UpgradeHandler extends ItemStackHandler {
 			insert.commit();
 		}
 
-		TransactionCallback.onOuterSuccess(ctx, () -> {
+		TransactionCallback.onSuccess(ctx, () -> {
 			if (LogicalSidedProvider.WORKQUEUE.get(EnvType.SERVER).isSameThread() && inserted > 0 && maxAmount > 0) {
 				onUpgradeAdded(slot);
 			}

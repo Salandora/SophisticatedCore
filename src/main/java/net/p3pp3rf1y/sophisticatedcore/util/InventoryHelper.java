@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.Lists;
 
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
@@ -172,7 +173,7 @@ public class InventoryHelper {
 				remainingStack = pickupUpgrade.pickup(world, remainingStack, pickupTransaction);
 
 				ItemStack finalRemainingStack = remainingStack;
-				TransactionCallback.onSuccess(ctx, () -> {
+				TransactionCallback.onSuccess(pickupTransaction, () -> {
 					if (player != null && finalRemainingStack.getCount() != countBeforePickup) {
 						playPickupSound(world, player);
 					}
