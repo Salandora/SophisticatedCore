@@ -11,6 +11,14 @@ public class TransactionCallback {
         });
     }
 
+	public static void onOuterSuccess(TransactionContext ctx, Runnable r) {
+		ctx.addOuterCloseCallback((result) -> {
+			if (result.wasCommitted()) {
+				r.run();
+			}
+		});
+	}
+
     public static void onFailed(TransactionContext ctx, Runnable r) {
         ctx.addCloseCallback((transaction, result) -> {
             if (result.wasAborted()) {

@@ -5,6 +5,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandle
 import io.github.fabricators_of_create.porting_lib.util.LogicalSidedProvider;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -141,11 +142,18 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
-	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		long inserted = super.insertSlot(slot, resource, maxAmount, transaction);
-		if (LogicalSidedProvider.WORKQUEUE.get(EnvType.SERVER).isSameThread() && inserted > 0 && maxAmount > 0) {
-			onUpgradeAdded(slot);
+	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
+		long inserted;
+		try (Transaction insert = Transaction.openNested(ctx)) {
+			inserted = super.insertSlot(slot, resource, maxAmount, insert);
+			insert.commit();
 		}
+
+		TransactionCallback.onOuterSuccess(ctx, () -> {
+			if (LogicalSidedProvider.WORKQUEUE.get(EnvType.SERVER).isSameThread() && inserted > 0 && maxAmount > 0) {
+				onUpgradeAdded(slot);
+			}
+		});
 
 		return inserted;
 	}
