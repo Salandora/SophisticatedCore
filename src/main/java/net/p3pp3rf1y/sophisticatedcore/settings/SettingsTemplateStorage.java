@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
-import io.github.fabricators_of_create.porting_lib.util.LogicalSidedProvider;
 import io.github.fabricators_of_create.porting_lib.util.ServerLifecycleHooks;
-import net.fabricmc.api.EnvType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -58,7 +56,7 @@ public class SettingsTemplateStorage extends SavedData {
 	}
 
 	public static SettingsTemplateStorage get() {
-		if (LogicalSidedProvider.WORKQUEUE.get(EnvType.SERVER).isSameThread()) {
+		if (ServerLifecycleHooks.getCurrentServer() != null && ServerLifecycleHooks.getCurrentServer().isSameThread()) {
 			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 			if (server != null) {
 				ServerLevel overworld = server.getLevel(Level.OVERWORLD);
