@@ -13,7 +13,7 @@ plugins {
     id "fabric-loom" version "1.5-SNAPSHOT"
 
     id "io.github.p03w.machete" version "1.+" // automatic jar compressing on build
-    id "org.sonarqube" version "4.3.1.3277"
+//    id "org.sonarqube" version "4.3.1.3277"
 
     id "maven-publish"
 }
@@ -33,9 +33,9 @@ repositories {
     maven { url = 'https://maven.parchmentmc.org' } // Parchment
 
     maven { url = "https://maven.fabricmc.net/" } // FAPI, Loader
-    maven { url = "https://mvn.devos.one/snapshots/" } // Porting Lib, Forge Tags, serialization-hooks
+    maven { url = "https://mvn.devos.one/snapshots/" } // serialization-hooks
     maven { url = "https://jitpack.io/" } // for Porting Lib: Mixin Extras, Fabric ASM
-    maven {// Forge Config API Port
+    maven { // Forge Config API Port
         name = "Fuzs Mod Resources"
         url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
     }
@@ -325,12 +325,12 @@ publishing {
     }
 }
 
-sonarqube {
-    properties {
-        property "sonar.projectName", "${mod_id}"
-        property "sonar.projectKey", "${sonar_project_key}"
-    }
-}
+//sonarqube {
+//    properties {
+//        property "sonar.projectName", "${mod_id}"
+//        property "sonar.projectKey", "${sonar_project_key}"
+//    }
+//}
 
 task printVersionName {
     println "version:" + project.version

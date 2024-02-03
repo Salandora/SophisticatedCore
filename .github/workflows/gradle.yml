@@ -30,10 +30,10 @@ jobs:
         with:
           package-name: 'sophisticatedcore.sophisticatedcore'
           min-versions-to-keep: 50
-      - name: Code Quality
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.organization=p3pp3rf1y-github sonarqube
+#      - name: Code Quality
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: ./gradlew -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} -Dsonar.organization=p3pp3rf1y-github sonarqube
       - name : Retrieve Version
         run: |
           echo "$(${{github.workspace}}/gradlew -q printVersionName | awk -F "version:" '{printf $2}')"
