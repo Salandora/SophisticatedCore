@@ -1,7 +1,7 @@
 {
     "schemaVersion": 1,
     "id": "sophisticatedcore-fabric",
-    "version": "${mod_version}",
+    "version": "${mod_full_version}",
     "name": "Sophisticated Core",
     "description": "Base mod of Sophisticated mods.",
     "license": "GNU General Public License v3.0",
