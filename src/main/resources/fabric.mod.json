@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "sophisticatedcore-fabric",
+    "id": "sophisticatedcore",
     "version": "${mod_full_version}",
     "name": "Sophisticated Core",
     "description": "Base mod of Sophisticated mods.",
