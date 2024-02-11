@@ -29,7 +29,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: Maven Local
-          path: /root/.m2/repository/net/fabricmc/
+          path: /root/.m2/repository/com/github/salandora
   check_resources:
     runs-on: ubuntu-22.04
     steps:
