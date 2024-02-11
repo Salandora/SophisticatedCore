@@ -3,9 +3,10 @@ on: [workflow_dispatch] # Manual trigger
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-22.04
     container:
       image: mcr.microsoft.com/openjdk/jdk:21-ubuntu
