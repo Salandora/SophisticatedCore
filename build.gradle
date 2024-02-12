@@ -8,7 +8,7 @@ plugins {
 }
 
 group = mod_group_id
-version = "${project.minecraft_version}-${project.mod_version}.${getBuildNumber()}${getStable()}"
+version = "${project.mod_version}${getStable()}+mc${project.minecraft_version}"
 
 base {
     archivesName = project.mod_id
@@ -243,7 +243,7 @@ tasks.register("generateResources") {
 }
 
 machete {
-    enabled = System.getenv("GITHUB_RUN_NUMBER") != null
+//    enabled = System.getenv("GITHUB_RUN_NUMBER") != null
     json.enabled = false
     finalizeAfter = ""
     ignoredTasks.add("jar")
@@ -311,14 +311,14 @@ tasks.named('jar', Jar).configure {
 
 static def getBuildNumber() {
     if (System.getenv("GITHUB_RUN_NUMBER") != null) {
-        return System.getenv("GITHUB_RUN_NUMBER").toString()
+        return "." + System.getenv("GITHUB_RUN_NUMBER").toString()
     }
     return ""
 }
 
 static def getStable() {
     if (System.getenv("GITHUB_REF") == null || System.getenv("GITHUB_REF").endsWith("-dev")) {
-        return "-alpha"
+        return "-alpha${getBuildNumber()}"
     }
     return ""
 }
