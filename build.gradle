@@ -8,7 +8,7 @@ plugins {
 }
 
 group = mod_group_id
-version = "${project.mod_version}${getStable()}+mc${project.minecraft_version}"
+version = "${project.minecraft_version}-${project.mod_version}${getStable()}${getBuildNumber()}"
 
 base {
     archivesName = project.mod_id
@@ -262,16 +262,14 @@ tasks.withType(ProcessResources).configureEach {
 
     var replaceProperties = [
             mod_id              : project.mod_id,
-            mod_version         : project.mod_version,
-            mod_full_version    : version,
+            mod_version         : "${project.mod_version}${getStable()}${getBuildNumber()}+mc${project.minecraft_version}",
             minecraft_version   : minecraft_version,
             loader_version      : loader_version,
             fabric_version      : fabric_version,
             forge_config_version: project.forge_config_api_port_version,
-            energy_version      : project.energy_version
+            energy_version      : project.energy_version,
+            port_lib_version    : project.port_lib_version
     ]
-    for (String module in port_lib_modules.split(","))
-        replaceProperties.put("port_lib_${module.trim()}_version".toString(), port_lib_version)
 
     inputs.properties replaceProperties
 
@@ -318,7 +316,7 @@ static def getBuildNumber() {
 
 static def getStable() {
     if (System.getenv("GITHUB_REF") == null || System.getenv("GITHUB_REF").endsWith("-dev")) {
-        return "-alpha${getBuildNumber()}"
+        return "-SNAPSHOT"
     }
     return ""
 }

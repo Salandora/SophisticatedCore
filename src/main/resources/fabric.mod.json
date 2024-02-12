@@ -1,7 +1,7 @@
 {
     "schemaVersion": 1,
     "id": "sophisticatedcore",
-    "version": "${mod_full_version}",
+    "version": "${mod_version}",
     "name": "Sophisticated Core",
     "description": "Base mod of Sophisticated mods.",
     "license": "GNU General Public License v3.0",
@@ -41,10 +41,10 @@
         "minecraft": "${minecraft_version}",
         "fabricloader": ">=${loader_version}",
         "fabric-api": ">=${fabric_version}",
-        "porting_lib_networking": ">=${port_lib_networking_version}",
-        "porting_lib_transfer": ">=${port_lib_transfer_version}",
-        "porting_lib_tags": ">=${port_lib_tags_version}",
-        "porting_lib_utility": ">=${port_lib_utility_version}",
+        "porting_lib_networking": ">=${port_lib_version}",
+        "porting_lib_transfer": ">=${port_lib_version}",
+        "porting_lib_tags": ">=${port_lib_version}",
+        "porting_lib_utility": ">=${port_lib_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
         "team_reborn_energy": ">=${energy_version}"
     },
