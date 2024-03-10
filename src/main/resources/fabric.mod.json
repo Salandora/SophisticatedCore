@@ -44,7 +44,6 @@
         "porting_lib_networking": ">=${port_lib_version}",
         "porting_lib_transfer": ">=${port_lib_version}",
         "porting_lib_tags": ">=${port_lib_version}",
-        "porting_lib_utility": ">=${port_lib_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
         "team_reborn_energy": ">=${energy_version}"
     },

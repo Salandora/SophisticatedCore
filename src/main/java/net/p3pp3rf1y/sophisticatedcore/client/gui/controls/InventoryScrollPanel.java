@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 
-import io.github.fabricators_of_create.porting_lib.client.gui.controls.ScrollPanel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.world.inventory.Slot;

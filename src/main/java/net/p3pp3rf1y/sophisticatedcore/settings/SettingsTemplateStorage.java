@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
-import io.github.fabricators_of_create.porting_lib.util.ServerLifecycleHooks;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -56,14 +54,11 @@ public class SettingsTemplateStorage extends SavedData {
 	}
 
 	public static SettingsTemplateStorage get() {
-		if (ServerLifecycleHooks.getCurrentServer() != null && ServerLifecycleHooks.getCurrentServer().isSameThread()) {
-			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-			if (server != null) {
-				ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-				//noinspection ConstantConditions - by this time overworld is loaded
-				DimensionDataStorage storage = overworld.getDataStorage();
-				return storage.computeIfAbsent(SettingsTemplateStorage::load, SettingsTemplateStorage::new, SAVED_DATA_NAME);
-			}
+		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
+			ServerLevel overworld = SophisticatedCore.getCurrentServer().getLevel(Level.OVERWORLD);
+			//noinspection ConstantConditions - by this time overworld is loaded
+			DimensionDataStorage storage = overworld.getDataStorage();
+			return storage.computeIfAbsent(SettingsTemplateStorage::load, SettingsTemplateStorage::new, SAVED_DATA_NAME);
 		}
 		return clientStorageCopy;
 	}

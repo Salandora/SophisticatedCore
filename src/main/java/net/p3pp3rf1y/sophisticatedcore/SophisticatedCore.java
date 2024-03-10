@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
@@ -16,6 +17,7 @@ import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,13 @@ public class SophisticatedCore implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(ID);
 
 	public final CommonEventHandler commonEventHandler = new CommonEventHandler();
+
+	private static MinecraftServer currentServer = null;
+
+	@Nullable
+	public static MinecraftServer getCurrentServer() {
+		return currentServer;
+	}
 
 	public SophisticatedCore() {
 	}
@@ -39,6 +48,7 @@ public class SophisticatedCore implements ModInitializer {
 
 		CapabilityWrapper.register();
 
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setWorld(server.getLevel(Level.OVERWORLD)));
 
 		PacketHandler.getChannel().initServerListener();

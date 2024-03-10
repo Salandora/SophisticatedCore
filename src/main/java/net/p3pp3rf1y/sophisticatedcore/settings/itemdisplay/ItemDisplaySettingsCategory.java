@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.itemdisplay;
 
-import io.github.fabricators_of_create.porting_lib.util.ServerLifecycleHooks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
@@ -219,7 +219,7 @@ public class ItemDisplaySettingsCategory implements ISettingsCategory<ItemDispla
 	}
 
 	public void itemChanged(int changedSlotIndex) {
-		if ((ServerLifecycleHooks.getCurrentServer() == null || !ServerLifecycleHooks.getCurrentServer().isSameThread()) || !slotIndexes.contains(changedSlotIndex)) {
+		if ((SophisticatedCore.getCurrentServer() == null || !SophisticatedCore.getCurrentServer().isSameThread()) || !slotIndexes.contains(changedSlotIndex)) {
 			return;
 		}
 

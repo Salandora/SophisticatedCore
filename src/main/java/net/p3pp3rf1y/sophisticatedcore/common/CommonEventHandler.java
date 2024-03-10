@@ -1,10 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.common;
 
-import io.github.fabricators_of_create.porting_lib.util.LogicalSidedProvider;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.server.TickTask;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -41,8 +38,7 @@ public class CommonEventHandler {
 					Entity newEntity = item.createEntity(world, entity, stack);
 					if (newEntity != null) {
 						entity.discard();
-						var executor = LogicalSidedProvider.WORKQUEUE.get(world.isClientSide ? EnvType.CLIENT : EnvType.SERVER);
-						executor.tell(new TickTask(0, () -> world.addFreshEntity(newEntity)));
+						world.addFreshEntity(newEntity);
 						return false;
 					}
 				}
