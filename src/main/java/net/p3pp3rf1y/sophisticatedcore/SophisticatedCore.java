@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -10,8 +9,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
-import net.p3pp3rf1y.sophisticatedcore.data.SCFluidTagsProvider;
-import net.p3pp3rf1y.sophisticatedcore.data.SCRecipeProvider;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
@@ -60,9 +57,4 @@ public class SophisticatedCore implements ModInitializer {
 		return new ResourceLocation(ID, path);
 	}
 
-	public static void gatherData(FabricDataGenerator gen) {
-		FabricDataGenerator.Pack pack = gen.createPack();
-		pack.addProvider(SCFluidTagsProvider::new);
-		pack.addProvider(SCRecipeProvider::new);
-	}
 }

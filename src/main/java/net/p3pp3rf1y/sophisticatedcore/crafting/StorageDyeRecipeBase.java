@@ -1,9 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
-import me.alphamode.forgetags.Tags;
-
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeColor;
@@ -39,7 +40,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 					return false;
 				}
 				storagePresent = true;
-			} else if (slotStack.is(Tags.Items.DYES)) {
+			} else if (slotStack.is(ConventionalItemTags.DYES)) {
 				dyePresent = true;
 			} else {
 				return false;
@@ -65,7 +66,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 				}
 
 				columnStorage = new Tuple<>(column, slotStack);
-			} else if (slotStack.is(Tags.Items.DYES)) {
+			} else if (slotStack.is(ConventionalItemTags.DYES)) {
 				DyeColor dyeColor = getColorFromStack(slotStack);
 				if (dyeColor == null) {
 					return ItemStack.EMPTY;
@@ -121,7 +122,8 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		}
 
 		for (DyeColor color : DyeColor.values()) {
-			if (stack.is(color.getTag())) return color;
+			if (stack.is(TagKey.create(Registries.ITEM, new ResourceLocation("c", color.getName() + "_dyes"))))
+				return color;
 		}
 
 		return null;
