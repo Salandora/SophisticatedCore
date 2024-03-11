@@ -2,14 +2,11 @@ package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import io.github.fabricators_of_create.porting_lib.extensions.extensions.EntityExtensions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +15,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.event.common.LivingEntityEvents;
@@ -27,12 +26,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Mixin(value = LivingEntity.class, priority = 500)
-public abstract class LivingEntityMixin extends Entity implements EntityExtensions {
+public abstract class LivingEntityMixin extends Entity {
     @Shadow
     protected int lastHurtByPlayerTime;
-
-    @Unique
-    private int lootingLevel;
 
     public LivingEntityMixin(EntityType<?> entityType, Level world) {
         super(entityType, world);
@@ -40,18 +36,18 @@ public abstract class LivingEntityMixin extends Entity implements EntityExtensio
 
     @Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
     private void sophisticatedcore$captureDrops(DamageSource damageSource, CallbackInfo ci) {
-        captureDrops(new ArrayList<>());
-    }
-
-    @ModifyVariable(method = "dropAllDeathLoot", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;lastHurtByPlayerTime:I"))
-    private int port_lib$grabLootingLevel(int lootingLevel) {
-        this.lootingLevel = lootingLevel;
-        return lootingLevel;
+        sophisticatedCaptureDrops(new ArrayList<>());
     }
 
     @Inject(method = "dropAllDeathLoot", at = @At(value = "RETURN"))
     private void sophisticatedcore$dropCapturedDrops(DamageSource damageSource, CallbackInfo ci) {
-        Collection<ItemEntity> drops = this.captureDrops(null);
+        Collection<ItemEntity> drops = this.sophisticatedCaptureDrops(null);
+
+		Entity entity = damageSource.getEntity();
+		int lootingLevel = 0;
+		if (entity instanceof Player) {
+			lootingLevel = EnchantmentHelper.getMobLooting((LivingEntity)entity);
+		}
 
         boolean cancelled = LivingEntityEvents.DROPS.invoker()
 				.onLivingEntityDrops(MixinHelper.cast(this), damageSource, drops, lootingLevel, lastHurtByPlayerTime > 0);

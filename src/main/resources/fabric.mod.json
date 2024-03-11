@@ -53,6 +53,7 @@
     "custom": {
         "loom:injected_interfaces": {
             "net/minecraft/class_465": ["net/p3pp3rf1y/sophisticatedcore/extensions/client/gui/screens/inventory/SophisticatedAbstractContainerScreen"],
+            "net/minecraft/class_1297": ["net/p3pp3rf1y/sophisticatedcore/extensions/entity/SophisticatedEntity"],
             "net/minecraft/class_1735": ["net/p3pp3rf1y/sophisticatedcore/extensions/inventory/SophisticatedSlot"],
             "net/minecraft/class_1792": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItem"],
             "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack"],
