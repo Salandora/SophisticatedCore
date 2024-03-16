@@ -4,9 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix4f;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.joml.Matrix4f;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -451,15 +451,16 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			}
 		}
 
-		poseStack.pushPose();
-		poseStack.translate(0.0F, 0.0F, -50);
+		setBlitOffset(100);
+		itemRenderer.blitOffset = 100.0F;
 		if (stackToRender.isEmpty() && slot.isActive()) {
 			renderSlotBackground(poseStack, slot, i, j);
 		} else if (!rightClickDragging) {
 			renderStack(poseStack, i, j, stackToRender, flag, stackCountText);
 		}
 
-		poseStack.popPose();
+		itemRenderer.blitOffset = 0.0F;
+		setBlitOffset(0);
 	}
 
 	private void renderStack(PoseStack poseStack, int i, int j, ItemStack itemstack, boolean flag, @Nullable String stackCountText) {
@@ -468,33 +469,33 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 
 		RenderSystem.enableDepthTest();
-		itemRenderer.renderAndDecorateItem(poseStack, itemstack, i, j);
+		itemRenderer.renderAndDecorateItem(itemstack, i, j);
 		if (shouldUseSpecialCountRender(itemstack)) {
-			itemRenderer.renderGuiItemDecorations(poseStack, font, itemstack, i, j, "");
+			itemRenderer.renderGuiItemDecorations(font, itemstack, i, j, "");
 			if (stackCountText == null) {
 				stackCountText = CountAbbreviator.abbreviate(itemstack.getCount());
 			}
 			renderStackCount(poseStack, stackCountText, i, j);
 		} else {
-			itemRenderer.renderGuiItemDecorations(poseStack, font, itemstack, i, j, stackCountText);
+			itemRenderer.renderGuiItemDecorations(font, itemstack, i, j, stackCountText);
 		}
 	}
 
 	private void renderSlotBackground(PoseStack poseStack, Slot slot, int i, int j) {
 		Optional<ItemStack> memorizedStack = getMenu().getMemorizedStackInSlot(slot.index);
 		if (memorizedStack.isPresent()) {
-			itemRenderer.renderAndDecorateItem(poseStack, memorizedStack.get(), i, j);
+			itemRenderer.renderAndDecorateItem(memorizedStack.get(), i, j);
 			drawStackOverlay(poseStack, i, j);
 		} else if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
-			itemRenderer.renderAndDecorateItem(poseStack, getMenu().getSlotFilterItem(slot.index), i, j);
+			itemRenderer.renderAndDecorateItem(getMenu().getSlotFilterItem(slot.index), i, j);
 			drawStackOverlay(poseStack, i, j);
 		} else {
 			Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
 			if (pair != null) {
 				//noinspection ConstantConditions - by this point minecraft isn't null
 				TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-				RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
-				blit(poseStack, i, j, 50, 16, 16, textureatlassprite);
+				RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
+				blit(poseStack, i, j, getBlitOffset(), 16, 16, textureatlassprite);
 			}
 		}
 	}
@@ -775,7 +776,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		GuiEventListener focused = getFocused();
 		if (focused != null && !focused.isMouseOver(mouseX, mouseY) && (focused instanceof WidgetBase widgetBase)) {
-				widgetBase.setFocused(false);
+				widgetBase.setFocus(false);
 
 		}
 
@@ -840,7 +841,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		MultiBufferSource.BufferSource renderBuffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		font.drawInBatch(count, (x + 19 - 2 - (font.width(count) * scale)) / scale,
-				(y + 6 + 3 + (1 / (scale * scale) - 1)) / scale, 16777215, true, poseStrack.last().pose(), renderBuffer, Font.DisplayMode.NORMAL, 0, 15728880);
+				(y + 6 + 3 + (1 / (scale * scale) - 1)) / scale, 16777215, true, poseStrack.last().pose(), renderBuffer, false, 0, 15728880);
 		renderBuffer.endBatch();
 		poseStrack.popPose();
 	}

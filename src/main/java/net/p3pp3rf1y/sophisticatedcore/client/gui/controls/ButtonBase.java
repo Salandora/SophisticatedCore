@@ -24,10 +24,10 @@ public abstract class ButtonBase extends WidgetBase {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (!isMouseOver(mouseX, mouseY)) {
-			setFocused(false);
+			setFocus(false);
 			return false;
 		}
-		setFocused(true);
+		setFocus(true);
 		onClick.accept(button);
 		if (Boolean.TRUE.equals(Config.CLIENT.playButtonSound.get())) {
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));

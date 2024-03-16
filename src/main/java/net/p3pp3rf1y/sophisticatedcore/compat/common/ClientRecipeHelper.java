@@ -49,8 +49,7 @@ public class ClientRecipeHelper {
 	}
 
 	public static CraftingRecipe copyShapedRecipe(ShapedRecipe recipe) {
-		Minecraft mc = Minecraft.getInstance();
-		return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem(mc.level.registryAccess()));
+		return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem());
 	}
 
 	public static <C extends Container> ItemStack assemble(Recipe<C> recipe, C container) {
@@ -60,7 +59,7 @@ public class ClientRecipeHelper {
 			throw new NullPointerException("level must not be null.");
 		}
 		RegistryAccess registryAccess = level.registryAccess();
-		return recipe.assemble(container, registryAccess);
+		return recipe.assemble(container);
 	}
 
 	public static <C extends Container> ItemStack getResultItem(Recipe<C> recipe) {
@@ -69,7 +68,6 @@ public class ClientRecipeHelper {
 		if (level == null) {
 			throw new NullPointerException("level must not be null.");
 		}
-		RegistryAccess registryAccess = level.registryAccess();
-		return recipe.getResultItem(registryAccess);
+		return recipe.getResultItem();
 	}
 }

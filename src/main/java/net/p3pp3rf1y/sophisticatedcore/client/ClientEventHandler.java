@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -15,6 +16,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -24,8 +26,11 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.battery.BatteryUpgradeContainer;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.tank.TankUpgradeContainer;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import java.util.Collections;
@@ -37,6 +42,15 @@ public class ClientEventHandler implements ClientModInitializer {
     public void onInitializeClient() {
         ModParticles.registerFactories();
         ModFluids.registerFluids();
+
+		ClientSpriteRegistryCallback.event(InventoryMenu.BLOCK_ATLAS).register((atlas, registry) -> {
+			registry.register(StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND);
+			registry.register(StorageContainerMenuBase.INACCESSIBLE_SLOT_BACKGROUND.getSecond());
+			registry.register(TankUpgradeContainer.EMPTY_TANK_INPUT_SLOT_BACKGROUND);
+			registry.register(TankUpgradeContainer.EMPTY_TANK_OUTPUT_SLOT_BACKGROUND);
+			registry.register(BatteryUpgradeContainer.EMPTY_BATTERY_INPUT_SLOT_BACKGROUND);
+			registry.register(BatteryUpgradeContainer.EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND);
+		});
 
         ServerWorldEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
 		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);

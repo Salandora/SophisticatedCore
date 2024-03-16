@@ -7,11 +7,9 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 public class SophisticatedCoreData implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
-		final FabricDataGenerator.Pack pack = generator.createPack();
-
-		SCBlockTagProvider blockTags = pack.addProvider(SCBlockTagProvider::new);
-		pack.addProvider((output, wrapper) -> new SCItemTagProvider(output, wrapper, blockTags));
-		pack.addProvider(SCFluidTagsProvider::new);
-		pack.addProvider(SCRecipeProvider::new);
+		SCBlockTagProvider blockTags = generator.addProvider(SCBlockTagProvider::new);
+		generator.addProvider(output -> new SCItemTagProvider(output, blockTags));
+		generator.addProvider(SCFluidTagsProvider::new);
+		generator.addProvider(SCRecipeProvider::new);
 	}
 }

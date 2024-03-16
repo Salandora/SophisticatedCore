@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.compacting;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
@@ -10,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.p3pp3rf1y.porting_lib.transfer.items.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
@@ -75,7 +74,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		RecipeHelper.CompactingResult compactingResult = RecipeHelper.getCompactingResult(item, width, height);
 		if (!compactingResult.getResult().isEmpty()) {
 			ItemVariant resource = ItemVariant.of(item);
-			long extracted = StorageUtil.simulateExtract(inventoryHandler, resource, totalCount, ctx);
+			long extracted = inventoryHandler.simulateExtract(resource, totalCount, ctx);
 			if (extracted != totalCount) {
 				return;
 			}
@@ -95,7 +94,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 					insertContext.commit();
 				}
 
-				extracted = StorageUtil.simulateExtract(inventoryHandler, resource, totalCount, ctx);
+				extracted = inventoryHandler.simulateExtract(resource, totalCount, ctx);
 			}
 		}
 	}

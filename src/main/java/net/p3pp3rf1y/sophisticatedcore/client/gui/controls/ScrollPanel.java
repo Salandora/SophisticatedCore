@@ -11,11 +11,11 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.joml.Matrix4f;
+import com.mojang.math.Matrix4f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Abstract scroll panel class.
  */
-public abstract class ScrollPanel extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
+public abstract class ScrollPanel extends AbstractContainerEventHandler implements Widget, NarratableEntry {
 	private final Minecraft client;
 	protected final int width;
 	protected final int height;
@@ -275,7 +275,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 
 		double scale = client.getWindow().getGuiScale();
 		RenderSystem.enableScissor((int)(left  * scale), (int)(client.getWindow().getHeight() - (bottom * scale)),
-				(int)(width * scale), (int)(height * scale));
+								   (int)(width * scale), (int)(height * scale));
 
 		this.drawBackground(matrix, tess, partialTick);
 
@@ -331,6 +331,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 			tess.end();
 		}
 
+		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
 		RenderSystem.disableScissor();
 	}
@@ -346,21 +347,23 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 		float endBlue    = (float)(endColor         & 255) / 255.0F;
 
 		RenderSystem.enableDepthTest();
+		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
 		Matrix4f matrix = poseStack.last().pose();
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder buffer = tessellator.getBuilder();
+		Tesselator tesselator = Tesselator.getInstance();
+		BufferBuilder buffer = tesselator.getBuilder();
 		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		buffer.vertex(matrix, right,    top, 0).color(startRed, startGreen, startBlue, startAlpha).endVertex();
 		buffer.vertex(matrix,  left,    top, 0).color(startRed, startGreen, startBlue, startAlpha).endVertex();
 		buffer.vertex(matrix,  left, bottom, 0).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
 		buffer.vertex(matrix, right, bottom, 0).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
-		tessellator.end();
+		tesselator.end();
 
 		RenderSystem.disableBlend();
+		RenderSystem.enableTexture();
 	}
 
 	@Override

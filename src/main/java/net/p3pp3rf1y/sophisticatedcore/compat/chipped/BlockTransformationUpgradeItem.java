@@ -1,7 +1,7 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import earth.terrarium.chipped.common.recipe.ChippedRecipe;
+
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
@@ -26,4 +26,3 @@ public class BlockTransformationUpgradeItem extends UpgradeItemBase<BlockTransfo
 	}
 
 }
-*/

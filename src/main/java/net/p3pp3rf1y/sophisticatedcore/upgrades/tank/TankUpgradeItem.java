@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
@@ -17,8 +18,8 @@ public class TankUpgradeItem extends UpgradeItemBase<TankUpgradeWrapper> {
 
 	private final TankUpgradeConfig tankUpgradeConfig;
 
-	public TankUpgradeItem(TankUpgradeConfig tankUpgradeConfig) {
-		super();
+	public TankUpgradeItem(CreativeModeTab creativeModeTab, TankUpgradeConfig tankUpgradeConfig) {
+		super(creativeModeTab);
 		this.tankUpgradeConfig = tankUpgradeConfig;
 	}
 

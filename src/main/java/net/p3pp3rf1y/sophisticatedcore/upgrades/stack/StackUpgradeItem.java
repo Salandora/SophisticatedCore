@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stack;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
@@ -18,8 +19,8 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 	public static final UpgradeType<Wrapper> TYPE = new UpgradeType<>(Wrapper::new);
 	private final int stackSizeMultiplier;
 
-	public StackUpgradeItem(int stackSizeMultiplier) {
-		super();
+	public StackUpgradeItem(int stackSizeMultiplier, CreativeModeTab creativeModeTab) {
+		super(creativeModeTab);
 		this.stackSizeMultiplier = stackSizeMultiplier;
 	}
 

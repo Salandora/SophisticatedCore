@@ -3,9 +3,9 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 import com.mojang.brigadier.StringReader;
 import com.mojang.serialization.Codec;
 
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.p3pp3rf1y.sophisticatedcore.init.ModParticles;
 
@@ -27,7 +27,7 @@ public class JukeboxUpgradeNoteParticleData extends ParticleType<JukeboxUpgradeN
 	@Override
 	public String writeToString() {
 		//noinspection ConstantConditions
-		return BuiltInRegistries.PARTICLE_TYPE.getKey(ModParticles.JUKEBOX_NOTE).toString();
+		return Registry.PARTICLE_TYPE.getKey(ModParticles.JUKEBOX_NOTE).toString();
 	}
 
 	@SuppressWarnings("deprecation")

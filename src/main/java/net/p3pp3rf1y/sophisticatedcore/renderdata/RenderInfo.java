@@ -71,7 +71,7 @@ public abstract class RenderInfo {
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
 		ListTag upgradeItemsTag = new ListTag();
 		for (ItemStack upgradeItem : upgradeItems) {
-			upgradeItemsTag.add(upgradeItem.serializeNBT());
+			upgradeItemsTag.add(upgradeItem.save(new CompoundTag()));
 		}
 		renderInfo.put(UPGRADE_ITEMS_TAG, upgradeItemsTag);
 		serializeRenderInfo(renderInfo);
@@ -327,7 +327,7 @@ public abstract class RenderInfo {
 		}
 
 		private CompoundTag serialize(CompoundTag tag) {
-			tag.put(ITEM_TAG, item.serializeNBT());
+			tag.put(ITEM_TAG, item.save(new CompoundTag()));
 			tag.putInt(ROTATION_TAG, rotation);
 			tag.putInt(SLOT_INDEX_TAG, slotIndex);
 			return tag;

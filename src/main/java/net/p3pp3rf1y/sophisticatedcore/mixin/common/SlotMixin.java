@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.extensions.inventory.SophisticatedSlot;
-import net.p3pp3rf1y.sophisticatedcore.util.MixinHelper;
 
 @Mixin(Slot.class)
 public class SlotMixin implements SophisticatedSlot {
@@ -24,9 +23,9 @@ public class SlotMixin implements SophisticatedSlot {
         }
     }
 
-    @Override
+/*    @Override
     public Slot setBackground(ResourceLocation atlas, ResourceLocation sprite) {
         this.background = Pair.of(atlas, sprite);
         return MixinHelper.cast(this);
-    }
+    }*/
 }

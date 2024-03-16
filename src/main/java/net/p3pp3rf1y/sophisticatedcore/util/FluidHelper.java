@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.impl.transfer.DebugMessages;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
@@ -153,7 +152,7 @@ public class FluidHelper {
         } catch (Exception e) {
             CrashReport report = CrashReport.forThrowable(e, "Interacting with fluid storage");
             report.addCategory("Interaction details")
-                    .setDetail("Player", () -> DebugMessages.forPlayer(player))
+                    //.setDetail("Player", () -> DebugMessages.forPlayer(player))
                     .setDetail("Hand", hand)
                     .setDetail("Hand item", handItem::toString)
                     .setDetail("Fluid storage", () -> Objects.toString(storage, null));

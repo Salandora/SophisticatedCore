@@ -1,11 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.item;
 
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nullable;
 
 public interface SophisticatedItem {
     // Helpers for accessing Item data
@@ -30,4 +33,9 @@ public interface SophisticatedItem {
     {
         return InteractionResult.PASS;
     }
+
+	@Nullable
+	default EquipmentSlot getEquipmentSlot(ItemStack stack) {
+		return null;
+	}
 }

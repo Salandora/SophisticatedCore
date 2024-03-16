@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
+import net.p3pp3rf1y.sophisticatedcore.api.IStorageFluidHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
@@ -61,7 +62,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		setCooldown(world, storageWrapper.getFluidHandler().map(storageFluidHandler -> tick(storageFluidHandler, entity, world, pos)).orElse(DID_NOTHING_COOLDOWN_TIME));
 	}
 
-	private int tick(Storage<FluidVariant> storageFluidHandler, @Nullable LivingEntity entity, Level level, BlockPos pos) {
+	private int tick(IStorageFluidHandler storageFluidHandler, @Nullable LivingEntity entity, Level level, BlockPos pos) {
 		if (entity == null) {
 			Optional<Integer> newCooldown = handleInWorldInteractions(storageFluidHandler, level, pos);
 			if (newCooldown.isPresent()) {
@@ -80,7 +81,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return lastHandActionTime + 10 * HAND_INTERACTION_COOLDOWN_TIME > level.getGameTime() ? HAND_INTERACTION_COOLDOWN_TIME : DID_NOTHING_COOLDOWN_TIME;
 	}
 
-	private Optional<Integer> handleInWorldInteractions(Storage<FluidVariant> storageFluidHandler, Level world, BlockPos pos) {
+	private Optional<Integer> handleInWorldInteractions(IStorageFluidHandler storageFluidHandler, Level world, BlockPos pos) {
 		if (shouldInteractWithHand() && handleFluidContainersInHandsOfNearbyPlayers(world, pos, storageFluidHandler)) {
 			lastHandActionTime = world.getGameTime();
 			return Optional.of(HAND_INTERACTION_COOLDOWN_TIME);
@@ -96,7 +97,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return interactWithAttachedFluidHandlers(world, pos, storageFluidHandler);
 	}
 
-	private Optional<Integer> interactWithAttachedFluidHandlers(Level world, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
+	private Optional<Integer> interactWithAttachedFluidHandlers(Level world, BlockPos pos, IStorageFluidHandler storageFluidHandler) {
 		for (Direction dir : Direction.values()) {
             boolean successful = false;
 			Storage<FluidVariant> storage = FluidStorage.SIDED.find(world, pos.offset(dir.getNormal()), dir.getOpposite());
@@ -124,7 +125,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return 1 + (int) (pumpUpgradeConfig.stackMultiplierRatio.get() * (storageWrapper.getInventoryHandler().getStackSizeMultiplier() - 1));
 	}
 
-	private Optional<Integer> interactWithWorld(Level world, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
+	private Optional<Integer> interactWithWorld(Level world, BlockPos pos, IStorageFluidHandler storageFluidHandler) {
 		if (isInput()) {
 			return fillFromBlockInRange(world, pos, storageFluidHandler);
 		} else {
@@ -138,7 +139,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return Optional.empty();
 	}
 
-    private boolean placeFluidInWorld(Level world, Storage<FluidVariant> storageFluidHandler, Direction dir, BlockPos offsetPos) {
+    private boolean placeFluidInWorld(Level world, IStorageFluidHandler storageFluidHandler, Direction dir, BlockPos offsetPos) {
 		if (dir != Direction.UP) {
             for (StorageView<FluidVariant> view : storageFluidHandler.nonEmptyViews()) {
 				FluidStack tankFluid = new FluidStack(view);
@@ -218,7 +219,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
         return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
 	}
 
-	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler, long maxFill) {
+	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, IStorageFluidHandler storageFluidHandler, long maxFill) {
 		boolean ret = false;
 		for (StorageView<FluidVariant> view : storageFluidHandler.nonEmptyViews()) {
 			FluidStack tankFluid = new FluidStack(view);

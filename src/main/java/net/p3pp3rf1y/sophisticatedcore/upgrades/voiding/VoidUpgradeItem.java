@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.voiding;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 
@@ -7,8 +8,8 @@ public class VoidUpgradeItem extends UpgradeItemBase<VoidUpgradeWrapper> {
 	public static final UpgradeType<VoidUpgradeWrapper> TYPE = new UpgradeType<>(VoidUpgradeWrapper::new);
 	private final VoidUpgradeConfig voidUpgradeConfig;
 
-	public VoidUpgradeItem(VoidUpgradeConfig voidUpgradeConfig) {
-		super();
+	public VoidUpgradeItem(VoidUpgradeConfig voidUpgradeConfig, CreativeModeTab creativeModeTab) {
+		super(creativeModeTab);
 		this.voidUpgradeConfig = voidUpgradeConfig;
 	}
 

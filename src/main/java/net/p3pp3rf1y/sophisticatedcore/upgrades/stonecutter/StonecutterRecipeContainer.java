@@ -142,7 +142,7 @@ public class StonecutterRecipeContainer {
 			StonecutterRecipe stonecuttingrecipe = recipes.get(selectedRecipe.get());
 			resultInventory.setRecipeUsed(stonecuttingrecipe);
 			Minecraft mc = Minecraft.getInstance();
-			outputSlot.set(stonecuttingrecipe.assemble(inputInventory, mc.level.registryAccess()));
+			outputSlot.set(stonecuttingrecipe.assemble(inputInventory));
 		} else {
 			outputSlot.set(ItemStack.EMPTY);
 		}

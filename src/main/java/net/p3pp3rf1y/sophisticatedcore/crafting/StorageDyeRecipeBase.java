@@ -1,8 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
@@ -11,7 +10,6 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.level.Level;
 
@@ -22,8 +20,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public abstract class StorageDyeRecipeBase extends CustomRecipe {
-	protected StorageDyeRecipeBase(ResourceLocation registryName, CraftingBookCategory category) {
-		super(registryName, category);
+	protected StorageDyeRecipeBase(ResourceLocation registryName) {
+		super(registryName);
 	}
 
 	@Override
@@ -50,7 +48,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inv, RegistryAccess registryManager) {
+	public ItemStack assemble(CraftingContainer inv) {
 		Map<Integer, List<DyeColor>> columnDyes = new HashMap<>();
 		Tuple<Integer, ItemStack> columnStorage = null;
 
@@ -122,7 +120,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		}
 
 		for (DyeColor color : DyeColor.values()) {
-			if (stack.is(TagKey.create(Registries.ITEM, new ResourceLocation("c", color.getName() + "_dyes"))))
+			if (stack.is(TagKey.create(Registry.ITEM.key(), new ResourceLocation("c", color.getName() + "_dyes"))))
 				return color;
 		}
 

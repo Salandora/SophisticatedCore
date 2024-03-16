@@ -22,5 +22,5 @@ public interface SophisticatedBlock {
 
     default boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) { return false; }
 
-    default boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) { return !state.shouldSpawnParticlesOnBreak(); }
+    default boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) { return false; } //!state.shouldSpawnParticlesOnBreak(); }
 }

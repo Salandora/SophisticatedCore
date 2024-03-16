@@ -1,11 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
@@ -24,6 +23,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.p3pp3rf1y.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.p3pp3rf1y.porting_lib.transfer.items.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
@@ -208,9 +209,13 @@ public class InventoryHelper {
 		return ret;
 	}
 
+	public static <T> Iterable<? extends StorageView<T>> getNonEmpty(Storage<T> storage) {
+		return () -> (Iterator<StorageView<T>>) Iterators.filter(storage.iterator(), view -> !view.isResourceBlank() && view.getAmount() > 0);
+	}
+
 	public static int getCountMissingInHandler(Storage<ItemVariant> itemHandler, ItemStack filter, int expectedCount) {
 		int missingCount = expectedCount;
-		for (var view : itemHandler.nonEmptyViews()) {
+		for(var view: getNonEmpty(itemHandler)) {
 			ItemStack stack = view.getResource().toStack((int) view.getAmount());
 			if (ItemStackHelper.canItemStacksStack(stack, filter)) {
 				missingCount -= Math.min(stack.getCount(), missingCount);
@@ -228,7 +233,7 @@ public class InventoryHelper {
 		}
 
 		try (Transaction outer = Transaction.openNested(ctx)) {
-			for (StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
+			for (StorageView<ItemVariant> view : getNonEmpty(handlerA)) {
 				ItemVariant resource = view.getResource();
 				long maxExtracted;
 

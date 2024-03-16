@@ -53,7 +53,7 @@ public class StorageSoundHandler {
 	}
 
 	public static void playStorageSound(SoundEvent soundEvent, UUID storageUuid, BlockPos pos) {
-		playStorageSound(storageUuid, SimpleSoundInstance.forRecord(soundEvent, pos.getCenter()));
+		playStorageSound(storageUuid, SimpleSoundInstance.forRecord(soundEvent, pos.getX(), pos.getY(), pos.getZ()));
 	}
 
 	public static void playStorageSound(SoundEvent soundEvent, UUID storageUuid, int entityId) {

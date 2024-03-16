@@ -5,7 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -49,7 +49,7 @@ public class RecipeHelper {
 	private static final LoadingCache<Item, Set<CompactingShape>> ITEM_COMPACTING_SHAPES = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build(new CacheLoader<>() {
 		@Override
 		public Set<CompactingShape> load(Item item) {
-			SophisticatedCore.LOGGER.debug("Compacting shapes not found in cache for \"{}\" - querying recipes to get these", BuiltInRegistries.ITEM.getKey(item));
+			SophisticatedCore.LOGGER.debug("Compacting shapes not found in cache for \"{}\" - querying recipes to get these", Registry.ITEM.getKey(item));
 			return getCompactingShapes(item);
 		}
 	});
@@ -178,7 +178,7 @@ public class RecipeHelper {
 
 	private static List<ItemStack> getUncompactResultItems(Level w, Item itemToUncompact) {
 		CraftingContainer craftingInventory = getFilledCraftingInventory(itemToUncompact, 1, 1);
-		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, w).stream().map(r -> r.assemble(craftingInventory, w.registryAccess())).toList();
+		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, w).stream().map(r -> r.assemble(craftingInventory)).toList();
 	}
 
 	public static CompactingResult getCompactingResult(Item item, CompactingShape shape) {
@@ -213,7 +213,7 @@ public class RecipeHelper {
 		}
 
 		for (CraftingRecipe recipe : compactingRecipes) {
-			ItemStack result = recipe.assemble(craftingInventory, w.registryAccess());
+			ItemStack result = recipe.assemble(craftingInventory);
 			if (uncompactMatchesItem(result, w, item, width * height)) {
 				return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, result);
 			}
@@ -228,7 +228,7 @@ public class RecipeHelper {
 			return CompactingResult.EMPTY;
 		}
 
-		return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory, level.registryAccess()));
+		return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory));
 	}
 
 	private static CompactingResult cacheAndGetCompactingResult(CompactedItem compactedItem, CraftingRecipe recipe, CraftingContainer craftingInventory, ItemStack result) {

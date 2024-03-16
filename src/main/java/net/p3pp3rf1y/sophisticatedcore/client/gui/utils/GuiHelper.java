@@ -10,8 +10,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Either;
-import com.mojang.math.Axis;
-import org.joml.Matrix4f;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import org.lwjgl.system.MemoryUtil;
 
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -22,16 +23,16 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -40,11 +41,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -101,10 +102,19 @@ public class GuiHelper {
 			@Nullable String countText) {
 		RenderSystem.enableDepthTest();
 		ItemRenderer itemRenderer = minecraft.getItemRenderer();
-		itemRenderer.renderAndDecorateItem(matrixStack, stack, xPosition, yPosition);
+		float originalZLevel = itemRenderer.blitOffset;
+		itemRenderer.blitOffset += getZOffset(matrixStack);
+		itemRenderer.renderAndDecorateItem(stack, xPosition, yPosition);
 		if (renderOverlay) {
-			itemRenderer.renderGuiItemDecorations(matrixStack, minecraft.font, stack, xPosition, yPosition, countText);
+			itemRenderer.renderGuiItemDecorations(minecraft.font, stack, xPosition, yPosition, countText);
 		}
+		itemRenderer.blitOffset = originalZLevel;
+	}
+
+	private static int getZOffset(PoseStack matrixStack) {
+		FloatBuffer buf = MemoryUtil.memAllocFloat(16);
+		matrixStack.last().pose().store(buf);
+		return (int) buf.get(11);
 	}
 
 	public static void blit(PoseStack matrixStack, int x, int y, TextureBlitData texData) {
@@ -182,7 +192,7 @@ public class GuiHelper {
 		for (int i = 0; i < textLines.size(); ++i) {
 			FormattedText line = textLines.get(i);
 			if (line != null) {
-				font.drawInBatch(Language.getInstance().getVisualOrder(line), leftX, topY, color, true, matrix4f, renderTypeBuffer, Font.DisplayMode.NORMAL, 0, 15728880);
+				font.drawInBatch(Language.getInstance().getVisualOrder(line), leftX, topY, color, true, matrix4f, renderTypeBuffer, false, 0, 15728880);
 			}
 
 			if (i == 0) {
@@ -235,14 +245,14 @@ public class GuiHelper {
 
 	public static void renderTiledFluidTextureAtlas(PoseStack matrixStack, TextureAtlasSprite sprite, int color, int x, int y, int height) {
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+		RenderSystem.setShaderTexture(0, sprite.atlas().location());
 		BufferBuilder builder = Tesselator.getInstance().getBuilder();
 		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
 		float u1 = sprite.getU0();
 		float v1 = sprite.getV0();
-		int spriteHeight = sprite.contents().height();
-		int spriteWidth = sprite.contents().width();
+		int spriteHeight = sprite.getHeight();
+		int spriteWidth = sprite.getWidth();
 		int startY = y;
 		float red = (color >> 16 & 255) / 255.0F;
 		float green = (color >> 8 & 255) / 255.0F;
@@ -298,7 +308,7 @@ public class GuiHelper {
 				CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
 				CrashReportCategory crashreportcategory = crashreport.addCategory("Item being rendered");
 				crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
-				crashreportcategory.setDetail("Registry Name", () -> String.valueOf(BuiltInRegistries.ITEM.getKey(stack.getItem())));
+				crashreportcategory.setDetail("Registry Name", () -> String.valueOf(Registry.ITEM.getKey(stack.getItem())));
 				crashreportcategory.setDetail("Item Damage", () -> String.valueOf(stack.getDamageValue()));
 				crashreportcategory.setDetail("Item NBT", () -> String.valueOf(stack.getTag()));
 				crashreportcategory.setDetail("Item Foil", () -> String.valueOf(stack.hasFoil()));
@@ -319,7 +329,7 @@ public class GuiHelper {
 		poseStack.translate(x + 8, y + 8, 100.0F);
 
 		if (rotation != 0) {
-			poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+			poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation));
 		}
 
 		poseStack.scale(1.0F, -1.0F, 1.0F);
@@ -332,7 +342,7 @@ public class GuiHelper {
 			Lighting.setupForFlatItems();
 		}
 
-		itemRenderer.render(stack, ItemDisplayContext.GUI, false, posestack1, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, bakedModel);
+		itemRenderer.render(stack, ItemTransforms.TransformType.GUI, false, posestack1, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, bakedModel);
 		bufferSource.endBatch();
 		RenderSystem.enableDepthTest();
 		if (flag) {
@@ -350,7 +360,7 @@ public class GuiHelper {
 
 	public static void renderTooltip(Screen screen, PoseStack poseStack, List<Component> components, int x, int y) {
 		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		screen.renderTooltipInternal(poseStack, list, x, y, DefaultTooltipPositioner.INSTANCE);
+		screen.renderTooltipInternal(poseStack, list, x, y);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped

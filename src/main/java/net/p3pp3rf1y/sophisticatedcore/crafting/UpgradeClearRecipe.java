@@ -1,10 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -12,8 +10,8 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModRecipes;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 
 public class UpgradeClearRecipe extends CustomRecipe {
-	public UpgradeClearRecipe(ResourceLocation registryName, CraftingBookCategory category) {
-		super(registryName, category);
+	public UpgradeClearRecipe(ResourceLocation registryName) {
+		super(registryName);
 	}
 
 	@Override
@@ -34,7 +32,7 @@ public class UpgradeClearRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryManager) {
+	public ItemStack assemble(CraftingContainer inventory) {
 		ItemStack upgrade = ItemStack.EMPTY;
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			ItemStack stack = inventory.getItem(i);

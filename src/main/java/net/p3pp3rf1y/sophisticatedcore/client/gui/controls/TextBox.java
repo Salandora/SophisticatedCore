@@ -28,16 +28,16 @@ public class TextBox extends WidgetBase {
 	public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 		poseStack.pushPose();
 		poseStack.translate(0, 0, 100);
-		editBox.renderWidget(poseStack, mouseX, mouseY, partialTicks);
+		editBox.render(poseStack, mouseX, mouseY, partialTicks);
 		poseStack.popPose();
 	}
 
 	@Override
-	public void setFocused(boolean focused) {
+	public void setFocus(boolean focused) {
 		if (editBox.isFocused() != focused) {
-			editBox.setFocused(focused);
+			editBox.setFocus(focused);
 		}
-		super.setFocused(focused);
+		super.setFocus(focused);
 	}
 
 	@Override

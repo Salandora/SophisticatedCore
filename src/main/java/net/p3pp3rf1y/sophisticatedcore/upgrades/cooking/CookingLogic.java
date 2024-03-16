@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.client.Minecraft;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.p3pp3rf1y.porting_lib.transfer.items.ItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
@@ -170,7 +170,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 
 		ItemStack input = getCookInput();
 		Minecraft mc = Minecraft.getInstance();
-		ItemStack recipeOutput = recipe.getResultItem(mc.level.registryAccess());
+		ItemStack recipeOutput = recipe.getResultItem();
 		ItemStack output = getCookOutput();
 		if (output.isEmpty()) {
 			setCookOutput(recipeOutput.copy());
@@ -247,7 +247,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			return false;
 		}
 
-		ItemStack recipeOutput = cookingRecipe.getResultItem(mc.level.registryAccess());
+		ItemStack recipeOutput = cookingRecipe.getResultItem();
 		if (recipeOutput.isEmpty()) {
 			return false;
 		} else {

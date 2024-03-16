@@ -105,14 +105,14 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			ServerPlayer serverplayerentity = (ServerPlayer) player;
 			ItemStack itemstack = ItemStack.EMPTY;
 			if (lastRecipe != null && lastRecipe.matches(inventory, world)) {
-				itemstack = lastRecipe.assemble(inventory, world.registryAccess());
+				itemstack = lastRecipe.assemble(inventory);
 			} else {
 				Optional<CraftingRecipe> optional = RecipeHelper.safeGetRecipeFor(RecipeType.CRAFTING, inventory, world);
 				if (optional.isPresent()) {
 					CraftingRecipe craftingRecipe = optional.get();
 					if (inventoryResult.setRecipeUsed(world, serverplayerentity, craftingRecipe)) {
 						lastRecipe = craftingRecipe;
-						itemstack = lastRecipe.assemble(inventory, world.registryAccess());
+						itemstack = lastRecipe.assemble(inventory);
 					} else {
 						lastRecipe = null;
 					}

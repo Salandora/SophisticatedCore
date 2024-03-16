@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.crafting;
 import com.google.gson.JsonObject;
 
 import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
@@ -15,7 +15,7 @@ public class ItemEnabledCondition implements ConditionJsonProvider {
 	private final ResourceLocation itemRegistryName;
 
 	public ItemEnabledCondition(Item item) {
-		this.itemRegistryName = BuiltInRegistries.ITEM.getKey(item);
+		this.itemRegistryName = Registry.ITEM.getKey(item);
 	}
 
 	@Override

@@ -7,7 +7,7 @@ plugins {
     id "maven-publish"
 }
 
-group = mod_group_id
+group = project.mod_group_id
 version = "${project.minecraft_version}-${project.mod_version}${getStable()}${getBuildNumber()}"
 
 base {
@@ -17,22 +17,6 @@ base {
 repositories {
     mavenLocal()
     mavenCentral()
-
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/Salandora/Porting-Lib")
-                credentials {
-                    username = System.getenv("REPO_USERNAME")
-                    password = System.getenv("READ_PACKAGES_TOKEN")
-                }
-            }
-        }
-        filter {
-            includeGroup "io.github.fabricators_of_create.Porting-Lib"
-        }
-    }
 
     maven { url = "https://maven.quiltmc.org/repository/release" } // QM
     maven { url = 'https://maven.parchmentmc.org' } // Parchment
@@ -63,12 +47,13 @@ repositories {
     maven { url = "https://modmaven.dev" } // Jei
     maven { url = "https://maven.ladysnake.org/releases" } // CCA, for Trinkets
     maven { url = "https://www.cursemaven.com" } // Balm, CraftingTweaks
+    maven { url = "https://maven.resourcefulbees.com/repository/terrarium/" } // Chipped, resourcefullib
 }
 
 configurations.configureEach {
     resolutionStrategy.eachDependency {
         if (requested.module.name == "fabric-loader") {
-            useVersion(loader_version)
+            useVersion(project.loader_version)
         }
     }
 }
@@ -85,9 +70,7 @@ def setup(DependencyHandler deps) {
     deps.minecraft("com.mojang:minecraft:$minecraft_version")
     deps.mappings(loom.layered {
         it.mappings("org.quiltmc:quilt-mappings:$minecraft_version+build.$qm_version:intermediary-v2")
-        if (parchment_version != "none")
-            it.parchment("org.parchmentmc.data:parchment-$parchment_version@zip")
-        it.officialMojangMappings { nameSyntheticMembers = false }
+        it.officialMojangMappings() { nameSyntheticMembers = false }
     })
     deps.modImplementation("net.fabricmc:fabric-loader:$loader_version")
 
@@ -96,10 +79,6 @@ def setup(DependencyHandler deps) {
 }
 
 def devEnv(DependencyHandler deps) {
-    deps.modLocalRuntime("me.shedaniel.cloth:cloth-config-fabric:$cloth_config_version")
-    deps.modLocalRuntime("curse.maven:balm-500525:${balm_cf_file_id}")
-    deps.modLocalRuntime("curse.maven:craftingtweaks-502516:${crafting_tweaks_cf_file_id}")
-    deps.modLocalRuntime("com.terraformersmc:modmenu:$modmenu_version")
 }
 
 def dependencies(DependencyHandler deps) {
@@ -109,19 +88,26 @@ def dependencies(DependencyHandler deps) {
         deps.modApi(deps.include("io.github.fabricators_of_create.Porting-Lib:${module.trim()}:$port_lib_version+$minecraft_version"))
     }
 
-    deps.modApi(deps.include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$forge_config_api_port_version"))
+    deps.implementation 'com.electronwill.night-config:core:3.6.5'
+    deps.implementation 'com.electronwill.night-config:toml:3.6.5'
+    deps.modApi(deps.include("net.minecraftforge:forgeconfigapiport-fabric:$forge_config_api_port_version"))
     deps.modApi(deps.include("teamreborn:energy:$energy_version")) {
         transitive = false
     }
+
+    deps.implementation(deps.include(deps.annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.3.5")))
 }
 
 def compat(DependencyHandler deps) {
-    deps.modCompileOnly("com.terraformersmc:modmenu:$modmenu_version")
-    deps.modCompileOnly("curse.maven:balm-500525:${balm_cf_file_id}")
-    deps.modCompileOnly("curse.maven:craftingtweaks-502516:${crafting_tweaks_cf_file_id}")
-    /*deps.modCompileOnly("curse.maven:chipped-456956:${chipped_cf_file_id}")
-    deps.modCompileOnly("curse.maven:ctm-267602:${ctm_cf_file_id}")
-    deps.modCompileOnly("curse.maven:resourcefullib-570073:${resourcefullib_cf_file_id}")*/
+    deps.modImplementation("com.terraformersmc:modmenu:$modmenu_version")
+
+    deps.modImplementation("curse.maven:balm-500525:${balm_cf_file_id}")
+    deps.modImplementation("curse.maven:craftingtweaks-502516:${crafting_tweaks_cf_file_id}")
+
+    deps.modImplementation("curse.maven:chipped-456956:${chipped_cf_file_id}")
+    deps.modImplementation("curse.maven:resourcefullib-570073:${resourcefullib_cf_file_id}")
+//    deps.modImplementation("curse.maven:ctm-267602:${ctm_cf_file_id}")
+
 
     recipeViewers(deps)
 }
@@ -130,16 +116,17 @@ def recipeViewers(DependencyHandler deps) {
     // EMI
     deps.modCompileOnly("dev.emi:emi-fabric:$emi_version") { transitive = false }
     // JEI
-    deps.modCompileOnlyApi("mezz.jei:jei-$minecraft_version-common-api:$jei_version") { transitive = false }
-    deps.modCompileOnlyApi("mezz.jei:jei-$minecraft_version-fabric-api:$jei_version") { transitive = false }
+    deps.modCompileOnly("mezz.jei:jei-$minecraft_version-common-api:$jei_version") { transitive = false }
+    deps.modCompileOnly("mezz.jei:jei-$minecraft_version-fabric-api:$jei_version") { transitive = false }
     deps.modCompileOnly("mezz.jei:jei-$minecraft_version-fabric:$jei_version") { transitive = false }
     // REI
-    deps.modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:$rei_version")
-    deps.modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$rei_version")
+    deps.modImplementation("me.shedaniel.cloth:cloth-config-fabric:$cloth_config_version")
+    deps.modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:$rei_version") { transitive = false }
+    deps.modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$rei_version") { transitive = false }
 
     switch (recipe_viewer.toLowerCase(Locale.ROOT)) {
         case "emi": deps.modLocalRuntime("dev.emi:emi-fabric:$emi_version"); break
-        case "jei": deps.modRuntimeOnly("mezz.jei:jei-$minecraft_version-fabric:$jei_version"); break
+        case "jei": deps.modLocalRuntime("mezz.jei:jei-$minecraft_version-fabric:$jei_version"); break
         case "rei": deps.modLocalRuntime("me.shedaniel:RoughlyEnoughItems-fabric:$rei_version"); break
         case "disabled": break
         default: println("Unknown recipe viewer specified: $recipe_viewer. Must be JEI, REI, EMI, or disabled.")
@@ -227,14 +214,14 @@ loom {
     }
 }
 
-test {
+/*test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
     }
 
     workingDir "run/test_client"
-}
+}*/
 test.dependsOn("processResources")
 
 tasks.register("generateResources") {

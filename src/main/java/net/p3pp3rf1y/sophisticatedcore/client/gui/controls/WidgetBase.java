@@ -6,14 +6,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 
-public abstract class WidgetBase extends GuiComponent implements Renderable, GuiEventListener, NarratableEntry {
+public abstract class WidgetBase extends GuiComponent implements Widget, GuiEventListener, NarratableEntry {
 	protected final int x;
 
 	protected final int y;
@@ -32,16 +32,6 @@ public abstract class WidgetBase extends GuiComponent implements Renderable, Gui
 		height = dimension.height();
 		minecraft = Minecraft.getInstance();
 		font = minecraft.font;
-	}
-
-	@Override
-	public void setFocused(boolean focused) {
-		isFocused = focused;
-	}
-
-	@Override
-	public boolean isFocused() {
-		return isFocused;
 	}
 
 	public void setVisible(boolean visible) {
@@ -100,6 +90,10 @@ public abstract class WidgetBase extends GuiComponent implements Renderable, Gui
 	}
 
 	public void renderTooltip(Screen screen, PoseStack poseStack, int mouseX, int mouseY) {
+		//noop
+	}
+
+	public void setFocus(boolean focused) {
 		//noop
 	}
 }

@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 
@@ -41,12 +42,18 @@ public class InventoryScrollPanel extends ScrollPanel {
 
 	@Override
 	protected void drawPanel(PoseStack poseStack, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
-		poseStack.pushPose();
-		poseStack.translate(screen.getLeftX(), screen.getTopY(), 0.0D);
+		PoseStack posestack = RenderSystem.getModelViewStack();
+		posestack.pushPose();
+		posestack.translate(screen.getLeftX(), screen.getTopY(), 0.0D);
+		RenderSystem.applyModelViewMatrix();
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 		screen.renderInventorySlots(poseStack, mouseX, mouseY, isMouseOver(mouseX, mouseY));
 
-		poseStack.popPose();
+		posestack.popPose();
+		RenderSystem.applyModelViewMatrix();
+		RenderSystem.enableDepthTest();
 	}
 
 	public Optional<Slot> findSlot(double mouseX, double mouseY) {

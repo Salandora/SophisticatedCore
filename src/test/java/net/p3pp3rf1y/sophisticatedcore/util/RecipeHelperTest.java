@@ -14,7 +14,6 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -44,25 +43,25 @@ public class RecipeHelperTest {
 	private static List<CraftingRecipe> getCraftingRecipes() {
 		List<CraftingRecipe> craftingRecipes = new ArrayList<>();
 		//stones
-		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("granite_to_diorite"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GRANITE), new ItemStack(Items.DIORITE)));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("granite_from_diorite"), "", CraftingBookCategory.MISC, new ItemStack(Items.GRANITE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.DIORITE))));
-		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("stone_to_granite"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.STONE), new ItemStack(Items.GRANITE)));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("stone_from_granite"), "", CraftingBookCategory.MISC, new ItemStack(Items.STONE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GRANITE))));
+		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("granite_to_diorite"), "", 3, 3, ingredients(Items.GRANITE), new ItemStack(Items.DIORITE)));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("granite_from_diorite"), "", new ItemStack(Items.GRANITE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.DIORITE))));
+		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("stone_to_granite"), "", 3, 3, ingredients(Items.STONE), new ItemStack(Items.GRANITE)));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("stone_from_granite"), "", new ItemStack(Items.STONE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GRANITE))));
 
 		//gold
-		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_ingot_to_gold_block"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GOLD_INGOT), new ItemStack(Items.GOLD_BLOCK)));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_ingot_from_gold_block"), "", CraftingBookCategory.MISC, new ItemStack(Items.GOLD_INGOT, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_BLOCK))));
-		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_nugget_to_gold_ingot"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GOLD_NUGGET), new ItemStack(Items.GOLD_INGOT)));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_nugget_from_gold_ingot"), "", CraftingBookCategory.MISC, new ItemStack(Items.GOLD_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_INGOT))));
+		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_ingot_to_gold_block"), "", 3, 3, ingredients(Items.GOLD_INGOT), new ItemStack(Items.GOLD_BLOCK)));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_ingot_from_gold_block"), "", new ItemStack(Items.GOLD_INGOT, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_BLOCK))));
+		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_nugget_to_gold_ingot"), "", 3, 3, ingredients(Items.GOLD_NUGGET), new ItemStack(Items.GOLD_INGOT)));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_nugget_from_gold_ingot"), "", new ItemStack(Items.GOLD_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_INGOT))));
 
 		//confusion recipes
-		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_nugget_to_diorite"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GOLD_NUGGET), new ItemStack(Items.DIORITE)));
-		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("granite_to_gold_block"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GRANITE), new ItemStack(Items.GOLD_BLOCK)));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_nugget_from_granite"), "", CraftingBookCategory.MISC, new ItemStack(Items.GOLD_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GRANITE))));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("granite_from_diamond"), "", CraftingBookCategory.MISC, new ItemStack(Items.GRANITE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.DIAMOND))));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("iron_nugget_from_granite"), "", CraftingBookCategory.MISC, new ItemStack(Items.IRON_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GRANITE))));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("stone_from_gold_ingot"), "", CraftingBookCategory.MISC, new ItemStack(Items.STONE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_INGOT))));
-		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("torches_from_gold_block"), "", CraftingBookCategory.MISC, new ItemStack(Items.TORCH, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_BLOCK))));
+		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_nugget_to_diorite"), "", 3, 3, ingredients(Items.GOLD_NUGGET), new ItemStack(Items.DIORITE)));
+		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("granite_to_gold_block"), "", 3, 3, ingredients(Items.GRANITE), new ItemStack(Items.GOLD_BLOCK)));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_nugget_from_granite"), "", new ItemStack(Items.GOLD_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GRANITE))));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("granite_from_diamond"), "", new ItemStack(Items.GRANITE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.DIAMOND))));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("iron_nugget_from_granite"), "", new ItemStack(Items.IRON_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GRANITE))));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("stone_from_gold_ingot"), "", new ItemStack(Items.STONE, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_INGOT))));
+		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("torches_from_gold_block"), "", new ItemStack(Items.TORCH, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_BLOCK))));
 
 		return craftingRecipes;
 	}

@@ -17,6 +17,11 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 	private S targetedScreen;
 
 	@Override
+	public <I> List<Target<I>> getTargets(S gui, I ingredient, boolean doStart) {
+		return null;
+	}
+
+	@Override
 	public <I> List<Target<I>> getTargetsTyped(S gui, ITypedIngredient<I> ingredient, boolean doStart) {
 		List<Target<I>> targets = new ArrayList<>();
 		if (!(ingredient.getIngredient() instanceof ItemStack ghostStack)) {

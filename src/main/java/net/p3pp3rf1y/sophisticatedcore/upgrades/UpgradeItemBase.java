@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -12,8 +13,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public abstract class UpgradeItemBase<T extends IUpgradeWrapper> extends ItemBase implements IUpgradeItem<T> {
-	protected UpgradeItemBase() {
-		super(new Properties());
+	protected UpgradeItemBase(CreativeModeTab itemGroup) {
+		super(new Properties(), itemGroup);
 	}
 
 	@Override

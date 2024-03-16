@@ -16,6 +16,10 @@ import java.util.List;
 
 public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> implements IGhostIngredientHandler<S> {
 
+	@Override
+	public <I> List<Target<I>> getTargets(S gui, I ingredient, boolean doStart) {
+		return null;
+	}
 
 	@Override
 	public <I> List<Target<I>> getTargetsTyped(S gui, ITypedIngredient<I> ingredient, boolean doStart) {

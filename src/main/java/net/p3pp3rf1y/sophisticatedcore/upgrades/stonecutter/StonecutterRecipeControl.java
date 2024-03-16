@@ -80,7 +80,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 			int k = listInnerLeftX + j % 4 * 16;
 			int l = j / 4;
 			int i1 = top + l * 18 + 2;
-			GuiHelper.renderItemInGUI(matrixStack, minecraft, list.get(i).getResultItem(minecraft.level.registryAccess()), k, i1);
+			GuiHelper.renderItemInGUI(matrixStack, minecraft, list.get(i).getResultItem(), k, i1);
 		}
 
 	}
@@ -133,7 +133,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 				int recipeLeftX = x + inviewRecipeIndex % 4 * 16;
 				int k1 = listTopY + inviewRecipeIndex / 4 * 18 + 2;
 				if (mouseX >= recipeLeftX && mouseX < recipeLeftX + 16 && mouseY >= k1 && mouseY < k1 + 18) {
-					renderTooltip(matrixStack, list.get(recipeIndex).getResultItem(minecraft.level.registryAccess()), mouseX, mouseY);
+					renderTooltip(matrixStack, list.get(recipeIndex).getResultItem(), mouseX, mouseY);
 				}
 			}
 		}

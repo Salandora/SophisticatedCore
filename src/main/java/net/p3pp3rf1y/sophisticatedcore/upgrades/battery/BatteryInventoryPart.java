@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.battery;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.Matrix4f;
+import com.mojang.math.Matrix4f;
 
 import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;

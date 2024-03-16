@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.api;
 
-import org.joml.Vector3f;
+import com.mojang.math.Vector3f;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;

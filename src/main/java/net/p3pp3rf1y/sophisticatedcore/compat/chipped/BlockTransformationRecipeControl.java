@@ -1,9 +1,8 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -11,7 +10,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
@@ -113,7 +111,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		//noop - everything is rendered in background or after screen render is done
 	}
 
@@ -141,8 +139,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 	}
 
 	private void renderTooltip(PoseStack poseStack, ItemStack itemStack, int mouseX, int mouseY) {
-		Font font = IClientItemExtensions.of(itemStack).getFont(itemStack, IClientItemExtensions.FontContext.TOOLTIP);
-		screen.renderComponentTooltip(poseStack, screen.getTooltipFromItem(itemStack), mouseX, mouseY, (font == null ? this.font : font));
+		screen.renderComponentTooltip(poseStack, screen.getTooltipFromItem(itemStack), mouseX, mouseY);
 	}
 
 	private void onInventoryUpdate() {
@@ -222,4 +219,3 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 		//TODO narration - probably just copy from stonecutter screen
 	}
 }
-*/

@@ -1,4 +1,3 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -24,4 +23,3 @@ public class BlockTransformationUpgradeTab extends UpgradeSettingsTab<BlockTrans
 		recipeControl.moveSlotsToView();
 	}
 }
-*/

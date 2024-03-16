@@ -124,7 +124,7 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
 				for (Slot s : crafting) {
 					if (s != null && s.mayPickup(sender) && !s.getItem().isEmpty()) {
 						rubble.add(s.getItem().copy());
-						s.setByPlayer(ItemStack.EMPTY);
+						s.set(ItemStack.EMPTY);
 					}
 				}
                 try {
@@ -143,7 +143,7 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
                         } else {
                             Slot s = crafting.get(i);
                             if (s != null && s.mayPlace(stack) && stack.getCount() <= s.getMaxStackSize()) {
-                                s.setByPlayer(stack);
+                                s.set(stack);
                             } else {
                                 sender.getInventory().placeItemBackInInventory(stack);
                             }
@@ -237,7 +237,7 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
                 int wanted = amount - grabbed;
                 if (st.getCount() <= wanted) {
                     grabbed += st.getCount();
-                    s.setByPlayer(ItemStack.EMPTY);
+                    s.set(ItemStack.EMPTY);
                 } else {
                     grabbed = amount;
                     st.setCount(st.getCount() - wanted);

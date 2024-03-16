@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 
@@ -9,8 +10,8 @@ public class PumpUpgradeItem extends UpgradeItemBase<PumpUpgradeWrapper> {
 	private final boolean interactWithWorldDefault;
 	private final PumpUpgradeConfig pumpUpgradeConfig;
 
-	public PumpUpgradeItem(boolean interactWithHandDefault, boolean interactWithWorldDefault, PumpUpgradeConfig pumpUpgradeConfig) {
-		super();
+	public PumpUpgradeItem(boolean interactWithHandDefault, boolean interactWithWorldDefault, CreativeModeTab creativeModeTab, PumpUpgradeConfig pumpUpgradeConfig) {
+		super(creativeModeTab);
 		this.interactWithHandDefault = interactWithHandDefault;
 		this.interactWithWorldDefault = interactWithWorldDefault;
 		this.pumpUpgradeConfig = pumpUpgradeConfig;

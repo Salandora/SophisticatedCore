@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 
@@ -8,8 +9,8 @@ public class SmeltingUpgradeItem extends UpgradeItemBase<CookingUpgradeWrapper.S
 
 	private final CookingUpgradeConfig smeltingUpgradeConfig;
 
-	public SmeltingUpgradeItem(CookingUpgradeConfig smeltingUpgradeConfig) {
-		super();
+	public SmeltingUpgradeItem(CreativeModeTab creativeModeTab, CookingUpgradeConfig smeltingUpgradeConfig) {
+		super(creativeModeTab);
 		this.smeltingUpgradeConfig = smeltingUpgradeConfig;
 	}
 

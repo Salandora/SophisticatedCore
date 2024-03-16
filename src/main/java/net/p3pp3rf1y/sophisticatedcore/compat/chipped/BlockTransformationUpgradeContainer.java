@@ -1,4 +1,3 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import net.minecraft.nbt.CompoundTag;
@@ -51,4 +50,3 @@ public class BlockTransformationUpgradeContainer extends UpgradeContainerBase<Bl
 		return recipeContainer.isNotResultSlot(slot);
 	}
 }
-*/

@@ -20,7 +20,7 @@ public class EmiCompat implements EmiPlugin, ICompat {
         ClientRecipeHelper.getAndTransformAvailableRecipes(UpgradeNextTierRecipe.REGISTERED_RECIPES, ShapedRecipe.class, ClientRecipeHelper::copyShapedRecipe).forEach(r ->
             registry.addRecipe(new EmiCraftingRecipe(
                 r.getIngredients().stream().map(EmiIngredient::of).toList(),
-                EmiStack.of(r.getResultItem(null)),
+                EmiStack.of(r.getResultItem()),
                 r.getId()
         )));
     }

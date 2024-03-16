@@ -8,7 +8,7 @@ import net.blay09.mods.craftingtweaks.api.CraftingGridBuilder;
 import net.blay09.mods.craftingtweaks.api.CraftingGridProvider;
 import net.blay09.mods.craftingtweaks.api.GridTransferHandler;
 
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -198,7 +198,7 @@ public class CraftingUpgradeTweakProvider implements CraftingGridProvider {
 					int slotIndex = menu.getSlot(i).getContainerSlot();
 					ItemStack itemStack = craftMatrix.getItem(slotIndex);
 					if (!itemStack.isEmpty() && itemStack.getMaxStackSize() > 1) {
-						ResourceLocation registryName = BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+						ResourceLocation registryName = Registry.ITEM.getKey(itemStack.getItem());
 
 						String key = Objects.toString(registryName);
 						if (itemStack.getTag() != null) {

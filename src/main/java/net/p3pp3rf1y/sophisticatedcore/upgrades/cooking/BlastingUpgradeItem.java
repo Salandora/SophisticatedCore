@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import net.minecraft.world.item.CreativeModeTab;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 
@@ -7,8 +8,8 @@ public class BlastingUpgradeItem extends UpgradeItemBase<CookingUpgradeWrapper.B
 	public static final UpgradeType<CookingUpgradeWrapper.BlastingUpgradeWrapper> TYPE = new UpgradeType<>(CookingUpgradeWrapper.BlastingUpgradeWrapper::new);
 	private final CookingUpgradeConfig blastingUpgradeConfig;
 
-	public BlastingUpgradeItem(CookingUpgradeConfig blastingUpgradeConfig) {
-		super();
+	public BlastingUpgradeItem(CreativeModeTab creativeModeTab, CookingUpgradeConfig blastingUpgradeConfig) {
+		super(creativeModeTab);
 		this.blastingUpgradeConfig = blastingUpgradeConfig;
 	}
 
