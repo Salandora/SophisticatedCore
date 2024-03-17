@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -63,12 +63,9 @@ public abstract class LivingEntityMixin extends Entity {
         LivingEntityEvents.TICK.invoker().onLivingEntityTick(MixinHelper.cast(this));
     }
 
-	@Redirect(method = "checkFallDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
-	public int sophisticatedcore$addLandingEffects(ServerLevel level, ParticleOptions type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed, double y, boolean onGround, BlockState state, BlockPos pos) {
-		if (!state.addLandingEffects(level, pos, state, MixinHelper.cast(this), particleCount)) {
-			level.sendParticles(type, posX, posY, posZ, particleCount, xOffset, yOffset, zOffset, speed);
-		}
-		return particleCount;
+	@WrapWithCondition(method = "checkFallDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
+	public boolean sophisticatedcore$addLandingEffects(ServerLevel level, ParticleOptions type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed, double y, boolean onGround, BlockState state, BlockPos pos) {
+		return !state.addLandingEffects(level, pos, state, MixinHelper.cast(this), particleCount);
 	}
 
 	@Inject(method = "getEquipmentSlotForItem", at = @At(value = "HEAD"), cancellable = true)
