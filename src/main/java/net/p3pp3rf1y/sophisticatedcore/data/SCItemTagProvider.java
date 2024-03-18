@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.data;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.api.Tags;
 
@@ -24,5 +25,7 @@ public class SCItemTagProvider extends FabricTagProvider.ItemTagProvider {
 
 		getOrCreateTagBuilder(Tags.Items.WOODEN_CHESTS)
 				.add(Items.CHEST, Items.TRAPPED_CHEST);
+
+		copy(ConventionalBlockTags.CHESTS, Tags.Items.CHESTS);
 	}
 }

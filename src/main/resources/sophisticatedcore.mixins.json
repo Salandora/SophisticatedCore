@@ -5,8 +5,20 @@
     "package": "net.p3pp3rf1y.sophisticatedcore.mixin",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
-        "common.BlockMixin", "common.BlockStateMixin", "common.EntityMixin", "common.ItemEntityMixin", "common.ItemMixin", "common.ItemStackMixin",
-        "common.LivingEntityMixin", "common.MobMixin", "common.PersistentEntitySectionManagerMixin", "common.ServerLevelMixin", "common.ShapedRecipeMixin",
+        "common.BlockMixin",
+        "common.BlockStateMixin",
+        "common.EntityMixin",
+        "common.ItemEntityMixin",
+        "common.ItemMixin",
+        "common.ItemStackMixin",
+        "common.LivingEntityMixin",
+        "common.LootPoolMixin",
+        "common.LootPoolMixin$LootPoolBuilderMixin",
+        "common.LootPoolMixin$LootPoolSerializerMixin",
+        "common.MobMixin",
+        "common.PersistentEntitySectionManagerMixin",
+        "common.ServerLevelMixin",
+        "common.ShapedRecipeMixin",
         "common.SlotMixin"
     ],
     "client": [
