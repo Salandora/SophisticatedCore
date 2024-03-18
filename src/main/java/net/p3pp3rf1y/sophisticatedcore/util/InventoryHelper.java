@@ -7,7 +7,6 @@ import io.github.fabricators_of_create.porting_lib.transfer.callbacks.Transactio
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -37,7 +36,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -63,45 +61,8 @@ public class InventoryHelper {
 		return Optional.empty();
 	}
 
-	public static <T> Iterator<StorageView<T>> filterViews(Iterator<StorageView<T>> iterator, Predicate<ResourceAmount<T>> filter) {
-		return new Iterator<>() {
-			StorageView<T> next;
-
-			{
-				findNext();
-			}
-
-			private void findNext() {
-				while (iterator.hasNext()) {
-					next = iterator.next();
-
-					if (filter.test(new ResourceAmount<>(next.getResource(), next.getAmount()))) {
-						return;
-					}
-				}
-
-				next = null;
-			}
-
-			@Override
-			public boolean hasNext() {
-				return next != null;
-			}
-
-			@Override
-			public StorageView<T> next() {
-				if (!hasNext()) {
-					throw new NoSuchElementException();
-				}
-
-				StorageView<T> ret = next;
-				findNext();
-				return ret;
-			}
-		};
-	}
 	public static boolean hasItem(SlottedStorage<ItemVariant> inventory, Predicate<ItemStack> matches) {
-		return filterViews(inventory.nonEmptyIterator(), resource -> matches.test(resource.resource().toStack((int) resource.amount()))).hasNext();
+		return Iterators.filter(inventory.nonEmptyIterator(), view -> matches.test(view.getResource().toStack((int) view.getAmount()))).hasNext();
 	}
 
 	public static Set<Integer> getItemSlots(SlottedStorage<ItemVariant> inventory, Predicate<ItemStack> matches) {
@@ -215,7 +176,7 @@ public class InventoryHelper {
 
 	public static int getCountMissingInHandler(Storage<ItemVariant> itemHandler, ItemStack filter, int expectedCount) {
 		int missingCount = expectedCount;
-		for(var view: getNonEmpty(itemHandler)) {
+		for(var view : getNonEmpty(itemHandler)) {
 			ItemStack stack = view.getResource().toStack((int) view.getAmount());
 			if (ItemStackHelper.canItemStacksStack(stack, filter)) {
 				missingCount -= Math.min(stack.getCount(), missingCount);

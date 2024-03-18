@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.util.FilterItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
 import java.util.Set;
@@ -141,7 +140,9 @@ public class FilterLogic extends FilterLogicBase {
 		}
 
 		private boolean doesNotContain(ItemStack stack) {
-			return !InventoryHelper.hasItem(this, s -> ItemStackHelper.canItemStacksStack(s, stack));
+			// TODO: check
+			return this.simulateExtract(ItemVariant.of(stack), 1, null) == 0;
+			//return !InventoryHelper.hasItem(this, s -> ItemStackHelper.canItemStacksStack(s, stack));
 		}
 	}
 }
