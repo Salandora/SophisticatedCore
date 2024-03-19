@@ -8,13 +8,13 @@ import net.minecraft.world.level.block.Block;
 import net.p3pp3rf1y.sophisticatedcore.Config;
 
 public class BlockItemBase extends BlockItem {
-	public BlockItemBase(Block pBlock, Properties properties) {
-		super(pBlock, properties);
+	public BlockItemBase(Block pBlock, Properties properties, CreativeModeTab tab) {
+		super(pBlock, properties.tab(tab));
 	}
 
 	@Override
 	public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-		if (Config.COMMON.enabledItems.isItemEnabled(this) && getBlock() instanceof BlockBase blockBase) {
+		if (Config.COMMON.enabledItems.isItemEnabled(this)) {
 			super.fillItemCategory(group, items);
 		}
 	}
