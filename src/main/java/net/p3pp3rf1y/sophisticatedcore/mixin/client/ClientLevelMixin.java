@@ -35,7 +35,7 @@ public class ClientLevelMixin {
     }
 
     @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
-    public void port_lib$addEntityEvent(int i, Entity entity, CallbackInfo ci) {
+    public void sophisticatedcore$addEntityEvent(int i, Entity entity, CallbackInfo ci) {
         if (EntityEvents.ON_JOIN_WORLD.invoker().onJoinWorld(entity, MixinHelper.cast(this), false))
             ci.cancel();
     }

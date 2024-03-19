@@ -33,7 +33,7 @@ public class TransferFullSlotMessage extends SimplePacketBase {
 			ItemStack transferResult;
 			do {
 				transferResult = storageContainer.quickMoveStack(player, slotId);
-			} while (!transferResult.isEmpty() && ItemStack.isSame(slot.getItem(), transferResult));
+			} while (!transferResult.isEmpty() && ItemStack.isSameItem(slot.getItem(), transferResult));
 		});
 		return true;
 	}

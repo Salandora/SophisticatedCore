@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +36,7 @@ public final class ItemStackKey {
 		if (this == o) {return true;}
 		if (o == null || getClass() != o.getClass()) {return false;}
 		ItemStackKey that = (ItemStackKey) o;
-		return ItemStackHelper.canItemStacksStack(stack, that.stack);
+		return ItemStack.isSameItemSameTags(stack, that.stack);
 	}
 
 	public boolean hashCodeNotEquals(ItemStack otherStack) {

@@ -10,10 +10,10 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -74,8 +74,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	}
 
 	private void requestContents(LocalPlayer player, IStorageWrapper wrapper) {
-		if (getLastRequestTime() + REFRESH_INTERVAL < player.level.getGameTime()) {
-			setLastRequestTime(player.level.getGameTime());
+		if (getLastRequestTime() + REFRESH_INTERVAL < player.level().getGameTime()) {
+			setLastRequestTime(player.level().getGameTime());
 			wrapper.getContentsUuid().ifPresent(this::sendInventorySyncRequest);
 		}
 	}
@@ -218,7 +218,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		return height;
 	}
 
-	protected void renderTooltip(IStorageWrapper wrapper, Font font, int leftX, int topY, PoseStack poseStack, ItemRenderer itemRenderer) {
+	protected void renderTooltip(IStorageWrapper wrapper, Font font, int leftX, int topY, GuiGraphics guiGraphics) {
 		Minecraft minecraft = Minecraft.getInstance();
 		LocalPlayer player = minecraft.player;
 		if (player == null) {
@@ -226,53 +226,55 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		}
 
 		initContents(player, wrapper);
-		renderComponent(font, leftX, topY, poseStack, itemRenderer, minecraft);
+		renderComponent(font, leftX, topY, guiGraphics, minecraft);
 	}
 
-	private void renderComponent(Font font, int leftX, int topY, PoseStack poseStack, ItemRenderer itemRenderer, Minecraft minecraft) {
+	private void renderComponent(Font font, int leftX, int topY, GuiGraphics guiGraphics, Minecraft minecraft) {
 		for (Component tooltipLine : tooltipLines) {
-			topY = renderTooltipLine(poseStack, leftX, topY, font, tooltipLine);
+			topY = renderTooltipLine(guiGraphics, leftX, topY, font, tooltipLine);
 		}
-		renderContentsTooltip(minecraft, font, leftX, topY, poseStack, itemRenderer);
+		renderContentsTooltip(minecraft, font, leftX, topY, guiGraphics);
 	}
 
-	private void renderContentsTooltip(Minecraft minecraft, Font font, int leftX, int topY, PoseStack poseStack, ItemRenderer itemRenderer) {
+	private void renderContentsTooltip(Minecraft minecraft, Font font, int leftX, int topY, GuiGraphics guiGraphics) {
 		if (!upgrades.isEmpty()) {
-			topY = renderTooltipLine(poseStack, leftX, topY, font, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".upgrades").withStyle(ChatFormatting.YELLOW));
-			topY = renderUpgrades(poseStack, leftX, topY, itemRenderer);
+			topY = renderTooltipLine(guiGraphics, leftX, topY, font, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".upgrades").withStyle(ChatFormatting.YELLOW));
+			topY = renderUpgrades(guiGraphics, leftX, topY);
 		}
 		if (!sortedContents.isEmpty()) {
-			topY = renderTooltipLine(poseStack, leftX, topY, font, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW));
-			renderContents(minecraft, poseStack, leftX, topY, itemRenderer, font);
+			topY = renderTooltipLine(guiGraphics, leftX, topY, font, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW));
+			renderContents(minecraft, leftX, topY, guiGraphics, font);
 		}
 	}
 
-	private int renderTooltipLine(PoseStack poseStack, int leftX, int topY, Font font, Component tooltip) {
+	private int renderTooltipLine(GuiGraphics guiGraphics, int leftX, int topY, Font font, Component tooltip) {
+		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0.0D, 0.0D, 200.0F);
 		MultiBufferSource.BufferSource renderTypeBuffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		font.drawInBatch(tooltip, leftX, topY, 16777215, true, poseStack.last().pose(), renderTypeBuffer, Font.DisplayMode.NORMAL, 0, 15728880);
 		renderTypeBuffer.endBatch();
+		poseStack.translate(0.0D, 0.0D, -200.0F);
 		poseStack.popPose();
 		return topY + 10;
 	}
 
-	private int renderUpgrades(PoseStack poseStack, int leftX, int topY, ItemRenderer itemRenderer) {
+	private int renderUpgrades(GuiGraphics guiGraphics, int leftX, int topY) {
 		int x = leftX;
 		for (IUpgradeWrapper upgradeWrapper : upgrades) {
 			if (upgradeWrapper.canBeDisabled()) {
 				RenderSystem.disableDepthTest();
-				GuiHelper.blit(poseStack, x, topY + 3, upgradeWrapper.isEnabled() ? UPGRADE_ON : UPGRADE_OFF);
+				GuiHelper.blit(guiGraphics, x, topY + 3, upgradeWrapper.isEnabled() ? UPGRADE_ON : UPGRADE_OFF);
 				x += 4;
 			}
-			itemRenderer.renderAndDecorateItem(poseStack, upgradeWrapper.getUpgradeStack(), x, topY);
+			guiGraphics.renderItem(upgradeWrapper.getUpgradeStack(), x, topY);
 			x += DEFAULT_STACK_WIDTH;
 		}
 		topY += 20;
 		return topY;
 	}
 
-	private void renderContents(Minecraft minecraft, PoseStack poseStack, int leftX, int topY, ItemRenderer itemRenderer, Font font) {
+	private void renderContents(Minecraft minecraft, int leftX, int topY, GuiGraphics guiGraphics, Font font) {
 		int x = leftX;
 		for (int i = 0; i < sortedContents.size(); i++) {
 			int y = topY + i / MAX_STACKS_ON_LINE * 20;
@@ -282,8 +284,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 			ItemStack stack = sortedContents.get(i);
 			int stackWidth = Math.max(getStackCountWidth(minecraft.font, stack), DEFAULT_STACK_WIDTH);
 			int xOffset = stackWidth - DEFAULT_STACK_WIDTH;
-			itemRenderer.renderAndDecorateItem(poseStack, stack, x + xOffset, y);
-			itemRenderer.renderGuiItemDecorations(poseStack, font, stack, x + xOffset, y, CountAbbreviator.abbreviate(stack.getCount()));
+			guiGraphics.renderItem(stack, x + xOffset, y);
+			guiGraphics.renderItemDecorations(font, stack, x + xOffset, y, CountAbbreviator.abbreviate(stack.getCount()));
 			x += stackWidth;
 		}
 	}

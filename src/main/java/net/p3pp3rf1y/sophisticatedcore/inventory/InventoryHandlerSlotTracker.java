@@ -26,7 +26,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 	private final Map<Item, Set<ItemStackKey>> itemStackKeys = new HashMap<>();
 	private final Set<Integer> emptySlots = new TreeSet<>();
 	private final MemorySettingsCategory memorySettings;
-	private final Map<Item, Set<Integer>> filterItemSlots;
+	private Map<Item, Set<Integer>> filterItemSlots;
 	private Consumer<ItemStackKey> onAddStackKey = sk -> {};
 	private Consumer<ItemStackKey> onRemoveStackKey = sk -> {};
 
@@ -45,7 +45,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 	}
 
-	private void addPartiallyFilled(int slot, ItemStack stack) {
+	public void addPartiallyFilled(int slot, ItemStack stack) {
 		ItemStackKey stackKey = ItemStackKey.of(stack);
 		partiallyFilledStackSlots.computeIfAbsent(stackKey, k -> {
 			if (!fullStackSlots.containsKey(k)) {
@@ -72,7 +72,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		return itemStackKeys.keySet();
 	}
 
-	private void addFull(int slot, ItemStack stack) {
+	public void addFull(int slot, ItemStack stack) {
 		ItemStackKey stackKey = ItemStackKey.of(stack);
 		fullStackSlots.computeIfAbsent(stackKey, k -> {
 			if (!partiallyFilledStackSlots.containsKey(k)) {
@@ -84,7 +84,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		itemStackKeys.computeIfAbsent(stack.getItem(), i -> new HashSet<>()).add(stackKey);
 	}
 
-	private void removePartiallyFilled(int slot) {
+	public void removePartiallyFilled(int slot) {
 		if (partiallyFilledSlotStacks.containsKey(slot)) {
 			ItemStackKey stackKey = partiallyFilledSlotStacks.remove(slot);
 			@Nullable

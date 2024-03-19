@@ -42,13 +42,4 @@ public class ItemStackHelper {
 		}
 		return true;
 	}
-
-	public static boolean canItemStacksStack(ItemStack a, ItemStack b) {
-		if (a.isEmpty() || !a.sameItem(b) || a.hasTag() != b.hasTag()) {
-			return false;
-		}
-
-		//noinspection DataFlowIssue
-		return (!a.hasTag() || a.getTag().equals(b.getTag())); /*&& Objects.equals(getCapNbt(a), getCapNbt(b));*/
-	}
 }

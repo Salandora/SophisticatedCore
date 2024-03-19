@@ -13,7 +13,7 @@ public interface SophisticatedSlot {
         return ItemVariant.of(((Slot)this).getItem());
     }
 
-    default Slot setBackground(ResourceLocation atlas, ResourceLocation sprite) {
+    default Slot sophisticatedcore$setBackground(ResourceLocation atlas, ResourceLocation sprite) {
         throw new RuntimeException("Should have been overriden by mixin.");
     }
 }

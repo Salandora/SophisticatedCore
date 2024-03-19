@@ -7,16 +7,20 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class CraftingItemHandler extends CraftingContainer {
+public class CraftingItemHandler extends TransientCraftingContainer {
 	private final Supplier<SlottedStackStorage> supplyInventory;
 	private final Consumer<Container> onCraftingMatrixChanged;
+	private boolean itemsInitialized = false;
+	private List<ItemStack> items = List.of();
 
 	public CraftingItemHandler(Supplier<SlottedStackStorage> supplyInventory, Consumer<Container> onCraftingMatrixChanged) {
 		super(new AbstractContainerMenu(null, -1) {
@@ -51,6 +55,18 @@ public class CraftingItemHandler extends CraftingContainer {
 	}
 
 	@Override
+	public List<ItemStack> getItems() {
+		if (!itemsInitialized) {
+			items = new ArrayList<>();
+			for (int slot = 0; slot < supplyInventory.get().getSlotCount(); slot++) {
+				items.add(supplyInventory.get().getStackInSlot(slot));
+			}
+			itemsInitialized = true;
+		}
+		return items;
+	}
+
+	@Override
 	public ItemStack removeItemNoUpdate(int index) {
 		return InventoryHelper.getAndRemove(supplyInventory.get(), index);
 	}
@@ -65,6 +81,7 @@ public class CraftingItemHandler extends CraftingContainer {
 			ctx.commit();
 		}
 		if (amount > 0) {
+			itemsInitialized = false;
 			onCraftingMatrixChanged.accept(this);
 		}
 
@@ -75,6 +92,13 @@ public class CraftingItemHandler extends CraftingContainer {
 	public void setItem(int index, ItemStack stack) {
 		supplyInventory.get().setStackInSlot(index, stack);
 		onCraftingMatrixChanged.accept(this);
+		itemsInitialized = false;
+	}
+
+	@Override
+	public void setChanged() {
+		super.setChanged();
+		itemsInitialized = false;
 	}
 
 	@Override

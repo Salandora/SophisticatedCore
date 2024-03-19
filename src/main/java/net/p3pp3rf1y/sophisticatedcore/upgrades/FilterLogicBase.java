@@ -56,7 +56,7 @@ public class FilterLogicBase {
 			if (!BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(BuiltInRegistries.ITEM.getKey(filter.getItem()).getNamespace())) {
 				return false;
 			}
-		} else if (primaryMatch == PrimaryMatch.ITEM && !ItemStack.isSame(stack, filter)) {
+		} else if (primaryMatch == PrimaryMatch.ITEM && stack.getItem() != filter.getItem()) {
 			return false;
 		}
 

@@ -24,7 +24,7 @@ public class InventoryPartitioner {
 	private IInventoryPartHandler[] inventoryPartHandlers;
 
 	private int[] baseIndexes;
-	private final InventoryHandler parent;
+	private InventoryHandler parent;
 
 	public InventoryPartitioner(CompoundTag tag, InventoryHandler parent, Supplier<MemorySettingsCategory> getMemorySettings) {
 		this.parent = parent;

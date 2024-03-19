@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -11,6 +9,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
@@ -25,7 +24,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	private final ItemStack upgrade;
 	private final Consumer<ItemStack> saveHandler;
 
-	private ItemStackHandler cookingInventory = null;
+	private SCItemStackHandler cookingInventory = null;
 	public static final int COOK_INPUT_SLOT = 0;
 	public static final int COOK_OUTPUT_SLOT = 2;
 	public static final int FUEL_SLOT = 1;
@@ -63,28 +62,28 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		saveHandler.accept(upgrade);
 	}
 
-	public boolean tick(Level world) {
-		updateTimes(world);
+	public boolean tick(Level level) {
+		updateTimes(level);
 
 		AtomicBoolean didSomething = new AtomicBoolean(true);
-		if (isBurning(world) || readyToStartCooking()) {
+		if (isBurning(level) || readyToStartCooking()) {
 			Optional<T> fr = getCookingRecipe();
 			if (fr.isEmpty() && isCooking()) {
 				setIsCooking(false);
 			}
 			fr.ifPresent(recipe -> {
-				updateFuel(world, recipe);
+				updateFuel(level, recipe);
 
-				if (isBurning(world) && canSmelt(recipe)) {
-					updateCookingProgress(world, recipe);
-				} else if (!isBurning(world)) {
+				if (isBurning(level) && canSmelt(recipe, level)) {
+					updateCookingProgress(level, recipe);
+				} else if (!isBurning(level)) {
 					didSomething.set(false);
 				}
 			});
 		}
 
-		if (!isBurning(world) && isCooking()) {
-			updateCookingCooldown(world);
+		if (!isBurning(level) && isCooking()) {
+			updateCookingCooldown(level);
 		} else {
 			didSomething.set(false);
 		}
@@ -141,17 +140,17 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		}
 	}
 
-	private void updateCookingProgress(Level world, T cookingRecipe) {
-		if (isCooking() && finishedCooking(world)) {
-			smelt(cookingRecipe);
-			if (canSmelt(cookingRecipe)) {
-				setCookTime(world, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
+	private void updateCookingProgress(Level level, T cookingRecipe) {
+		if (isCooking() && finishedCooking(level)) {
+			smelt(cookingRecipe, level);
+			if (canSmelt(cookingRecipe, level)) {
+				setCookTime(level, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
 			} else {
 				setIsCooking(false);
 			}
 		} else if (!isCooking()) {
 			setIsCooking(true);
-			setCookTime(world, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
+			setCookTime(level, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
 		}
 	}
 
@@ -163,14 +162,13 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		return !getFuel().isEmpty() && !getCookInput().isEmpty();
 	}
 
-	private void smelt(Recipe<?> recipe) {
-		if (!canSmelt(recipe)) {
+	private void smelt(Recipe<?> recipe, Level level) {
+		if (!canSmelt(recipe, level)) {
 			return;
 		}
 
 		ItemStack input = getCookInput();
-		Minecraft mc = Minecraft.getInstance();
-		ItemStack recipeOutput = recipe.getResultItem(mc.level.registryAccess());
+		ItemStack recipeOutput = recipe.getResultItem(level.registryAccess());
 		ItemStack output = getCookOutput();
 		if (output.isEmpty()) {
 			setCookOutput(recipeOutput.copy());
@@ -211,14 +209,14 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		setBurnTimeFinish(0);
 	}
 
-	private void updateFuel(Level world, T cookingRecipe) {
+	private void updateFuel(Level level, T cookingRecipe) {
 		ItemStack fuel = getFuel();
-		if (!isBurning(world) && canSmelt(cookingRecipe)) {
+		if (!isBurning(level) && canSmelt(cookingRecipe, level)) {
 			if (getBurnTime(fuel, burnTimeModifier) <= 0) {
 				return;
 			}
-			setBurnTime(world, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
-			if (isBurning(world)) {
+			setBurnTime(level, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
+			if (isBurning(level)) {
 				ItemStack remainder = fuel.getRecipeRemainder();
 				if (!remainder.isEmpty()) {
 					setFuel(remainder);
@@ -238,23 +236,18 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		setBurnTimeTotal(burnTime);
 	}
 
-	protected boolean canSmelt(Recipe<?> cookingRecipe) {
+	protected boolean canSmelt(Recipe<?> cookingRecipe, Level level) {
 		if (getCookInput().isEmpty()) {
 			return false;
 		}
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.level == null) {
-			return false;
-		}
-
-		ItemStack recipeOutput = cookingRecipe.getResultItem(mc.level.registryAccess());
+		ItemStack recipeOutput = cookingRecipe.getResultItem(level.registryAccess());
 		if (recipeOutput.isEmpty()) {
 			return false;
 		} else {
 			ItemStack output = getCookOutput();
 			if (output.isEmpty()) {
 				return true;
-			} else if (!output.sameItem(recipeOutput)) {
+			} else if (!ItemStack.isSameItem(output, recipeOutput)) {
 				return false;
 			} else if (output.getCount() + recipeOutput.getCount() <= 64 && output.getCount() + recipeOutput.getCount() <= output.getMaxStackSize()) {
 				return true;
@@ -284,9 +277,9 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		getCookingInventory().setStackInSlot(FUEL_SLOT, fuel);
 	}
 
-	public ItemStackHandler getCookingInventory() {
+	public SCItemStackHandler getCookingInventory() {
 		if (cookingInventory == null) {
-			cookingInventory = new ItemStackHandler(3) {
+			cookingInventory = new SCItemStackHandler(3) {
 				@Override
 				protected void onContentsChanged(int slot) {
 					super.onContentsChanged(slot);

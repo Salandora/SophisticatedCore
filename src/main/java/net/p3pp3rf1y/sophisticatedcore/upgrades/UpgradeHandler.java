@@ -1,19 +1,18 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandlerSlot;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.TankPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +25,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class UpgradeHandler extends ItemStackHandler {
+public class UpgradeHandler extends SCItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
 	private final IStorageWrapper storageWrapper;
 	private final Runnable contentsSaveHandler;
@@ -119,7 +118,7 @@ public class UpgradeHandler extends ItemStackHandler {
 		}
 
 		for (var view : this.nonEmptyViews()) {
-			ItemStackHandlerSlot viewSlot = (ItemStackHandlerSlot) view;
+			SCItemStackHandlerSlot viewSlot = (SCItemStackHandlerSlot) view;
 
 			int slot = viewSlot.getIndex();
 			ItemStack upgrade = viewSlot.getStack();
@@ -177,7 +176,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
 		ItemStack originalStack = getStackInSlot(slot);
 		Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
-		boolean itemsDiffer = !ItemStackHelper.canItemStacksStack(originalStack, stack);
+		boolean itemsDiffer = !ItemStack.isSameItemSameTags(originalStack, stack);
 		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && itemsDiffer && wrappers.containsKey(slot)) {
 			wrappers.get(slot).onBeforeRemoved();
 		}
@@ -356,7 +355,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			getSlot(i).load(((ItemStackHandlerSlot) previousSlots.get(i)).getStack());
+			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
 		}
 
 		saveInventory();

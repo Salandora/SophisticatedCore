@@ -15,7 +15,12 @@ public class ItemEnabledCondition implements ConditionJsonProvider {
 	private final ResourceLocation itemRegistryName;
 
 	public ItemEnabledCondition(Item item) {
-		this.itemRegistryName = BuiltInRegistries.ITEM.getKey(item);
+		//noinspection ConstantConditions - only called after actually registered
+		this(BuiltInRegistries.ITEM.getKey(item));
+	}
+
+	public ItemEnabledCondition(ResourceLocation itemRegistryName) {
+		this.itemRegistryName = itemRegistryName;
 	}
 
 	@Override

@@ -35,12 +35,17 @@
             "net.p3pp3rf1y.sophisticatedcore.compat.rei.ReiCompat"
         ]
     },
-    "mixins": ["sophisticatedcore.mixins.json"],
+    "mixins": [
+        "sophisticatedcore.mixins.json",
+        "porting_lib/base.mixins.json"
+    ],
     "accessWidener": "sophisticatedcore.accesswidener",
     "depends": {
         "minecraft": "${minecraft_version}",
         "fabricloader": ">=${loader_version}",
         "fabric-api": ">=${fabric_version}",
+        "porting_lib_extensions": ">=${port_lib_version}",
+        "porting_lib_fluids": ">=${port_lib_version}",
         "porting_lib_networking": ">=${port_lib_version}",
         "porting_lib_transfer": ">=${port_lib_version}",
         "forgeconfigapiport": ">=${forge_config_version}",

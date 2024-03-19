@@ -116,7 +116,7 @@ public class ShapelessBasedRecipeBuilder implements RecipeBuilder {
 
 	public void save(Consumer<FinishedRecipe> finishedRecipeConsumer, ResourceLocation recipeId) {
 		advancement.parent(new ResourceLocation("recipes/root")).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
-		finishedRecipeConsumer.accept(new Result(recipeId, result, conditions, nbt, count, group == null ? "" : group, ingredients, advancement, new ResourceLocation(recipeId.getNamespace(), "recipes/" + RecipeCategory.MISC.getFolderName() + "/" + recipeId.getPath()), this.serializer));
+		finishedRecipeConsumer.accept(new ShapelessBasedRecipeBuilder.Result(recipeId, result, conditions, nbt, count, group == null ? "" : group, ingredients, advancement, new ResourceLocation(recipeId.getNamespace(), "recipes/" + RecipeCategory.MISC.getFolderName() + "/" + recipeId.getPath()), serializer));
 	}
 
 	public static class Result implements FinishedRecipe {
@@ -130,7 +130,7 @@ public class ShapelessBasedRecipeBuilder implements RecipeBuilder {
 		private final List<Ingredient> ingredients;
 		private final Advancement.Builder advancement;
 		private final ResourceLocation advancementId;
-		private final RecipeSerializer<?> serializer;
+		private RecipeSerializer<?> serializer;
 
 		@SuppressWarnings("java:S107") //the only way of reducing number of parameters here means adding pretty much unnecessary object parameter
 		public Result(ResourceLocation id, Item itemResult, List<ConditionJsonProvider> conditions, @Nullable CompoundTag nbt,
@@ -145,7 +145,6 @@ public class ShapelessBasedRecipeBuilder implements RecipeBuilder {
 			this.advancement = advancement;
 			this.advancementId = advancementId;
 			this.serializer = serializer;
-
 			conditions.add(new ItemEnabledCondition(this.itemResult));
 		}
 

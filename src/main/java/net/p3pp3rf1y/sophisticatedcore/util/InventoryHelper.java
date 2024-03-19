@@ -212,7 +212,7 @@ public class InventoryHelper {
 		int missingCount = expectedCount;
 		for (var view : itemHandler.nonEmptyViews()) {
 			ItemStack stack = view.getResource().toStack((int) view.getAmount());
-			if (ItemStackHelper.canItemStacksStack(stack, filter)) {
+			if (ItemStack.isSameItemSameTags(stack, filter)) {
 				missingCount -= Math.min(stack.getCount(), missingCount);
 				if (missingCount == 0) {
 					break;

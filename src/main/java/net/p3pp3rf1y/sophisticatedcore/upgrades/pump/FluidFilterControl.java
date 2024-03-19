@@ -1,11 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
@@ -24,19 +23,19 @@ public class FluidFilterControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderBg(PoseStack matrixStack, Minecraft minecraft, int mouseX, int mouseY) {
-		GuiHelper.renderSlotsBackground(matrixStack, x, y, container.getNumberOfFluidFilters(), 1);
+	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+		GuiHelper.renderSlotsBackground(guiGraphics, x, y, container.getNumberOfFluidFilters(), 1);
 	}
 
 	@Override
-	public void renderWidget(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		for (int i = 0; i < container.getNumberOfFluidFilters(); i++) {
 			FluidStack fluid = container.getFluid(i);
 			if (!fluid.isEmpty()) {
 				FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid.getFluid());
 				TextureAtlasSprite[] sprites = handler.getFluidSprites(null, null, fluid.getFluid().defaultFluidState());
 				int tint = handler.getFluidColor(null, null,fluid.getFluid().defaultFluidState());
-				GuiHelper.renderTiledFluidTextureAtlas(matrixStack, sprites[0], tint, x + i * 18 + 1, y + 1, 16);
+				GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, sprites[0], tint, x + i * 18 + 1, y + 1, 16);
 			}
 		}
 	}

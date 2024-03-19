@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -49,18 +50,19 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	}
 
 	@Override
-	public void renderWidget(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-		matrixStack.pushPose();
-		matrixStack.translate(0, 0, -11);
+	protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		PoseStack pose = guiGraphics.pose();
+		pose.pushPose();
+		pose.translate(0,0, -11);
 		children.forEach(child -> {
 			if (child != openTab) {
-				child.render(matrixStack, mouseX, mouseY, partialTicks);
+				child.render(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 		});
-		matrixStack.popPose();
+		pose.popPose();
 
 		if (openTab != null) {
-			openTab.render(matrixStack, mouseX, mouseY, partialTicks);
+			openTab.render(guiGraphics, mouseX, mouseY, partialTicks);
 		}
 		RenderSystem.enableDepthTest();
 	}
@@ -82,13 +84,13 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	}
 
 	@Override
-	protected void renderBg(PoseStack matrixStack, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		//noop
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, PoseStack poseStack, int mouseX, int mouseY) {
-		children.forEach(tab -> tab.renderTooltip(screen, poseStack, mouseX, mouseY));
+	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		children.forEach(tab -> tab.renderTooltip(screen, guiGraphics, mouseX, mouseY));
 	}
 
 	protected int getTopY() {

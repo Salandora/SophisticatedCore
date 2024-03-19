@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -19,8 +20,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
@@ -30,6 +29,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import java.util.Collections;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class ClientEventHandler implements ClientModInitializer {
@@ -54,14 +54,14 @@ public class ClientEventHandler implements ClientModInitializer {
         PacketHandler.getChannel().initClientListener();
     }
 
-    private static void onDrawScreen(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
+    private static void onDrawScreen(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
         Minecraft mc = Screens.getClient(screen);
         AbstractContainerScreen<?> containerGui = (AbstractContainerScreen<?>)screen;
 
         AbstractContainerMenu menu = containerGui.getMenu();
         ItemStack held = menu.getCarried();
         if (!held.isEmpty()) {
-            Slot under = GuiHelper.getSlotUnderMouse(containerGui).orElse(null);
+            Slot under = containerGui.hoveredSlot;
 
             for (Slot s : menu.slots) {
                 ItemStack stack = s.getItem();
@@ -74,34 +74,36 @@ public class ClientEventHandler implements ClientModInitializer {
 				}
 
                 if (s == under) {
-                    renderSpecialTooltip(mc, containerGui, poseStack, mouseX, mouseY, stashResultAndTooltip.get());
+                    renderSpecialTooltip(mc, containerGui, guiGraphics, mouseX, mouseY, stashResultAndTooltip.get());
                 } else {
-                    renderStashSign(mc, containerGui, poseStack, s, stack, stashResultAndTooltip.get().stashResult());
+                    renderStashSign(mc, containerGui, guiGraphics, s, stack, stashResultAndTooltip.get().stashResult());
                 }
             }
         }
     }
 
-    private static void renderStashSign(Minecraft mc, AbstractContainerScreen<?> containerGui, PoseStack poseStack, Slot s, ItemStack stack, IStashStorageItem.StashResult stashResult) {
+    private static void renderStashSign(Minecraft mc, AbstractContainerScreen<?> containerGui, GuiGraphics guiGraphics, Slot s, ItemStack stack, IStashStorageItem.StashResult stashResult) {
         int x = containerGui.getGuiLeft() + s.x;
         int y = containerGui.getGuiTop() + s.y;
 
-        poseStack.pushPose();
+		PoseStack poseStack = guiGraphics.pose();
+		poseStack.pushPose();
 		poseStack.translate(0, 0, 300);
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
         if (stack.getItem() instanceof IStashStorageItem) {
-            mc.font.drawShadow(poseStack, "+", (float) x + 10, (float) y + 8, color);
-        } else {
-            mc.font.drawShadow(poseStack, "-", x + 1, y, color);
+            guiGraphics.drawString(mc.font, "+", x + 10, y + 8, color);
+		} else {
+			guiGraphics.drawString(mc.font, "-", x + 1, y, color);
         }
         poseStack.popPose();
     }
 
-    private static void renderSpecialTooltip(Minecraft mc, AbstractContainerScreen<?> containerGui, PoseStack poseStack, int mouseX, int mouseY, StashResultAndTooltip stashResultAndTooltip) {
+    private static void renderSpecialTooltip(Minecraft mc, AbstractContainerScreen<?> containerGui, GuiGraphics guiGraphics, int mouseX, int mouseY, StashResultAndTooltip stashResultAndTooltip) {
+		PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        poseStack.translate(0, 0, containerGui instanceof StorageScreenBase ? -100 : 100);
-        containerGui.renderTooltip(poseStack, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), mouseX, mouseY);
+        poseStack.translate(0, 0, 100);
+        guiGraphics.renderTooltip(containerGui.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), mouseX, mouseY);
         poseStack.popPose();
     }
 
@@ -116,13 +118,14 @@ public class ClientEventHandler implements ClientModInitializer {
 		return Optional.empty();
 	}
 
-    private static Optional<StashResultAndTooltip> getStashResultAndTooltip(ItemStack potentialStashStorage, ItemStack potentiallyStashable, IStashStorageItem stashStorageItem) {
+	@NotNull
+	private static Optional<StashResultAndTooltip> getStashResultAndTooltip(ItemStack potentialStashStorage, ItemStack potentiallyStashable, IStashStorageItem stashStorageItem) {
 		IStashStorageItem.StashResult stashResult = stashStorageItem.getItemStashable(potentialStashStorage, potentiallyStashable);
 		if (stashResult == IStashStorageItem.StashResult.NO_SPACE) {
 			return Optional.empty();
 		}
 		return Optional.of(new StashResultAndTooltip(stashResult, stashStorageItem.getInventoryTooltip(potentialStashStorage)));
-    }
+	}
 
 	private record StashResultAndTooltip(IStashStorageItem.StashResult stashResult, Optional<TooltipComponent> tooltip) {}
 }

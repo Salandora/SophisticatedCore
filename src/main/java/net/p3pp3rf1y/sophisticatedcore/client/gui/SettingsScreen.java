@@ -5,9 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +35,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected SettingsScreen(SettingsContainerMenu<?> screenContainer, Inventory inv, Component titleIn) {
 		super(screenContainer, inv, titleIn);
 		updateDimensionsAndSlotPositions(Minecraft.getInstance().getWindow().getGuiScaledHeight());
+		settingsTabControl = initializeTabControl();
 	}
 
 	@Override
@@ -70,7 +71,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, this.getGuiTop() + 17, this.getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, getGuiTop() + 17, getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsYPosition();
 		} else {
@@ -120,94 +121,92 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
 	@Override
-	protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
-		StorageGuiHelper.renderStorageBackground(new Position(x, y), matrixStack, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
+		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
 		if (inventoryScrollPanel == null) {
-			drawSlotBg(matrixStack, x, y);
+			drawSlotBg(guiGraphics, x, y);
 		}
 	}
 
-	protected void drawSlotBg(PoseStack matrixStack, int x, int y) {
+	protected void drawSlotBg(GuiGraphics guiGraphics, int x, int y) {
 		int inventorySlots = getMenu().getStorageInventorySlots().size();
 		int slotsOnLine = getSlotsOnLine();
 		int slotRows = inventorySlots / slotsOnLine;
 		int remainingSlots = inventorySlots % slotsOnLine;
-		GuiHelper.renderSlotsBackground(matrixStack, x + StorageScreenBase.SLOTS_X_OFFSET, y + StorageScreenBase.SLOTS_Y_OFFSET, slotsOnLine, slotRows, remainingSlots);
+		GuiHelper.renderSlotsBackground(guiGraphics, x + StorageScreenBase.SLOTS_X_OFFSET, y + StorageScreenBase.SLOTS_Y_OFFSET, slotsOnLine, slotRows, remainingSlots);
 	}
 
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		menu.detectSettingsChangeAndReload();
-		matrixStack.pushPose();
-		matrixStack.translate(0, 0, -20);
-		renderBackground(matrixStack);
-		matrixStack.popPose();
-		settingsTabControl.render(matrixStack, mouseX, mouseY, partialTicks);
-		templatePersistanceControl.render(matrixStack, mouseX, mouseY, partialTicks);
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		settingsTabControl.renderTooltip(this, matrixStack, mouseX, mouseY);
-		templatePersistanceControl.renderTooltip(this, matrixStack, mouseX, mouseY);
-		renderTooltip(matrixStack, mouseX, mouseY);
-		matrixStack.popPose();
+		PoseStack poseStack = guiGraphics.pose();
+		poseStack.pushPose();
+		poseStack.translate(0, 0, -20);
+		renderBackground(guiGraphics);
+		poseStack.popPose();
+		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
+		templatePersistanceControl.render(guiGraphics, mouseX, mouseY, partialTicks);
+		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		settingsTabControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
+		templatePersistanceControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
+		renderTooltip(guiGraphics, mouseX, mouseY);
 	}
 
 	@Override
-	protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
-		super.renderLabels(matrixStack, mouseX, mouseY);
+	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderLabels(guiGraphics, mouseX, mouseY);
 		if (inventoryScrollPanel == null) {
-			renderInventorySlots(matrixStack, mouseX, mouseY, true);
+			renderInventorySlots(guiGraphics, mouseX, mouseY, true);
 		}
 	}
 
 	@Override
-	public void renderInventorySlots(PoseStack matrixStack, int mouseX, int mouseY, boolean canShowHover) {
+	public void renderInventorySlots(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
 		for (int slotId = 0; slotId < menu.ghostSlots.size(); ++slotId) {
 			Slot slot = menu.ghostSlots.get(slotId);
-			renderSlot(matrixStack, slot);
+			renderSlot(guiGraphics, slot);
 
-			settingsTabControl.renderSlotOverlays(matrixStack, slot, this::renderSlotOverlay, isTemplateLoadHovered());
+			settingsTabControl.renderSlotOverlays(guiGraphics, slot, this::renderSlotOverlay, isTemplateLoadHovered());
 
 			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(matrixStack, slot, getSlotColor(slotId));
+				renderSlotHighlight(guiGraphics, slot.x, slot.y, 0/*, getSlotColor(slotId)*/);
 			}
 
-			settingsTabControl.renderSlotExtra(matrixStack, slot);
+			settingsTabControl.renderSlotExtra(guiGraphics, slot);
 		}
 	}
 
 	@Override
-	protected void renderSlot(PoseStack poseStack, Slot slot) {
+	public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
 		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.getContainerSlot(), isTemplateLoadHovered());
 
 		RenderSystem.enableDepthTest();
+		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0, 0, 100);
-		if (!settingsTabControl.renderGuiItem(poseStack, itemRenderer, itemstack, slot, isTemplateLoadHovered())) {
+		if (!settingsTabControl.renderGuiItem(guiGraphics, minecraft.getItemRenderer(), itemstack, slot, isTemplateLoadHovered())) {
 			if (!getMenu().getSlotFilterItem(slot.getContainerSlot()).isEmpty()) {
-				itemRenderer.renderAndDecorateItem(poseStack, getMenu().getSlotFilterItem(slot.getContainerSlot()), slot.x, slot.y);
+				guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.getContainerSlot()), slot.x, slot.y);
 			} else {
 				Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
 				if (pair != null) {
 					//noinspection ConstantConditions - by this point minecraft isn't null
 					TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-					RenderSystem.setShader(GameRenderer::getPositionTexShader);
-					RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
-					blit(poseStack, slot.x, slot.y, 0, 16, 16, textureatlassprite);
+					guiGraphics.blit(slot.x, slot.y, 0, 16, 16, textureatlassprite);
 				}
 			}
 		}
 		poseStack.popPose();
 
-		settingsTabControl.drawSlotStackOverlay(poseStack, slot, isTemplateLoadHovered());
+		settingsTabControl.drawSlotStackOverlay(guiGraphics, slot, isTemplateLoadHovered());
 	}
 
 	private boolean isTemplateLoadHovered() {
 		return templatePersistanceControl.isTemplateLoadHovered();
 	}
-
 
 	@SuppressWarnings("java:S2589") // slot can actually be null despite being marked non null
 	@Override
@@ -257,14 +256,14 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		return settingsTabControl.getTabRectangles().stream().noneMatch(r -> r.contains((int) mouseX, (int) mouseY));
 	}
 
-	private void renderSlotOverlay(PoseStack matrixStack, Slot slot, int slotColor) {
-		renderSlotOverlay(matrixStack, slot.x, slot.y, 16, slotColor);
+	private void renderSlotOverlay(GuiGraphics guiGraphics, Slot slot, int slotColor) {
+		renderSlotOverlay(guiGraphics, slot.x, slot.y, 16, slotColor);
 	}
 
-	private void renderSlotOverlay(PoseStack matrixStack, int xPos, int yPos, int height, int slotColor) {
+	private void renderSlotOverlay(GuiGraphics guiGraphics, int xPos, int yPos, int height, int slotColor) {
 		RenderSystem.disableDepthTest();
 		RenderSystem.colorMask(true, true, true, false);
-		fillGradient(matrixStack, xPos, yPos, xPos + 16, yPos + height, slotColor, slotColor);
+		guiGraphics.fillGradient(xPos, yPos, xPos + 16, yPos + height, slotColor, slotColor);
 		RenderSystem.colorMask(true, true, true, true);
 		RenderSystem.enableDepthTest();
 	}
@@ -290,18 +289,18 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void drawSlotBg(PoseStack matrixStack) {
-		drawSlotBg(matrixStack, (width - imageWidth) / 2, (height - imageHeight) / 2);
+	public void drawSlotBg(GuiGraphics guiGraphics) {
+		drawSlotBg(guiGraphics, (width - imageWidth) / 2, (height - imageHeight) / 2);
 	}
 
 	@Override
 	public int getTopY() {
-		return this.getGuiTop();
+		return getGuiTop();
 	}
 
 	@Override
 	public int getLeftX() {
-		return this.getGuiLeft();
+		return getGuiLeft();
 	}
 
 	@Override

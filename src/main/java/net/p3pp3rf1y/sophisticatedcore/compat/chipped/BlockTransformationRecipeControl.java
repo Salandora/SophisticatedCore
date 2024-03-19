@@ -1,9 +1,7 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -11,7 +9,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
@@ -59,21 +56,21 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderBg(PoseStack matrixStack, Minecraft minecraft, int mouseX, int mouseY) {
-		GuiHelper.renderSlotsBackground(matrixStack, x + getCenteredX(18), y, 1, 1);
-		GuiHelper.blit(matrixStack, x, y + LIST_Y_OFFSET, LIST_BACKGROUND);
-		GuiHelper.blit(matrixStack, x + getCenteredX(26), y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING, GuiHelper.CRAFTING_RESULT_SLOT);
+	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+		GuiHelper.renderSlotsBackground(guiGraphics, x + getCenteredX(18), y, 1, 1);
+		GuiHelper.blit(guiGraphics, x, y + LIST_Y_OFFSET, LIST_BACKGROUND);
+		GuiHelper.blit(guiGraphics, x + getCenteredX(26), y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING, GuiHelper.CRAFTING_RESULT_SLOT);
 		int sliderYOffset = (int) (39.0F * sliderProgress) + 1;
-		GuiHelper.blit(matrixStack, x + 68, y + LIST_Y_OFFSET + sliderYOffset, canScroll() ? SLIDER : DISABLED_SLIDER);
+		GuiHelper.blit(guiGraphics, x + 68, y + LIST_Y_OFFSET + sliderYOffset, canScroll() ? SLIDER : DISABLED_SLIDER);
 
 		int listInnerLeftX = x + 1;
 		int listTopY = getListTopY();
 		int recipeIndexOffsetMax = recipeIndexOffset + 12;
-		renderRecipeBackgrounds(matrixStack, mouseX, mouseY, listInnerLeftX, listTopY, recipeIndexOffsetMax);
-		drawRecipesItems(matrixStack, listInnerLeftX, listTopY, recipeIndexOffsetMax);
+		renderRecipeBackgrounds(guiGraphics, mouseX, mouseY, listInnerLeftX, listTopY, recipeIndexOffsetMax);
+		drawRecipesItems(guiGraphics, listInnerLeftX, listTopY, recipeIndexOffsetMax);
 	}
 
-	private void drawRecipesItems(PoseStack matrixStack, int listInnerLeftX, int top, int recipeIndexOffsetMax) {
+	private void drawRecipesItems(GuiGraphics guiGraphics, int listInnerLeftX, int top, int recipeIndexOffsetMax) {
 		List<ItemStack> results = container.getResults();
 
 		for (int i = recipeIndexOffset; i < recipeIndexOffsetMax && i < results.size(); ++i) {
@@ -81,7 +78,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 			int k = listInnerLeftX + j % 4 * 16;
 			int l = j / 4;
 			int i1 = top + l * 18 + 2;
-			GuiHelper.renderItemInGUI(matrixStack, minecraft, results.get(i), k, i1);
+			GuiHelper.renderItemInGUI(guiGraphics, minecraft, results.get(i), k, i1);
 		}
 
 	}
@@ -90,7 +87,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 		return y + LIST_Y_OFFSET;
 	}
 
-	private void renderRecipeBackgrounds(PoseStack matrixStack, int mouseX, int mouseY, int listInnerLeftX, int listTopY, int recipeIndexOffsetMax) {
+	private void renderRecipeBackgrounds(GuiGraphics guiGraphics, int mouseX, int mouseY, int listInnerLeftX, int listTopY, int recipeIndexOffsetMax) {
 		for (int recipeIndex = recipeIndexOffset; recipeIndex < recipeIndexOffsetMax && recipeIndex < container.getResults().size(); ++recipeIndex) {
 			int j = recipeIndex - recipeIndexOffset;
 			int recipeX = listInnerLeftX + j % 4 * 16;
@@ -104,7 +101,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 				background = RECIPE_BACKGROUND_HOVERED;
 			}
 
-			GuiHelper.blit(matrixStack, recipeX, recipeY - 1, background);
+			GuiHelper.blit(guiGraphics, recipeX, recipeY - 1, background);
 		}
 	}
 
@@ -113,17 +110,17 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		//noop - everything is rendered in background or after screen render is done
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, PoseStack poseStack, int mouseX, int mouseY) {
-		super.renderTooltip(screen, poseStack, mouseX, mouseY);
-		renderHoveredTooltip(poseStack, mouseX, mouseY);
+	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
+		renderHoveredTooltip(guiGraphics, mouseX, mouseY);
 	}
 
-	private void renderHoveredTooltip(PoseStack matrixStack, int mouseX, int mouseY) {
+	private void renderHoveredTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		if (hasItemsInInputSlot) {
 			int listTopY = getListTopY();
 			int k = recipeIndexOffset + 12;
@@ -134,15 +131,14 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 				int recipeLeftX = x + inviewRecipeIndex % 4 * 16;
 				int k1 = listTopY + inviewRecipeIndex / 4 * 18 + 2;
 				if (mouseX >= recipeLeftX && mouseX < recipeLeftX + 16 && mouseY >= k1 && mouseY < k1 + 18) {
-					renderTooltip(matrixStack, results.get(recipeIndex), mouseX, mouseY);
+					renderTooltip(guiGraphics, results.get(recipeIndex), mouseX, mouseY);
 				}
 			}
 		}
 	}
 
-	private void renderTooltip(PoseStack poseStack, ItemStack itemStack, int mouseX, int mouseY) {
-		Font font = IClientItemExtensions.of(itemStack).getFont(itemStack, IClientItemExtensions.FontContext.TOOLTIP);
-		screen.renderComponentTooltip(poseStack, screen.getTooltipFromItem(itemStack), mouseX, mouseY, (font == null ? this.font : font));
+	private void renderTooltip(GuiGraphics guiGraphics, ItemStack itemStack, int mouseX, int mouseY) {
+		guiGraphics.renderComponentTooltip(font, Screen.getTooltipFromItem(minecraft, itemStack), mouseX, mouseY);
 	}
 
 	private void onInventoryUpdate() {
@@ -222,4 +218,3 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 		//TODO narration - probably just copy from stonecutter screen
 	}
 }
-*/

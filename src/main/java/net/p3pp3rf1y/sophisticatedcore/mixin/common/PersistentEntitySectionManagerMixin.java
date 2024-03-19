@@ -13,8 +13,8 @@ import net.p3pp3rf1y.sophisticatedcore.event.common.EntityEvents;
 @Mixin(PersistentEntitySectionManager.class)
 public class PersistentEntitySectionManagerMixin<T extends EntityAccess> {
 	@Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
-	public void port_lib$addEntityEvent(T entityAccess, boolean loadedFromDisk, CallbackInfoReturnable<Boolean> cir) {
-		if (entityAccess instanceof Entity entity && EntityEvents.ON_JOIN_WORLD.invoker().onJoinWorld(entity, entity.level, loadedFromDisk))
+	public void sophisticatedcore$addEntityEvent(T entityAccess, boolean loadedFromDisk, CallbackInfoReturnable<Boolean> cir) {
+		if (entityAccess instanceof Entity entity && EntityEvents.ON_JOIN_WORLD.invoker().onJoinWorld(entity, entity.level(), loadedFromDisk))
 			cir.setReturnValue(false);
 	}
 }

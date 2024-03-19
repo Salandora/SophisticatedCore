@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.minecraft.world.inventory.Slot;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.FilterSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IServerUpdater;
 
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public class FilterLogicContainer<T extends FilterLogic> extends FilterLogicContainerBase<T, FilterLogicContainer.FilterLogicSlot> {
 	public FilterLogicContainer(Supplier<T> filterLogic, IServerUpdater serverUpdater, Consumer<Slot> addSlot) {
 		super(serverUpdater, filterLogic, addSlot);
-		ItemStackHandler filterHandler = filterLogic.get().getFilterHandler();
+		SCItemStackHandler filterHandler = filterLogic.get().getFilterHandler();
 		for (int slot = 0; slot < filterHandler.getSlotCount(); slot++) {
 			FilterLogicSlot filterSlot = new FilterLogicSlot(() -> filterLogic.get().getFilterHandler(), slot);
 			addSlot.accept(filterSlot);

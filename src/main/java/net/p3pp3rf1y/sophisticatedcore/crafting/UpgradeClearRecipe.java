@@ -34,7 +34,7 @@ public class UpgradeClearRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryManager) {
+	public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
 		ItemStack upgrade = ItemStack.EMPTY;
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			ItemStack stack = inventory.getItem(i);

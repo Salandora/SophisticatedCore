@@ -1,10 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -41,20 +40,20 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 	}
 
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY) {
-		GuiHelper.blit(matrixStack, getTankLeft(), pos.y(), GuiHelper.BAR_BACKGROUND_TOP);
+	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		GuiHelper.blit(guiGraphics, getTankLeft(), pos.y(), GuiHelper.BAR_BACKGROUND_TOP);
 		int yOffset = 18;
 		for (int i = 0; i < (height - 36) / 18; i++) {
-			GuiHelper.blit(matrixStack, getTankLeft(), pos.y() + yOffset, GuiHelper.BAR_BACKGROUND_MIDDLE);
+			GuiHelper.blit(guiGraphics, getTankLeft(), pos.y() + yOffset, GuiHelper.BAR_BACKGROUND_MIDDLE);
 			yOffset += 18;
 		}
-		GuiHelper.blit(matrixStack, getTankLeft(), pos.y() + yOffset, GuiHelper.BAR_BACKGROUND_BOTTOM);
+		GuiHelper.blit(guiGraphics, getTankLeft(), pos.y() + yOffset, GuiHelper.BAR_BACKGROUND_BOTTOM);
 
-		renderFluid(matrixStack);
+		renderFluid(guiGraphics);
 
 		yOffset = 0;
 		for (int i = 0; i < height / 18; i++) {
-			GuiHelper.blit(matrixStack, getTankLeft() + 1, pos.y() + yOffset, OVERLAY);
+			GuiHelper.blit(guiGraphics, getTankLeft() + 1, pos.y() + yOffset, OVERLAY);
 			yOffset += 18;
 		}
 	}
@@ -81,12 +80,12 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 	}
 
 	@Override
-	public void renderErrorOverlay(PoseStack matrixStack) {
-		screen.renderOverlay(matrixStack, StorageScreenBase.ERROR_SLOT_COLOR, getTankLeft() + 1, pos.y() + 1, 16, height - 2);
+	public void renderErrorOverlay(GuiGraphics guiGraphics) {
+		screen.renderOverlay(guiGraphics, StorageScreenBase.ERROR_SLOT_COLOR, getTankLeft() + 1, pos.y() + 1, 16, height - 2);
 	}
 
 	@Override
-	public void renderTooltip(StorageScreenBase<?> screen, PoseStack poseStack, int mouseX, int mouseY) {
+	public void renderTooltip(StorageScreenBase<?> screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		FluidStack contents = container.getContents();
 		long capacity = container.getTankCapacity();
 		if (contents.isEmpty()) {
@@ -101,7 +100,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 				tooltip.add(contents.getDisplayName());
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
-			screen.renderTooltip(poseStack, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 
@@ -115,7 +114,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.contents_tooltip"), String.format("%,d", FluidHelper.toBuckets(contents.getAmount())), String.format("%,d", FluidHelper.toBuckets(capacity)));
 	}
 
-	private void renderFluid(PoseStack matrixStack) {
+	private void renderFluid(GuiGraphics guiGraphics) {
 		FluidStack contents = container.getContents();
 		long capacity = container.getTankCapacity();
 		if (contents.isEmpty()) {
@@ -127,7 +126,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		int displayLevel = (int) ((height - 2) * ((float) fill / capacity));
 		FluidVariant fluidVariant = FluidVariant.of(fluid);
 		TextureAtlasSprite still = FluidVariantRendering.getSprite(fluidVariant);
-		GuiHelper.renderTiledFluidTextureAtlas(matrixStack, still, FluidVariantRendering.getColor(fluidVariant), pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
+		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, FluidVariantRendering.getColor(fluidVariant), pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
 	}
 
 }

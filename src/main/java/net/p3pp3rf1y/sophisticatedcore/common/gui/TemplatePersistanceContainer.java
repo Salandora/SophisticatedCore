@@ -134,7 +134,7 @@ public class TemplatePersistanceContainer {
 
 		sendDataToServer(() -> NBTHelper.putString(new CompoundTag(), ACTION_TAG, "loadTemplate"));
 
-		if (getPlayer().getLevel().isClientSide()) {
+		if (getPlayer().level().isClientSide()) {
 			getPlayer().displayClientMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("load_template"), loadSlots.get(loadSlotIndex).getSlotName()), false);
 		}
 	}
@@ -157,7 +157,7 @@ public class TemplatePersistanceContainer {
 
 		moveSaveSlotIndexTo(saveSlot.getSlotName());
 
-		if (getPlayer().getLevel().isClientSide()) {
+		if (getPlayer().level().isClientSide()) {
 			getPlayer().displayClientMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("save_template"), saveSlot.getSlotName()), false);
 		}
 	}
@@ -267,7 +267,7 @@ public class TemplatePersistanceContainer {
 		sendDataToServer(() -> NBTHelper.putString(NBTHelper.putString(new CompoundTag(), ACTION_TAG, "exportTemplate"), "fileName", finalFileName));
 
 		if (getPlayer() instanceof ServerPlayer serverPlayer) {
-			ServerLevel serverLevel = serverPlayer.getLevel();
+			ServerLevel serverLevel = serverPlayer.serverLevel();
 			Path datapacksDir = serverLevel.getServer().getWorldPath(LevelResource.DATAPACK_DIR);
 
 			String playersFolder = getPlayer().getScoreboardName().toLowerCase(Locale.ROOT) + "_soph_templates";

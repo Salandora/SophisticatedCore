@@ -14,6 +14,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -247,7 +248,7 @@ public class RecipeHelper {
 	}
 
 	private static CraftingContainer getFilledCraftingInventory(Item item, int width, int height) {
-		CraftingContainer craftinginventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+		CraftingContainer craftinginventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
 			@Override
 			public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
 				return ItemStack.EMPTY;

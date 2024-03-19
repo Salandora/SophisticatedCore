@@ -87,8 +87,9 @@ public class ServerStorageSoundHandler {
 	}
 
 	public static void startPlayingDisc(ServerLevel serverWorld, BlockPos position, UUID storageUuid, int discItemId, Runnable onStopHandler) {
-		PacketHandler.sendToAllNear(serverWorld, position, 128, new PlayDiscMessage(storageUuid, discItemId, position));
-		putKeepAliveInfo(serverWorld, storageUuid, onStopHandler, Vec3.atCenterOf(position));
+		Vec3 pos = Vec3.atCenterOf(position);
+		PacketHandler.sendToAllNear(serverWorld, pos, 128, new PlayDiscMessage(storageUuid, discItemId, position));
+		putKeepAliveInfo(serverWorld, storageUuid, onStopHandler, pos);
 	}
 
 	public static void startPlayingDisc(ServerLevel serverWorld, Vec3 position, UUID storageUuid, int entityId, int discItemId, Runnable onStopHandler) {

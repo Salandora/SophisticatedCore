@@ -61,7 +61,7 @@ public class EntityMixin implements SophisticatedEntity {
 	private CompoundTag sophisticatedCore$customData;
 
     @Inject(method = "spawnSprintParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getRenderShape()Lnet/minecraft/world/level/block/RenderShape;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void sophisticatedCore$addRunningEffects(CallbackInfo ci, int i, int j, int k, BlockPos blockPos, BlockState blockState) {
+    private void sophisticatedCore$addRunningEffects(CallbackInfo ci, BlockPos blockPos, BlockState blockState) {
         if (blockState.addRunningEffects(level, blockPos, MixinHelper.cast(this))) {
             ci.cancel();
         }

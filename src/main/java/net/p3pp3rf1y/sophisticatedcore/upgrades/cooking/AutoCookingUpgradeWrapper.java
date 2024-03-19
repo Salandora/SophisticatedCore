@@ -40,13 +40,16 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 	private final CookingLogic<R> cookingLogic;
 	private final Predicate<ItemStack> isValidInput;
 	private final Predicate<ItemStack> isValidFuel;
+	private final RecipeType<R> recipeType;
 	private int outputCooldown = 0;
 	private int fuelCooldown = 0;
 	private int inputCooldown = 0;
+	private final AutoCookingUpgradeConfig autoCookingUpgradeConfig;
 
 	public AutoCookingUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler, RecipeType<R> recipeType, float burnTimeModifier) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
-		AutoCookingUpgradeConfig autoCookingUpgradeConfig = upgradeItem.getAutoCookingUpgradeConfig();
+		this.recipeType = recipeType;
+		autoCookingUpgradeConfig = upgradeItem.getAutoCookingUpgradeConfig();
 		inputFilterLogic = new FilterLogic(upgrade, upgradeSaveHandler, autoCookingUpgradeConfig.inputFilterSlots.get(),
 				s -> RecipeHelper.getCookingRecipe(s, recipeType).isPresent(), "inputFilter");
 		fuelFilterLogic = new FilterLogic(upgrade, upgradeSaveHandler, autoCookingUpgradeConfig.fuelFilterSlots.get(),

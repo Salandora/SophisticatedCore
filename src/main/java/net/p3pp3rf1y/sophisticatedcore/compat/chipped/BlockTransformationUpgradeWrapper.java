@@ -1,11 +1,13 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
-import earth.terrarium.chipped.common.recipe.ChippedRecipe;
+
+import earth.terrarium.chipped.common.recipes.ChippedRecipe;
+
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
@@ -15,18 +17,18 @@ import java.util.function.Consumer;
 
 public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockTransformationUpgradeWrapper, BlockTransformationUpgradeItem> {
 	private static final String RESULT_TAG = "result";
-	private final IItemHandlerModifiable inputInventory;
+	private final SlottedStackStorage inputInventory;
 	private final RecipeType<ChippedRecipe> recipeType;
 
 	protected BlockTransformationUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
 
-		inputInventory = new ItemStackHandler(1) {
+		inputInventory = new SCItemStackHandler(1) {
 			@Override
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
-					upgrade.addTagElement("input", getStackInSlot(0).serializeNBT());
+					upgrade.addTagElement("input", getStackInSlot(0).save(new CompoundTag()));
 				}
 				save();
 			}
@@ -35,7 +37,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 		recipeType = upgradeItem.getRecipeType();
 	}
 
-	public IItemHandlerModifiable getInputInventory() {
+	public SlottedStackStorage getInputInventory() {
 		return inputInventory;
 	}
 
@@ -45,7 +47,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 			return;
 		}
 
-		upgrade.getOrCreateTag().put(RESULT_TAG, result.serializeNBT());
+		upgrade.getOrCreateTag().put(RESULT_TAG, result.save(new CompoundTag()));
 		save();
 	}
 
@@ -71,4 +73,3 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 		return recipeType;
 	}
 }
-*/

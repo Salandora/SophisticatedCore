@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -9,7 +8,6 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.impl.transfer.DebugMessages;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -31,7 +29,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -50,7 +47,7 @@ public class FluidHelper {
         return ContainerItemContext.withConstant(stack).find(FluidStorage.ITEM) != null;
     }
 
-    public static boolean placeFluid(@Nullable Player player, @NotNull Level level, @NotNull BlockPos pos, Storage<FluidVariant> source, FluidVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
+    public static boolean placeFluid(@Nullable Player player, @NotNull Level level, @NotNull BlockPos pos, Storage<FluidVariant> source, FluidVariant resource, long maxAmount) {
         if (!level.isLoaded(pos)) {
             return false;
         }
@@ -62,9 +59,8 @@ public class FluidHelper {
 
         // check that we can place the fluid at the destination
         BlockState state = level.getBlockState(pos);
-        Material material = state.getMaterial();
         boolean waterlog = state.hasProperty(WATERLOGGED);
-        if (!waterlog && !material.isReplaceable()) {
+        if (!waterlog && !state.canBeReplaced()) {
             return false;
         }
         if (waterlog && fluid != Fluids.WATER) {
@@ -76,43 +72,38 @@ public class FluidHelper {
             return false;
         }
 
-        try (Transaction nested = Transaction.openNested(ctx)) {
-            long result = source.extract(resource, maxAmount, nested);
-            if (result == 0) {
-                return false;
-            }
+        try (Transaction extraction = Transaction.openOuter()) {
+			long result = source.extract(resource, maxAmount, extraction);
+			if (result == 0) {
+				return false;
+			}
+			extraction.commit();
+		}
 
-            level.updateSnapshots(nested);
-            if (level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER)) {
-                TransactionCallback.onSuccess(nested, () -> {
-                    level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.random.nextFloat() - level.random.nextFloat()) * 0.8f);
-                    for (int i = 0; i < 8; ++i) {
-                        level.addParticle(ParticleTypes.LARGE_SMOKE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0, 0.0, 0.0);
-                    }
-                });
-                nested.commit();
-                return true;
-            }
+		if (level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER)) {
+			level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.random.nextFloat() - level.random.nextFloat()) * 0.8f);
+			for (int i = 0; i < 8; ++i) {
+				level.addParticle(ParticleTypes.LARGE_SMOKE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0, 0.0, 0.0);
+			}
+			return true;
+		}
 
-            if (waterlog) {
-                level.setBlock(pos, state.setValue(WATERLOGGED, true), 3);
-                TransactionCallback.onSuccess(nested, () -> level.scheduleTick(pos, Fluids.WATER, 1));
-                nested.commit();
-                return true;
-            }
+		if (waterlog) {
+			level.setBlock(pos, state.setValue(WATERLOGGED, true), 3);
+			level.scheduleTick(pos, Fluids.WATER, 1);
+			return true;
+		}
 
-            if (!level.isClientSide && state.canBeReplaced(fluid) && !material.isLiquid()) {
-                level.destroyBlock(pos, true);
-            }
+		if (!level.isClientSide && state.canBeReplaced(fluid) && !state.liquid()) {
+			level.destroyBlock(pos, true);
+		}
 
-            if (level.setBlock(pos, fluid.defaultFluidState().createLegacyBlock(), 3) || fluidState.isSource()) {
-                TransactionCallback.onSuccess(nested, () -> playFluidSound(player, level, pos, resource, false));
-                nested.commit();
-                return true;
-            }
+		if (level.setBlock(pos, fluid.defaultFluidState().createLegacyBlock(), 3) || fluidState.isSource()) {
+			playFluidSound(player, level, pos, resource, false);
+			return true;
+		}
 
-            return false;
-        }
+		return false;
     }
 
     public static void playFluidSound(@Nullable Player player, LevelAccessor level, BlockPos pos, FluidVariant resource, boolean fill) {

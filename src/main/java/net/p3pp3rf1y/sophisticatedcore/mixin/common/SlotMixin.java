@@ -15,18 +15,18 @@ import net.p3pp3rf1y.sophisticatedcore.util.MixinHelper;
 @Mixin(Slot.class)
 public class SlotMixin implements SophisticatedSlot {
     @Unique
-    private Pair<ResourceLocation, ResourceLocation> background;
+    private Pair<ResourceLocation, ResourceLocation> sophisticatedcore$background;
 
     @Inject(method = "getNoItemIcon", at = @At("HEAD"), cancellable = true)
     private void sophisticatedcore$background(CallbackInfoReturnable<Pair<ResourceLocation, ResourceLocation>> cir) {
-        if (background != null) {
-            cir.setReturnValue(background);
+        if (sophisticatedcore$background != null) {
+            cir.setReturnValue(sophisticatedcore$background);
         }
     }
 
     @Override
-    public Slot setBackground(ResourceLocation atlas, ResourceLocation sprite) {
-        this.background = Pair.of(atlas, sprite);
+    public Slot sophisticatedcore$setBackground(ResourceLocation atlas, ResourceLocation sprite) {
+        this.sophisticatedcore$background = Pair.of(atlas, sprite);
         return MixinHelper.cast(this);
     }
 }

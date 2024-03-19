@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
@@ -35,13 +35,13 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 
 	public static class Wrapper extends UpgradeWrapperBase<Wrapper, JukeboxUpgradeItem> implements ITickableUpgrade {
 		private static final int KEEP_ALIVE_SEND_INTERVAL = 5;
-		private final ItemStackHandler discInventory;
+		private final SCItemStackHandler discInventory;
 		private long lastKeepAliveSendTime = 0;
 		private boolean isPlaying;
 
 		protected Wrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 			super(storageWrapper, upgrade, upgradeSaveHandler);
-			discInventory = new ItemStackHandler(1) {
+			discInventory = new SCItemStackHandler(1) {
 				@Override
 				protected void onContentsChanged(int slot) {
 					super.onContentsChanged(slot);
@@ -72,7 +72,7 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 		}
 
 		public void play(LivingEntity entity) {
-			play(entity.level, (world, storageUuid) ->
+			play(entity.level(), (world, storageUuid) ->
 					ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(),
 							Item.getId(getDisc().getItem()), () -> setIsPlaying(false)));
 		}
@@ -101,11 +101,11 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 		}
 
 		public void stop(LivingEntity entity) {
-			if (!(entity.level instanceof ServerLevel)) {
+			if (!(entity.level() instanceof ServerLevel)) {
 				return;
 			}
 			storageWrapper.getContentsUuid().ifPresent(storageUuid ->
-					ServerStorageSoundHandler.stopPlayingDisc((ServerLevel) entity.level, entity.position(), storageUuid)
+					ServerStorageSoundHandler.stopPlayingDisc((ServerLevel) entity.level(), entity.position(), storageUuid)
 			);
 			setIsPlaying(false);
 		}

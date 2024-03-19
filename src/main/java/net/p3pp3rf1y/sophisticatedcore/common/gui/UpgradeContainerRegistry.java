@@ -28,7 +28,7 @@ public class UpgradeContainerRegistry {
 		if (!(wrapper.getUpgradeStack().getItem() instanceof IUpgradeItem<?>) || wrapper.hideSettingsTab() || !UPGRADE_CONTAINERS.containsKey(upgradeName)) {
 			return Optional.empty();
 		}
-		//noinspection unchecked
+		//noinspection unchecked,ConstantConditions
 		return Optional.of((UpgradeContainerBase<W, C>) getContainerType(upgradeName).create(player, containerId, wrapper));
 	}
 

@@ -30,7 +30,7 @@ public class SoundStopNotificationMessage extends SimplePacketBase {
 			if (sender == null) {
 				return;
 			}
-			ServerStorageSoundHandler.onSoundStopped((ServerLevel) sender.level, storageUuid);
+			ServerStorageSoundHandler.onSoundStopped((ServerLevel) sender.level(), storageUuid);
 		});
 		return true;
 	}
