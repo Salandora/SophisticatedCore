@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
 import com.google.common.collect.Lists;
-import dev.emi.emi.runtime.EmiLog;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,6 +9,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
@@ -85,13 +85,13 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
             }
 
             if (slots == null || crafting == null) {
-                EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
+                SophisticatedCore.LOGGER.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
                 return;
             }
 
             AbstractContainerMenu handler = sender.containerMenu;
             if (handler == null || handler.containerId != syncId || !(handler instanceof StorageContainerMenuBase<?> container)) {
-                EmiLog.warn("Client requested fill but screen handler has changed, aborting");
+				SophisticatedCore.LOGGER.warn("Client requested fill but screen handler has changed, aborting");
                 return;
             }
 
@@ -100,7 +100,7 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
             Slot output = null;
             for (int i : this.slots) {
                 if (i < 0 || i >= container.getTotalSlotsNumber()) {
-                    EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
+					SophisticatedCore.LOGGER.error("Client requested fill but passed input slots don't exist, aborting");
                     return;
                 }
                 slots.add(container.getSlot(i));
