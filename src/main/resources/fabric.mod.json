@@ -41,6 +41,7 @@
         "minecraft": "${minecraft_version}",
         "fabricloader": ">=${loader_version}",
         "fabric-api": ">=${fabric_version}",
+        "porting_lib_extensions": ">=${port_lib_version}",
         "porting_lib_networking": ">=${port_lib_version}",
         "porting_lib_transfer": ">=${port_lib_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
