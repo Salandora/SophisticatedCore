@@ -140,9 +140,7 @@ public class FilterLogic extends FilterLogicBase {
 		}
 
 		private boolean doesNotContain(ItemStack stack) {
-			// TODO: check
 			return this.simulateExtract(ItemVariant.of(stack), 1, null) == 0;
-			//return !InventoryHelper.hasItem(this, s -> ItemStackHelper.canItemStacksStack(s, stack));
 		}
 	}
 }
