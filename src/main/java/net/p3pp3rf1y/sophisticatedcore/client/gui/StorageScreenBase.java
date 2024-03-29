@@ -475,7 +475,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			if (stackCountText == null) {
 				stackCountText = CountAbbreviator.abbreviate(itemstack.getCount());
 			}
-			renderStackCount(poseStack, stackCountText, i, j);
+			renderStackCount(stackCountText, i, j);
 		} else {
 			itemRenderer.renderGuiItemDecorations(font, itemstack, i, j, stackCountText);
 		}
@@ -832,9 +832,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return numberOfUpgradeSlots == 0 ? Optional.empty() : GuiHelper.getPositiveRectangle(leftPos - UPGRADE_INVENTORY_OFFSET + 4, topPos, UPGRADE_INVENTORY_OFFSET + 4, getUpgradeHeight());
 	}
 
-	private void renderStackCount(PoseStack poseStrack, String count, int x, int y) {
-		poseStrack.pushPose();
-		poseStrack.translate(0.0D, 0.0D, 200.0F);
+	private void renderStackCount(String count, int x, int y) {
+		PoseStack poseStrack = new PoseStack();
+		poseStrack.translate(0.0D, 0.0D, itemRenderer.blitOffset + 200.0F);
 		float scale = Math.min(1f, (float) 16 / font.width(count));
 		if (scale < 1f) {
 			poseStrack.scale(scale, scale, 1.0F);
@@ -843,7 +843,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		font.drawInBatch(count, (x + 19 - 2 - (font.width(count) * scale)) / scale,
 				(y + 6 + 3 + (1 / (scale * scale) - 1)) / scale, 16777215, true, poseStrack.last().pose(), renderBuffer, false, 0, 15728880);
 		renderBuffer.endBatch();
-		poseStrack.popPose();
 	}
 
 	@Override
