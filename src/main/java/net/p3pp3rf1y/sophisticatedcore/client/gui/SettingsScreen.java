@@ -186,8 +186,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 		RenderSystem.enableDepthTest();
 		poseStack.pushPose();
-		poseStack.translate(0, 0, 100);
-		if (!settingsTabControl.renderGuiItem(poseStack, itemRenderer, itemstack, slot, isTemplateLoadHovered())) {
+		if (!settingsTabControl.renderGuiItem(itemRenderer, itemstack, slot, isTemplateLoadHovered())) {
 			if (!getMenu().getSlotFilterItem(slot.getContainerSlot()).isEmpty()) {
 				itemRenderer.renderAndDecorateItem(getMenu().getSlotFilterItem(slot.getContainerSlot()), slot.x, slot.y);
 			} else {

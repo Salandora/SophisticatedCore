@@ -78,11 +78,11 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 		getOpenTab().ifPresent(tab -> tab.handleSlotClick(slot, mouseButton));
 	}
 
-	public boolean renderGuiItem(PoseStack poseStack, ItemRenderer itemRenderer, ItemStack itemstack, Slot slot, boolean templateLoadHovered) {
+	public boolean renderGuiItem(ItemRenderer itemRenderer, ItemStack itemstack, Slot slot, boolean templateLoadHovered) {
 		for (SettingsTab<?> tab : settingsTabs) {
 			int rotation = tab.getItemRotation(slot.index, templateLoadHovered);
 			if (rotation != 0) {
-				GuiHelper.tryRenderGuiItem(poseStack, itemRenderer, minecraft.getTextureManager(), minecraft.player, itemstack, slot.x, slot.y, rotation);
+				GuiHelper.tryRenderGuiItem(itemRenderer, minecraft.getTextureManager(), minecraft.player, itemstack, slot.x, slot.y, rotation);
 				return true;
 			}
 		}

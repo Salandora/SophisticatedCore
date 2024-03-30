@@ -114,7 +114,7 @@ public class GuiHelper {
 	private static int getZOffset(PoseStack matrixStack) {
 		FloatBuffer buf = MemoryUtil.memAllocFloat(16);
 		matrixStack.last().pose().store(buf);
-		return (int) buf.get(11);
+		return (int) buf.get(14);
 	}
 
 	public static void blit(PoseStack matrixStack, int x, int y, TextureBlitData texData) {
@@ -293,16 +293,14 @@ public class GuiHelper {
 		GuiComponent.blit(matrixStack, x + halfWidth, y + halfHeight, (float) u + textureBgWidth - halfWidth, (float) v + textureBgHeight - halfHeight, halfWidth, halfHeight, GUI_CONTROLS_TEXTURE_WIDTH, GUI_CONTROLS_TEXTURE_HEIGHT);
 	}
 
-	public static void tryRenderGuiItem(PoseStack poseStack, ItemRenderer itemRenderer, TextureManager textureManager,
+	public static void tryRenderGuiItem(ItemRenderer itemRenderer, TextureManager textureManager,
 			@Nullable LivingEntity livingEntity, ItemStack stack, int x, int y, int rotation) {
 		if (!stack.isEmpty()) {
 			BakedModel bakedmodel = itemRenderer.getModel(stack, null, livingEntity, 0);
-
-			poseStack.pushPose();
-			poseStack.translate(0, 0, 50);
+			itemRenderer.blitOffset += 50.0F;
 
 			try {
-				renderGuiItem(poseStack, itemRenderer, textureManager, stack, x, y, bakedmodel, rotation);
+				renderGuiItem(itemRenderer, textureManager, stack, x, y, bakedmodel, rotation);
 			}
 			catch (Throwable throwable) {
 				CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
@@ -315,25 +313,27 @@ public class GuiHelper {
 				throw new ReportedException(crashreport);
 			}
 
-			poseStack.popPose();
+			itemRenderer.blitOffset -= 50.0F;
 		}
 	}
 
-	private static void renderGuiItem(PoseStack poseStack, ItemRenderer itemRenderer, TextureManager textureManager, ItemStack stack, int x, int y, BakedModel bakedModel, int rotation) {
+	private static void renderGuiItem(ItemRenderer itemRenderer, TextureManager textureManager, ItemStack stack, int x, int y, BakedModel bakedModel, int rotation) {
 		textureManager.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
 		RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		poseStack.pushPose();
-		poseStack.translate(x + 8, y + 8, 100.0F);
+		PoseStack posestack = RenderSystem.getModelViewStack();
+		posestack.pushPose();
+		posestack.translate(x, y, 100.0F + itemRenderer.blitOffset);
+		posestack.translate(8.0D, 8.0D, 0.0D);
 
 		if (rotation != 0) {
-			poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation));
+			posestack.mulPose(Vector3f.ZP.rotationDegrees(rotation));
 		}
 
-		poseStack.scale(1.0F, -1.0F, 1.0F);
-		poseStack.scale(16.0F, 16.0F, 16.0F);
+		posestack.scale(1.0F, -1.0F, 1.0F);
+		posestack.scale(16.0F, 16.0F, 16.0F);
 		RenderSystem.applyModelViewMatrix();
 		PoseStack posestack1 = new PoseStack();
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -349,7 +349,7 @@ public class GuiHelper {
 			Lighting.setupFor3DItems();
 		}
 
-		poseStack.popPose();
+		posestack.popPose();
 		RenderSystem.applyModelViewMatrix();
 	}
 
