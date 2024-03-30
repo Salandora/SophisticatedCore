@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.inventory;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 
 public interface SophisticatedSlot {
@@ -12,5 +13,5 @@ public interface SophisticatedSlot {
         return ItemVariant.of(((Slot)this).getItem());
     }
 
-    // Slot setBackground(ResourceLocation atlas, ResourceLocation sprite);
+    default Slot sophisticatedcore$setBackground(ResourceLocation atlas, ResourceLocation sprite) { throw new RuntimeException("Should have been overridden by a mixin"); }
 }
