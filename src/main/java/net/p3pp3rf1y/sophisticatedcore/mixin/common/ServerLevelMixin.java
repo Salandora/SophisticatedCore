@@ -13,7 +13,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.MixinHelper;
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
 	@Inject(method = "addPlayer", at = @At("HEAD"), cancellable = true)
-	public void port_lib$addEntityEvent(ServerPlayer serverPlayer, CallbackInfo ci) {
+	public void sophisticatedcore$addEntityEvent(ServerPlayer serverPlayer, CallbackInfo ci) {
 		if (EntityEvents.ON_JOIN_WORLD.invoker().onJoinWorld(serverPlayer, MixinHelper.cast(this), false))
 			ci.cancel();
 	}
