@@ -1,6 +1,6 @@
 // Code from https://github.com/Fabricators-of-Create/Porting-Lib/blob/1.19.2/base/src/main/java/io/github/fabricators_of_create/porting_lib/mixin/common/LootPoolMixin.java
 // to not include all of porting_lib_base just for this
-package net.p3pp3rf1y.sophisticatedcore.mixin.common;
+package net.p3pp3rf1y.porting_lib.loot.mixin.common;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,26 +21,26 @@ import java.lang.reflect.Type;
 @Mixin(LootPool.class)
 public class LootPoolMixin implements LootPoolExtensions {
 	@Unique
-	private String sophisticatedCore$name;
+	private String name;
 
 	@Override
 	public String getName() {
-		return this.sophisticatedCore$name;
+		return this.name;
 	}
 
 	@Override
 	public void setName(String name) {
-		this.sophisticatedCore$name = name;
+		this.name = name;
 	}
 
 	@Mixin(LootPool.Builder.class)
 	public static class LootPoolBuilderMixin implements LootPoolBuilderExtension {
 		@Unique
-		private String sophisticatedCore$name;
+		private String name;
 
 		@Override
 		public LootPool.Builder name(String name) {
-			this.sophisticatedCore$name = name;
+			this.name = name;
 			return (LootPool.Builder) (Object) this;
 		}
 
@@ -50,7 +50,7 @@ public class LootPoolMixin implements LootPoolExtensions {
 				locals = LocalCapture.CAPTURE_FAILHARD
 		)
 		public void port_lib$customName(CallbackInfoReturnable<LootPool> cir) {
-			cir.getReturnValue().setName(sophisticatedCore$name);
+			cir.getReturnValue().setName(name);
 		}
 	}
 

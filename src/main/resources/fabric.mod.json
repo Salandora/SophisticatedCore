@@ -35,7 +35,10 @@
             "net.p3pp3rf1y.sophisticatedcore.compat.rei.ReiCompat"
         ]
     },
-    "mixins": ["sophisticatedcore.mixins.json"],
+    "mixins": [
+        "sophisticatedcore.mixins.json",
+        "porting_lib/loot.mixins.json"
+    ],
     "accessWidener": "sophisticatedcore.accesswidener",
     "depends": {
         "minecraft": "${minecraft_version}",
