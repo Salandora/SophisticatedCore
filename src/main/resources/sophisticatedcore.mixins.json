@@ -24,7 +24,9 @@
         "client.KeyboardHandlerMixin",
         "client.MinecraftMixin",
         "client.MouseHandlerMixin",
-        "client.ParticleEngineMixin"
+        "client.ParticleEngineMixin",
+        "client.ScreenEffectRendererMixin",
+        "client.TerrainParticleMixin"
     ],
     "injectors": {
         "defaultRequire": 1
