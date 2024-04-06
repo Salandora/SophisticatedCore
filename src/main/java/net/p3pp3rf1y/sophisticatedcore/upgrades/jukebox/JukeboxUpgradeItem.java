@@ -50,7 +50,7 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 				}
 
 				@Override
-				public boolean isItemValid(int slot, ItemVariant resource) {
+				public boolean isItemValid(int slot, ItemVariant resource, int count) {
 					return resource.getItem() instanceof RecordItem;
 				}
 			};

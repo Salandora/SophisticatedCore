@@ -134,8 +134,8 @@ public class FilterLogic extends FilterLogicBase {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant resource) {
-			ItemStack stack = resource.toStack();
+		public boolean isItemValid(int slot, ItemVariant resource, int count) {
+			ItemStack stack = resource.toStack(count);
 			return stack.isEmpty() || (doesNotContain(stack) && isItemValid.test(stack));
 		}
 

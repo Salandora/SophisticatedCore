@@ -291,10 +291,10 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 				}
 
 				@Override
-				public boolean isItemValid(int slot, ItemVariant resource) {
+				public boolean isItemValid(int slot, ItemVariant resource, int count) {
 					return switch (slot) {
-						case COOK_INPUT_SLOT -> isInput.test(resource.toStack());
-						case FUEL_SLOT -> isFuel.test(resource.toStack());
+						case COOK_INPUT_SLOT -> isInput.test(resource.toStack(count));
+						case FUEL_SLOT -> isFuel.test(resource.toStack(count));
 						default -> true;
 					};
 				}

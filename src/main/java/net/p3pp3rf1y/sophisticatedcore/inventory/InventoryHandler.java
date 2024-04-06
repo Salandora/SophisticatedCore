@@ -328,8 +328,8 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource) {
-		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource) && isAllowed(resource) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, resource);
+	public boolean isItemValid(int slot, ItemVariant resource, int count) {
+		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource, count) && isAllowed(resource) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, resource);
 	}
 
 	@Nonnull

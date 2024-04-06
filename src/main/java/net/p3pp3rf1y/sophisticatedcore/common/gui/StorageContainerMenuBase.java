@@ -1616,7 +1616,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack))) {
+			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
 				return false;
 			}
 			UpgradeSlotChangeResult result = ((IUpgradeItem<?>) stack.getItem()).canAddUpgradeTo(storageWrapper, stack, isFirstLevelStorage(), player.level().isClientSide());

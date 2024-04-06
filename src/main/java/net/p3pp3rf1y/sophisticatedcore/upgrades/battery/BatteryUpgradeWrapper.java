@@ -45,13 +45,12 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 			}
 
 			@Override
-			public boolean isItemValid(int slot, ItemVariant resource) {
-				if (slot == INPUT_SLOT) {
-					return isValidInputItem(resource.toStack());
-				} else if (slot == OUTPUT_SLOT) {
-					return isValidOutputItem(resource.toStack());
-				}
-				return false;
+			public boolean isItemValid(int slot, ItemVariant resource, int count) {
+				return switch (slot) {
+					case INPUT_SLOT -> isValidInputItem(resource.toStack(count));
+					case OUTPUT_SLOT -> isValidOutputItem(resource.toStack(count));
+					default -> false;
+				};
 			}
 
 			private boolean isValidInputItem(ItemStack stack) {

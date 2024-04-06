@@ -26,7 +26,7 @@ public class SCSlotItemHandler extends Slot {
 		if (stack.isEmpty())
 			return false;
 
-		return this.getItemHandler().isItemValid(this.index, ItemVariant.of(stack));
+		return this.getItemHandler().isItemValid(this.index, ItemVariant.of(stack), stack.getCount());
 	}
 
 	@Override

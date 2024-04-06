@@ -114,8 +114,8 @@ public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemVariant resource) {
-		return wrapped.isItemValid(slot, resource);
+	public boolean isItemValid(int slot, @NotNull ItemVariant resource, int count) {
+		return wrapped.isItemValid(slot, resource, count);
 	}
 
 	@Override

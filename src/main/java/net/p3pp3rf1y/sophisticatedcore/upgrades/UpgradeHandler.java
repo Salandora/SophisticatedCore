@@ -59,7 +59,7 @@ public class UpgradeHandler extends SCItemStackHandler {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource) {
+	public boolean isItemValid(int slot, ItemVariant resource, int count) {
 		return resource.getItem() instanceof IUpgradeItem;
 	}
 

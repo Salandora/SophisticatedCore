@@ -599,7 +599,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		if (isItemValid(slot, resource)) {return insert(resource, maxAmount, ctx, true);}
+		if (isItemValid(slot, resource, (int) maxAmount)) {return insert(resource, maxAmount, ctx, true);}
 
 		return 0;
 	}
@@ -735,7 +735,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource) {
+	public boolean isItemValid(int slot, ItemVariant resource, int count) {
 		if (isSlotIndexInvalid(slot)) {
 			return false;
 		}
@@ -747,7 +747,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		}
 		int localSlot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, localSlot, "isItemValid(int slot, ItemStack stack)")) {
-			return handler.isItemValid(localSlot, resource);
+			return handler.isItemValid(localSlot, resource, count);
 		}
 		return false;
 	}

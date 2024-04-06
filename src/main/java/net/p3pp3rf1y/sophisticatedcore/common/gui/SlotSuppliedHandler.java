@@ -25,7 +25,7 @@ public class SlotSuppliedHandler extends SlotItemHandler {
 
 	@Override
 	public boolean mayPlace(ItemStack stack) {
-		return itemHandlerSupplier.get().isItemValid(slot, ItemVariant.of(stack));
+		return itemHandlerSupplier.get().isItemValid(slot, ItemVariant.of(stack), stack.getCount());
 	}
 
 	@Override

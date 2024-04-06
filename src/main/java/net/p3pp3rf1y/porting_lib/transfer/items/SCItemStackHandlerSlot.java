@@ -24,7 +24,7 @@ public class SCItemStackHandlerSlot extends SingleStackStorage {
 
 	@Override
 	protected boolean canInsert(ItemVariant itemVariant) {
-		return handler.isItemValid(this.index, itemVariant);
+		return handler.isItemValid(this.index, itemVariant, this.stack.getCount());
 	}
 
 	@Override

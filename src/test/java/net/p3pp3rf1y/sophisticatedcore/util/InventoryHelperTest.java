@@ -50,8 +50,8 @@ class InventoryHelperTest {
 
 
             @Override
-            public boolean isItemValid(int slot, ItemVariant resource) {
-				return isStackValidForSlot.test(slot, resource.toStack());
+            public boolean isItemValid(int slot, ItemVariant resource, int count) {
+				return isStackValidForSlot.test(slot, resource.toStack(count));
 			}
 		};
 	}

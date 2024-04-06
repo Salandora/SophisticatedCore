@@ -46,7 +46,12 @@ public interface IInventoryPartHandler {
 		//noop
 	}
 
+	@Deprecated
 	default boolean isItemValid(int slot, ItemVariant resource) {
+		return isItemValid(slot, resource, 1);
+	}
+
+	default boolean isItemValid(int slot, ItemVariant resource, int count) {
 		return false;
 	}
 
