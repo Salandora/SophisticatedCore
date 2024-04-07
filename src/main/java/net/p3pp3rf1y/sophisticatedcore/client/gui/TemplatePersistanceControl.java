@@ -18,6 +18,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.TemplatePersistanceContainer;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +79,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				boolean showTextBox = container.showsTextbox() && mouseOver;
 				if (mouseOver) {
-					guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), saveTemplateButton.getX() + 10, saveTemplateButton.getY() + (showTextBox ? -13 : 6));
+					guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), getTooltip(), Optional.empty(), saveTemplateButton.getX() + 10, saveTemplateButton.getY() + (showTextBox ? -13 : 6));
 				}
 				saveInput.setVisible(showTextBox);
 				saveInput.setFocused(showTextBox);
@@ -104,7 +105,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				if (mouseOver) {
-					guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), loadTemplateButton.getX() + 10, loadTemplateButton.getY() + 6);
+					guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), getTooltip(), Optional.empty(), loadTemplateButton.getX() + 10, loadTemplateButton.getY() + 6);
 				}
 			}
 		};
@@ -125,7 +126,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				if (mouseOver) {
-					guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), exportTemplateButton.getX() + 10, exportTemplateButton.getY() - 13);
+					guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), getTooltip(), Optional.empty(), exportTemplateButton.getX() + 10, exportTemplateButton.getY() - 13);
 				}
 				exportInput.setVisible(mouseOver);
 				exportInput.setFocused(mouseOver);

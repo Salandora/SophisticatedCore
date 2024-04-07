@@ -9,6 +9,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.List;
 
@@ -30,12 +32,12 @@ public class BatteryUpgradeTab extends UpgradeSettingsTab<BatteryUpgradeContaine
 	@Override
 	protected void moveSlotsToTab() {
 		List<Slot> slots = getContainer().getSlots();
-		positionSlot(slots.get(BatteryUpgradeWrapper.INPUT_SLOT), screen.getGuiLeft(), screen.getGuiTop(), 4);
-		positionSlot(slots.get(BatteryUpgradeWrapper.OUTPUT_SLOT), screen.getGuiLeft(), screen.getGuiTop(), 25);
+		positionSlot(slots.get(BatteryUpgradeWrapper.INPUT_SLOT), ((AbstractContainerScreenAccessor) screen).getGuiLeft(), ((AbstractContainerScreenAccessor) screen).getGuiTop(), 4);
+		positionSlot(slots.get(BatteryUpgradeWrapper.OUTPUT_SLOT), ((AbstractContainerScreenAccessor) screen).getGuiLeft(), ((AbstractContainerScreenAccessor) screen).getGuiTop(), 25);
 	}
 
 	private void positionSlot(Slot slot, int screenGuiLeft, int screenGuiTop, int xOffset) {
-		slot.x = x - screenGuiLeft + xOffset;
-		slot.y = y - screenGuiTop + 25;
+		((SlotAccessor) slot).setX(x - screenGuiLeft + xOffset);
+		((SlotAccessor) slot).setY(y - screenGuiTop + 25);
 	}
 }

@@ -8,6 +8,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeSettingsTab;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 
 public abstract class CookingUpgradeTab<R extends AbstractCookingRecipe, W extends CookingUpgradeWrapper<W, ?, R>>
 		extends UpgradeSettingsTab<CookingUpgradeContainer<R, W>> {
@@ -20,7 +21,7 @@ public abstract class CookingUpgradeTab<R extends AbstractCookingRecipe, W exten
 
 	@Override
 	protected void moveSlotsToTab() {
-		cookingLogicControl.moveSlotsToView(screen.getGuiLeft(), screen.getGuiTop());
+		cookingLogicControl.moveSlotsToView(((AbstractContainerScreenAccessor) screen).getGuiLeft(), ((AbstractContainerScreenAccessor) screen).getGuiTop());
 	}
 
 	public static class SmeltingUpgradeTab extends CookingUpgradeTab<SmeltingRecipe, CookingUpgradeWrapper.SmeltingUpgradeWrapper> {

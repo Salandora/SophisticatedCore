@@ -41,6 +41,8 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageBackgroundProperties;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageInventorySlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.TransferFullSlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
@@ -156,7 +158,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int yPosition = 6;
 		for (int slotIndex = 0; slotIndex < numberOfUpgradeSlots; slotIndex++) {
 			Slot slot = getMenu().getSlot(getMenu().getFirstUpgradeSlot() + slotIndex);
-			slot.y = yPosition;
+			((SlotAccessor) slot).setY(yPosition);
 			yPosition += UPGRADE_SLOT_HEIGHT;
 		}
 	}
@@ -168,8 +170,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		while (slotIndex < getMenu().getNumberOfStorageInventorySlots()) {
 			Slot slot = getMenu().getSlot(slotIndex);
 			int lineIndex = slotIndex % getSlotsOnLine();
-			slot.x = 8 + lineIndex * 18;
-			slot.y = yPosition;
+			((SlotAccessor) slot).setX(8 + lineIndex * 18);
+			((SlotAccessor) slot).setY(yPosition);
 
 			slotIndex++;
 			if (slotIndex % getSlotsOnLine() == 0) {
@@ -188,8 +190,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				int slotIndex = j + i * 9;
 				int xPosition = playerInventoryXOffset + 8 + j * 18;
 				Slot slot = getMenu().getSlot(getMenu().getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + slotIndex);
-				slot.x = xPosition;
-				slot.y = yPosition;
+				((SlotAccessor) slot).setX(xPosition);
+				((SlotAccessor) slot).setY(yPosition);
 			}
 			yPosition += 18;
 		}
@@ -199,8 +201,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		for (int slotIndex = 0; slotIndex < 9; ++slotIndex) {
 			int xPosition = playerInventoryXOffset + 8 + slotIndex * 18;
 			Slot slot = getMenu().getSlot(getMenu().getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + 3 * 9 + slotIndex);
-			slot.x = xPosition;
-			slot.y = yPosition;
+			((SlotAccessor) slot).setX(xPosition);
+			((SlotAccessor) slot).setY(yPosition);
 		}
 	}
 
@@ -244,7 +246,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, getGuiTop() + 17, getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, ((AbstractContainerScreenAccessor) this).getGuiTop() + 17, ((AbstractContainerScreenAccessor) this).getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsYPosition();
 		} else {
@@ -400,9 +402,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			Slot slot = menu.realInventorySlots.get(slotId);
 			renderSlot(guiGraphics, slot);
 
-			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (canShowHover && ((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, getSlotColor(slotId));
+				renderSlotOverlay(guiGraphics, slot, sophisticatedcore_getSlotColor(slotId));
 			}
 		}
 	}
@@ -417,9 +419,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				}
 			}
 
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, getSlotColor(slotId));
+				renderSlotOverlay(guiGraphics, slot, sophisticatedcore_getSlotColor(slotId));
 			}
 		}
 	}
@@ -430,10 +432,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int j = slot.y;
 		ItemStack stackToRender = slot.getItem();
 		boolean flag = false;
-		boolean rightClickDragging = slot == clickedSlot && !draggingItem.isEmpty() && !isSplittingStack;
+
+		boolean slotsEqual = (slot == ((AbstractContainerScreenAccessor) this).getClickedSlot());
+		boolean draggingItemEmpty = ((AbstractContainerScreenAccessor) this).getDraggingItem().isEmpty();
+		boolean isSplittingStack = ((AbstractContainerScreenAccessor) this).getIsSplittingStack();
+
+		boolean rightClickDragging = slotsEqual && !draggingItemEmpty && !isSplittingStack;
 		ItemStack carriedStack = getMenu().getCarried();
 		String stackCountText = null;
-		if (slot == clickedSlot && !draggingItem.isEmpty() && isSplittingStack && !stackToRender.isEmpty()) {
+		if (slotsEqual && !draggingItemEmpty && isSplittingStack && !stackToRender.isEmpty()) {
 			stackToRender = stackToRender.copy();
 			stackToRender.setCount(stackToRender.getCount() / 2);
 		} else if (isQuickCrafting && quickCraftSlots.contains(slot) && !carriedStack.isEmpty()) {
@@ -444,7 +451,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			if (StorageContainerMenuBase.canItemQuickReplace(slot, carriedStack) && menu.canDragTo(slot)) {
 				flag = true;
 				int slotStackCount = stackToRender.isEmpty() ? 0 : stackToRender.getCount();
-				int renderCount = AbstractContainerMenu.getQuickCraftPlaceCount(quickCraftSlots, quickCraftingType, carriedStack) + slotStackCount;
+				int renderCount = AbstractContainerMenu.getQuickCraftPlaceCount(quickCraftSlots, ((AbstractContainerScreenAccessor) this).getQuickCraftingType(), carriedStack) + slotStackCount;
 				int slotLimit = slot.getMaxStackSize(stackToRender);
 				if (renderCount > slotLimit) {
 					stackCountText = ChatFormatting.YELLOW + CountAbbreviator.abbreviate(slotLimit);
@@ -555,7 +562,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private void drawSlotOverlays(GuiGraphics guiGraphics) {
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
-		poseStack.translate(getGuiLeft(), getGuiTop(), 0.0F);
+		poseStack.translate(((AbstractContainerScreenAccessor) this).getGuiLeft(), ((AbstractContainerScreenAccessor) this).getGuiTop(), 0.0F);
 		for (int slotNumber = 0; slotNumber < menu.getNumberOfStorageInventorySlots(); slotNumber++) {
 			List<Integer> colors = menu.getSlotOverlayColors(slotNumber);
 			if (!colors.isEmpty()) {
@@ -638,7 +645,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public Slot findSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < menu.upgradeSlots.size(); ++i) {
 			Slot slot = menu.upgradeSlots.get(i);
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				return slot;
 			}
 		}
@@ -654,7 +661,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		} else {
 			for (int i = 0; i < menu.realInventorySlots.size(); ++i) {
 				Slot slot = menu.realInventorySlots.get(i);
-				if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+				if (((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 					return slot;
 				}
 			}
@@ -677,7 +684,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void handleQuickMoveAll(double mouseX, double mouseY, int button) {
 		Slot slot = findSlot(mouseX, mouseY);
-		if (doubleclick && !getMenu().getCarried().isEmpty() && slot != null && button == 0 && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && hasShiftDown() && !lastQuickMoved.isEmpty()) {
+		if (((AbstractContainerScreenAccessor) this).getDoubleclick() && !getMenu().getCarried().isEmpty() && slot != null && button == 0 && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && hasShiftDown() && !((AbstractContainerScreenAccessor) this).getLastQuickMoved().isEmpty()) {
 			for (Slot slot2 : menu.realInventorySlots) {
 				tryQuickMoveSlot(button, slot, slot2);
 			}
@@ -688,7 +695,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		//noinspection ConstantConditions - by this point minecraft isn't null
 		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.isSameInventory(slot)) {
 			ItemStack slotItem = slot2.getItem();
-			if (ItemStack.isSameItemSameTags(lastQuickMoved, slotItem)) {
+			if (ItemStack.isSameItemSameTags(((AbstractContainerScreenAccessor) this).getLastQuickMoved(), slotItem)) {
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {
 					PacketHandler.sendToServer(new TransferFullSlotMessage(slot2.index));
 				} else {
@@ -787,7 +794,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		ItemStack itemstack = getMenu().getCarried();
 		if (isQuickCrafting) {
 			if (slot != null && !itemstack.isEmpty()
-					&& (itemstack.getCount() > quickCraftSlots.size() || quickCraftingType == 2)
+					&& (itemstack.getCount() > quickCraftSlots.size() || ((AbstractContainerScreenAccessor) this).getQuickCraftingType() == 2)
 					&& StorageContainerMenuBase.canItemQuickReplace(slot, itemstack) && slot.mayPlace(itemstack)
 					&& menu.canDragTo(slot)
 					&& isAllowedSlotCombination(slot, itemstack)) {
@@ -844,17 +851,17 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	protected void recalculateQuickCraftRemaining() {
 		ItemStack carriedStack = getMenu().getCarried();
 		if (!carriedStack.isEmpty() && isQuickCrafting) {
-			if (quickCraftingType == 2) {
-				quickCraftingRemainder = carriedStack.getMaxStackSize();
+			if (((AbstractContainerScreenAccessor) this).getQuickCraftingType() == 2) {
+				((AbstractContainerScreenAccessor) this).setQuickCraftingRemainder(carriedStack.getMaxStackSize());
 			} else {
-				quickCraftingRemainder = carriedStack.getCount();
+				((AbstractContainerScreenAccessor) this).setQuickCraftingRemainder(carriedStack.getCount());
 
 				for (Slot slot : quickCraftSlots) {
 					ItemStack slotStack = slot.getItem();
 					int slotStackCount = slotStack.isEmpty() ? 0 : slotStack.getCount();
 					int maxStackSize = slot.getMaxStackSize(carriedStack);
-					int quickCraftPlaceCount = Math.min(AbstractContainerMenu.getQuickCraftPlaceCount(quickCraftSlots, quickCraftingType, carriedStack) + slotStackCount, maxStackSize);
-					quickCraftingRemainder -= quickCraftPlaceCount - slotStackCount;
+					int quickCraftPlaceCount = Math.min(AbstractContainerMenu.getQuickCraftPlaceCount(quickCraftSlots, ((AbstractContainerScreenAccessor) this).getQuickCraftingType(), carriedStack) + slotStackCount, maxStackSize);
+					((AbstractContainerScreenAccessor) this).setQuickCraftingRemainder(((AbstractContainerScreenAccessor) this).getQuickCraftingRemainder() - quickCraftPlaceCount - slotStackCount);
 				}
 			}
 		}
@@ -865,7 +872,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			RenderSystem.disableDepthTest();
 			PoseStack poseStack = guiGraphics.pose();
 			poseStack.pushPose();
-			poseStack.translate(getGuiLeft(), getGuiTop(), 0.0F);
+			poseStack.translate(((AbstractContainerScreenAccessor) this).getGuiLeft(), ((AbstractContainerScreenAccessor) this).getGuiTop(), 0.0F);
 			upgradeSlotChangeResult.getErrorUpgradeSlots().forEach(slotIndex -> {
 				Slot upgradeSlot = menu.getSlot(menu.getFirstUpgradeSlot() + slotIndex);
 				renderSlotOverlay(guiGraphics, upgradeSlot, ERROR_SLOT_COLOR);
@@ -937,12 +944,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public boolean isMouseOverSlot(Slot pSlot, double pMouseX, double pMouseY) {
-		return isHovering(pSlot, pMouseX, pMouseY);
+		return ((AbstractContainerScreenAccessor) this).callIsHovering(pSlot, pMouseX, pMouseY);
 	}
 
 	@Override
 	public int getTopY() {
-		return getGuiTop();
+		return ((AbstractContainerScreenAccessor) this).getGuiTop();
 	}
 
 	@Override
@@ -953,7 +960,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public int getLeftX() {
-		return getGuiLeft();
+		return ((AbstractContainerScreenAccessor) this).getGuiLeft();
 	}
 
 	public Position getRightTopAbovePlayersInventory() {

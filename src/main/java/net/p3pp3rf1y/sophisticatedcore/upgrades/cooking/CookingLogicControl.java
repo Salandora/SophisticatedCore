@@ -14,6 +14,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.List;
 
@@ -62,8 +63,8 @@ public class CookingLogicControl<T extends AbstractCookingRecipe> extends Compos
 	}
 
 	private void positionSlot(Slot slot, int screenGuiLeft, int screenGuiTop, int xOffset, int yOffset) {
-		slot.x = x - screenGuiLeft + xOffset;
-		slot.y = y - screenGuiTop + yOffset;
+		((SlotAccessor) slot).setX(x - screenGuiLeft + xOffset);
+		((SlotAccessor) slot).setY(y - screenGuiTop + yOffset);
 	}
 
 	@Override

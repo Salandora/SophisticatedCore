@@ -16,7 +16,9 @@
         "common.PersistentEntitySectionManagerMixin",
         "common.ServerLevelMixin",
         "common.ShapedRecipeMixin",
-        "common.SlotMixin"
+        "common.SlotMixin",
+        "common.accessor.AbstractContainerMenuAccessor",
+        "common.accessor.SlotAccessor"
     ],
     "client": [
         "client.AbstractContainerScreenMixin",
@@ -26,7 +28,11 @@
         "client.MouseHandlerMixin",
         "client.ParticleEngineMixin",
         "client.ScreenEffectRendererMixin",
-        "client.TerrainParticleMixin"
+        "client.TerrainParticleMixin",
+        "client.accessor.AbstractContainerScreenAccessor",
+        "client.accessor.EditBoxAccessor",
+        "client.accessor.GuiGraphicsAccessor",
+        "client.accessor.ScreenAccessor"
     ],
     "injectors": {
         "defaultRequire": 1

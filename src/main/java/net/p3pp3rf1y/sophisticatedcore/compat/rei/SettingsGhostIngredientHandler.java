@@ -14,6 +14,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
 
@@ -84,7 +85,7 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 		public GhostTarget(S screen, ItemStack stack, Slot slot) {
 			this.slot = slot;
 			this.stack = stack;
-			this.area = new Rectangle(screen.getGuiLeft() + slot.x, screen.getGuiTop() + slot.y, 16, 16);
+			this.area = new Rectangle(((AbstractContainerScreenAccessor) screen).getGuiLeft() + slot.x, ((AbstractContainerScreenAccessor) screen).getGuiTop() + slot.y, 16, 16);
 		}
 
 		public void accept(I ingredient) {

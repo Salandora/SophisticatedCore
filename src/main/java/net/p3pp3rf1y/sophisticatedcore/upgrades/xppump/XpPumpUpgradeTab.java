@@ -19,6 +19,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,7 @@ public class XpPumpUpgradeTab extends UpgradeSettingsTab<XpPumpUpgradeContainer>
 		public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 			super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 			if (isMouseOver(mouseX, mouseY)) {
-				guiGraphics.renderTooltip(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
+				guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), TOOLTIP, Optional.empty(), mouseX, mouseY);
 			}
 		}
 

@@ -23,6 +23,8 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
@@ -61,7 +63,7 @@ public class ClientEventHandler implements ClientModInitializer {
         AbstractContainerMenu menu = containerGui.getMenu();
         ItemStack held = menu.getCarried();
         if (!held.isEmpty()) {
-            Slot under = containerGui.hoveredSlot;
+            Slot under = ((AbstractContainerScreenAccessor) containerGui).getHoveredSlot();
 
             for (Slot s : menu.slots) {
                 ItemStack stack = s.getItem();
@@ -83,8 +85,8 @@ public class ClientEventHandler implements ClientModInitializer {
     }
 
     private static void renderStashSign(Minecraft mc, AbstractContainerScreen<?> containerGui, GuiGraphics guiGraphics, Slot s, ItemStack stack, IStashStorageItem.StashResult stashResult) {
-        int x = containerGui.getGuiLeft() + s.x;
-        int y = containerGui.getGuiTop() + s.y;
+        int x = ((AbstractContainerScreenAccessor) containerGui).getGuiLeft() + s.x;
+        int y = ((AbstractContainerScreenAccessor) containerGui).getGuiTop() + s.y;
 
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
@@ -103,7 +105,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(0, 0, 100);
-        guiGraphics.renderTooltip(containerGui.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), mouseX, mouseY);
+        guiGraphics.renderTooltip(((ScreenAccessor) containerGui).getFont(), Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), mouseX, mouseY);
         poseStack.popPose();
     }
 

@@ -18,6 +18,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
@@ -64,8 +66,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 	@Override
 	public boolean handleMouseReleased(double mouseX, double mouseY, int button) {
-		if (mouseX < screen.getGuiLeft() + getTankLeft() || mouseX >= screen.getGuiLeft() + getTankLeft() + 18 ||
-				mouseY < screen.getGuiTop() + pos.y() || mouseY >= screen.getGuiTop() + pos.y() + height) {
+		if (mouseX < ((AbstractContainerScreenAccessor) screen).getGuiLeft() + getTankLeft() || mouseX >= ((AbstractContainerScreenAccessor) screen).getGuiLeft() + getTankLeft() + 18 ||
+				mouseY < ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() || mouseY >= ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() + height) {
 			return false;
 		}
 
@@ -92,15 +94,15 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 			contents = FluidStack.EMPTY;
 		}
 
-		int screenX = screen.getGuiLeft() + pos.x() + 10;
-		int screenY = screen.getGuiTop() + pos.y() + 1;
+		int screenX = ((AbstractContainerScreenAccessor) screen).getGuiLeft() + pos.x() + 10;
+		int screenY = ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {
 				tooltip.add(contents.getDisplayName());
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
-			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 

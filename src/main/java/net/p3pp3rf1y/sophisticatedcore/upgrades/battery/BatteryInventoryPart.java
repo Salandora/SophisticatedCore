@@ -12,6 +12,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,14 +78,14 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 
 	@Override
 	public void renderTooltip(StorageScreenBase<?> screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		int screenX = screen.getGuiLeft() + pos.x() + 10;
-		int screenY = screen.getGuiTop() + pos.y() + 1;
+		int screenX = ((AbstractContainerScreenAccessor) screen).getGuiLeft() + pos.x() + 10;
+		int screenY = ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			long energyStored = container.getAmount();
 			long maxEnergyStored = container.getCapacity();
 			List<Component> tooltip = new ArrayList<>();
 			tooltip.add(Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("battery.contents_tooltip"), String.format("%,d", energyStored), String.format("%,d", maxEnergyStored)));
-			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 

@@ -39,6 +39,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.GuiGraphicsAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -318,8 +320,8 @@ public class GuiHelper {
 	}
 
 	public static void renderTooltip(Screen screen, GuiGraphics guiGraphics, List<Component> components, int x, int y) {
-		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		guiGraphics.renderTooltipInternal(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE);
+		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, ((ScreenAccessor) screen).getFont());
+		((GuiGraphicsAccessor) guiGraphics).callRenderTooltipInternal(((ScreenAccessor) screen).getFont(), list, x, y, DefaultTooltipPositioner.INSTANCE);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped

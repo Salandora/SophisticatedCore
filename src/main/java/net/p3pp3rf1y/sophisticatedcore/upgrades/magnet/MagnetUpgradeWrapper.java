@@ -109,6 +109,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	private boolean tryToFillTank(ExperienceOrb xpOrb, @Nullable LivingEntity entity, Level world) {
+		// TODO: multiply with the xpOrb count value?
 		long amountToTransfer = XpHelper.experienceToLiquid(xpOrb.getValue());
 		return storageWrapper.getFluidHandler().map(fluidHandler -> {
 			long amountAdded;
@@ -118,7 +119,8 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			}
 			if (amountAdded > 0) {
 				Vec3 pos = xpOrb.position();
-				xpOrb.value = 0;
+				// TODO: Is this necessary?
+				//xpOrb.value = 0;
 				xpOrb.discard();
 
 				Player player = (Player) entity;

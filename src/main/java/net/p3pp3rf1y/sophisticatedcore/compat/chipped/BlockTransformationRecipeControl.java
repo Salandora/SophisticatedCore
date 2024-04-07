@@ -16,6 +16,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.List;
 
@@ -48,11 +50,11 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 
 	public void moveSlotsToView() {
 		Slot inputSlot = container.getInputSlot();
-		inputSlot.x = x + getCenteredX(16) - screen.getGuiLeft();
-		inputSlot.y = y - screen.getGuiTop() + 1;
+		((SlotAccessor) inputSlot).setX(x + getCenteredX(16) - ((AbstractContainerScreenAccessor) screen).getGuiLeft());
+		((SlotAccessor) inputSlot).setY(y - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 1);
 		Slot outputSlot = container.getOutputSlot();
-		outputSlot.x = x + getCenteredX(16) - screen.getGuiLeft();
-		outputSlot.y = inputSlot.y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING + 4;
+		((SlotAccessor) outputSlot).setX(x + getCenteredX(16) - ((AbstractContainerScreenAccessor) screen).getGuiLeft());
+		((SlotAccessor) outputSlot).setY(inputSlot.y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING + 4);
 	}
 
 	@Override

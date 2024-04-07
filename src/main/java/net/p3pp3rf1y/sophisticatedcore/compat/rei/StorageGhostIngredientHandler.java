@@ -15,6 +15,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public abstract class StorageGhostIngredientHandler<S extends StorageScreenBase<
 		public GhostTarget(S screen, ItemStack stack, Slot slot) {
 			this.slot = slot;
 			this.stack = stack;
-			this.area = new Rectangle(screen.getGuiLeft() + slot.x, screen.getGuiTop() + slot.y, 16, 16);
+			this.area = new Rectangle(((AbstractContainerScreenAccessor) screen).getGuiLeft() + slot.x, ((AbstractContainerScreenAccessor) screen).getGuiTop() + slot.y, 16, 16);
 		}
 
 		public void accept(I ingredient) {

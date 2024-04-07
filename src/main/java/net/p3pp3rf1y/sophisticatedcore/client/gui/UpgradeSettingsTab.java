@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ItemButton;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 public abstract class UpgradeSettingsTab<C extends UpgradeContainerBase<?, ?>> extends SettingsTabBase<StorageScreenBase<?>> {
 
@@ -23,7 +24,7 @@ public abstract class UpgradeSettingsTab<C extends UpgradeContainerBase<?, ?>> e
 	protected abstract void moveSlotsToTab();
 
 	protected void moveSlotsOutOfView() {
-		getContainer().getSlots().forEach(slot -> slot.x = StorageScreenBase.DISABLED_SLOT_X_POS);
+		getContainer().getSlots().forEach(slot -> ((SlotAccessor) slot).setX(StorageScreenBase.DISABLED_SLOT_X_POS));
 	}
 
 	@Override

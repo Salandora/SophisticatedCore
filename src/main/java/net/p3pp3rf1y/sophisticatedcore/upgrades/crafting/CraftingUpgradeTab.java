@@ -13,6 +13,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContainer> {
 	private static final TextureBlitData ARROW = new TextureBlitData(GuiHelper.GUI_CONTROLS, new UV(97, 216), new Dimension(15, 8));
@@ -47,8 +49,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	protected void moveSlotsToTab() {
 		int slotNumber = 0;
 		for (Slot slot : getContainer().getSlots()) {
-			slot.x = x + 3 + craftingUIAddition.getWidth() - screen.getGuiLeft() + 1 + (slotNumber % 3) * 18;
-			slot.y = y + 44 - screen.getGuiTop() + 1 + (slotNumber / 3) * 18;
+			((SlotAccessor) slot).setX(x + 3 + craftingUIAddition.getWidth() - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 1 + (slotNumber % 3) * 18);
+			((SlotAccessor) slot).setY(y + 44 - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 1 + (slotNumber / 3) * 18);
 			slotNumber++;
 			if (slotNumber >= 9) {
 				break;
@@ -56,8 +58,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		}
 
 		Slot craftingSlot = getContainer().getSlots().get(9);
-		craftingSlot.x = x + 3 + craftingUIAddition.getWidth() - screen.getGuiLeft() + 19;
-		craftingSlot.y = y + 44 - screen.getGuiTop() + 72;
+		((SlotAccessor) craftingSlot).setX(x + 3 + craftingUIAddition.getWidth() - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 19);
+		((SlotAccessor) craftingSlot).setY(y + 44 - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 72);
 
 		craftingUIAddition.onCraftingSlotsDisplayed(getContainer().getSlots());
 	}

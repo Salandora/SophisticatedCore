@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
 
@@ -33,7 +34,7 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 						targets.add(new Target<>() {
 							@Override
 							public Rect2i getArea() {
-								return new Rect2i(gui.getGuiLeft() + s.x, gui.getGuiTop() + s.y, 17, 17);
+								return new Rect2i(((AbstractContainerScreenAccessor) gui).getGuiLeft() + s.x, ((AbstractContainerScreenAccessor) gui).getGuiTop() + s.y, 17, 17);
 							}
 
 							@Override

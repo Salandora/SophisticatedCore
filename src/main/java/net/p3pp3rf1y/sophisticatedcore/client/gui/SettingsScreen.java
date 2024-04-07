@@ -20,6 +20,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageBackgroundProperties;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 import net.p3pp3rf1y.sophisticatedcore.settings.StorageSettingsTabControlBase;
 
 import javax.annotation.Nullable;
@@ -71,7 +73,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, getGuiTop() + 17, getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, ((AbstractContainerScreenAccessor) this).getGuiTop() + 17, ((AbstractContainerScreenAccessor) this).getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsYPosition();
 		} else {
@@ -90,8 +92,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		while (slotIndex < getMenu().getNumberOfStorageInventorySlots()) {
 			Slot slot = getMenu().getSlot(slotIndex);
 			int lineIndex = slotIndex % getSlotsOnLine();
-			slot.x = 8 + lineIndex * 18;
-			slot.y = yPosition;
+			((SlotAccessor) slot).setX(8 + lineIndex * 18);
+			((SlotAccessor) slot).setY(yPosition);
 
 			slotIndex++;
 			if (slotIndex % getSlotsOnLine() == 0) {
@@ -170,7 +172,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 			settingsTabControl.renderSlotOverlays(guiGraphics, slot, this::renderSlotOverlay, isTemplateLoadHovered());
 
-			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (canShowHover && ((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
 				renderSlotHighlight(guiGraphics, slot.x, slot.y, 0/*, getSlotColor(slotId)*/);
 			}
@@ -239,7 +241,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public Slot findSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < menu.ghostSlots.size(); ++i) {
 			Slot slot = menu.ghostSlots.get(i);
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				return slot;
 			}
 		}
@@ -285,7 +287,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public boolean isMouseOverSlot(Slot pSlot, double pMouseX, double pMouseY) {
-		return isHovering(pSlot, pMouseX, pMouseY);
+		return ((AbstractContainerScreenAccessor) this).callIsHovering(pSlot, pMouseX, pMouseY);
 	}
 
 	@Override
@@ -295,12 +297,12 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public int getTopY() {
-		return getGuiTop();
+		return ((AbstractContainerScreenAccessor) this).getGuiTop();
 	}
 
 	@Override
 	public int getLeftX() {
-		return getGuiLeft();
+		return ((AbstractContainerScreenAccessor) this).getGuiLeft();
 	}
 
 	@Override

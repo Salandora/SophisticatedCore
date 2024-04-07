@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.world.inventory.Slot;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.Optional;
 
@@ -114,7 +115,7 @@ public class InventoryScrollPanel extends ScrollPanel {
 			if (newY < -17 || newY > height) {
 				newY = -100;
 			}
-			screen.getSlot(i).y = newY;
+			((SlotAccessor) screen.getSlot(i)).setY(newY);
 		}
 	}
 }

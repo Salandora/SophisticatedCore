@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.AbstractContainerMenuAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoMessage;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataMessage;
@@ -157,22 +158,22 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	private void triggerSlotListeners(int slotIndex, ItemStack slotStack, Supplier<ItemStack> slotStackCopy) {
 		ItemStack itemstack = lastGhostSlots.get(slotIndex);
 		if (!ItemStack.matches(itemstack, slotStack)) {
-			boolean clientStackChanged = !slotStack.equals(itemstack);
+			//boolean clientStackChanged = !slotStack.equals(itemstack);
 			ItemStack itemstack1 = slotStackCopy.get();
 			lastGhostSlots.set(slotIndex, itemstack1);
 
-			if (clientStackChanged) {
-				for (ContainerListener containerlistener : containerListeners) {
+			//if (clientStackChanged) {
+				for (ContainerListener containerlistener : ((AbstractContainerMenuAccessor) this).getContainerListeners()) {
 					containerlistener.slotChanged(this, slotIndex, itemstack1);
 				}
-			}
+			//}
 		}
 
 	}
 
 	@SuppressWarnings("java:S2177")
 	private void synchronizeSlotToRemote(int slotIndex, ItemStack slotStack, Supplier<ItemStack> slotStackCopy) {
-		if (!suppressRemoteUpdates) {
+		if (!((AbstractContainerMenuAccessor) this).getSuppressRemoteUpdates()) {
 			ItemStack remoteStack = remoteGhostSlots.get(slotIndex);
 			if (!ItemStack.matches(remoteStack, slotStack)) {
 				ItemStack stackCopy = slotStackCopy.get();
@@ -180,8 +181,8 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 				if ((remoteStack.isEmpty() || slotStack.isEmpty())) {
 					inventorySlotStackChanged = true;
 				}
-				if (synchronizer != null) {
-					synchronizer.sendSlotChange(this, slotIndex, stackCopy);
+				if (((AbstractContainerMenuAccessor) this).getSynchronizer() != null) {
+					((AbstractContainerMenuAccessor) this).getSynchronizer().sendSlotChange(this, slotIndex, stackCopy);
 				}
 			}
 		}
@@ -197,8 +198,8 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 			remoteGhostSlots.set(slotIndex, ghostSlots.get(slotIndex).getItem().copy());
 		}
 
-		if (synchronizer != null) {
-			synchronizer.sendInitialData(this, remoteGhostSlots, remoteCarried, new int[0]);
+		if (((AbstractContainerMenuAccessor) this).getSynchronizer() != null) {
+			((AbstractContainerMenuAccessor) this).getSynchronizer().sendInitialData(this, remoteGhostSlots, ((AbstractContainerMenuAccessor) this).getRemoteCarried(), new int[0]);
 		}
 
 		if (player instanceof ServerPlayer serverPlayer) {

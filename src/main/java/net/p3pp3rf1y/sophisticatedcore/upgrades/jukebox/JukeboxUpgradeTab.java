@@ -14,6 +14,8 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_BACKGROUND;
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_HOVERED_BACKGROUND;
@@ -52,8 +54,8 @@ public class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgradeContaine
 
 	@Override
 	protected void moveSlotsToTab() {
-		Slot discSlot = getContainer().getSlots().get(0);
-		discSlot.x = x - screen.getGuiLeft() + 4;
-		discSlot.y = y - screen.getGuiTop() + 25;
+		Slot slot = getContainer().getSlots().get(0);
+		((SlotAccessor) slot).setX(x - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 4);
+		((SlotAccessor) slot).setY(y - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 25);
 	}
 }

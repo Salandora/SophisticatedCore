@@ -1,69 +1,8 @@
 accessWidener v2 named
 
-transitive-accessible method net/minecraft/client/gui/components/EditBox isEditable ()Z
-
-transitive-accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;)V
-
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen clickedSlot Lnet/minecraft/world/inventory/Slot;
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen doubleclick Z
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen draggingItem Lnet/minecraft/world/item/ItemStack;
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen hoveredSlot	Lnet/minecraft/world/inventory/Slot;
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageWidth	I
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageHeight	I
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isSplittingStack Z
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen lastQuickMoved Lnet/minecraft/world/item/ItemStack;
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen quickCraftingType I
-transitive-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen quickCraftingRemainder I
 transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen findSlot (DD)Lnet/minecraft/world/inventory/Slot;
-transitive-accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen findSlot (DD)Lnet/minecraft/world/inventory/Slot;
-transitive-accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isHovering (Lnet/minecraft/world/inventory/Slot;DD)Z
 transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen recalculateQuickCraftRemaining ()V
-transitive-accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderFloatingItem (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V
 transitive-accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
 transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
 
-transitive-accessible field net/minecraft/client/gui/screens/Screen font Lnet/minecraft/client/gui/Font;
-transitive-accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
-transitive-accessible method net/minecraft/client/gui/screens/Screen addRenderableWidget (Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;
-
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu lastSlots Lnet/minecraft/core/NonNullList;
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftType I
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftStatus I
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftSlots Ljava/util/Set;
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu remoteCarried Lnet/minecraft/world/item/ItemStack;
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu remoteSlots Lnet/minecraft/core/NonNullList;
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z
-transitive-accessible field net/minecraft/world/inventory/AbstractContainerMenu synchronizer Lnet/minecraft/world/inventory/ContainerSynchronizer;
-transitive-accessible method net/minecraft/world/inventory/AbstractContainerMenu createCarriedSlotAccess ()Lnet/minecraft/world/entity/SlotAccess;
 transitive-extendable method net/minecraft/world/inventory/AbstractContainerMenu doClick (IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V
-transitive-accessible method net/minecraft/world/inventory/AbstractContainerMenu synchronizeCarriedToRemote ()V
-
-transitive-accessible field net/minecraft/world/inventory/CraftingContainer items Lnet/minecraft/core/NonNullList;
-
-transitive-mutable field net/minecraft/world/inventory/Slot x I
-transitive-mutable field net/minecraft/world/inventory/Slot y I
-transitive-accessible method net/minecraft/world/inventory/Slot onSwapCraft (I)V
-
-transitive-extendable class net/minecraft/world/item/crafting/Ingredient
-transitive-accessible field net/minecraft/world/item/crafting/Ingredient itemStacks [Lnet/minecraft/world/item/ItemStack;
-transitive-accessible field net/minecraft/world/item/crafting/Ingredient stackingIds Lit/unimi/dsi/fastutil/ints/IntList;
-transitive-accessible field net/minecraft/world/item/crafting/Ingredient values [Lnet/minecraft/world/item/crafting/Ingredient$Value;
-transitive-accessible method net/minecraft/world/item/crafting/Ingredient <init> (Ljava/util/stream/Stream;)V
-transitive-accessible method net/minecraft/world/item/crafting/Ingredient fromValues (Ljava/util/stream/Stream;)Lnet/minecraft/world/item/crafting/Ingredient;
-transitive-accessible method net/minecraft/world/item/crafting/Ingredient valueFromJson (Lcom/google/gson/JsonObject;)Lnet/minecraft/world/item/crafting/Ingredient$Value;
-
-transitive-accessible class net/minecraft/world/item/crafting/Ingredient$Value
-
-transitive-accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
-transitive-accessible field net/minecraft/world/item/crafting/Ingredient$ItemValue item Lnet/minecraft/world/item/ItemStack;
-transitive-accessible method net/minecraft/world/item/crafting/Ingredient$ItemValue <init> (Lnet/minecraft/world/item/ItemStack;)V
-
-transitive-accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
-transitive-accessible field net/minecraft/world/item/crafting/Ingredient$TagValue tag Lnet/minecraft/tags/TagKey;
-
-transitive-accessible field net/minecraft/world/item/Item BASE_ATTACK_DAMAGE_UUID Ljava/util/UUID;
-
-transitive-accessible method net/minecraft/world/entity/player/Player closeContainer ()V
-
-transitive-accessible field net/minecraft/world/entity/ExperienceOrb value I

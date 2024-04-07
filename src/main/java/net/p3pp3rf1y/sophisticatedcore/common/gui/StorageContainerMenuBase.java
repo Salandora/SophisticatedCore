@@ -32,6 +32,8 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.AbstractContainerMenuAccessor;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoMessage;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataMessage;
@@ -196,8 +198,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected Slot addSlot(Slot slot) {
 		slot.index = getInventorySlotsSize();
 		slots.add(slot);
-		lastSlots.add(ItemStack.EMPTY);
-		remoteSlots.add(ItemStack.EMPTY);
+		((AbstractContainerMenuAccessor) this).getLastSlots().add(ItemStack.EMPTY);
+		((AbstractContainerMenuAccessor) this).getRemoteSlots().add(ItemStack.EMPTY);
 		realInventorySlots.add(slot);
 		lastRealSlots.add(ItemStack.EMPTY);
 		remoteRealSlots.add(ItemStack.EMPTY);
@@ -792,12 +794,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected void triggerSlotListeners(int stackIndex, ItemStack slotStack, Supplier<ItemStack> slotStackCopy, NonNullList<ItemStack> lastSlotsCollection, int slotIndexOffset) {
 		ItemStack itemstack = lastSlotsCollection.get(stackIndex);
 		if (!ItemStack.matches(itemstack, slotStack)) {
-			//boolean clientStackChanged = !ItemStack.matches(slotStack, itemstack);
+			//boolean clientStackChanged = !slotStack.equals(itemstack);
 			ItemStack stackCopy = slotStackCopy.get();
 			lastSlotsCollection.set(stackIndex, stackCopy);
 
 			//if (clientStackChanged) {
-				for (ContainerListener containerlistener : containerListeners) {
+				for (ContainerListener containerlistener : ((AbstractContainerMenuAccessor) this).getContainerListeners()) {
 					containerlistener.slotChanged(this, stackIndex + slotIndexOffset, stackCopy);
 				}
 			//}
@@ -818,10 +820,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		allRemoteSlots.addAll(remoteRealSlots);
 		allRemoteSlots.addAll(remoteUpgradeSlots);
 
-		remoteCarried = getCarried().copy();
+		((AbstractContainerMenuAccessor) this).setRemoteCarried(getCarried().copy());
 
-		if (synchronizer != null) {
-			synchronizer.sendInitialData(this, allRemoteSlots, remoteCarried, new int[] {});
+		if (((AbstractContainerMenuAccessor) this).getSynchronizer() != null) {
+			((AbstractContainerMenuAccessor) this).getSynchronizer().sendInitialData(this, allRemoteSlots, ((AbstractContainerMenuAccessor) this).getRemoteCarried(), new int[] {});
 		}
 
 		sendEmptySlotIcons();
@@ -902,7 +904,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	private void refreshAllSlots() {
 		slots.clear();
-		lastSlots.clear();
+		((AbstractContainerMenuAccessor) this).getLastSlots().clear();
 		realInventorySlots.clear();
 		lastRealSlots.clear();
 		remoteRealSlots.clear();
@@ -929,7 +931,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	private void onSwapCraft(Slot slot, int numItemsCrafted) {
-		slot.onSwapCraft(numItemsCrafted);
+		((SlotAccessor) slot).callOnSwapCraft(numItemsCrafted);
 	}
 
 	//copy of Container's doClick with the replacement of inventorySlots.get to getSlot, call to onswapcraft as that's protected in vanilla and an addition of upgradeSlots to pickup all
@@ -940,41 +942,41 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		slotsChangedSinceStartOfClick = false;
 		Inventory inventory = player.getInventory();
 		if (clickType == ClickType.QUICK_CRAFT) {
-			int i = quickcraftStatus;
-			quickcraftStatus = getQuickcraftHeader(dragType);
-			if ((i != 1 || quickcraftStatus != 2) && i != quickcraftStatus) {
+			int i = ((AbstractContainerMenuAccessor) this).getQuickcraftStatus();
+			((AbstractContainerMenuAccessor) this).setQuickcraftStatus(getQuickcraftHeader(dragType));
+			if ((i != 1 || ((AbstractContainerMenuAccessor) this).getQuickcraftStatus() != 2) && i != ((AbstractContainerMenuAccessor) this).getQuickcraftStatus()) {
 				resetQuickCraft();
 			} else if (getCarried().isEmpty()) {
 				resetQuickCraft();
-			} else if (quickcraftStatus == 0) {
-				quickcraftType = getQuickcraftType(dragType);
-				if (isValidQuickcraftType(quickcraftType, player)) {
-					quickcraftStatus = 1;
-					quickcraftSlots.clear();
+			} else if (((AbstractContainerMenuAccessor) this).getQuickcraftStatus() == 0) {
+				((AbstractContainerMenuAccessor) this).setQuickcraftType(getQuickcraftType(dragType));
+				if (isValidQuickcraftType(((AbstractContainerMenuAccessor) this).getQuickcraftType(), player)) {
+					((AbstractContainerMenuAccessor) this).setQuickcraftStatus(1);
+					((AbstractContainerMenuAccessor) this).getQuickcraftSlots().clear();
 				} else {
 					resetQuickCraft();
 				}
-			} else if (quickcraftStatus == 1) {
+			} else if (((AbstractContainerMenuAccessor) this).getQuickcraftStatus() == 1) {
 				Slot slot = getSlot(slotId);
 				ItemStack itemstack = getCarried();
-				if (StorageContainerMenuBase.canItemQuickReplace(slot, itemstack) && slot.mayPlace(itemstack) && (quickcraftType == 2 || itemstack.getCount() > quickcraftSlots.size()) && canDragTo(slot)) {
-					quickcraftSlots.add(slot);
+				if (StorageContainerMenuBase.canItemQuickReplace(slot, itemstack) && slot.mayPlace(itemstack) && (((AbstractContainerMenuAccessor) this).getQuickcraftType() == 2 || itemstack.getCount() > ((AbstractContainerMenuAccessor) this).getQuickcraftSlots().size()) && canDragTo(slot)) {
+					((AbstractContainerMenuAccessor) this).getQuickcraftSlots().add(slot);
 				}
-			} else if (quickcraftStatus == 2) {
-				if (!quickcraftSlots.isEmpty()) {
-					if (quickcraftSlots.size() == 1) {
-						int l = (quickcraftSlots.iterator().next()).index;
+			} else if (((AbstractContainerMenuAccessor) this).getQuickcraftStatus() == 2) {
+				if (!((AbstractContainerMenuAccessor) this).getQuickcraftSlots().isEmpty()) {
+					if (((AbstractContainerMenuAccessor) this).getQuickcraftSlots().size() == 1) {
+						int l = (((AbstractContainerMenuAccessor) this).getQuickcraftSlots().iterator().next()).index;
 						resetQuickCraft();
-						clicked(l, quickcraftType, ClickType.PICKUP, player);
+						clicked(l, ((AbstractContainerMenuAccessor) this).getQuickcraftType(), ClickType.PICKUP, player);
 						return;
 					}
 
 					ItemStack carried = getCarried().copy();
 					int j1 = getCarried().getCount();
 
-					for (Slot slot1 : quickcraftSlots) {
+					for (Slot slot1 : ((AbstractContainerMenuAccessor) this).getQuickcraftSlots()) {
 						ItemStack itemstack1 = getCarried();
-						if (slot1 != null && StorageContainerMenuBase.canItemQuickReplace(slot1, itemstack1) && slot1.mayPlace(itemstack1) && (quickcraftType == 2 || itemstack1.getCount() >= quickcraftSlots.size()) && canDragTo(slot1)) {
+						if (slot1 != null && StorageContainerMenuBase.canItemQuickReplace(slot1, itemstack1) && slot1.mayPlace(itemstack1) && (((AbstractContainerMenuAccessor) this).getQuickcraftType() == 2 || itemstack1.getCount() >= ((AbstractContainerMenuAccessor) this).getQuickcraftSlots().size()) && canDragTo(slot1)) {
 							ItemStack carriedCopy = carried.copy();
 
 							int j = slot1.hasItem() ? slot1.getItem().getCount() : 0;
@@ -983,7 +985,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 								slotStackLimit = carriedCopy.getMaxStackSize();
 							}
 
-							int l = Math.min(getQuickCraftPlaceCount(this.quickcraftSlots, this.quickcraftType, carriedCopy) + j, slotStackLimit);
+							int l = Math.min(getQuickCraftPlaceCount(((AbstractContainerMenuAccessor) this).getQuickcraftSlots(), ((AbstractContainerMenuAccessor) this).getQuickcraftType(), carriedCopy) + j, slotStackLimit);
 							j1 -= l - j;
 							slot1.setByPlayer(carriedCopy.copyWithCount(l));
 						}
@@ -997,7 +999,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			} else {
 				resetQuickCraft();
 			}
-		} else if (quickcraftStatus != 0) {
+		} else if (((AbstractContainerMenuAccessor) this).getQuickcraftStatus() != 0) {
 			resetQuickCraft();
 		} else if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (dragType == 0 || dragType == 1)) {
 			ClickAction clickaction = dragType == 0 ? ClickAction.PRIMARY : ClickAction.SECONDARY;
@@ -1037,7 +1039,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				ItemStack slotStack = slot7.getItem();
 				ItemStack carriedStack = getCarried();
 				player.updateTutorialInventoryAction(carriedStack, slot7.getItem(), clickaction);
-				if (!carriedStack.overrideStackedOnOther(slot7, clickaction, player) && !slotStack.overrideOtherStackedOnMe(carriedStack, slot7, clickaction, player, createCarriedSlotAccess())) {
+				if (!carriedStack.overrideStackedOnOther(slot7, clickaction, player) && !slotStack.overrideOtherStackedOnMe(carriedStack, slot7, clickaction, player, ((AbstractContainerMenuAccessor) this).callCreateCarriedSlotAccess())) {
 					if (slotStack.isEmpty()) {
 						if (!carriedStack.isEmpty()) {
 							int l2 = clickaction == ClickAction.PRIMARY ? carriedStack.getCount() : 1;
@@ -1425,7 +1427,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	public void broadcastChanges() {
 		closeScreenIfSomethingMessedWithStorageItemStack();
 
-		synchronizeCarriedToRemote();
+		((AbstractContainerMenuAccessor) this).callSynchronizeCarriedToRemote();
 		broadcastChangesIn(lastUpgradeSlots, remoteUpgradeSlots, upgradeSlots, getFirstUpgradeSlot());
 		broadcastChangesIn(lastRealSlots, remoteRealSlots, realInventorySlots, 0);
 
@@ -1456,7 +1458,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	private void synchronizeSlotToRemote(int slotIndex, ItemStack slotStack, Supplier<ItemStack> slotStackCopy, NonNullList<ItemStack> remoteSlotsCollection, int slotIndexOffset) {
-		if (!suppressRemoteUpdates) {
+		if (!((AbstractContainerMenuAccessor) this).getSuppressRemoteUpdates()) {
 			ItemStack remoteStack = remoteSlotsCollection.get(slotIndex);
 			if (!ItemStack.matches(remoteStack, slotStack)) {
 				ItemStack stackCopy = slotStackCopy.get();
@@ -1464,8 +1466,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				if (isStorageInventorySlot(slotIndex) && (remoteStack.isEmpty() || slotStack.isEmpty())) {
 					inventorySlotStackChanged = true;
 				}
-				if (synchronizer != null) {
-					synchronizer.sendSlotChange(this, slotIndex + slotIndexOffset, stackCopy);
+				if (((AbstractContainerMenuAccessor) this).getSynchronizer() != null) {
+					((AbstractContainerMenuAccessor) this).getSynchronizer().sendSlotChange(this, slotIndex + slotIndexOffset, stackCopy);
 				}
 			}
 		}
@@ -1490,7 +1492,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		}
 
 		slots.clear();
-		lastSlots.clear();
+		((AbstractContainerMenuAccessor) this).getLastSlots().clear();
 		realInventorySlots.clear();
 		lastRealSlots.clear();
 		remoteRealSlots.clear();

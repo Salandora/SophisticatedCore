@@ -8,6 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
     @Environment(EnvType.CLIENT)
 	private void addButton(Button button) {
 		buttons.add(button);
-		storageScreen.addRenderableWidget(button);
+		((ScreenAccessor) storageScreen).callAddRenderableWidget(button);
 	}
 
 	@Override

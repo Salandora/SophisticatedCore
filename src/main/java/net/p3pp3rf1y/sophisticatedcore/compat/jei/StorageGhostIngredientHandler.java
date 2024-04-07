@@ -9,6 +9,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 				targets.add(new Target<>() {
 					@Override
 					public Rect2i getArea() {
-						return new Rect2i(gui.getGuiLeft() + s.x, gui.getGuiTop() + s.y, 17, 17);
+						return new Rect2i(((AbstractContainerScreenAccessor) gui).getGuiLeft() + s.x, ((AbstractContainerScreenAccessor) gui).getGuiTop() + s.y, 17, 17);
 					}
 
 					@Override

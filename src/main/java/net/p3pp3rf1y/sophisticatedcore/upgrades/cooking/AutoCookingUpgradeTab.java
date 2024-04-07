@@ -8,6 +8,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeSettingsTab;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
+import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicContainer;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControl;
@@ -30,7 +31,7 @@ public abstract class AutoCookingUpgradeTab<R extends AbstractCookingRecipe, W e
 	@Override
 	protected void moveSlotsToTab() {
 		inputFilterLogicControl.moveSlotsToView();
-		cookingLogicControl.moveSlotsToView(screen.getGuiLeft(), screen.getGuiTop());
+		cookingLogicControl.moveSlotsToView(((AbstractContainerScreenAccessor) screen).getGuiLeft(), ((AbstractContainerScreenAccessor) screen).getGuiTop());
 		fuelFilterLogicControl.moveSlotsToView();
 	}
 
