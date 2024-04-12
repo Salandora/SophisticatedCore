@@ -32,7 +32,7 @@
             "net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat"
         ],
         "rei_client": [
-            "net.p3pp3rf1y.sophisticatedcore.compat.rei.ReiCompat"
+            "net.p3pp3rf1y.sophisticatedcore.compat.rei.REIClientCompat"
         ]
     },
     "mixins": [
