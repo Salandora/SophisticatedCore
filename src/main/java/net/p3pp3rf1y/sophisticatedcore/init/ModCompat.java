@@ -7,7 +7,7 @@ import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingTweaksCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.rei.ReiCompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class ModCompat {
 	static {
 		compatFactories.put(CompatModIds.EMI, () -> EmiCompat::new);
 		compatFactories.put(CompatModIds.JEI, () -> JeiCompat::new);
-		compatFactories.put(CompatModIds.REI, () -> ReiCompat::new);
+		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
 		compatFactories.put(CompatModIds.CRAFTING_TWEAKS, () -> CraftingTweaksCompat::new);
 		//compatFactories.put(CompatModIds.QUARK, () -> QuarkCompat::new); //TODO readd quark compat
 	}
