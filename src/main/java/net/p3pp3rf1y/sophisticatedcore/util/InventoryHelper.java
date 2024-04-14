@@ -243,7 +243,7 @@ public class InventoryHelper {
 
 					// extract it, or rollback if the amounts don't match
 					if (accepted > 0 && view.extract(resource, accepted, transferTransaction) == accepted) {
-						TransactionCallback.onSuccess(outer, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
+						TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
 						transferTransaction.commit();
 					}
 				}
