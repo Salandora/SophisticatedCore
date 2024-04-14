@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -19,15 +18,15 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 public abstract class ShapedRecipeMixin {
 	@Inject(method = "itemStackFromJson", at = @At("HEAD"), cancellable = true)
 	private static void sophisticatedCore$useNbtData(JsonObject json, CallbackInfoReturnable<ItemStack> cir) {
-		if (json.has("nbt")) {
+		if (json.has("nbt") && json.get("nbt").isJsonPrimitive()) {
 			CompoundTag tag = new CompoundTag();
 			tag.putString("id", GsonHelper.getAsString(json, "item"));
 			tag.putInt("Count", GsonHelper.getAsInt(json, "count", 1));
 
 			try {
-				JsonElement element = json.get("nbt");
-				CompoundTag nbt = TagParser.parseTag(GsonHelper.convertToString(element, "nbt"));
-				tag.put("tag", nbt);
+				String nbtString = GsonHelper.getAsString(json, "nbt");
+				CompoundTag nbtTag = TagParser.parseTag(nbtString);
+				tag.put("tag", nbtTag);
 			}
 			catch (CommandSyntaxException e) {
 				throw new JsonSyntaxException("Could not parse NBT data " + e);
