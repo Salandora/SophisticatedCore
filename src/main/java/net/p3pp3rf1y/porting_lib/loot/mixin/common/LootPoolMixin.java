@@ -58,7 +58,7 @@ public class LootPoolMixin implements LootPoolExtensions {
 	public static class LootPoolSerializerMixin {
 		@Inject(
 				method = "serialize(Lnet/minecraft/world/level/storage/loot/LootPool;Ljava/lang/reflect/Type;Lcom/google/gson/JsonSerializationContext;)Lcom/google/gson/JsonElement;",
-				at = @At(value = "INVOKE", target = "Lcom/google/gson/JsonObject;add(Ljava/lang/String;Lcom/google/gson/JsonElement;)V", ordinal = 0),
+				at = @At(value = "INVOKE", target = "Lcom/google/gson/JsonObject;add(Ljava/lang/String;Lcom/google/gson/JsonElement;)V", ordinal = 0, remap = false),
 				locals = LocalCapture.CAPTURE_FAILHARD
 		)
 		public void port_lib$customName(LootPool lootPool, Type type, JsonSerializationContext jsonSerializationContext, CallbackInfoReturnable<JsonElement> cir, JsonObject jsonObject) {
