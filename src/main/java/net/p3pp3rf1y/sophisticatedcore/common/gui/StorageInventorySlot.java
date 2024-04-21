@@ -1,14 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlotItemHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 
-public class StorageInventorySlot extends SlotItemHandler {
+public class StorageInventorySlot extends SCSlotItemHandler {
 	private final boolean isClientSide;
 	private final IStorageWrapper storageWrapper;
 	private final InventoryHandler inventoryHandler;
