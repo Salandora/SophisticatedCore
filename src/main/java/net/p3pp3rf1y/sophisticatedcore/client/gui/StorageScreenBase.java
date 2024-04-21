@@ -376,7 +376,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		upgradeSwitches.forEach(us -> us.render(guiGraphics, mouseX, mouseY, partialTicks));
 		renderErrorOverlay(guiGraphics);
 		renderTooltip(guiGraphics, mouseX, mouseY);
-		poseStack.popPose();
 	}
 
 	@Override
