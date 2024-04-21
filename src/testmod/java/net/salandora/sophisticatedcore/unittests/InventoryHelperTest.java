@@ -1,42 +1,37 @@
-package net.p3pp3rf1y.sophisticatedcore.util;
+package net.salandora.sophisticatedcore.unittests;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.NonNullList;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
+import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 import javax.annotation.Nonnull;
-
-import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
+import org.slf4j.LoggerFactory;
 
 class InventoryHelperTest {
+	public static void runTests() {
+		transferMovesOnlyStacksThatCanGoIntoInventory().forEach(InventoryHelperTest::transferMovesOnlyStacksThatCanGoIntoInventory);
+		transferMovesStacksCorrectly().forEach(InventoryHelperTest::transferMovesStacksCorrectly);
 
-	@BeforeAll
-	public static void setup() {
-		SharedConstants.tryDetectVersion();
-		Bootstrap.bootStrap();
+		LoggerFactory.getLogger("sophisticatedcore testmod").info("InventoryHelperTests successful.");
 	}
 
-	private SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier) {
+	private static SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier) {
 		return getItemHandler(stacks, stackLimitMultiplier, (slot, stack) -> true);
 	}
 
-	private SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier, BiPredicate<Integer, ItemStack> isStackValidForSlot) {
+	private static SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier, BiPredicate<Integer, ItemStack> isStackValidForSlot) {
 		return new SCItemStackHandler(stacks.toArray(new ItemStack[0])) {
 			@Override
 			public int getSlotLimit(int slot) {
@@ -56,22 +51,21 @@ class InventoryHelperTest {
 		};
 	}
 
-	@ParameterizedTest
-	@MethodSource
-	void transferMovesOnlyStacksThatCanGoIntoInventory(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB,
-			BiPredicate<Integer, ItemStack> isStackValidInHandlerB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {
-		SlottedStackStorage handlerA = getItemHandler(stacksHandlerA, limitMultiplierA);
-		SlottedStackStorage handlerB = getItemHandler(stacksHandlerB, limitMultiplierB, isStackValidInHandlerB);
+	private record TransferMovesOnlyStacksThatCanGoIntoInventory(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB,
+																 BiPredicate<Integer, ItemStack> isStackValidInHandlerB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {}
+	private static void transferMovesOnlyStacksThatCanGoIntoInventory(TransferMovesOnlyStacksThatCanGoIntoInventory params) {
+		SlottedStackStorage handlerA = getItemHandler(params.stacksHandlerA, params.limitMultiplierA);
+		SlottedStackStorage handlerB = getItemHandler(params.stacksHandlerB, params.limitMultiplierB, params.isStackValidInHandlerB);
 
 		InventoryHelper.transfer(handlerA, handlerB, s -> {}, null);
 
-		assertHandlerState(handlerA, stacksAfterTransferA);
-		assertHandlerState(handlerB, stacksAfterTransferB);
+		assertHandlerState(handlerA, params.stacksAfterTransferA);
+		assertHandlerState(handlerB, params.stacksAfterTransferB);
 	}
 
-	static Object[][] transferMovesOnlyStacksThatCanGoIntoInventory() {
-		return new Object[][] {
-				{
+	private static List<TransferMovesOnlyStacksThatCanGoIntoInventory> transferMovesOnlyStacksThatCanGoIntoInventory() {
+		return List.of(
+				new TransferMovesOnlyStacksThatCanGoIntoInventory(
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64)),
 						1,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
@@ -88,8 +82,8 @@ class InventoryHelperTest {
 								2, ItemStack.EMPTY,
 								3, ItemStack.EMPTY
 						)
-				},
-				{
+				),
+				new TransferMovesOnlyStacksThatCanGoIntoInventory(
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64)),
 						1,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
@@ -106,8 +100,8 @@ class InventoryHelperTest {
 								2, ItemStack.EMPTY,
 								3,  new ItemStack(Items.GOLD_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesOnlyStacksThatCanGoIntoInventory(
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64)),
 						1,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
@@ -125,8 +119,8 @@ class InventoryHelperTest {
 								2, ItemStack.EMPTY,
 								3,  new ItemStack(Items.GOLD_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesOnlyStacksThatCanGoIntoInventory(
 						stacks(new ItemStack(Items.IRON_INGOT, 128), new ItemStack(Items.IRON_INGOT, 97)),
 						2,
 						stacks(new ItemStack(Items.IRON_INGOT, 63), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
@@ -143,8 +137,8 @@ class InventoryHelperTest {
 								3, ItemStack.EMPTY,
 								4, new ItemStack(Items.IRON_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesOnlyStacksThatCanGoIntoInventory(
 						stacks(new ItemStack(Items.GOLD_BLOCK, 128), new ItemStack(Items.IRON_INGOT, 99)),
 						2,
 						stacks(ItemStack.EMPTY, new ItemStack(Items.IRON_INGOT, 63), ItemStack.EMPTY, ItemStack.EMPTY),
@@ -160,8 +154,8 @@ class InventoryHelperTest {
 								2, new ItemStack(Items.IRON_INGOT, 64),
 								3, ItemStack.EMPTY
 						)
-				},
-		};
+				)
+		);
 	}
 
 	private static BiPredicate<Integer, ItemStack> itemAndSlotMatches(Map<Integer, Item> items) {
@@ -175,41 +169,20 @@ class InventoryHelperTest {
 		return (slot, st) -> itemsSet.contains(st.getItem());
 	}
 
-	@ParameterizedTest
-	@MethodSource
-	void transferMovesStacksCorrectly(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {
-		SlottedStackStorage handlerA = getItemHandler(stacksHandlerA, limitMultiplierA);
-		SlottedStackStorage handlerB = getItemHandler(stacksHandlerB, limitMultiplierB);
+	private record TransferMovesStacksCorrectly(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {}
+	private static void transferMovesStacksCorrectly(TransferMovesStacksCorrectly params) {
+		SlottedStackStorage handlerA = getItemHandler(params.stacksHandlerA, params.limitMultiplierA);
+		SlottedStackStorage handlerB = getItemHandler(params.stacksHandlerB, params.limitMultiplierB);
 
 		InventoryHelper.transfer(handlerA, handlerB, s -> {}, null);
 
-		assertHandlerState(handlerA, stacksAfterTransferA);
-		assertHandlerState(handlerB, stacksAfterTransferB);
+		assertHandlerState(handlerA, params.stacksAfterTransferA);
+		assertHandlerState(handlerB, params.stacksAfterTransferB);
 	}
 
-	private static void assertHandlerState(SlottedStackStorage handler, Map<Integer, ItemStack> expectedStacksInHandler) {
-		for (int slot = 0; slot < handler.getSlotCount(); slot++) {
-			ItemStack stackInSlot = handler.getStackInSlot(slot);
-			if (expectedStacksInHandler.containsKey(slot)) {
-				assertStackEquals(expectedStacksInHandler.get(slot), stackInSlot, "Expected different stack in handler");
-			} else if (!stackInSlot.isEmpty()) {
-				Assertions.fail("Non empty stack found in slot " + slot + " where there's supposed to be empty");
-			}
-		}
-	}
-
-	private static void assertStackEquals(ItemStack expected, ItemStack actual, Object message) {
-		if (!ItemStack.matches(expected, actual)) {
-			assertionFailure().message(message)
-					.expected(expected)
-					.actual(actual)
-					.buildAndThrow();
-		}
-	}
-
-	static Object[][] transferMovesStacksCorrectly() {
-		return new Object[][] {
-				{
+	private static List<TransferMovesStacksCorrectly> transferMovesStacksCorrectly() {
+		return List.of(
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT)),
 						1,
 						stacks(ItemStack.EMPTY),
@@ -220,8 +193,8 @@ class InventoryHelperTest {
 						Map.of(
 								0, new ItemStack(Items.IRON_INGOT)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 32), new ItemStack(Items.GOLD_INGOT, 64)),
 						1,
 						stacks(new ItemStack(Items.IRON_INGOT, 48), ItemStack.EMPTY, ItemStack.EMPTY),
@@ -235,8 +208,8 @@ class InventoryHelperTest {
 								1, new ItemStack(Items.IRON_INGOT, 16),
 								2, new ItemStack(Items.GOLD_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 32), new ItemStack(Items.GOLD_INGOT, 64)),
 						1,
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 32)),
@@ -250,8 +223,8 @@ class InventoryHelperTest {
 								1, new ItemStack(Items.GOLD_INGOT, 64),
 								2, new ItemStack(Items.GOLD_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 32), new ItemStack(Items.GOLD_INGOT, 64)),
 						1,
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64)),
@@ -265,8 +238,8 @@ class InventoryHelperTest {
 								1, new ItemStack(Items.GOLD_INGOT, 64),
 								2, new ItemStack(Items.GOLD_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_BLOCK, 32), new ItemStack(Items.GOLD_BLOCK, 64)),
 						1,
 						stacks(new ItemStack(Items.IRON_INGOT, 1), new ItemStack(Items.GOLD_INGOT, 1), new ItemStack(Items.GOLD_INGOT, 1)),
@@ -280,8 +253,8 @@ class InventoryHelperTest {
 								1, new ItemStack(Items.GOLD_INGOT, 1),
 								2, new ItemStack(Items.GOLD_INGOT, 1)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.IRON_INGOT, 64)),
 						1,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY),
@@ -294,8 +267,8 @@ class InventoryHelperTest {
 								0, new ItemStack(Items.IRON_INGOT, 128),
 								1, ItemStack.EMPTY
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 128), new ItemStack(Items.IRON_INGOT, 128)),
 						2,
 						stacks(new ItemStack(Items.IRON_INGOT, 128), ItemStack.EMPTY),
@@ -308,8 +281,8 @@ class InventoryHelperTest {
 								0, new ItemStack(Items.IRON_INGOT, 256),
 								1, new ItemStack(Items.IRON_INGOT, 128)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 1024), ItemStack.EMPTY),
 						16,
 						stacks(ItemStack.EMPTY),
@@ -321,8 +294,8 @@ class InventoryHelperTest {
 						Map.of(
 								0, new ItemStack(Items.IRON_INGOT, 64)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 1024), ItemStack.EMPTY),
 						16,
 						stacks(ItemStack.EMPTY),
@@ -334,8 +307,8 @@ class InventoryHelperTest {
 						Map.of(
 								0, new ItemStack(Items.IRON_INGOT, 256)
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_SWORD, 16)),
 						16,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
@@ -344,7 +317,7 @@ class InventoryHelperTest {
 						Map.of(
 								0, ItemStack.EMPTY
 						),
-						ImmutableMap.builder()
+						ImmutableMap.<Integer, ItemStack>builder()
 								.put(0, new ItemStack(Items.IRON_SWORD))
 								.put(1, new ItemStack(Items.IRON_SWORD))
 								.put(2, new ItemStack(Items.IRON_SWORD))
@@ -362,8 +335,8 @@ class InventoryHelperTest {
 								.put(14, new ItemStack(Items.IRON_SWORD))
 								.put(15, new ItemStack(Items.IRON_SWORD))
 								.build()
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_SWORD, 16)),
 						16,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
@@ -371,7 +344,7 @@ class InventoryHelperTest {
 						Map.of(
 								0, new ItemStack(Items.IRON_SWORD, 2)
 						),
-						ImmutableMap.builder()
+						ImmutableMap.<Integer, ItemStack>builder()
 								.put(0, new ItemStack(Items.IRON_SWORD, 2))
 								.put(1, new ItemStack(Items.IRON_SWORD, 2))
 								.put(2, new ItemStack(Items.IRON_SWORD, 2))
@@ -380,8 +353,8 @@ class InventoryHelperTest {
 								.put(5, new ItemStack(Items.IRON_SWORD, 2))
 								.put(6, new ItemStack(Items.IRON_SWORD, 2))
 								.build()
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 96)),
 						2,
 						stacks(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY),
@@ -394,8 +367,8 @@ class InventoryHelperTest {
 								1, new ItemStack(Items.IRON_INGOT, 32),
 								2, ItemStack.EMPTY
 						)
-				},
-				{
+				),
+				new TransferMovesStacksCorrectly(
 						stacks(new ItemStack(Items.IRON_INGOT, 256)),
 						4,
 						stacks(new ItemStack(Items.IRON_INGOT, 63), ItemStack.EMPTY, ItemStack.EMPTY),
@@ -408,11 +381,22 @@ class InventoryHelperTest {
 								1, new ItemStack(Items.IRON_INGOT, 64),
 								2, new ItemStack(Items.IRON_INGOT, 64)
 						)
-				},
-		};
+				)
+		);
 	}
 
 	private static NonNullList<ItemStack> stacks(ItemStack... stacks) {
 		return NonNullList.of(ItemStack.EMPTY, stacks);
+	}
+
+	private static void assertHandlerState(SlottedStackStorage handler, Map<Integer, ItemStack> expectedStacksInHandler) {
+		for (int slot = 0; slot < handler.getSlotCount(); slot++) {
+			ItemStack stackInSlot = handler.getStackInSlot(slot);
+			if (expectedStacksInHandler.containsKey(slot)) {
+				Assertions.assertStackEquals(expectedStacksInHandler.get(slot), stackInSlot, "Expected different stack in handler");
+			} else if (!stackInSlot.isEmpty()) {
+				throw new AssertionError(String.format("Non empty stack found in slot %s where there's supposed to be empty", slot));
+			}
+		}
 	}
 }

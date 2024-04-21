@@ -1,34 +1,41 @@
-package net.p3pp3rf1y.sophisticatedcore.inventory;
+package net.salandora.sophisticatedcore.unittests;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import net.minecraft.nbt.CompoundTag;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryPartHandler;
+import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryPartitioner;
 
 import java.util.Optional;
+import org.slf4j.LoggerFactory;
 
 import static org.mockito.Mockito.when;
 
 class InventoryPartitionerTest {
-
-	@BeforeEach
-	public void testSetup() throws Exception {
-		MockitoAnnotations.openMocks(this).close();
-	}
-
-	private InventoryHandler getInventoryHandler(int slots) {
+	private static InventoryHandler getInventoryHandler(int slots) {
 		InventoryHandler inventoryHandler = Mockito.mock(InventoryHandler.class);
 		when(inventoryHandler.getSlotCount()).thenReturn(slots);
 		return inventoryHandler;
 	}
 
-	@Test
-	void addInventoryPartAtTheBeginnigProperlyUpdatesParts() {
+	public static void runTests() {
+		addInventoryPartAtTheBeginningProperlyUpdatesParts();
+		addTwoAndRemoveInventoryPartProperlyUpdatesParts();
+		AddTwoAndRemoveOneProperlyShowsSlotAfterFirstAsReplaceable();
+		addTwoAndRemoveFirstProperlyUpdatesFirstsSlots();
+		addTwoThanRemoveFirstAndThenSecondShowsAllSlotsAsReplaceable();
+		addPartReplacingAllSlotsAndRemovingThatProperlyUpdatesToDefault();
+		addPartReplacingAllSlotsReturnsEmptyPartFromMaxSlotPlusOne();
+
+		for (int slot = 1; slot <= 4; slot++) {
+			getFirstSpaceReturnsCorrectRangeForSmallInventories(slot);
+		}
+
+		LoggerFactory.getLogger("sophisticatedcore testmod").info("InventoryPartitionerTests successful.");
+	}
+
+	private static void addInventoryPartAtTheBeginningProperlyUpdatesParts() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -40,8 +47,7 @@ class InventoryPartitionerTest {
 		Assertions.assertTrue(partitioner.getPartBySlot(9) instanceof IInventoryPartHandler.Default);
 	}
 
-	@Test
-	void addTwoAndRemoveInventoryPartProperlyUpdatesParts() {
+	private static void addTwoAndRemoveInventoryPartProperlyUpdatesParts() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -57,8 +63,7 @@ class InventoryPartitionerTest {
 		Assertions.assertEquals(72, partitioner.getPartBySlot(9).getSlots());
 	}
 
-	@Test
-	void AddTwoAndRemoveOneProperlyShowsSlotAfterFirstAsReplaceable() {
+	private static void AddTwoAndRemoveOneProperlyShowsSlotAfterFirstAsReplaceable() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -73,8 +78,7 @@ class InventoryPartitionerTest {
 		Assertions.assertEquals(firstSpace.get().firstSlot(), 9);
 	}
 
-	@Test
-	void addTwoAndRemoveFirstProperlyUpdatesFirstsSlots() {
+	private static void addTwoAndRemoveFirstProperlyUpdatesFirstsSlots() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -87,8 +91,7 @@ class InventoryPartitionerTest {
 		Assertions.assertEquals(9, partitioner.getPartBySlot(0).getSlots());
 	}
 
-	@Test
-	void addTwoThanRemoveFirstAndThenSecondShowsAllSlotsAsReplaceable() {
+	private static void addTwoThanRemoveFirstAndThenSecondShowsAllSlotsAsReplaceable() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -106,8 +109,7 @@ class InventoryPartitionerTest {
 		Assertions.assertEquals(81, partitioner.getPartBySlot(0).getSlots());
 	}
 
-	@Test
-	void addPartReplacingAllSlotsAndRemovingThatProperlyUpdatesToDefault() {
+	private static void addPartReplacingAllSlotsAndRemovingThatProperlyUpdatesToDefault() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -122,8 +124,7 @@ class InventoryPartitionerTest {
 		Assertions.assertEquals(81, partitioner.getPartBySlot(0).getSlots());
 	}
 
-	@Test
-	void addPartReplacingAllSlotsReturnsEmptyPartFromMaxSlotPlusOne() {
+	private static void addPartReplacingAllSlotsReturnsEmptyPartFromMaxSlotPlusOne() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
@@ -134,9 +135,7 @@ class InventoryPartitionerTest {
 		Assertions.assertEquals(IInventoryPartHandler.EMPTY, partitioner.getPartBySlot(81));
 	}
 
-	@ParameterizedTest
-	@ValueSource(ints = { 1, 2, 3, 4 })
-	void getFirstSpaceReturnsCorrectRangeForSmallInventories(int slots) {
+	private static void getFirstSpaceReturnsCorrectRangeForSmallInventories(int slots) {
 		InventoryHandler invHandler = getInventoryHandler(slots);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);

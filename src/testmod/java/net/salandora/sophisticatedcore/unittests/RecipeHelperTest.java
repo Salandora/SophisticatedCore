@@ -1,15 +1,7 @@
-package net.p3pp3rf1y.sophisticatedcore.util;
+package net.salandora.sophisticatedcore.unittests;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import net.minecraft.SharedConstants;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +14,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
+import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,15 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RecipeHelperTest {
-
 	private static Level regularOrderRecipesLevel;
 	private static Level reverseOrderRecipesLevel;
 
@@ -67,38 +59,22 @@ public class RecipeHelperTest {
 		return craftingRecipes;
 	}
 
-	static Stream<Level> classParams() {
-		return Stream.of(regularOrderRecipesLevel, reverseOrderRecipesLevel);
+	private static Stream<Level> classParams() {
+		return java.util.stream.Stream.of(regularOrderRecipesLevel, reverseOrderRecipesLevel);
 	}
 
-	static Stream<Arguments> withClassParams(List<Arguments> methodParams) {
-		return classParams().flatMap(classParam -> methodParams.stream().map(arguments -> new CombinedArguments(classParam, arguments)));
-	}
-
-	private static class CombinedArguments implements Arguments {
-		private final Object[] arguments;
-
-		public CombinedArguments(Level level, Arguments methodArguments) {
-			arguments = new Object[methodArguments.get().length + 1];
-			arguments[0] = level;
-			System.arraycopy(methodArguments.get(), 0, arguments, 1, methodArguments.get().length);
-		}
-		@Override
-		public Object[] get() {
-			return arguments;
-		}
-	}
-
-	@BeforeAll
-	public static void setup() {
-		SharedConstants.tryDetectVersion();
-		Bootstrap.bootStrap();
-
+	public static void runTests() {
 		regularOrderRecipesLevel = getLevelWithRecipeManagerFor(getCraftingRecipes());
 
 		List<CraftingRecipe> reverseOrderRecipes = getCraftingRecipes();
 		Collections.reverse(reverseOrderRecipes);
 		reverseOrderRecipesLevel = getLevelWithRecipeManagerFor(reverseOrderRecipes);
+
+		classParams().flatMap(RecipeHelperTest::testGetCompactingResult).forEach(RecipeHelperTest::testGetCompactingResult);
+		classParams().flatMap(RecipeHelperTest::testGetUncompactingResult).forEach(RecipeHelperTest::testGetUncompactingResult);
+		classParams().flatMap(RecipeHelperTest::testGetItemCompactingShapes).forEach(RecipeHelperTest::testGetItemCompactingShapes);
+
+		LoggerFactory.getLogger("sophisticatedcore testmod").info("RecipeHelperTests successful.");
 	}
 
 	private static Level getLevelWithRecipeManagerFor(List<CraftingRecipe> craftingRecipes) {
@@ -128,79 +104,68 @@ public class RecipeHelperTest {
 		);
 	}
 
-	@AfterEach
-	void clearCache() {
+
+	private record TestGetCompactingResult(Level level, Item item, RecipeHelper.CompactingResult expectedResult) {}
+	private static void testGetCompactingResult(TestGetCompactingResult params) {
+		RecipeHelper.setWorld(params.level);
+
+		RecipeHelper.CompactingResult actualResult = RecipeHelper.getCompactingResult(params.item, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE);
+
+		assertCompactingResultEquals(params.expectedResult, actualResult, "getCompactingResult returned wrong result");
 		RecipeHelper.clearCache();
 	}
 
-	@ParameterizedTest
-	@MethodSource
-	void testGetCompactingResult(Level level, Item item, RecipeHelper.CompactingResult expectedResult) {
-		RecipeHelper.setWorld(level);
-
-		RecipeHelper.CompactingResult actualResult = RecipeHelper.getCompactingResult(item, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE);
-
-		assertCompactingResultEquals(expectedResult, actualResult, "getCompactingResult returned wrong result");
-	}
-
-	static Stream<Arguments> testGetCompactingResult() {
-		return withClassParams(
-				List.of(
-						Arguments.of(Items.GOLD_INGOT, new RecipeHelper.CompactingResult(new ItemStack(Items.GOLD_BLOCK), Collections.emptyList())),
-						Arguments.of(Items.GOLD_NUGGET, new RecipeHelper.CompactingResult(new ItemStack(Items.GOLD_INGOT), Collections.emptyList())),
-						Arguments.of(Items.GRANITE, new RecipeHelper.CompactingResult(new ItemStack(Items.DIORITE), Collections.emptyList())),
-						Arguments.of(Items.STONE, new RecipeHelper.CompactingResult(new ItemStack(Items.GRANITE), Collections.emptyList()))
-				)
+	private static Stream<TestGetCompactingResult> testGetCompactingResult(Level level) {
+		return java.util.stream.Stream.of(
+				new TestGetCompactingResult(level, Items.GOLD_INGOT, new RecipeHelper.CompactingResult(new ItemStack(Items.GOLD_BLOCK), Collections.emptyList())),
+				new TestGetCompactingResult(level, Items.GOLD_NUGGET, new RecipeHelper.CompactingResult(new ItemStack(Items.GOLD_INGOT), Collections.emptyList())),
+				new TestGetCompactingResult(level, Items.GRANITE, new RecipeHelper.CompactingResult(new ItemStack(Items.DIORITE), Collections.emptyList())),
+				new TestGetCompactingResult(level, Items.STONE, new RecipeHelper.CompactingResult(new ItemStack(Items.GRANITE), Collections.emptyList()))
 		);
 	}
 
 
-	@ParameterizedTest
-	@MethodSource
-	void testGetUncompactingResult(Level level, Item item, RecipeHelper.UncompactingResult expectedResult) {
-		RecipeHelper.setWorld(level);
+	private record TestGetUncompactingResult(Level level, Item item, RecipeHelper.UncompactingResult expectedResult) {}
+	private static void testGetUncompactingResult(TestGetUncompactingResult params) {
+		RecipeHelper.setWorld(params.level);
 
-		RecipeHelper.UncompactingResult actualResult = RecipeHelper.getUncompactingResult(item);
+		RecipeHelper.UncompactingResult actualResult = RecipeHelper.getUncompactingResult(params.item);
 
-		assertUncompactingResultEquals(expectedResult, actualResult, "getUncompactingResult returned wrong result");
+		assertUncompactingResultEquals(params.expectedResult, actualResult, "getUncompactingResult returned wrong result");
+		RecipeHelper.clearCache();
 	}
 
-	static Stream<Arguments> testGetUncompactingResult() {
-		return withClassParams(
-				List.of(
-						Arguments.of(Items.GOLD_BLOCK, new RecipeHelper.UncompactingResult(Items.GOLD_INGOT, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.GOLD_INGOT, new RecipeHelper.UncompactingResult(Items.GOLD_NUGGET, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.DIORITE, new RecipeHelper.UncompactingResult(Items.GRANITE, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.GRANITE, new RecipeHelper.UncompactingResult(Items.STONE, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE))
-				)
+	private static Stream<TestGetUncompactingResult> testGetUncompactingResult(Level level) {
+		return java.util.stream.Stream.of(
+				new TestGetUncompactingResult(level, Items.GOLD_BLOCK, new RecipeHelper.UncompactingResult(Items.GOLD_INGOT, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+				new TestGetUncompactingResult(level, Items.GOLD_INGOT, new RecipeHelper.UncompactingResult(Items.GOLD_NUGGET, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+				new TestGetUncompactingResult(level, Items.DIORITE, new RecipeHelper.UncompactingResult(Items.GRANITE, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+				new TestGetUncompactingResult(level, Items.GRANITE, new RecipeHelper.UncompactingResult(Items.STONE, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE))
 		);
 	}
 
-	@ParameterizedTest
-	@MethodSource
-	void testGetItemCompactingShapes(Level level, Item item, Set<RecipeHelper.CompactingShape> shapes) {
-		RecipeHelper.setWorld(level);
 
-		Set<RecipeHelper.CompactingShape> actualShapes = RecipeHelper.getItemCompactingShapes(item);
+	private record TestGetItemCompactingShapes(Level level, Item item, Set<RecipeHelper.CompactingShape> shapes) {}
+	private static void testGetItemCompactingShapes(TestGetItemCompactingShapes params) {
+		RecipeHelper.setWorld(params.level);
 
-		if (!Objects.equals(shapes, actualShapes)) {
-			assertionFailure().message("getItemCompactingShapes returned wrong result")
-					.expected(shapes)
-					.actual(actualShapes)
-					.buildAndThrow();
+		Set<RecipeHelper.CompactingShape> actualShapes = RecipeHelper.getItemCompactingShapes(params.item);
+
+		if (!Objects.equals(params.shapes, actualShapes)) {
+			throw new AssertionError(String.format("getItemCompactingShapes returned wrong result%n expected: %s%n but was: %s", params.shapes, actualShapes));
 		}
+		RecipeHelper.clearCache();
 	}
 
-	static Stream<Arguments> testGetItemCompactingShapes() {
-		return withClassParams(
-				List.of(
-						Arguments.of(Items.GOLD_INGOT, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.GOLD_NUGGET, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.GRANITE, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.STONE, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE))
-				)
+	private static Stream<TestGetItemCompactingShapes> testGetItemCompactingShapes(Level level) {
+		return java.util.stream.Stream.of(
+				new TestGetItemCompactingShapes(level, Items.GOLD_INGOT, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+				new TestGetItemCompactingShapes(level, Items.GOLD_NUGGET, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+				new TestGetItemCompactingShapes(level, Items.GRANITE, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+				new TestGetItemCompactingShapes(level, Items.STONE, Set.of(RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE))
 		);
 	}
+
 
 	private static void assertCompactingResultEquals(RecipeHelper.CompactingResult expected, RecipeHelper.CompactingResult actual, Object message) {
 		if (ItemStack.matches(expected.getResult(), actual.getResult())
@@ -208,13 +173,8 @@ public class RecipeHelperTest {
 			return;
 		}
 
-		assertionFailure().message(message)
-				.expected(expected.getResult() + ":" + expected.getRemainingItems())
-				.actual(actual.getResult() + ":" + actual.getRemainingItems())
-				.buildAndThrow();
+		throw new AssertionError(String.format("%s%n expected: %s%n but was: %s", message, expected.getResult() + ":" + expected.getRemainingItems(), actual.getResult() + ":" + actual.getRemainingItems()));
 	}
-
-
 	private static boolean areItemListsEqual(List<ItemStack> expected, List<ItemStack> actual) {
 		if (expected.size() != actual.size()) {
 			return false;
@@ -230,9 +190,7 @@ public class RecipeHelperTest {
 		if (expected.getResult() == actual.getResult() && expected.getCompactUsingShape() == actual.getCompactUsingShape()) {
 			return;
 		}
-		assertionFailure().message(message)
-				.expected(expected.getResult() + ":" + expected.getCompactUsingShape())
-				.actual(actual.getResult() + ":" + actual.getCompactUsingShape())
-				.buildAndThrow();
+
+		throw new AssertionError(String.format("%s%n expected: %s%n but was: %s", message, expected.getResult() + ":" + expected.getCompactUsingShape(), actual.getResult() + ":" + actual.getCompactUsingShape()));
 	}
 }
