@@ -242,7 +242,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return this.getStackInSlot(slot);
+		return this.getSlot(slot).getStack();
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
