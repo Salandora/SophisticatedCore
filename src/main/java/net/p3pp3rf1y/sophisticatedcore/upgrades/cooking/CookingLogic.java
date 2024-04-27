@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -75,7 +74,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			fr.ifPresent(recipe -> {
 				updateFuel(world, recipe);
 
-				if (isBurning(world) && canSmelt(recipe)) {
+				if (isBurning(world) && canSmelt(recipe, world)) {
 					updateCookingProgress(world, recipe);
 				} else if (!isBurning(world)) {
 					didSomething.set(false);
@@ -143,8 +142,8 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 
 	private void updateCookingProgress(Level world, T cookingRecipe) {
 		if (isCooking() && finishedCooking(world)) {
-			smelt(cookingRecipe);
-			if (canSmelt(cookingRecipe)) {
+			smelt(cookingRecipe, world);
+			if (canSmelt(cookingRecipe, world)) {
 				setCookTime(world, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
 			} else {
 				setIsCooking(false);
@@ -163,14 +162,13 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		return !getFuel().isEmpty() && !getCookInput().isEmpty();
 	}
 
-	private void smelt(Recipe<?> recipe) {
-		if (!canSmelt(recipe)) {
+	private void smelt(Recipe<?> recipe, Level level) {
+		if (!canSmelt(recipe, level)) {
 			return;
 		}
 
 		ItemStack input = getCookInput();
-		Minecraft mc = Minecraft.getInstance();
-		ItemStack recipeOutput = recipe.getResultItem(mc.level.registryAccess());
+		ItemStack recipeOutput = recipe.getResultItem(level.registryAccess());
 		ItemStack output = getCookOutput();
 		if (output.isEmpty()) {
 			setCookOutput(recipeOutput.copy());
@@ -213,7 +211,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 
 	private void updateFuel(Level world, T cookingRecipe) {
 		ItemStack fuel = getFuel();
-		if (!isBurning(world) && canSmelt(cookingRecipe)) {
+		if (!isBurning(world) && canSmelt(cookingRecipe, world)) {
 			if (getBurnTime(fuel, burnTimeModifier) <= 0) {
 				return;
 			}
@@ -238,16 +236,11 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		setBurnTimeTotal(burnTime);
 	}
 
-	protected boolean canSmelt(Recipe<?> cookingRecipe) {
+	protected boolean canSmelt(Recipe<?> cookingRecipe, Level level) {
 		if (getCookInput().isEmpty()) {
 			return false;
 		}
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.level == null) {
-			return false;
-		}
-
-		ItemStack recipeOutput = cookingRecipe.getResultItem(mc.level.registryAccess());
+		ItemStack recipeOutput = cookingRecipe.getResultItem(level.registryAccess());
 		if (recipeOutput.isEmpty()) {
 			return false;
 		} else {
