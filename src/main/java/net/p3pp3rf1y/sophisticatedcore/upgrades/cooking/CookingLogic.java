@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -169,7 +168,6 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		}
 
 		ItemStack input = getCookInput();
-		Minecraft mc = Minecraft.getInstance();
 		ItemStack recipeOutput = recipe.getResultItem();
 		ItemStack output = getCookOutput();
 		if (output.isEmpty()) {
@@ -242,11 +240,6 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		if (getCookInput().isEmpty()) {
 			return false;
 		}
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.level == null) {
-			return false;
-		}
-
 		ItemStack recipeOutput = cookingRecipe.getResultItem();
 		if (recipeOutput.isEmpty()) {
 			return false;
