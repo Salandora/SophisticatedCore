@@ -60,7 +60,12 @@ public class PlayDiscMessage extends SimplePacketBase {
 			if (!(discItem instanceof RecordItem)) {
 				return;
 			}
+
 			SoundEvent soundEvent = ((RecordItem) discItem).getSound();
+			if (soundEvent == null) {
+				return;
+			}
+
 			UUID storageUuid1 = storageUuid;
 			if (blockStorage) {
 				StorageSoundHandler.playStorageSound(soundEvent, storageUuid1, pos);
