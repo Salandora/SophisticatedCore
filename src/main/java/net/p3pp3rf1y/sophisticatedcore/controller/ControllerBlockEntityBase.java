@@ -711,7 +711,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	private long insertIntoStorage(BlockPos storagePos, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		return maxAmount - getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insert(resource, maxAmount, ctx)).orElse(0L);
+		return getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insert(resource, maxAmount, ctx)).orElse(0L);
 	}
 
 	@Override
