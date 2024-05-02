@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -559,6 +560,27 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return slot;
 		}
 		return slot - baseIndexes.get(index - 1);
+	}
+
+	@Nonnull
+	@Override
+	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
+		if (isSlotIndexInvalid(slot)) {
+			throw new IndexOutOfBoundsException(slot);
+		}
+
+		int handlerIndex = getIndexForSlot(slot);
+		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
+		if (handler == null) {
+			throw new IndexOutOfBoundsException("HandlerIndex out of range: " + handlerIndex);
+		}
+
+		slot = getSlotFromIndex(slot, handlerIndex);
+		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
+			throw new IndexOutOfBoundsException("Slot in handler out of range: " + slot);
+		}
+
+		return handler.getSlot(slot);
 	}
 
 	@Nonnull
