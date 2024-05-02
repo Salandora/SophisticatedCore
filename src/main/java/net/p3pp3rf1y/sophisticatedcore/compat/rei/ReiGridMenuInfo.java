@@ -12,8 +12,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.IntStream;
 
 public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends SimpleGridMenuDisplay> implements SimpleGridMenuInfo<T, D> {
@@ -60,9 +58,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public Iterable<SlotAccessor> getInventorySlots(MenuInfoContext<T, ?, D> context) {
-        List<SlotAccessor> slots = new ArrayList<>(context.getMenu().slots.stream().map(SlotAccessor::fromSlot).toList());
-        context.getMenu().getOpenOrFirstCraftingContainer().ifPresent(c -> c.getRecipeSlots().forEach(s -> slots.add(SlotAccessor.fromSlot(s))));
-        return slots;
+        return context.getMenu().slots.stream().map(SlotAccessor::fromSlot).toList();
     }
 
     @Override
