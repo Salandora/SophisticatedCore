@@ -9,7 +9,6 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackSto
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -81,11 +80,9 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	@Override
-	public long insert(long maxAmount, @Nullable TransactionContext ctx) {
-		try (Transaction nested = Transaction.openNested(ctx)) {
-			long ret = Math.min(getCapacity() - getAmount(), Math.min(getMaxInOut(), maxAmount));
-			return energyStorage.insert(ret, nested);
-		}
+	public long insert(long maxAmount, TransactionContext ctx) {
+		long ret = Math.min(getCapacity() - getAmount(), Math.min(getMaxInOut(), maxAmount));
+		return energyStorage.insert(ret, ctx);
 	}
 
 	private void serializeEnergyStored() {
@@ -95,11 +92,9 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	@Override
-	public long extract(long maxAmount, @Nullable TransactionContext ctx) {
-		try (Transaction nested = Transaction.openNested(ctx)) {
-			long ret = Math.min(getAmount(), Math.min(getMaxInOut(), maxAmount));
-			return energyStorage.extract(ret, nested);
-		}
+	public long extract(long maxAmount, TransactionContext ctx) {
+		long ret = Math.min(getAmount(), Math.min(getMaxInOut(), maxAmount));
+		return energyStorage.extract(ret, ctx);
 	}
 
 	@Override
