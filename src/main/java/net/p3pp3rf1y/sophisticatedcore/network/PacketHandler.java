@@ -20,12 +20,10 @@ import java.util.function.Function;
 
 public class PacketHandler {
 	private static int index = 0;
-	private static SimpleChannel channel;
-
 	public static final ResourceLocation CHANNEL_NAME = SophisticatedCore.getRL("channel");
+	private static final SimpleChannel channel = new SimpleChannel(CHANNEL_NAME);
 
 	public static void init() {
-		channel = new SimpleChannel(CHANNEL_NAME);
 		channel.initServerListener();
 
 		registerC2SMessage(SyncContainerClientDataMessage.class, SyncContainerClientDataMessage::new);

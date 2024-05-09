@@ -1,5 +1,5 @@
 {
-    "required": true,
+    "required": false,
     "priority": 1100,
     "compatibilityLevel": "JAVA_17",
     "minVersion": "0.8",
@@ -7,6 +7,9 @@
     "plugin": "net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaMixinPlugin",
     "mixins": [
         "MaterialListUtilsMixin"
+    ],
+    "client": [
+        "GuiMaterialListMixin"
     ],
     "injectors": {
         "defaultRequire": 1
