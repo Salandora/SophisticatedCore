@@ -7,6 +7,7 @@ import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingTweaksCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.rei.ReiCompat;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class ModCompat {
 		compatFactories.put(CompatModIds.REI, () -> ReiCompat::new);
 		compatFactories.put(CompatModIds.CRAFTING_TWEAKS, () -> CraftingTweaksCompat::new);
 		//compatFactories.put(CompatModIds.QUARK, () -> QuarkCompat::new); //TODO readd quark compat
+		compatFactories.put(CompatModIds.LITEMATICA, () -> LitematicaCompat::new);
 	}
 
 	public static void initCompats() {

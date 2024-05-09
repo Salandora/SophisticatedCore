@@ -28,7 +28,7 @@ public class MaterialListUtilsMixin {
 		InventoryHandler invHandler = wrapper.getInventoryHandler();
 		int slots = invHandler.getSlotCount();
 		for (int slot = 0; slot < slots; ++slot) {
-			ItemStack invStack = invHandler.getSlotStack(slot);
+			ItemStack invStack = invHandler.getStackInSlot(slot);
 			if (!invStack.isEmpty()) {
 				map.addTo(new ItemType(invStack, true, false), invStack.getCount());
 				CapabilityWrapper.get(invStack).ifPresent(w -> sophisticatedCore$processItemStack(map, w));
