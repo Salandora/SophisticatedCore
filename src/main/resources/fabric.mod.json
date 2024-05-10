@@ -5,6 +5,7 @@
     "name": "Sophisticated Core",
     "description": "Base mod of Sophisticated mods.",
     "license": "GNU General Public License v3.0",
+    "icon": "SophisticatedCoreFabric.png",
     "authors": [
         "P3pp3rF1y",
         "Salandora"
