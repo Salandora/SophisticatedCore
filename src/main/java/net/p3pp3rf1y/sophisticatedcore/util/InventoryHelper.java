@@ -76,17 +76,14 @@ public class InventoryHelper {
 		return slots;
 	}
 
-	public static void copyTo(SlottedStorage<ItemVariant> handlerA, SlottedStorage<ItemVariant> handlerB) {
+	public static void copyTo(SlottedStackStorage handlerA, SlottedStackStorage handlerB) {
 		int slotsA = handlerA.getSlotCount();
 		int slotsB = handlerB.getSlotCount();
-		try (Transaction ctx = Transaction.openOuter()) {
-			for (int slot = 0; slot < slotsA && slot < slotsB; slot++) {
-				SingleSlotStorage<ItemVariant> slotStorage = handlerA.getSlot(slot);
-				if (!slotStorage.isResourceBlank()) {
-					handlerB.getSlots().get(slot).insert(slotStorage.getResource(), slotStorage.getAmount(), ctx);
-				}
+		for (int slot = 0; slot < slotsA && slot < slotsB; slot++) {
+			ItemStack slotStack = handlerA.getStackInSlot(slot);
+			if (!slotStack.isEmpty()) {
+				handlerB.setStackInSlot(slot, slotStack);
 			}
-			ctx.commit();
 		}
 	}
 
