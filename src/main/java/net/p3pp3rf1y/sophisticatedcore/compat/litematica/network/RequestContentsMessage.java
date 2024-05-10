@@ -1,8 +1,9 @@
-package net.p3pp3rf1y.sophisticatedcore.compat.litematica;
+package net.p3pp3rf1y.sophisticatedcore.compat.litematica.network;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import fi.dy.masa.malilib.util.InventoryUtils;
-import org.apache.commons.compress.utils.Lists;
+import me.pepperbell.simplenetworking.S2CPacket;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,8 +12,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
 import java.util.List;
@@ -50,25 +51,25 @@ public class RequestContentsMessage extends SimplePacketBase {
 				}
 			}
 
-			Map<Function<List<UUID>, SimplePacketBase>, List<UUID>> requested = Maps.newHashMap();
+			Map<Function<List<UUID>, S2CPacket>, List<UUID>> requested = Maps.newHashMap();
 			requestContents(stacks, requested);
 			if (!requested.isEmpty()) {
 				int count = 0;
 				for (List<UUID> uuids : requested.values()) {
 					count += uuids.size();
 				}
-				PacketHandler.sendToClient(player, new UpdateMaterialListMessage(count));
-				requested.forEach((function, uuids) -> PacketHandler.sendToClient(player, function.apply(uuids)));
+				LitematicaPacketHandler.sendToClient(player, new UpdateMaterialListMessage(count));
+				requested.forEach((function, uuids) -> LitematicaPacketHandler.sendToClient(player, function.apply(uuids)));
 			}
 		});
 		return true;
 	}
 
-	public static void requestContents(List<ItemStack> stacks, Map<Function<List<UUID>, SimplePacketBase>, List<UUID>> requested) {
+	public static void requestContents(List<ItemStack> stacks, Map<Function<List<UUID>, S2CPacket>, List<UUID>> requested) {
 		for (ItemStack stack : stacks) {
 			if (!stack.isEmpty()) {
 				CapabilityWrapper.get(stack).ifPresent(wrapper -> wrapper.getContentsUuid().ifPresent(uuid -> {
-					Function<List<UUID>, SimplePacketBase> function = LitematicaCompat.REQUEST_CONTENTS_CAPABILITY.find(stack, uuid);
+					Function<List<UUID>, S2CPacket> function = LitematicaCompat.REQUEST_CONTENTS_CAPABILITY.find(stack, uuid);
 					if (function != null) {
 						requested.compute(function, (k, v) -> {
 							if (v == null) {

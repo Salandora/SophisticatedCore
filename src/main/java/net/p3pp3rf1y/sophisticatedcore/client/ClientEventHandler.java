@@ -27,6 +27,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.battery.BatteryUpgradeContainer;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
@@ -66,6 +67,7 @@ public class ClientEventHandler implements ClientModInitializer {
         });
 
         PacketHandler.getChannel().initClientListener();
+		LitematicaPacketHandler.getChannel().initClientListener();
     }
 
     private static void onDrawScreen(Screen screen, PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
