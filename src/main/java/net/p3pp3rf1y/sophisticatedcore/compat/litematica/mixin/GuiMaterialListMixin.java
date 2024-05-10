@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaHelper;
 
 @Mixin(GuiMaterialList.class)
 public abstract class GuiMaterialListMixin extends GuiListBase<MaterialListEntry, WidgetMaterialListEntry, WidgetListMaterialList> {
@@ -19,8 +19,8 @@ public abstract class GuiMaterialListMixin extends GuiListBase<MaterialListEntry
 		super(listX, listY);
 	}
 
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(method = "<init>", at = @At("RETURN"), remap = false)
 	private void sophisticatedCore$init(MaterialListBase materialList, CallbackInfo ci) {
-		LitematicaCompat.requestContents(materialList);
+		LitematicaHelper.requestContents(materialList);
 	}
 }
