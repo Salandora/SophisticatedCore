@@ -247,7 +247,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			ItemStack output = getCookOutput();
 			if (output.isEmpty()) {
 				return true;
-			} else if (!ItemStack.isSameItem(output, recipeOutput)) {
+			} else if (output.getItem() != recipeOutput.getItem()) {
 				return false;
 			} else if (output.getCount() + recipeOutput.getCount() <= 64 && output.getCount() + recipeOutput.getCount() <= output.getMaxStackSize()) {
 				return true;

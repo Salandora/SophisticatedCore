@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.controller;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
@@ -11,12 +10,11 @@ public interface IControllableStorage extends IControllerBoundable {
 
 	IStorageWrapper getStorageWrapper();
 
-	default boolean canBeConnected() {
-		return getControllerPos().isEmpty();
+	default boolean canConnectStorages() {
+		return true;
 	}
 
-	@Override
-	default boolean canConnectStorages() {
+	default boolean hasStorageData() {
 		return true;
 	}
 
@@ -32,34 +30,14 @@ public interface IControllableStorage extends IControllerBoundable {
 		}
 	}
 
-	private void addToAdjacentController() {
-		Level level = getStorageBlockLevel();
-		if (!level.isClientSide()) {
-			BlockPos pos = getStorageBlockPos();
-			for (Direction dir : Direction.values()) {
-				BlockPos offsetPos = pos.offset(dir.getNormal());
-				WorldHelper.getBlockEntity(level, offsetPos, IControllerBoundable.class).ifPresentOrElse(
-						s -> {
-							if (s.canConnectStorages()) {
-								s.getControllerPos().ifPresent(controllerPos -> addToController(level, pos, controllerPos));
-							}
-						},
-						() -> addToController(level, pos, offsetPos)
-				);
-				if (getControllerPos().isPresent()) {
-					break;
-				}
-			}
-		}
-	}
-
-	private void addToController(Level level, BlockPos pos, BlockPos controllerPos) {
+	@Override
+	default void addToController(Level level, BlockPos pos, BlockPos controllerPos) {
 		WorldHelper.getBlockEntity(level, controllerPos, ControllerBlockEntityBase.class).ifPresent(c -> c.addStorage(pos));
 	}
 
 	default void registerController(ControllerBlockEntityBase controllerBlockEntity) {
 		setControllerPos(controllerBlockEntity.getBlockPos());
-		if (controllerBlockEntity.getLevel() != null && !controllerBlockEntity.getLevel().isClientSide()) {
+		if (hasStorageData() && controllerBlockEntity.getLevel() != null && !controllerBlockEntity.getLevel().isClientSide()) {
 			registerListeners();
 		}
 	}
@@ -98,7 +76,15 @@ public interface IControllableStorage extends IControllerBoundable {
 			Level level = getStorageBlockLevel();
 			if (!level.isClientSide()) {
 				WorldHelper.getLoadedBlockEntity(level, controllerPos, ControllerBlockEntityBase.class)
-						.ifPresent(controller -> controller.addStorageStacksAndRegisterListeners(getStorageBlockPos()));
+						.ifPresent(controller -> {
+									if (controller.isStorageConnected(getStorageBlockPos())) {
+										controller.addStorageStacksAndRegisterListeners(getStorageBlockPos());
+									} else {
+										removeControllerPos();
+										tryToAddToController();
+									}
+								}
+						);
 			}
 		});
 	}

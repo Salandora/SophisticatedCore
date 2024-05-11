@@ -34,5 +34,4 @@ public class SoundStopNotificationMessage extends SimplePacketBase {
 		});
 		return true;
 	}
-
 }

@@ -48,7 +48,7 @@ public class SophisticatedCore implements ModInitializer {
 		CapabilityWrapper.register();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setWorld(server.getLevel(Level.OVERWORLD)));
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setLevel(server.getLevel(Level.OVERWORLD)));
 
 		PacketHandler.getChannel().initServerListener();
 		LitematicaPacketHandler.getChannel().initServerListener();

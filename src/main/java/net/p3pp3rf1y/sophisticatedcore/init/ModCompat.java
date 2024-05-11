@@ -25,6 +25,8 @@ public class ModCompat {
 		compatFactories.put(CompatModIds.JEI, () -> JeiCompat::new);
 		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
 		compatFactories.put(CompatModIds.CRAFTING_TWEAKS, () -> CraftingTweaksCompat::new);
+		//compatFactories.put(CompatModIds.INVENTORY_SORTER, () -> InventorySorterCompat::new);
+		//compatFactories.put(CompatModIds.ITEM_BORDERS, () -> ItemBordersCompat::new);
 		//compatFactories.put(CompatModIds.QUARK, () -> QuarkCompat::new); //TODO readd quark compat
 		compatFactories.put(CompatModIds.LITEMATICA, () -> LitematicaCompat::new);
 	}

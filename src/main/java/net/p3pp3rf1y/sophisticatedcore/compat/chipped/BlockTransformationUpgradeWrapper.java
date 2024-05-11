@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
-
 import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;

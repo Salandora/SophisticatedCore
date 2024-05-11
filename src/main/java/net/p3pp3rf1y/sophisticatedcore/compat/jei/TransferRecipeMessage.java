@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
@@ -14,8 +15,10 @@ public class TransferRecipeMessage extends SimplePacketBase {
 	private final List<Integer> craftingSlotIndexes;
 	private final List<Integer> inventorySlotIndexes;
 	private final boolean maxTransfer;
+	private final ResourceLocation recipeId;
 
-	public TransferRecipeMessage(Map<Integer, Integer> matchingItems, List<Integer> craftingSlotIndexes, List<Integer> inventorySlotIndexes, boolean maxTransfer) {
+	public TransferRecipeMessage(ResourceLocation recipeId, Map<Integer, Integer> matchingItems, List<Integer> craftingSlotIndexes, List<Integer> inventorySlotIndexes, boolean maxTransfer) {
+		this.recipeId = recipeId;
 		this.matchingItems = matchingItems;
 		this.craftingSlotIndexes = craftingSlotIndexes;
 		this.inventorySlotIndexes = inventorySlotIndexes;
@@ -23,15 +26,16 @@ public class TransferRecipeMessage extends SimplePacketBase {
 	}
 
 	public TransferRecipeMessage(FriendlyByteBuf buffer) {
-		this(readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
+		this(buffer.readResourceLocation(), readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buffer) {
-		writeMap(buffer, matchingItems);
-		writeList(buffer, craftingSlotIndexes);
-		writeList(buffer, inventorySlotIndexes);
-		buffer.writeBoolean(maxTransfer);
+		buffer.writeResourceLocation(this.recipeId);
+		writeMap(buffer, this.matchingItems);
+		writeList(buffer, this.craftingSlotIndexes);
+		writeList(buffer, this.inventorySlotIndexes);
+		buffer.writeBoolean(this.maxTransfer);
 	}
 
 	private static void writeMap(FriendlyByteBuf buffer, Map<Integer, Integer> map) {
@@ -72,7 +76,7 @@ public class TransferRecipeMessage extends SimplePacketBase {
 			if (sender == null) {
 				return;
 			}
-			CraftingContainerRecipeTransferHandlerServer.setItems(sender, matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer);
+			CraftingContainerRecipeTransferHandlerServer.setItems(sender, this.recipeId, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
 		});
 		return true;
 	}

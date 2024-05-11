@@ -117,6 +117,7 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
 			}
 			TransferRecipeMessage message = new TransferRecipeMessage(
+					recipe.getId(),
 					toMap(transferOperations.results),
 					craftingSlotIndexes,
 					inventorySlotIndexes,

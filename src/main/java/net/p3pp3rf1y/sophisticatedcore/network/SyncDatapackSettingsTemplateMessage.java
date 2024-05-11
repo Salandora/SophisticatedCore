@@ -48,5 +48,4 @@ public class SyncDatapackSettingsTemplateMessage extends SimplePacketBase {
 		});
 		return true;
 	}
-
 }

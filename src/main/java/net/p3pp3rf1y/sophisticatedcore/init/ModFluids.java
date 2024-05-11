@@ -28,7 +28,7 @@ public class ModFluids {
 	public static <T extends Fluid> T register(String id, T value) {
 		return Registry.register(BuiltInRegistries.FLUID, SophisticatedCore.getRL(id), value);
 	}
-	
+
 	public static void registerHandlers() {
 		FluidVariantAttributes.register(XP_STILL, new FluidVariantAttributeHandler() {
 			@Override

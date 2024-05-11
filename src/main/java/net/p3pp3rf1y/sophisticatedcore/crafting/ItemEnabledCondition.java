@@ -28,12 +28,12 @@ public class ItemEnabledCondition implements ConditionJsonProvider {
 		return ID;
 	}
 
+	public static boolean test(JsonObject json) {
+		return Config.COMMON.enabledItems.isItemEnabled(new ResourceLocation(GsonHelper.getAsString(json, "itemRegistryName")));
+	}
+
 	@Override
 	public void writeParameters(JsonObject json) {
 		json.addProperty("itemRegistryName", itemRegistryName.toString());
-	}
-
-	public static boolean test(JsonObject json) {
-		return Config.COMMON.enabledItems.isItemEnabled(new ResourceLocation(GsonHelper.getAsString(json, "itemRegistryName")));
 	}
 }

@@ -241,9 +241,8 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 			return maxAmount;
 		}
 
-		long remaining = maxAmount;
-
 		ItemStackKey stackKey = ItemStackKey.of(resource.toStack());
+		long remaining = maxAmount;
 		remaining -= handleOverflow(overflowHandler, stackKey, resource, remaining);
 		if (remaining <= 0) {
 			return 0;

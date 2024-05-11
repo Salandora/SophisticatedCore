@@ -51,7 +51,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 
 	private int baseSlotLimit;
 	private int slotLimit;
-	private int maxStackSizeMultiplier;
+	private double maxStackSizeMultiplier;
 	private boolean isInitializing;
 	private final StackUpgradeConfig stackUpgradeConfig;
 	private final InventoryPartitioner inventoryPartitioner;
@@ -86,6 +86,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	private void initStackNbts() {
+		stackNbts.clear();
 		for (int slot = 0; slot < this.getSlotCount(); slot++) {
 			ItemStack slotStack = this.getStackInSlot(slot);
 			if (!slotStack.isEmpty()) {
@@ -206,7 +207,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public void setBaseSlotLimit(int baseSlotLimit) {
 		slotLimitInitialized = false; // not the most ideal of places to do this, but base slot limit is set when upgrades change and that's when slot limit needs to be reinitialized as well
 		this.baseSlotLimit = baseSlotLimit;
-		maxStackSizeMultiplier = baseSlotLimit / 64;
+		maxStackSizeMultiplier = baseSlotLimit / 64f;
 
 		if (inventoryPartitioner != null) {
 			inventoryPartitioner.onSlotLimitChange();
@@ -383,7 +384,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		return nbt;
 	}
 
-	public int getStackSizeMultiplier() {
+	public double getStackSizeMultiplier() {
 		return maxStackSizeMultiplier;
 	}
 

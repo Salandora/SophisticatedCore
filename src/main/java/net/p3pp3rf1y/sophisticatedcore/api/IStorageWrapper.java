@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.api;
 
 import team.reborn.energy.api.EnergyStorage;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
@@ -93,4 +94,8 @@ public interface IStorageWrapper {
 	default void onInit() {
 		getInventoryHandler().onInit();
 	}
+
+	String getStorageType();
+
+	Component getDisplayName();
 }
