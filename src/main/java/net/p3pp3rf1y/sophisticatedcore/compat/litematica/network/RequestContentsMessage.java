@@ -11,7 +11,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
-import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
+import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
@@ -19,7 +19,6 @@ import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 public class RequestContentsMessage extends SimplePacketBase {
 
@@ -39,6 +38,7 @@ public class RequestContentsMessage extends SimplePacketBase {
 			if (player == null) {
 				return;
 			}
+
 			List<ItemStack> stacks = Lists.newArrayList();
 
 			// Iterate over all slots cause this includes items, armor and offhand
@@ -51,47 +51,39 @@ public class RequestContentsMessage extends SimplePacketBase {
 				}
 			}
 
-			Map<Function<List<UUID>, S2CPacket>, List<UUID>> requested = Maps.newHashMap();
+			Map<IStorageWrapper, S2CPacket> requested = Maps.newHashMap();
 			requestContents(stacks, requested);
 			if (!requested.isEmpty()) {
-				int count = 0;
-				for (List<UUID> uuids : requested.values()) {
-					count += uuids.size();
-				}
-				LitematicaPacketHandler.sendToClient(player, new UpdateMaterialListMessage(count));
-				requested.forEach((function, uuids) -> LitematicaPacketHandler.sendToClient(player, function.apply(uuids)));
+				LitematicaPacketHandler.sendToClient(player, new UpdateMaterialListMessage(requested.size()));
+				requested.forEach((wrapper, packet) -> LitematicaPacketHandler.sendToClient(player, packet));
 			}
 		});
 		return true;
 	}
 
-	public static void requestContents(List<ItemStack> stacks, Map<Function<List<UUID>, S2CPacket>, List<UUID>> requested) {
+	public static void requestContents(List<ItemStack> stacks, Map<IStorageWrapper, S2CPacket> requested) {
 		for (ItemStack stack : stacks) {
 			if (!stack.isEmpty()) {
-				CapabilityWrapper.get(stack).ifPresent(wrapper -> wrapper.getContentsUuid().ifPresent(uuid -> {
-					Function<List<UUID>, S2CPacket> function = LitematicaCompat.REQUEST_CONTENTS_CAPABILITY.find(stack, uuid);
-					if (function != null) {
-						requested.compute(function, (k, v) -> {
-							if (v == null) {
-								v = Lists.newArrayList();
-							}
-							v.add(uuid);
-							return v;
-						});
-					}
+				LitematicaCompat.LitematicaWrapper litematicaWrapper = LitematicaCompat.LITEMATICA_CAPABILITY.find(stack, null);
+				if (litematicaWrapper != null) {
+					IStorageWrapper wrapper = litematicaWrapper.wrapper();
+					UUID uuid = wrapper.getContentsUuid().orElse(null);
+					if (uuid != null) {
+						requested.put(wrapper, litematicaWrapper.packetGenerator().apply(uuid));
 
-					List<ItemStack> wrapperStacks = Lists.newArrayList();
-					InventoryHandler handler = wrapper.getInventoryHandler();
-					for (int slot = 0; slot < handler.getSlotCount(); slot++) {
-						ItemStack wrapperStack = handler.getSlotStack(slot);
-						if (!wrapperStack.isEmpty()) {
-							wrapperStacks.add(wrapperStack);
+						List<ItemStack> wrapperStacks = Lists.newArrayList();
+						InventoryHandler handler = wrapper.getInventoryHandler();
+						for (int slot = 0; slot < handler.getSlotCount(); slot++) {
+							ItemStack wrapperStack = handler.getSlotStack(slot);
+							if (!wrapperStack.isEmpty()) {
+								wrapperStacks.add(wrapperStack);
+							}
 						}
+						requestContents(wrapperStacks, requested);
 					}
-					requestContents(wrapperStacks, requested);
-				}));
-				if (stack.getItem() instanceof BlockItem && ((BlockItem)stack.getItem()).getBlock() instanceof ShulkerBoxBlock && InventoryUtils.shulkerBoxHasItems(stack)) {
-					requestContents(InventoryUtils.getStoredItems(stack), requested);
+					if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock && InventoryUtils.shulkerBoxHasItems(stack)) {
+						requestContents(InventoryUtils.getStoredItems(stack), requested);
+					}
 				}
 			}
 		}
