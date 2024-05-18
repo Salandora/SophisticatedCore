@@ -12,6 +12,9 @@ import javax.annotation.Nullable;
 
 @Mixin(AbstractContainerScreen.class)
 public interface AbstractContainerScreenAccessor {
+	@Accessor("imageWidth")
+	int getXSize();
+	
 	@Accessor("leftPos")
 	int getGuiLeft();
 
