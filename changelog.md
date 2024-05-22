@@ -18,3 +18,4 @@
 - Selecting a recipe with a non-empty crafting grid no longer causes an infinite loop.
 - Updated names for chipped compatibility.
 - Checked for `null` in `soundEvent`, preventing errors from broken records in a jukebox upgrade.
+- A bug in Litematica compat preventing it from updating correctly
