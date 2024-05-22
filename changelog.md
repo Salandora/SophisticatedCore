@@ -16,3 +16,4 @@
 - Completely reworked Litematica compatibility.
 - Disabled `isSameThread` requirement as it stopped the StorageWrapper from getting the right data.
 - Attempted to fix a `ConcurrentModificationException`.
+- A bug in Litematica compat preventing it from updating correctly
