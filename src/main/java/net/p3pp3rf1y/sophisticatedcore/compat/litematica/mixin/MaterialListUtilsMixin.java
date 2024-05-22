@@ -25,6 +25,9 @@ public class MaterialListUtilsMixin {
 
 	@Unique
 	private static void sophisticatedCore$processItemStack(Object2IntOpenHashMap<ItemType> map, IStorageWrapper wrapper) {
+		// Don't trust the contents nbt as it might have been updated through our custom packet
+		wrapper.onContentsNbtUpdated();
+
 		InventoryHandler invHandler = wrapper.getInventoryHandler();
 		int slots = invHandler.getSlotCount();
 		for (int slot = 0; slot < slots; ++slot) {

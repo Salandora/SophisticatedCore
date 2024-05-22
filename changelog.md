@@ -17,3 +17,4 @@
 - Properly implemented `getSlot` in `ControllerBlockEntityBase`.
 - Selecting a recipe with a non-empty crafting grid no longer causes an infinite loop.
 - Checked for `null` in `soundEvent`, preventing errors from broken records in a jukebox upgrade.
+- A bug in Litematica compat preventing it from updating correctly
