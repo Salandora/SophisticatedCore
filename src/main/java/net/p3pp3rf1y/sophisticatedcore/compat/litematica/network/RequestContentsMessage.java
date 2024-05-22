@@ -63,28 +63,25 @@ public class RequestContentsMessage extends SimplePacketBase {
 
 	public static void requestContents(List<ItemStack> stacks, Map<IStorageWrapper, S2CPacket> requested) {
 		for (ItemStack stack : stacks) {
-			if (!stack.isEmpty()) {
-				LitematicaCompat.LitematicaWrapper litematicaWrapper = LitematicaCompat.LITEMATICA_CAPABILITY.find(stack, null);
-				if (litematicaWrapper != null) {
-					IStorageWrapper wrapper = litematicaWrapper.wrapper();
-					UUID uuid = wrapper.getContentsUuid().orElse(null);
-					if (uuid != null) {
-						requested.put(wrapper, litematicaWrapper.packetGenerator().apply(uuid));
+			LitematicaCompat.LitematicaWrapper litematicaWrapper = LitematicaCompat.LITEMATICA_CAPABILITY.find(stack, null);
+			if (litematicaWrapper != null) {
+				IStorageWrapper wrapper = litematicaWrapper.wrapper();
+				UUID uuid = wrapper.getContentsUuid().orElse(null);
+				if (uuid != null) {
+					requested.put(wrapper, litematicaWrapper.packetGenerator().apply(uuid));
 
-						List<ItemStack> wrapperStacks = Lists.newArrayList();
-						InventoryHandler handler = wrapper.getInventoryHandler();
-						for (int slot = 0; slot < handler.getSlotCount(); slot++) {
-							ItemStack wrapperStack = handler.getSlotStack(slot);
-							if (!wrapperStack.isEmpty()) {
-								wrapperStacks.add(wrapperStack);
-							}
+					List<ItemStack> wrapperStacks = Lists.newArrayList();
+					InventoryHandler handler = wrapper.getInventoryHandler();
+					for (int slot = 0; slot < handler.getSlotCount(); slot++) {
+						ItemStack wrapperStack = handler.getSlotStack(slot);
+						if (!wrapperStack.isEmpty()) {
+							wrapperStacks.add(wrapperStack);
 						}
-						requestContents(wrapperStacks, requested);
 					}
-					if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock && InventoryUtils.shulkerBoxHasItems(stack)) {
-						requestContents(InventoryUtils.getStoredItems(stack), requested);
-					}
+					requestContents(wrapperStacks, requested);
 				}
+			} else if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock && InventoryUtils.shulkerBoxHasItems(stack)) {
+				requestContents(InventoryUtils.getStoredItems(stack), requested);
 			}
 		}
 	}

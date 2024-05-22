@@ -72,9 +72,8 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	private boolean tryFeedingFoodFromStorage(Level world, int hungerLevel, Player player) {
 		boolean isHurt = player.getHealth() < player.getMaxHealth() - 0.1F;
 		SlottedStackStorage inventory = storageWrapper.getInventoryForUpgradeProcessing();
-
-		for (int slot = 0; slot < inventory.getSlotCount(); slot++) {
-			ItemStack stack = inventory.getStackInSlot(slot);
+		AtomicBoolean fedPlayer = new AtomicBoolean(false);
+		InventoryHelper.iterate(inventory, (slot, stack) -> {
 			if (isEdible(stack) && filterLogic.matchesFilter(stack) && (isHungryEnoughForFood(hungerLevel, stack) || shouldFeedImmediatelyWhenHurt() && hungerLevel > 0 && isHurt)) {
 				ItemStack mainHandItem = player.getMainHandItem();
 				player.getInventory().items.set(player.getInventory().selected, stack);
@@ -88,17 +87,16 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 					player.getInventory().items.set(player.getInventory().selected, mainHandItem);
 					inventory.setStackInSlot(slot, stack);
 					if (!ItemStack.matches(containerItem, stack)) {
-						//not handling the case where player doesn't have item handler cap as the player should always have it. if that changes in the future well I guess I fix it
-						PlayerInventoryStorage playerInventory = PlayerInventoryStorage.of(player);
-						InventoryHelper.insertOrDropItem(player, containerItem, inventory, playerInventory);
+						InventoryHelper.insertOrDropItem(player, containerItem, inventory, PlayerInventoryStorage.of(player));
 					}
+					fedPlayer.set(true);
 					return true;
 				}
 				player.getInventory().items.set(player.getInventory().selected, mainHandItem);
 			}
-		}
-
-		return false;
+			return false;
+		}, () -> false, ret -> ret);
+		return fedPlayer.get();
 	}
 
 	private static boolean isEdible(ItemStack stack) {

@@ -93,7 +93,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private final Map<Integer, UpgradeInventoryPartBase<?>> inventoryParts = new LinkedHashMap<>();
 
 	private static ICraftingUIPart craftingUIPart = ICraftingUIPart.NOOP;
-	private static ISlotDecorationRenderer slotDecorationRenderer = (guiGraphics, slot) -> {};
+	private static ISlotDecorationRenderer slotDecorationRenderer = (guiGraphics, slot) -> {
+	};
 
 	protected StorageBackgroundProperties storageBackgroundProperties;
 
@@ -154,7 +155,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return getMenu().getSlot(slotIndex);
 	}
 
-	private void updateUpgradeSlotsPositions() {
+	protected void updateUpgradeSlotsPositions() {
 		int yPosition = 6;
 		for (int slotIndex = 0; slotIndex < numberOfUpgradeSlots; slotIndex++) {
 			Slot slot = getMenu().getSlot(getMenu().getFirstUpgradeSlot() + slotIndex);

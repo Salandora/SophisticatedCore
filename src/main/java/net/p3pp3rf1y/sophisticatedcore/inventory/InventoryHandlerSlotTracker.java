@@ -247,7 +247,6 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (remaining <= 0) {
 			return 0;
 		}
-
 		remaining -= insertIntoSlotsThatMatchStack(inserter, resource, remaining, ctx, stackKey);
 		if (remaining > 0) {
 			remaining -= insertIntoEmptySlots(inserter, resource, remaining, ctx);
@@ -255,7 +254,6 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (remaining > 0) {
 			remaining -= handleOverflow(overflowHandler, stackKey, resource, remaining);
 		}
-
 		return remaining;
 	}
 
@@ -357,7 +355,6 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 				}
 			}
 		}
-
 		return (int)maxAmount - remaining;
 	}
 

@@ -16,7 +16,7 @@ public class TranslationHelper {
 	private static final String MESSAGE_SUFFIX = "message.";
 	private static final String CONTROLS_SUFFIX = "controls.";
 
-	public static final TranslationHelper INSTANCE = new TranslationHelper(SophisticatedCore.ID);
+	public static final TranslationHelper INSTANCE = new TranslationHelper(SophisticatedCore.MOD_ID);
 
 	private final String guiPrefix;
 	private final String guiUpgradePrefix;

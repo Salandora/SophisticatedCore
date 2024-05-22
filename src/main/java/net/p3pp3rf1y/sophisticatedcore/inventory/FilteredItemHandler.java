@@ -84,7 +84,6 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 			throw new NotImplementedException();
 		}
 
-
 		@Override
 		public Set<ItemStackKey> getTrackedStacks() {
 			Set<ItemStackKey> ret = new HashSet<>();

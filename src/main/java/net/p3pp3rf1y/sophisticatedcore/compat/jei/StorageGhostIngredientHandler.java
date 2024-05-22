@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> implements IGhostIngredientHandler<S> {
-
-
 	@Override
 	public <I> List<Target<I>> getTargetsTyped(S gui, ITypedIngredient<I> ingredient, boolean doStart) {
 		List<Target<I>> targets = new ArrayList<>();

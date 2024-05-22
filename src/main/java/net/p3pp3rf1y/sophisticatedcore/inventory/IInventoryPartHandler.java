@@ -29,7 +29,6 @@ public interface IInventoryPartHandler {
 		return false;
 	}
 
-
 	default int getStackLimit(int slot, ItemVariant resource) {
 		return 0;
 	}

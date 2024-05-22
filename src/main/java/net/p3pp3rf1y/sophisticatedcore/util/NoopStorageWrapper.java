@@ -52,7 +52,8 @@ public class NoopStorageWrapper implements IStorageWrapper {
 	@Override
 	public InventoryHandler getInventoryHandler() {
 		if (inventoryHandler == null) {
-			inventoryHandler = new InventoryHandler(0, this, new CompoundTag(), () -> {}, 64, new StackUpgradeConfig(new ForgeConfigSpec.Builder())) {
+			inventoryHandler = new InventoryHandler(0, this, new CompoundTag(), () -> {
+			}, 64, new StackUpgradeConfig(new ForgeConfigSpec.Builder())) {
 				@Override
 				protected boolean isAllowed(ItemVariant resource) {
 					return true;

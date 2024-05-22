@@ -25,7 +25,7 @@ public class MaterialListUtilsMixin {
 
 	@Unique
 	private static void sophisticatedCore$processItemStack(Object2IntOpenHashMap<ItemType> map, IStorageWrapper wrapper) {
-		// Call the onContentsNbtUpdated function to refresh the handler and get the current nbt from the backing storage
+		// Don't trust the contents nbt as it might have been updated through our custom packet
 		wrapper.onContentsNbtUpdated();
 
 		InventoryHandler invHandler = wrapper.getInventoryHandler();

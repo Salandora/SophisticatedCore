@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SophisticatedCore implements ModInitializer {
-	public static final String ID = "sophisticatedcore";
-	public static final Logger LOGGER = LoggerFactory.getLogger(ID);
+	public static final String MOD_ID = "sophisticatedcore";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public final CommonEventHandler commonEventHandler = new CommonEventHandler();
 
@@ -57,7 +57,7 @@ public class SophisticatedCore implements ModInitializer {
 	}
 
 	public static ResourceLocation getRL(String path) {
-		return new ResourceLocation(ID, path);
+		return new ResourceLocation(MOD_ID, path);
 	}
 
 }

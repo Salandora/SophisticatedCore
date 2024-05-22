@@ -23,7 +23,6 @@ public class ServerStorageSoundHandler {
 		if (world.isClientSide()) {
 			return;
 		}
-
 		ResourceKey<Level> dim = world.dimension();
 		if (lastWorldCheck.computeIfAbsent(dim, key -> world.getGameTime()) > world.getGameTime() - KEEP_ALIVE_CHECK_INTERVAL || !worldStorageSoundKeepAlive.containsKey(dim)) {
 			return;

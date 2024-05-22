@@ -41,7 +41,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	private final SCItemStackHandler inventory;
 	private FluidStack contents;
 	private long cooldownTime = 0;
-	private boolean allowEmptyInputResource = false;
+	private boolean allowEmptyInputResource = false; // Added due to how ContainerItemContext works
 
 	protected TankUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);

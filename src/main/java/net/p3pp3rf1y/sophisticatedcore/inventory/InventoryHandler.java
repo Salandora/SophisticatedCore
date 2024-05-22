@@ -144,14 +144,14 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
 		for (int i = 0; i < tagList.size(); i++) {
 			CompoundTag itemTags = tagList.getCompound(i);
-			int slotIndex = itemTags.getInt("Slot");
+			int slot = itemTags.getInt("Slot");
 
-			if (slotIndex >= 0 && slotIndex < getSlotCount()) {
+			if (slot >= 0 && slot < getSlotCount()) {
 				ItemStack slotStack = ItemStack.of(itemTags);
 				if (itemTags.contains(REAL_COUNT_TAG)) {
 					slotStack.setCount(itemTags.getInt(REAL_COUNT_TAG));
 				}
-				this.getSlot(slotIndex).load(slotStack);
+				this.getSlot(slot).load(slotStack);
 			}
 		}
 		slotTracker.refreshSlotIndexesFrom(this);
@@ -303,6 +303,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	private void runOnAfterInsert(int slot, TransactionContext ctx, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+		// TODO: should this be simulated at all?
 		storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(IInsertResponseUpgrade.class).forEach(u -> u.onAfterInsert(handler, slot, ctx));
 	}
 
@@ -319,7 +320,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {
+	public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
 		inventoryPartitioner.getPartBySlot(slot).setStackInSlot(slot, stack, super::setStackInSlot);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 	}
@@ -414,7 +415,6 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
 			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
 		}
-
 		initStackNbts();
 		saveInventory();
 		slotTracker.refreshSlotIndexesFrom(this);

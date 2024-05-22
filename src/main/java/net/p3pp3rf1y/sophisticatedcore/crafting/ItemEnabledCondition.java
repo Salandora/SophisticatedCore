@@ -11,7 +11,7 @@ import net.p3pp3rf1y.sophisticatedcore.Config;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 public class ItemEnabledCondition implements ConditionJsonProvider {
-	public static final ResourceLocation ID = SophisticatedCore.getRL("item_enabled");
+	public static final ResourceLocation NAME = SophisticatedCore.getRL("item_enabled");
 	private final ResourceLocation itemRegistryName;
 
 	public ItemEnabledCondition(Item item) {
@@ -25,7 +25,7 @@ public class ItemEnabledCondition implements ConditionJsonProvider {
 
 	@Override
 	public ResourceLocation getConditionId() {
-		return ID;
+		return NAME;
 	}
 
 	public static boolean test(JsonObject json) {

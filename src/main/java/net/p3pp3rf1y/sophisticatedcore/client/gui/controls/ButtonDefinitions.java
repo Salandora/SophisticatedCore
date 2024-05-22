@@ -2,7 +2,12 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.PrimaryMatch;
 

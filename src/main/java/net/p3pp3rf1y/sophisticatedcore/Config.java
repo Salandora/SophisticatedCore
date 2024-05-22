@@ -116,11 +116,11 @@ public class Config {
 		COMMON = register(Common::new, ModConfig.Type.SERVER);
 
 		for (Map.Entry<ModConfig.Type, BaseConfig> pair : CONFIGS.entrySet()) {
-			ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.ID, pair.getKey(), pair.getValue().specification);
+			ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, pair.getKey(), pair.getValue().specification);
 		}
 
-		ModConfigEvents.loading(SophisticatedCore.ID).register(Config::onConfigLoad);
-		ModConfigEvents.reloading(SophisticatedCore.ID).register(Config::onConfigReload);
+		ModConfigEvents.loading(SophisticatedCore.MOD_ID).register(Config::onConfigLoad);
+		ModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(Config::onConfigReload);
 	}
 
 	public static void onConfigLoad(ModConfig modConfig) {

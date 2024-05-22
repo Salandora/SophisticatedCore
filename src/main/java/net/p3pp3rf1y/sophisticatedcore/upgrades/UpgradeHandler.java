@@ -78,10 +78,7 @@ public class UpgradeHandler extends SCItemStackHandler {
 
 	public void setRenderUpgradeItems() {
 		List<ItemStack> upgradeItems = new ArrayList<>();
-		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack upgrade = this.getStackInSlot(slot);
-			upgradeItems.add(upgrade.copyWithCount(1));
-		}
+		InventoryHelper.iterate(this, (upgradeSlot, upgrade) -> upgradeItems.add(upgrade.copyWithCount(1)));
 		storageWrapper.getRenderInfo().setUpgradeItems(upgradeItems);
 	}
 
@@ -147,6 +144,7 @@ public class UpgradeHandler extends SCItemStackHandler {
 			insert.commit();
 		}
 
+		// TODO: does this really need to be onSuccess?
 		TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
 				onUpgradeAdded(slot);
@@ -357,7 +355,6 @@ public class UpgradeHandler extends SCItemStackHandler {
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
 			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
 		}
-
 		saveInventory();
 		setRenderUpgradeItems();
 	}

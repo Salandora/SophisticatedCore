@@ -810,7 +810,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		if (isSlotIndexInvalid(slot)) {
 			return false;
 		}
-
 		int handlerIndex = getIndexForSlot(slot);
 		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
 		if (handler == null) {

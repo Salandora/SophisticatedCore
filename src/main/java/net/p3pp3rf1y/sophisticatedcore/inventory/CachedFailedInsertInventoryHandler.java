@@ -18,6 +18,7 @@ public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 	private final Supplier<SlottedStackStorage> wrappedHandlerGetter;
 	private final LongSupplier timeSupplier;
 	private long currentCacheTime = 0;
+	// TODO: Change to ItemStack just like in forge version?
 	private final Set<Integer> failedInsertStackHashes = new HashSet<>();
 
 	public CachedFailedInsertInventoryHandler(Supplier<SlottedStackStorage> wrappedHandlerGetter, LongSupplier timeSupplier) {
