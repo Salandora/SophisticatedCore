@@ -21,8 +21,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
@@ -77,7 +75,7 @@ public class ClientEventHandler implements ClientModInitializer {
         AbstractContainerMenu menu = containerGui.getMenu();
         ItemStack held = menu.getCarried();
         if (!held.isEmpty()) {
-            Slot under = GuiHelper.getSlotUnderMouse(containerGui).orElse(null);
+            Slot under = containerGui.hoveredSlot;
 
             for (Slot s : menu.slots) {
                 ItemStack stack = s.getItem();
@@ -116,7 +114,7 @@ public class ClientEventHandler implements ClientModInitializer {
 
     private static void renderSpecialTooltip(Minecraft mc, AbstractContainerScreen<?> containerGui, PoseStack poseStack, int mouseX, int mouseY, StashResultAndTooltip stashResultAndTooltip) {
         poseStack.pushPose();
-        poseStack.translate(0, 0, containerGui instanceof StorageScreenBase ? -100 : 100);
+        poseStack.translate(0, 0, 100);
         containerGui.renderTooltip(poseStack, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), mouseX, mouseY);
         poseStack.popPose();
     }
@@ -132,13 +130,13 @@ public class ClientEventHandler implements ClientModInitializer {
 		return Optional.empty();
 	}
 
-    private static Optional<StashResultAndTooltip> getStashResultAndTooltip(ItemStack potentialStashStorage, ItemStack potentiallyStashable, IStashStorageItem stashStorageItem) {
+	private static Optional<StashResultAndTooltip> getStashResultAndTooltip(ItemStack potentialStashStorage, ItemStack potentiallyStashable, IStashStorageItem stashStorageItem) {
 		IStashStorageItem.StashResult stashResult = stashStorageItem.getItemStashable(potentialStashStorage, potentiallyStashable);
 		if (stashResult == IStashStorageItem.StashResult.NO_SPACE) {
 			return Optional.empty();
 		}
 		return Optional.of(new StashResultAndTooltip(stashResult, stashStorageItem.getInventoryTooltip(potentialStashStorage)));
-    }
+	}
 
 	private record StashResultAndTooltip(IStashStorageItem.StashResult stashResult, Optional<TooltipComponent> tooltip) {}
 }

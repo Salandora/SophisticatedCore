@@ -14,6 +14,7 @@ import net.p3pp3rf1y.porting_lib.transfer.items.ItemStackHandler;
 import net.p3pp3rf1y.porting_lib.transfer.items.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeCountLimitConfig;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
@@ -27,7 +28,9 @@ import javax.annotation.Nullable;
 public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapper> {
 	public static final UpgradeType<Wrapper> TYPE = new UpgradeType<>(Wrapper::new);
 
-	public JukeboxUpgradeItem(CreativeModeTab creativeModeTab) {super(creativeModeTab);}
+	public JukeboxUpgradeItem(CreativeModeTab itemGroup, IUpgradeCountLimitConfig upgradeTypeLimitConfig) {
+		super(itemGroup, upgradeTypeLimitConfig);
+	}
 
 	@Override
 	public UpgradeType<Wrapper> getType() {

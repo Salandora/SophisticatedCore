@@ -16,7 +16,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.tank.TankUpgradeWrapper;
 
 import java.util.function.Supplier;
 
-
 public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgradeWrapper, BatteryUpgradeContainer> {
 	public static final ResourceLocation EMPTY_BATTERY_INPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_battery_input_slot");
 	public static final ResourceLocation EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_battery_output_slot");

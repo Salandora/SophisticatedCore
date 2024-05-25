@@ -23,7 +23,6 @@ public abstract class WidgetBase extends GuiComponent implements Widget, GuiEven
 	private int width;
 	protected boolean isHovered;
 	private boolean visible = true;
-	private boolean isFocused = false;
 
 	protected WidgetBase(Position position, Dimension dimension) {
 		x = position.x();

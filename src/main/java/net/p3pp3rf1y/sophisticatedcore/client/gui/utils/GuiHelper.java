@@ -21,7 +21,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,7 +38,6 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -170,8 +168,8 @@ public class GuiHelper {
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuilder();
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-
 		bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY - 4, leftX + tooltipWidth + 3, topY - 3, backgroundColor, backgroundColor);
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY + tooltipHeight + 3, leftX + tooltipWidth + 3, topY + tooltipHeight + 4, backgroundColor, backgroundColor);
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY - 3, leftX + tooltipWidth + 3, topY + tooltipHeight + 3, backgroundColor, backgroundColor);
@@ -182,10 +180,12 @@ public class GuiHelper {
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY - 3, leftX + tooltipWidth + 3, topY - 3 + 1, borderColorStart, borderColorStart);
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY + tooltipHeight + 2, leftX + tooltipWidth + 3, topY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 		RenderSystem.enableDepthTest();
+		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		BufferUploader.drawWithShader(bufferbuilder.end());
 		RenderSystem.disableBlend();
+		RenderSystem.enableTexture();
 	}
 
 	public static void writeTooltipLines(List<? extends FormattedText> textLines, Font font, float leftX, int topY, Matrix4f matrix4f, MultiBufferSource.BufferSource renderTypeBuffer, int color) {
@@ -327,11 +327,9 @@ public class GuiHelper {
 		posestack.pushPose();
 		posestack.translate(x, y, 100.0F + itemRenderer.blitOffset);
 		posestack.translate(8.0D, 8.0D, 0.0D);
-
 		if (rotation != 0) {
 			posestack.mulPose(Vector3f.ZP.rotationDegrees(rotation));
 		}
-
 		posestack.scale(1.0F, -1.0F, 1.0F);
 		posestack.scale(16.0F, 16.0F, 16.0F);
 		RenderSystem.applyModelViewMatrix();
@@ -351,11 +349,6 @@ public class GuiHelper {
 
 		posestack.popPose();
 		RenderSystem.applyModelViewMatrix();
-	}
-
-	public static Optional<Slot> getSlotUnderMouse(AbstractContainerScreen<?> containerScreen) {
-		Slot slot = containerScreen.hoveredSlot;
-		return Optional.ofNullable(slot);
 	}
 
 	public static void renderTooltip(Screen screen, PoseStack poseStack, List<Component> components, int x, int y) {

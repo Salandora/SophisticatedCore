@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 
 import java.util.ArrayList;

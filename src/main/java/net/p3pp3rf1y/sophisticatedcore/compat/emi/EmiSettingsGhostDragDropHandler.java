@@ -6,7 +6,7 @@ import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetMemorySlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
 

@@ -28,13 +28,14 @@ import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
 import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-public abstract class ClientStorageContentsTooltipBase implements ClientTooltipComponent {
+public abstract class ClientStorageContentsTooltip implements ClientTooltipComponent {
 	private static final int REFRESH_INTERVAL = 20;
 	private static final String STORAGE_ITEM = "storage";
 	protected static long lastRequestTime = 0;
@@ -66,11 +67,11 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 
 	@SuppressWarnings("java:S2696")
 	protected void setLastRequestTime(long lastRequestTime) {
-		ClientStorageContentsTooltipBase.lastRequestTime = lastRequestTime;
+		ClientStorageContentsTooltip.lastRequestTime = lastRequestTime;
 	}
 
 	protected long getLastRequestTime() {
-		return ClientStorageContentsTooltipBase.lastRequestTime;
+		return ClientStorageContentsTooltip.lastRequestTime;
 	}
 
 	private void requestContents(LocalPlayer player, IStorageWrapper wrapper) {
@@ -107,11 +108,11 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 
 	@SuppressWarnings("java:S2696")
 	protected void setShouldRefreshContents(boolean shouldRefreshContents) {
-		ClientStorageContentsTooltipBase.shouldRefreshContents = shouldRefreshContents;
+		ClientStorageContentsTooltip.shouldRefreshContents = shouldRefreshContents;
 	}
 
 	protected boolean shouldRefreshContents() {
-		return ClientStorageContentsTooltipBase.shouldRefreshContents;
+		return ClientStorageContentsTooltip.shouldRefreshContents;
 	}
 
 	private void calculateWidth() {
@@ -154,10 +155,12 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	}
 
 	private void addMultiplierTooltip(IStorageWrapper wrapper) {
-		int multiplier = wrapper.getInventoryHandler().getStackSizeMultiplier();
+		double multiplier = wrapper.getInventoryHandler().getStackSizeMultiplier();
 		if (multiplier > 1) {
+			DecimalFormat df = new DecimalFormat("0.###");
+
 			tooltipLines.add(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".stack_multiplier",
-					Component.literal(Integer.toString(multiplier)).withStyle(ChatFormatting.WHITE)
+					Component.literal(df.format(multiplier)).withStyle(ChatFormatting.WHITE)
 			).withStyle(ChatFormatting.GREEN));
 		}
 	}
@@ -236,7 +239,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		renderContentsTooltip(minecraft, font, leftX, topY, poseStack, itemRenderer, blitOffset);
 	}
 
-	private void renderContentsTooltip(Minecraft minecraft, Font font, int leftX, int topY, PoseStack poseStack, ItemRenderer itemRenderer, int blitOffset) {
+	private void renderContentsTooltip(Minecraft minecraft, Font font, int leftX, int topY, PoseStack poseStack, ItemRenderer itemRenderer, double blitOffset) {
 		float currentBlitoffset = itemRenderer.blitOffset;
 		itemRenderer.blitOffset = currentBlitoffset + 200;
 		if (!upgrades.isEmpty()) {
@@ -245,17 +248,18 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		}
 		if (!sortedContents.isEmpty()) {
 			topY = renderTooltipLine(poseStack, leftX, topY, font, blitOffset, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW));
-			renderContents(minecraft, poseStack, leftX, topY, itemRenderer, font);
+			renderContents(minecraft, leftX, topY, itemRenderer, font);
 		}
 		itemRenderer.blitOffset = currentBlitoffset;
 	}
 
-	private int renderTooltipLine(PoseStack poseStack, int leftX, int topY, Font font, int blitOffset, Component tooltip) {
+	private int renderTooltipLine(PoseStack poseStack, int leftX, int topY, Font font, double blitOffset, Component tooltip) {
 		poseStack.pushPose();
 		poseStack.translate(0.0D, 0.0D, blitOffset + 200.0F);
 		MultiBufferSource.BufferSource renderTypeBuffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 		font.drawInBatch(tooltip, leftX, topY, 16777215, true, poseStack.last().pose(), renderTypeBuffer, false, 0, 15728880);
 		renderTypeBuffer.endBatch();
+		poseStack.translate(0.0D, 0.0D, -(blitOffset + 200.0F));
 		poseStack.popPose();
 		return topY + 10;
 	}
@@ -275,7 +279,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		return topY;
 	}
 
-	private void renderContents(Minecraft minecraft, PoseStack poseStack, int leftX, int topY, ItemRenderer itemRenderer, Font font) {
+	private void renderContents(Minecraft minecraft, int leftX, int topY, ItemRenderer itemRenderer, Font font) {
 		int x = leftX;
 		for (int i = 0; i < sortedContents.size(); i++) {
 			int y = topY + i / MAX_STACKS_ON_LINE * 20;
