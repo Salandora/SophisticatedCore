@@ -102,7 +102,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		}
 
 		ItemStack slotStack = inventoryHandler.getStackInSlot(slot);
-		if (filterLogic.matchesFilter(slotStack)) {
+		if (!slotStack.isEmpty() && filterLogic.matchesFilter(slotStack)) {
 			slotsToVoid.add(slot);
 		}
 	}
@@ -116,6 +116,10 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		InventoryHandler storageInventory = storageWrapper.getInventoryHandler();
 		for (int slot : slotsToVoid) {
 			ItemStack stack = storageInventory.getStackInSlot(slot);
+			if (stack.isEmpty()) {
+				continue;
+			}
+
 			try (Transaction outer = Transaction.openOuter()) {
 				storageInventory.extractSlot(slot, ItemVariant.of(stack), stack.getCount(), outer);
 				outer.commit();
