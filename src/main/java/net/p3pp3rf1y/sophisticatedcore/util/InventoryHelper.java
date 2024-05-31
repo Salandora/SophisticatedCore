@@ -206,7 +206,7 @@ public class InventoryHelper {
 		} else {
 			getStackHandler = slot -> {
 				var slotStorage = handler.getSlot(slot);
-				return slotStorage.isResourceBlank() ? ItemStack.EMPTY : slotStorage.getResource().toStack(slotStorage.getSlotCount());
+				return slotStorage.isResourceBlank() ? ItemStack.EMPTY : slotStorage.getResource().toStack((int) slotStorage.getAmount());
 			};
 		}
 
