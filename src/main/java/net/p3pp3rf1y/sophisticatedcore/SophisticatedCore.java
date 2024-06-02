@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
+import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -7,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.config.ModConfig;
 import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
@@ -19,10 +22,12 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static net.p3pp3rf1y.sophisticatedcore.Config.CLIENT_SPEC;
+import static net.p3pp3rf1y.sophisticatedcore.Config.COMMON_SPEC;
+
 public class SophisticatedCore implements ModInitializer {
 	public static final String MOD_ID = "sophisticatedcore";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
 	public final CommonEventHandler commonEventHandler = new CommonEventHandler();
 
 	private static MinecraftServer currentServer = null;
@@ -32,14 +37,14 @@ public class SophisticatedCore implements ModInitializer {
 		return currentServer;
 	}
 
-	public SophisticatedCore() {
-	}
-
 	@Override
 	public void onInitialize() {
-		Config.register();
+		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, CLIENT_SPEC);
+		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, COMMON_SPEC);
 
 		commonEventHandler.registerHandlers();
+
+		Config.COMMON.initListeners();
 
 		PacketHandler.init();
 		ModCompat.initCompats();
