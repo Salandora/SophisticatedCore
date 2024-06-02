@@ -23,6 +23,7 @@
     "client": [
         "client.AbstractContainerScreenMixin",
         "client.ClientLevelMixin",
+        "client.ClientPacketListenerMixin",
         "client.KeyboardHandlerMixin",
         "client.MinecraftMixin",
         "client.MouseHandlerMixin",

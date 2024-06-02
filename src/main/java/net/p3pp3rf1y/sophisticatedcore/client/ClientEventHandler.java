@@ -25,6 +25,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
@@ -47,6 +48,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> RecipeHelper.setLevel(client.level));
+		ClientRecipesUpdated.EVENT.register(RecipeHelper::onRecipesUpdated);
 
         ScreenEvents.BEFORE_INIT.register((client, screen, windowWidth, windowHeight) -> {
             if (!(screen instanceof AbstractContainerScreen<?> containerGui) || screen instanceof CreativeModeInventoryScreen || client.player == null) {

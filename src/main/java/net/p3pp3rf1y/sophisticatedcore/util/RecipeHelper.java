@@ -4,12 +4,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +19,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -64,16 +62,6 @@ public class RecipeHelper {
 	private RecipeHelper() {
 	}
 
-	public static void addReloadListener() {
-		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleIdentifiablePrepareableReloadListener<Void>(SophisticatedCore.getRL("recipe_helper")) {
-			@Override
-			protected void apply(Void object, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-				RecipeHelper.clearCache();
-				RECIPE_CHANGE_LISTENERS.notifyAllListeners();
-			}
-		});
-	}
-
 	public static void setLevel(Level l) {
 		if (l instanceof ServerLevel) {
 			serverLevel = new WeakReference<>(l);
@@ -90,6 +78,18 @@ public class RecipeHelper {
 		COMPACTING_RESULTS.clear();
 		UNCOMPACTING_RESULTS.clear();
 		ITEM_COMPACTING_SHAPES.invalidateAll();
+	}
+
+	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
+	public static void onRecipesUpdated(RecipeManager manager) {
+		clearCache();
+		RECIPE_CHANGE_LISTENERS.notifyAllListeners();
+	}
+
+	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
+	public static void onDataPackSync(ServerPlayer serverPlayer, boolean b) {
+		clearCache();
+		RECIPE_CHANGE_LISTENERS.notifyAllListeners();
 	}
 
 	private static Optional<Level> getLevel() {
