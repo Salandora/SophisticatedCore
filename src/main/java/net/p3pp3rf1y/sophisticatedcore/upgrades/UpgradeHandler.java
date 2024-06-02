@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandlerSlot;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class UpgradeHandler extends SCItemStackHandler {
+public class UpgradeHandler extends ItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
 	private final IStorageWrapper storageWrapper;
 	private final Runnable contentsSaveHandler;
@@ -114,14 +114,9 @@ public class UpgradeHandler extends SCItemStackHandler {
 			wrapperAccessor.clearCache();
 		}
 
-		for (var view : this.nonEmptyViews()) {
-			SCItemStackHandlerSlot viewSlot = (SCItemStackHandlerSlot) view;
-
-			int slot = viewSlot.getIndex();
-			ItemStack upgrade = viewSlot.getStack();
-
-			if (!(upgrade.getItem() instanceof IUpgradeItem<?>)) {
-				continue;
+		InventoryHelper.iterate(this, (slot, upgrade) -> {
+			if (upgrade.isEmpty() || !(upgrade.getItem() instanceof IUpgradeItem<?>)) {
+				return;
 			}
 			UpgradeType<?> type = ((IUpgradeItem<?>) upgrade.getItem()).getType();
 			IUpgradeWrapper wrapper = type.create(storageWrapper, upgrade, upgradeStack -> {
@@ -131,7 +126,7 @@ public class UpgradeHandler extends SCItemStackHandler {
 			});
 			setUpgradeDefaults(wrapper);
 			slotWrappers.put(slot, wrapper);
-		}
+		});
 
 		initRenderInfoCallbacks(false);
 	}
@@ -141,15 +136,17 @@ public class UpgradeHandler extends SCItemStackHandler {
 		long inserted;
 		try (Transaction insert = Transaction.openNested(ctx)) {
 			inserted = super.insertSlot(slot, resource, maxAmount, insert);
+			TransactionCallback.onSuccess(insert, () -> {
+				// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
+				this.onContentsChanged(slot);
+
+				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
+					onUpgradeAdded(slot);
+				}
+			});
+
 			insert.commit();
 		}
-
-		// TODO: does this really need to be onSuccess?
-		TransactionCallback.onSuccess(ctx, () -> {
-			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
-				onUpgradeAdded(slot);
-			}
-		});
 
 		return inserted;
 	}
@@ -353,7 +350,10 @@ public class UpgradeHandler extends SCItemStackHandler {
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
+			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
+			if (tag != null) {
+				getSlot(i).load(tag);
+			}
 		}
 		saveInventory();
 		setRenderUpgradeItems();

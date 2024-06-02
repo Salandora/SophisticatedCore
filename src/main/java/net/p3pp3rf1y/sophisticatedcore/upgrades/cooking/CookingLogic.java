@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
@@ -9,7 +10,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
@@ -24,7 +24,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	private final ItemStack upgrade;
 	private final Consumer<ItemStack> saveHandler;
 
-	private SCItemStackHandler cookingInventory = null;
+	private ItemStackHandler cookingInventory = null;
 	public static final int COOK_INPUT_SLOT = 0;
 	public static final int COOK_OUTPUT_SLOT = 2;
 	public static final int FUEL_SLOT = 1;
@@ -277,9 +277,9 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		getCookingInventory().setStackInSlot(FUEL_SLOT, fuel);
 	}
 
-	public SCItemStackHandler getCookingInventory() {
+	public ItemStackHandler getCookingInventory() {
 		if (cookingInventory == null) {
-			cookingInventory = new SCItemStackHandler(3) {
+			cookingInventory = new ItemStackHandler(3) {
 				@Override
 				protected void onContentsChanged(int slot) {
 					super.onContentsChanged(slot);

@@ -4,6 +4,7 @@ import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.EnergyStorageUtil;
 import team.reborn.energy.api.base.SimpleEnergyItem;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -13,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedBatteryUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
@@ -30,12 +30,12 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	public static final int OUTPUT_SLOT = 1;
 	public static final String ENERGY_STORED_TAG = SimpleEnergyItem.ENERGY_KEY;
 	private Consumer<BatteryRenderInfo> updateTankRenderInfoCallback;
-	private final SCItemStackHandler inventory;
+	private final ItemStackHandler inventory;
 	private final BatteryUpgradeEnergyStorage energyStorage;
 
 	protected BatteryUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
-		inventory = new SCItemStackHandler(2) {
+		inventory = new ItemStackHandler(2) {
 			@Override
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);

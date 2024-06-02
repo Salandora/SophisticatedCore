@@ -3,6 +3,8 @@ package net.p3pp3rf1y.sophisticatedcore.inventory;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
@@ -11,8 +13,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandlerSlot;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IInsertResponseUpgrade;
@@ -36,7 +36,7 @@ import java.util.function.IntConsumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class InventoryHandler extends SCItemStackHandler implements ITrackedContentsItemHandler {
+public abstract class InventoryHandler extends ItemStackHandler implements ITrackedContentsItemHandler {
 	public static final String INVENTORY_TAG = "inventory";
 	private static final String PARTITIONER_TAG = "partitioner";
 	private static final String REAL_COUNT_TAG = "realCount";
@@ -147,11 +147,10 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 			int slot = itemTags.getInt("Slot");
 
 			if (slot >= 0 && slot < getSlotCount()) {
-				ItemStack slotStack = ItemStack.of(itemTags);
+				this.getSlot(slot).load(itemTags);
 				if (itemTags.contains(REAL_COUNT_TAG)) {
-					slotStack.setCount(itemTags.getInt(REAL_COUNT_TAG));
+					super.getStackInSlot(slot).setCount(itemTags.getInt(REAL_COUNT_TAG));
 				}
-				this.getSlot(slot).load(slotStack);
 			}
 		}
 		slotTracker.refreshSlotIndexesFrom(this);
@@ -243,7 +242,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return this.getSlot(slot).getStack();
+		return super.getStackInSlot(slot);
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
@@ -413,7 +412,10 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
+			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
+			if (tag != null) {
+				getSlot(i).load(tag);
+			}
 		}
 		initStackNbts();
 		saveInventory();
