@@ -12,13 +12,13 @@ public class StopDiscPlaybackMessage extends SimplePacketBase {
 		this.storageUuid = storageUuid;
 	}
 
-	public StopDiscPlaybackMessage(FriendlyByteBuf buffer) {
-		this(buffer.readUUID());
+	public StopDiscPlaybackMessage(FriendlyByteBuf packetBuffer) {
+		this(packetBuffer.readUUID());
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeUUID(this.storageUuid);
+	public void write(FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeUUID(this.storageUuid);
 	}
 
 	@Override

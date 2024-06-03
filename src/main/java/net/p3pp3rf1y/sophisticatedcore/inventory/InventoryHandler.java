@@ -288,6 +288,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		}
 
 		runOnAfterInsert(slot, ctx, this, storageWrapper);
+
 		return maxAmount - remaining;
 	}
 
@@ -412,6 +413,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
+			// TODO: real count?
 			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
 			if (tag != null) {
 				getSlot(i).load(tag);

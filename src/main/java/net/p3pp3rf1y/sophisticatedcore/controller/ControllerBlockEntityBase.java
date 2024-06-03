@@ -549,12 +549,12 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		}
 	}
 
-	@Nullable
+	@Nonnull
 	public <T, C> LazyOptional<T> getCapability(BlockApiLookup<T, C> cap, @Nullable C opt) {
 		if (cap == ItemStorage.SIDED) {
 			if (opt == null) {
 				if (noSideItemHandlerCap == null) {
-					noSideItemHandlerCap =  LazyOptional.of(() -> this).cast();
+					noSideItemHandlerCap = LazyOptional.of(() -> this).cast();
 				}
 				return noSideItemHandlerCap.cast();
 			} else {
@@ -567,7 +567,9 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		return LazyOptional.empty();
 	}
 
+	@Override
 	public void invalidateCaps() {
+		super.invalidateCaps();
 		if (itemHandlerCap != null) {
 			itemHandlerCap.invalidate();
 			itemHandlerCap = null;
@@ -700,7 +702,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 				return maxAmount;
 			}
 		}
-
 		int stackHash = stackKey.hashCode();
 		if (memorizedStackStorages.containsKey(stackHash)) {
 			remaining -= insertIntoStorages(memorizedStackStorages.get(stackHash), resource, remaining, ctx, false);

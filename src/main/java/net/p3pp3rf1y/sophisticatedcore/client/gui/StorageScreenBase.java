@@ -433,11 +433,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int j = slot.y;
 		ItemStack stackToRender = slot.getItem();
 		boolean flag = false;
-
 		boolean slotsEqual = (slot == ((AbstractContainerScreenAccessor) this).getClickedSlot());
 		boolean draggingItemEmpty = ((AbstractContainerScreenAccessor) this).getDraggingItem().isEmpty();
 		boolean isSplittingStack = ((AbstractContainerScreenAccessor) this).getIsSplittingStack();
-
 		boolean rightClickDragging = slotsEqual && !draggingItemEmpty && !isSplittingStack;
 		ItemStack carriedStack = getMenu().getCarried();
 		String stackCountText = null;

@@ -22,8 +22,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static net.p3pp3rf1y.sophisticatedcore.Config.CLIENT_SPEC;
-import static net.p3pp3rf1y.sophisticatedcore.Config.COMMON_SPEC;
 
 public class SophisticatedCore implements ModInitializer {
 	public static final String MOD_ID = "sophisticatedcore";
@@ -39,30 +37,27 @@ public class SophisticatedCore implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, CLIENT_SPEC);
-		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, COMMON_SPEC);
-
+		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, Config.COMMON_SPEC);
 		commonEventHandler.registerHandlers();
-
 		Config.COMMON.initListeners();
-
 		PacketHandler.init();
 		ModCompat.initCompats();
 		LitematicaPacketHandler.init();
-
 		CapabilityWrapper.register();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setLevel(server.getLevel(Level.OVERWORLD)));
-
 		PacketHandler.getChannel().initServerListener();
 		LitematicaPacketHandler.getChannel().initServerListener();
-
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
 	}
 
-	public static ResourceLocation getRL(String path) {
-		return new ResourceLocation(MOD_ID, path);
+	public static ResourceLocation getRL(String regName) {
+		return new ResourceLocation(getRegistryName(regName));
 	}
 
+	public static String getRegistryName(String regName) {
+		return MOD_ID + ":" + regName;
+	}
 }

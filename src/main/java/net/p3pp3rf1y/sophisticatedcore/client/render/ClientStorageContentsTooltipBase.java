@@ -184,6 +184,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 					tooltipLines.add(Component.translatable(getFluidTooltipTranslation(),
 							Component.literal(CountAbbreviator.abbreviate(FluidHelper.toBuckets(view.getAmount()))).withStyle(ChatFormatting.WHITE),
 							((MutableComponent)FluidVariantAttributes.getName(view.getResource())).withStyle(ChatFormatting.BLUE)
+
 					));
 				}
 			}

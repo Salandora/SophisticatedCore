@@ -19,13 +19,13 @@ public class TankClickMessage extends SimplePacketBase {
 		this.upgradeSlot = upgradeSlot;
 	}
 
-	public TankClickMessage(FriendlyByteBuf buffer) {
-		this(buffer.readInt());
+	public TankClickMessage(FriendlyByteBuf packetBuffer) {
+		this(packetBuffer.readInt());
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeInt(this.upgradeSlot);
+	public void write(FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeInt(this.upgradeSlot);
 	}
 
 	@Override
@@ -56,5 +56,4 @@ public class TankClickMessage extends SimplePacketBase {
 		});
 		return true;
 	}
-
 }

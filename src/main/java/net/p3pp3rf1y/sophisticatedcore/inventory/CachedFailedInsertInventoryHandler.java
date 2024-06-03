@@ -65,6 +65,7 @@ public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 
 		return inserted;
 	}
+
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		if (currentCacheTime != timeSupplier.getAsLong()) {
@@ -88,6 +89,7 @@ public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 	public long extract(ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		return wrappedHandlerGetter.get().extract(resource, maxAmount, ctx);
 	}
+
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		return wrappedHandlerGetter.get().extractSlot(slot, resource, maxAmount, ctx);

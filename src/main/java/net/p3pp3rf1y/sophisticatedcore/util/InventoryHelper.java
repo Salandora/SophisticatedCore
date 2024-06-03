@@ -365,14 +365,13 @@ public class InventoryHelper {
 
 	public static Set<ItemStackKey> getUniqueStacks(SlottedStorage<ItemVariant> handler) {
 		Set<ItemStackKey> uniqueStacks = new HashSet<>();
-		for (StorageView<ItemVariant> view : handler.nonEmptyViews()) {
-			ItemStack stack = view.getResource().toStack((int) view.getAmount());
+		iterate(handler, (slot, stack) -> {
 			if (stack.isEmpty()) {
-				continue;
+				return;
 			}
 			ItemStackKey itemStackKey = ItemStackKey.of(stack);
 			uniqueStacks.add(itemStackKey);
-		}
+		});
 		return uniqueStacks;
 	}
 

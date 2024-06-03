@@ -23,6 +23,7 @@ public class FilterItemStackHandler extends ItemStackHandler {
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		return 0;
 	}
+
 	@Override
 	protected void onContentsChanged(int slot) {
 		super.onContentsChanged(slot);
@@ -38,8 +39,7 @@ public class FilterItemStackHandler extends ItemStackHandler {
 	}
 
 	private void updateEmptyFilters() {
-		onlyEmptyFilters = !this.nonEmptyIterator().hasNext();
-		//onlyEmptyFilters = InventoryHelper.iterate(this, (s, filter) -> filter.isEmpty(), () -> true, result -> !result);
+		onlyEmptyFilters = InventoryHelper.iterate(this, (s, filter) -> filter.isEmpty(), () -> true, result -> !result);
 	}
 
 	public boolean hasOnlyEmptyFilters() {

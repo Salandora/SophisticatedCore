@@ -49,19 +49,19 @@ public class NoopStorageWrapper implements IStorageWrapper {
         return getInventoryHandler();
     }
 
-	@Override
-	public InventoryHandler getInventoryHandler() {
-		if (inventoryHandler == null) {
-			inventoryHandler = new InventoryHandler(0, this, new CompoundTag(), () -> {
-			}, 64, new StackUpgradeConfig(new ForgeConfigSpec.Builder())) {
-				@Override
-				protected boolean isAllowed(ItemVariant resource) {
-					return true;
-				}
-			};
-		}
-		return inventoryHandler;
-	}
+    @Override
+    public InventoryHandler getInventoryHandler() {
+        if (inventoryHandler == null) {
+            inventoryHandler = new InventoryHandler(0, this, new CompoundTag(), () -> {
+            }, 64, new StackUpgradeConfig(new ForgeConfigSpec.Builder())) {
+                @Override
+                protected boolean isAllowed(ItemVariant resource) {
+                    return true;
+                }
+            };
+        }
+        return inventoryHandler;
+    }
 
     @Override
     public ITrackedContentsItemHandler getInventoryForInputOutput() {

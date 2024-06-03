@@ -97,10 +97,9 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	private boolean isValidFluidHandler(Storage<FluidVariant> storage, boolean isOutput) {
 		boolean tankEmpty = contents.isEmpty();
 		for (StorageView<FluidVariant> view : storage) {
-			if (
-					(isOutput  && (view.isResourceBlank() || (!tankEmpty && view.getResource().isOf(contents.getFluid()))))
-				 || (!isOutput && (!view.isResourceBlank() && (tankEmpty  || view.getResource().isOf(contents.getFluid())))
-							|| (view.isResourceBlank() && allowEmptyInputResource))
+			if ((isOutput && (view.isResourceBlank() || (!tankEmpty && view.getResource().isOf(contents.getFluid()))))
+				|| (!isOutput && (!view.isResourceBlank() && (tankEmpty || view.getResource().isOf(contents.getFluid())))
+				|| (view.isResourceBlank() && allowEmptyInputResource))
 			) {
 				return true;
 			}

@@ -30,41 +30,41 @@ public class TransferRecipeMessage extends SimplePacketBase {
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeResourceLocation(this.recipeId);
-		writeMap(buffer, this.matchingItems);
-		writeList(buffer, this.craftingSlotIndexes);
-		writeList(buffer, this.inventorySlotIndexes);
-		buffer.writeBoolean(this.maxTransfer);
+	public void write(FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeResourceLocation(this.recipeId);
+		writeMap(packetBuffer, this.matchingItems);
+		writeList(packetBuffer, this.craftingSlotIndexes);
+		writeList(packetBuffer, this.inventorySlotIndexes);
+		packetBuffer.writeBoolean(this.maxTransfer);
 	}
 
-	private static void writeMap(FriendlyByteBuf buffer, Map<Integer, Integer> map) {
-		buffer.writeInt(map.size());
+	private static void writeMap(FriendlyByteBuf packetBuffer, Map<Integer, Integer> map) {
+		packetBuffer.writeInt(map.size());
 		map.forEach((key, value) -> {
-			buffer.writeInt(key);
-			buffer.writeInt(value);
+			packetBuffer.writeInt(key);
+			packetBuffer.writeInt(value);
 		});
 	}
 
-	private static void writeList(FriendlyByteBuf buffer, List<Integer> list) {
-		buffer.writeInt(list.size());
-		list.forEach(buffer::writeInt);
+	private static void writeList(FriendlyByteBuf packetBuffer, List<Integer> list) {
+		packetBuffer.writeInt(list.size());
+		list.forEach(packetBuffer::writeInt);
 	}
 
-	private static Map<Integer, Integer> readMap(FriendlyByteBuf buffer) {
+	private static Map<Integer, Integer> readMap(FriendlyByteBuf packetBuffer) {
 		Map<Integer, Integer> ret = new HashMap<>();
-		int size = buffer.readInt();
+		int size = packetBuffer.readInt();
 		for (int i = 0; i < size; i++) {
-			ret.put(buffer.readInt(), buffer.readInt());
+			ret.put(packetBuffer.readInt(), packetBuffer.readInt());
 		}
 		return ret;
 	}
 
-	private static List<Integer> readList(FriendlyByteBuf buffer) {
+	private static List<Integer> readList(FriendlyByteBuf packetBuffer) {
 		List<Integer> ret = new ArrayList<>();
-		int size = buffer.readInt();
+		int size = packetBuffer.readInt();
 		for (int i = 0; i < size; i++) {
-			ret.add(buffer.readInt());
+			ret.add(packetBuffer.readInt());
 		}
 		return ret;
 	}
@@ -80,5 +80,4 @@ public class TransferRecipeMessage extends SimplePacketBase {
 		});
 		return true;
 	}
-
 }

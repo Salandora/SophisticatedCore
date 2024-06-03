@@ -62,14 +62,4 @@ public class ClientRecipeHelper {
 		RegistryAccess registryAccess = level.registryAccess();
 		return recipe.assemble(container, registryAccess);
 	}
-
-	public static <C extends Container> ItemStack getResultItem(Recipe<C> recipe) {
-		Minecraft minecraft = Minecraft.getInstance();
-		ClientLevel level = minecraft.level;
-		if (level == null) {
-			throw new NullPointerException("level must not be null.");
-		}
-		RegistryAccess registryAccess = level.registryAccess();
-		return recipe.getResultItem(registryAccess);
-	}
 }

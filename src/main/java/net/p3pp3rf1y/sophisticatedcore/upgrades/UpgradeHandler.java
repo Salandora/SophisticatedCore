@@ -350,6 +350,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
+			// TODO: realCount
 			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
 			if (tag != null) {
 				getSlot(i).load(tag);

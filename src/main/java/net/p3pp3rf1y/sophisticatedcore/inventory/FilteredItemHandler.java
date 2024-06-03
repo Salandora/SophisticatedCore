@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
 
 public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends FilteringStorage<ItemVariant> implements SlottedStorage<ItemVariant> {
 	protected final List<FilterLogic> inputFilters;
@@ -39,7 +38,6 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -80,8 +78,8 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		}
 
 		@Override
-		public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-			throw new NotImplementedException();
+		public void setStackInSlot(int slot, ItemStack stack) {
+			((ITrackedContentsItemHandler) backingStorage).setStackInSlot(slot, stack);
 		}
 
 		@Override
