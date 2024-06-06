@@ -13,8 +13,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -264,35 +262,25 @@ public class InventoryHelper {
 			return;
 		}
 
-		try (Transaction outer = Transaction.openNested(ctx)) {
-			for (StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
-				ItemVariant resource = view.getResource();
-				long maxExtracted;
+		for (StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
+			ItemVariant resource = view.getResource();
+			long maxExtracted;
 
-				// check how much can be extracted
-				try (Transaction extractionTestTransaction = outer.openNested()) {
-					maxExtracted = view.extract(resource, view.getAmount(), extractionTestTransaction);
-				}
-
-				try (Transaction transferTransaction = outer.openNested()) {
-					// check how much can be inserted
-					long accepted = handlerB.insert(resource, maxExtracted, transferTransaction);
-
-					// extract it, or rollback if the amounts don't match
-					if (accepted > 0 && view.extract(resource, accepted, transferTransaction) == accepted) {
-						TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
-						transferTransaction.commit();
-					}
-				}
+			// check how much can be extracted
+			try (Transaction extractionTestTransaction = Transaction.openNested(ctx)) {
+				maxExtracted = view.extract(resource, view.getAmount(), extractionTestTransaction);
 			}
 
-			outer.commit();
-		} catch (Exception e) {
-			CrashReport report = CrashReport.forThrowable(e, "Moving resources between storages");
-			report.addCategory("Move details")
-					.setDetail("Input storage", handlerA::toString)
-					.setDetail("Output storage", handlerB::toString);
-			throw new ReportedException(report);
+			try (Transaction transferTransaction = Transaction.openNested(ctx)) {
+				// check how much can be inserted
+				long accepted = handlerB.insert(resource, maxExtracted, transferTransaction);
+
+				// extract it, or rollback if the amounts don't match
+				if (accepted > 0 && view.extract(resource, accepted, transferTransaction) == accepted) {
+					TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
+					transferTransaction.commit();
+				}
+			}
 		}
 	}
 
