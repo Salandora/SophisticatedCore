@@ -1,5 +1,13 @@
 # Changelog
 
+### General
+- Update to version 0.6.22
+- Code cleanup
+- Remove custom ItemStackHandler implementation
+- Add ClientRecipesUpdated event
+
 ### Fixes
-- Check if the items are empty before trying to extract them. Fixes a crash with Void Upgrade in GUI mode 
-- Fix litematica server side due to an accidentally used class from malilib.
+- Fix a bug in InventoryHelper that could have lead to item loss/duplication and broke mass item handling
+- Fix a bug with upgrades not getting applied properly when added via right-clicking with an upgrade item
+- Fix a crash bug when a placed down backpack gets broken by another player while someone has the gui ope
+- Fix a bug where inventories would leave empty spaces and refuses items at all when piped in
