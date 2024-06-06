@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -304,7 +305,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		// in case updating cache fails to prevent infinite loop
 		while (partiallyFilledStackSlots.get(stackKey) != null && !partiallyFilledStackSlots.get(stackKey).isEmpty() && i++ < sizeBefore) {
 			int matchingSlot = partiallyFilledStackSlots.get(stackKey).iterator().next();
-			remaining -= inserter.insertItem(matchingSlot, resource, remaining, ctx);
+			try (Transaction nested = Transaction.openNested(ctx)) {
+				remaining -= inserter.insertItem(matchingSlot, resource, remaining, nested);
+				nested.commit();
+			}
 			if (remaining <= 0) {
 				break;
 			}
@@ -332,7 +336,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 					slot = it.next();
 				}
 
-				remaining -= inserter.insertItem(slot, resource, remaining, ctx);
+				try (Transaction nested = Transaction.openNested(ctx)) {
+					remaining -= inserter.insertItem(slot, resource, remaining, nested);
+					nested.commit();
+				}
 				if (remaining <= 0) {
 					break;
 				}
@@ -348,7 +355,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (filterItemSlots.containsKey(item)) {
 			for (int filterSlot : filterItemSlots.get(item)) {
 				if (emptySlots.contains(filterSlot)) {
-					remaining -= inserter.insertItem(filterSlot, resource, remaining, ctx);
+					try (Transaction nested = Transaction.openNested(ctx)) {
+						remaining -= inserter.insertItem(filterSlot, resource, remaining, nested);
+						nested.commit();
+					}
 					if (remaining <= 0) {
 						break;
 					}
@@ -365,7 +375,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (memoryFilterItemSlots.containsKey(item)) {
 			for (int memorySlot : memoryFilterItemSlots.get(item)) {
 				if (emptySlots.contains(memorySlot)) {
-					remaining -= inserter.insertItem(memorySlot, resource, remaining, ctx);
+					try (Transaction nested = Transaction.openNested(ctx)) {
+						remaining -= inserter.insertItem(memorySlot, resource, remaining, nested);
+						nested.commit();
+					}
 					if (remaining <= 0) {
 						break;
 					}
@@ -379,7 +392,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 			if (memoryFilterStackSlots.containsKey(stackHash)) {
 				for (int memorySlot : memoryFilterStackSlots.get(stackHash)) {
 					if (emptySlots.contains(memorySlot)) {
-						remaining -= inserter.insertItem(memorySlot, resource, remaining, ctx);
+						try (Transaction nested = Transaction.openNested(ctx)) {
+							remaining -= inserter.insertItem(memorySlot, resource, remaining, nested);
+							nested.commit();
+						}
 						if (remaining <= 0) {
 							break;
 						}

@@ -413,7 +413,6 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			// TODO: real count?
 			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
 			if (tag != null) {
 				getSlot(i).load(tag);
@@ -501,5 +500,57 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public void setShouldInsertIntoEmpty(BooleanSupplier shouldInsertIntoEmpty) {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
+	}
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new ItemStackHandlerSlotWrapper(index, this, stack);
+	}
+
+	private static class ItemStackHandlerSlotWrapper extends ItemStackHandlerSlot {
+		private InventoryHandler handler;
+
+		public ItemStackHandlerSlotWrapper(int index, InventoryHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+
+			this.handler = handler;
+		}
+
+		@Override
+		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
+			long inserted = super.insert(insertedVariant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
+				notifyHandlerOfChange();
+			});
+			return inserted;
+		}
+
+		@Override
+		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			long extracted = super.extract(variant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+					this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
+					notifyHandlerOfChange();
+			});
+			return extracted;
+		}
+
+		@Override
+		public @org.jetbrains.annotations.Nullable CompoundTag save() {
+			CompoundTag itemTag = super.save();
+			if (itemTag != null) {
+				itemTag.putInt(REAL_COUNT_TAG, getStack().getCount());
+			}
+			return itemTag;
+		}
+
+		@Override
+		public void load(CompoundTag tag) {
+			super.load(tag);
+			if (tag.contains(REAL_COUNT_TAG)) {
+				getStack().setCount(tag.getInt(REAL_COUNT_TAG));
+			}
+		}
 	}
 }
