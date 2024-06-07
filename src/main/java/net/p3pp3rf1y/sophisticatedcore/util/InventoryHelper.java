@@ -425,14 +425,19 @@ public class InventoryHelper {
 		}
 
 		ItemVariant resource = ItemVariant.of(stack);
+		long extracted;
 		try (Transaction ctx = Transaction.openOuter()) {
-			long extracted = inventoryHandler.extractSlot(slot, resource, stack.getMaxStackSize(), ctx);
-			while (extracted > 0) {
-				Containers.dropItemStack(level, x, y, z, resource.toStack((int) extracted));
-				extracted = inventoryHandler.extractSlot(slot, resource, stack.getMaxStackSize(), ctx);
-			}
+			extracted = inventoryHandler.extractSlot(slot, resource, stack.getMaxStackSize(), ctx);
 			ctx.commit();
 		}
+		while (extracted > 0) {
+			Containers.dropItemStack(level, x, y, z, resource.toStack((int) extracted));
+			try (Transaction ctx = Transaction.openOuter()) {
+				extracted = inventoryHandler.extractSlot(slot, resource, stack.getMaxStackSize(), ctx);
+				ctx.commit();
+			}
+		}
+
 		inventoryHandler.setStackInSlot(slot, ItemStack.EMPTY);
 	}
 

@@ -7,6 +7,7 @@
 - Add ClientRecipesUpdated event
 
 ### Fixes
+- Commit the extract transactions in dropItem as soon as possible instead of collecting them all.
 - Fix a bug in InventoryHelper that could have lead to item loss/duplication and broke mass item handling
 - Fix a bug with upgrades not getting applied properly when added via right-clicking with an upgrade item
 - Fix a crash bug when a placed down backpack gets broken by another player while someone has the gui ope
