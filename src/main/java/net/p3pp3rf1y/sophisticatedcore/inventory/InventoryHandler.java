@@ -148,9 +148,9 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 			if (slot >= 0 && slot < getSlotCount()) {
 				this.getSlot(slot).load(itemTags);
-				if (itemTags.contains(REAL_COUNT_TAG)) {
+				/*if (itemTags.contains(REAL_COUNT_TAG)) {
 					super.getStackInSlot(slot).setCount(itemTags.getInt(REAL_COUNT_TAG));
-				}
+				}*/
 			}
 		}
 		slotTracker.refreshSlotIndexesFrom(this);
@@ -521,6 +521,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 			long inserted = super.insert(insertedVariant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
+				this.onStackChange();
 				notifyHandlerOfChange();
 			});
 			return inserted;
@@ -530,8 +531,9 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
 			long extracted = super.extract(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
-					this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
-					notifyHandlerOfChange();
+				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
+				this.onStackChange();
+				notifyHandlerOfChange();
 			});
 			return extracted;
 		}
@@ -547,10 +549,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		@Override
 		public void load(CompoundTag tag) {
-			super.load(tag);
+			ItemStack stack = ItemStack.of(tag);
 			if (tag.contains(REAL_COUNT_TAG)) {
-				getStack().setCount(tag.getInt(REAL_COUNT_TAG));
+				stack.setCount(tag.getInt(REAL_COUNT_TAG));
 			}
+			setStack(stack);
+			onStackChange();
 		}
 	}
 }
