@@ -504,15 +504,14 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	@Override
 	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
-		return new ItemStackHandlerSlotWrapper(index, this, stack);
+		return new InventoryHandlerSlot(index, this, stack);
 	}
 
-	private static class ItemStackHandlerSlotWrapper extends ItemStackHandlerSlot {
-		private InventoryHandler handler;
+	private static class InventoryHandlerSlot extends ItemStackHandlerSlot {
+		private final InventoryHandler handler;
 
-		public ItemStackHandlerSlotWrapper(int index, InventoryHandler handler, ItemStack initial) {
+		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
-
 			this.handler = handler;
 		}
 
@@ -521,8 +520,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 			long inserted = super.insert(insertedVariant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
-				this.onStackChange();
-				notifyHandlerOfChange();
+				this.onFinalCommit();
 			});
 			return inserted;
 		}
@@ -532,14 +530,14 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 			long extracted = super.extract(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
-				this.onStackChange();
-				notifyHandlerOfChange();
+				this.onFinalCommit();
 			});
 			return extracted;
 		}
 
+		@Nullable
 		@Override
-		public @org.jetbrains.annotations.Nullable CompoundTag save() {
+		public CompoundTag save() {
 			CompoundTag itemTag = super.save();
 			if (itemTag != null) {
 				itemTag.putInt(REAL_COUNT_TAG, getStack().getCount());
