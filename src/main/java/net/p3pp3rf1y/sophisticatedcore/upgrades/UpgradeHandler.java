@@ -4,7 +4,6 @@ import io.github.fabricators_of_create.porting_lib.transfer.callbacks.Transactio
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -133,22 +132,16 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long inserted;
-		try (Transaction insert = Transaction.openNested(ctx)) {
-			inserted = super.insertSlot(slot, resource, maxAmount, insert);
-			TransactionCallback.onSuccess(insert, () -> {
-				// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
-				this.onContentsChanged(slot);
+		// Moved to UpgradeHandlerSlot
+		/*TransactionCallback.onSuccess(ctx, () -> {
+			// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
+			this.onContentsChanged(slot);
 
-				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
-					onUpgradeAdded(slot);
-				}
-			});
-
-			insert.commit();
-		}
-
-		return inserted;
+			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
+				onUpgradeAdded(slot);
+			}
+		});*/
+		return super.insertSlot(slot, resource, maxAmount, ctx);
 	}
 
 	private void onUpgradeAdded(int slot) {
@@ -185,7 +178,8 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		TransactionCallback.onSuccess(ctx, () -> {
+		// Moved to UpgradeHandlerSlot
+		/*TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
 				ItemStack slotStack = getStackInSlot(slot);
 				if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
@@ -195,7 +189,7 @@ public class UpgradeHandler extends ItemStackHandler {
 					}
 				}
 			}
-		});
+		});*/
 		return super.extractSlot(slot, resource, maxAmount, ctx);
 	}
 
@@ -388,6 +382,53 @@ public class UpgradeHandler extends ItemStackHandler {
 		@Override
 		public void clearCache() {
 			interfaceWrappers.clear();
+		}
+	}
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new UpgradeHandlerSlot(index, this, stack);
+	}
+
+	private static class UpgradeHandlerSlot extends ItemStackHandlerSlot {
+		private final UpgradeHandler handler;
+
+		public UpgradeHandlerSlot(int index, UpgradeHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+
+			this.handler = handler;
+		}
+
+		@Override
+		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
+			long inserted = super.insert(insertedVariant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				this.onFinalCommit();
+
+				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
+					this.handler.onUpgradeAdded(this.getIndex());
+				}
+			});
+			return inserted;
+		}
+
+		@Override
+		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			ItemStack slotStack = getStack();
+			long extracted = super.extract(variant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				this.onFinalCommit();
+
+				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
+					if (this.handler.persistent && !slotStack.isEmpty() && maxAmount == 1) {
+						Map<Integer, IUpgradeWrapper> wrappers = this.handler.getSlotWrappers();
+						if (wrappers.containsKey(this.getIndex())) {
+							wrappers.get(this.getIndex()).onBeforeRemoved();
+						}
+					}
+				}
+			});
+			return extracted;
 		}
 	}
 }
