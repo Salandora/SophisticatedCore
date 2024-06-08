@@ -7,6 +7,7 @@
 - Add ClientRecipesUpdated event
 
 ### Fixes
+- Make iterator return an empty iterator instead of null
 - Added UpgradeHandlerSlot, this hopefully fixes a bug where upgrades randomly stop working
 - Fix a bug that lead to the nonEmptyView of InventoryHandler to be empty when it shouldn't
 - Commit the extract transactions in dropItem as soon as possible instead of collecting them all.

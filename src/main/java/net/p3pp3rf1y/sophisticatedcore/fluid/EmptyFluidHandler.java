@@ -8,6 +8,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageFluidHandler;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 public class EmptyFluidHandler implements IStorageFluidHandler {
@@ -50,6 +51,6 @@ public class EmptyFluidHandler implements IStorageFluidHandler {
 
 	@Override
 	public Iterator<StorageView<FluidVariant>> iterator() {
-		return null;
+		return Collections.emptyIterator();
 	}
 }
