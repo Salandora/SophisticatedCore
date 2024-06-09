@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.controller;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
@@ -750,8 +748,20 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	@Override
-	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		throw new NotImplementedException();
+	public long extract(ItemVariant resource, long maxAmount, TransactionContext ctx) {
+		long remaining = maxAmount;
+		for (int i = 0; i < storagePositions.size(); i++) {
+			SlottedStackStorage handler = getHandlerFromIndex(i);
+			if (handler == null) {
+				continue;
+			}
+
+			remaining -= handler.extract(resource, remaining, ctx);
+			if (remaining == 0) {
+				return maxAmount;
+			}
+		}
+		return maxAmount - remaining;
 	}
 
 	@Override
