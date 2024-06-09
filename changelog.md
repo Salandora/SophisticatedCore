@@ -16,3 +16,5 @@
 - Fix a bug with upgrades not getting applied properly when added via right-clicking with an upgrade item
 - Fix a crash bug when a placed down backpack gets broken by another player while someone has the gui ope
 - Fix a bug where inventories would leave empty spaces and refuses items at all when piped in
+- Fixes an incompatibility with other storage mods extracting items via the extract function that was not implemented
+- Fix a crash with the FilteredItemHandler
