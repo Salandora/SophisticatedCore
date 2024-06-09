@@ -89,7 +89,7 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		public Set<ItemStackKey> getTrackedStacks() {
 			Set<ItemStackKey> ret = new HashSet<>();
 
-			((ITrackedContentsItemHandler) backingStorage).getTrackedStacks().forEach(ts -> {
+			((ITrackedContentsItemHandler) backingStorage.get()).getTrackedStacks().forEach(ts -> {
 				if (inputFiltersMatchStack(ts.stack())) {
 					ret.add(ts);
 				}
