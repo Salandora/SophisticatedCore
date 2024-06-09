@@ -9,3 +9,6 @@
 - Fixes plus sign symbol visible without the trinket slot being visible.
 - Fixes plus sign not visible while trinket slot is visible.
 - Fix a bug where inserting matching items into a storage via a controller block caused item duplicates
+
+### Compatibility
+- Added AudioPlayer compatibility

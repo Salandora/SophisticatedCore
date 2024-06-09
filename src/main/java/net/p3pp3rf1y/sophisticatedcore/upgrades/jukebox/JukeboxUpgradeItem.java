@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
@@ -72,13 +71,12 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 
 		public void play(Level world, BlockPos pos) {
 			play(world, (serverWorld, storageUuid) ->
-					ServerStorageSoundHandler.startPlayingDisc(serverWorld, pos, storageUuid, Item.getId(getDisc().getItem()), () -> setIsPlaying(false)));
+					ServerStorageSoundHandler.startPlayingDisc(serverWorld, pos, storageUuid, getDisc(), () -> setIsPlaying(false)));
 		}
 
 		public void play(LivingEntity entity) {
 			play(entity.level, (world, storageUuid) ->
-					ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(),
-							Item.getId(getDisc().getItem()), () -> setIsPlaying(false)));
+					ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(), getDisc(), () -> setIsPlaying(false)));
 		}
 
 		private void play(Level world, BiConsumer<ServerLevel, UUID> play) {
