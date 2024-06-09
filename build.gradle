@@ -1,3 +1,8 @@
 loom {
     accessWidenerPath = file ('src/main/resources/sophisticatedcore.accesswidener')
 }
+
+dependencies {
+    modCompileOnly("maven.modrinth:simple-voice-chat:${simple_voice_chat_version}")
+    modCompileOnly("maven.modrinth:audioplayer:${audioplayer_version}")
+}

@@ -5,6 +5,7 @@
 - Code cleanup
 - Remove custom ItemStackHandler implementation
 - Add ClientRecipesUpdated event
+- Added AudioPLayer compatibility
 
 ### Fixes
 - Make iterator return an empty iterator instead of null
