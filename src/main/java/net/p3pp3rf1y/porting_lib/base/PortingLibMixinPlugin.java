@@ -1,4 +1,4 @@
-package net.p3pp3rf1y.porting_lib.loot;
+package net.p3pp3rf1y.porting_lib.base;
 
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;

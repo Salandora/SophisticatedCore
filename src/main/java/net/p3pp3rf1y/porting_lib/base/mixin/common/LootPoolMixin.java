@@ -1,6 +1,6 @@
 // Code from https://github.com/Fabricators-of-Create/Porting-Lib/blob/1.19.2/base/src/main/java/io/github/fabricators_of_create/porting_lib/mixin/common/LootPoolMixin.java
 // to not include all of porting_lib_base just for this
-package net.p3pp3rf1y.porting_lib.loot.mixin.common;
+package net.p3pp3rf1y.porting_lib.base.mixin.common;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

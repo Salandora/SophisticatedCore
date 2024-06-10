@@ -1,4 +1,4 @@
-package net.p3pp3rf1y.porting_lib.loot.mixin.common;
+package net.p3pp3rf1y.porting_lib.base.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
