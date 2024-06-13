@@ -260,7 +260,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameTags(getStackInSlot(slot), resource.toStack())) {
-			return triggerOverflowUpgrades(resource.toStack((int) insertItemInternal(slot, resource, maxAmount, ctx))).getCount();
+			return maxAmount - triggerOverflowUpgrades(resource.toStack((int)(maxAmount - insertItemInternal(slot, resource, maxAmount, ctx)))).getCount();
 		}
 
 		return insertItemInternal(slot, resource, maxAmount, ctx);
