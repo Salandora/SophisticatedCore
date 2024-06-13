@@ -5,3 +5,4 @@
 - Fix litematica server side due to an accidentally used class from malilib.
 - Fixes an incompatibility with other storage mods extracting items via the extract function that was not implemented 
 - Fix a crashes in the FilteredItemHandler
+- Fix a bug with Limited Barrels and Void upgrade not working properly. Items where not inserted when right-clicking and also not voided.
