@@ -7,3 +7,4 @@
 - Fix a crashes in the FilteredItemHandler
 - Renamed porting_lib loot to base and added the level snapshot functionality. Fixes a bug with the pump upgrade crashing the game whenever it tries to place a fluid.
 - Fix a bug with Limited Barrels and Void upgrade not working properly. Items where not inserted when right-clicking and also not voided.
+- Fix a bug where items from the compression upgrade do not show up for pulling out and also did not show up in jade
