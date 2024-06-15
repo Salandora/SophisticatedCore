@@ -87,7 +87,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 
 	private void initStackNbts() {
 		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack slotStack = this.getStackInSlot(slot);
+			ItemStack slotStack = this.getSlotStack(slot);
 			if (!slotStack.isEmpty()) {
 				stackNbts.put(slot, getSlotsStackNbt(slot, slotStack));
 			}
@@ -242,11 +242,11 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return this.getSlot(slot).getStack();
+		return ((InventoryHandlerSlot) this.getSlot(slot)).getInternalStack();
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
-		this.getSlot(slot).setNewStack(stack);
+		((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 		onContentsChanged(slot);
 	}
@@ -496,5 +496,56 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public void setShouldInsertIntoEmpty(BooleanSupplier shouldInsertIntoEmpty) {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
+	}
+
+	@Override
+	protected SCItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new InventoryHandlerSlot(index, this, stack);
+	}
+
+	public class InventoryHandlerSlot extends SCItemStackHandlerSlot {
+		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+		}
+
+		protected ItemStack getInternalStack() {
+			return super.getStack();
+		}
+
+		protected void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
+			this.onFinalCommit();
+		}
+
+		@Override
+		public ItemStack getStack() {
+			if (inventoryPartitioner == null) {
+				return super.getStack();
+			}
+
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack());
+		}
+
+		@Override
+		protected void setStack(ItemStack stack) {
+			if (inventoryPartitioner == null) {
+				super.setStack(stack);
+				return;
+			}
+
+			inventoryPartitioner.getPartBySlot(getIndex()).setStackInSlot(getIndex(), stack, (slot, stck) -> super.setStack(stack));
+		}
+
+		@Override
+		public ItemVariant getResource() {
+			return inventoryPartitioner.getPartBySlot(getIndex()).getVariantInSlot(getIndex(), (slot) -> super.getResource());
+		}
+
+		@Override
+		public void load(ItemStack stack) {
+			super.setStack(stack);
+			onStackChange();
+			// intentionally do not notify handler, matches forge
+		}
 	}
 }
