@@ -500,11 +500,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	@Override
-	protected SCItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
 		return new InventoryHandlerSlot(index, this, stack);
 	}
 
-	public class InventoryHandlerSlot extends SCItemStackHandlerSlot {
+	public class InventoryHandlerSlot extends ItemStackHandlerSlot {
 		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
 		}
