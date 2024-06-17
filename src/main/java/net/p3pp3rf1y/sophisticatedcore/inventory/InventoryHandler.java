@@ -88,7 +88,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	private void initStackNbts() {
 		stackNbts.clear();
 		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack slotStack = this.getStackInSlot(slot);
+			ItemStack slotStack = this.getSlotStack(slot);
 			if (!slotStack.isEmpty()) {
 				stackNbts.put(slot, getSlotsStackNbt(slot, slotStack));
 			}
@@ -242,11 +242,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return super.getStackInSlot(slot);
+		return ((InventoryHandlerSlot) this.getSlot(slot)).getInternalStack();
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
-		this.getSlot(slot).setNewStack(stack);
+		((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 		onContentsChanged(slot);
 	}
@@ -260,7 +260,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameTags(getStackInSlot(slot), resource.toStack())) {
-			return triggerOverflowUpgrades(resource.toStack((int) insertItemInternal(slot, resource, maxAmount, ctx))).getCount();
+			return maxAmount - triggerOverflowUpgrades(resource.toStack((int)(maxAmount - insertItemInternal(slot, resource, maxAmount, ctx)))).getCount();
 		}
 
 		return insertItemInternal(slot, resource, maxAmount, ctx);
@@ -507,12 +507,40 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return new InventoryHandlerSlot(index, this, stack);
 	}
 
-	private static class InventoryHandlerSlot extends ItemStackHandlerSlot {
+	private class InventoryHandlerSlot extends ItemStackHandlerSlot {
 		private final InventoryHandler handler;
 
 		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
 			this.handler = handler;
+		}
+
+		protected ItemStack getInternalStack() {
+			return super.getStack();
+		}
+
+		protected void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
+			this.onFinalCommit();
+		}
+
+		@Override
+		public ItemStack getStack() {
+			if (inventoryPartitioner == null) {
+				return super.getStack();
+			}
+
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack());
+		}
+
+		@Override
+		protected void setStack(ItemStack stack) {
+			if (inventoryPartitioner == null) {
+				super.setStack(stack);
+				return;
+			}
+
+			inventoryPartitioner.getPartBySlot(getIndex()).setStackInSlot(getIndex(), stack, (slot, stck) -> super.setStack(stack));
 		}
 
 		@Override
@@ -551,7 +579,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 			if (tag.contains(REAL_COUNT_TAG)) {
 				stack.setCount(tag.getInt(REAL_COUNT_TAG));
 			}
-			setStack(stack);
+			super.setStack(stack);
 			onStackChange();
 		}
 	}
