@@ -506,6 +506,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public class InventoryHandlerSlot extends SCItemStackHandlerSlot {
 		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
+			super.setStack(initial);
 		}
 
 		protected ItemStack getInternalStack() {
