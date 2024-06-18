@@ -507,6 +507,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public class InventoryHandlerSlot extends ItemStackHandlerSlot {
 		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
+			super.setStack(initial);
 		}
 
 		protected ItemStack getInternalStack() {
