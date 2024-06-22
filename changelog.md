@@ -1,5 +1,4 @@
 # Changelog
 
 ### Fixes
-- Fixes an item loss when all slots are filled and only memory slots are left empty
-- Fixes a major item loss issue in the InventoryHandler
+- Try to fix a crash with compression upgrade and e.g. hopper, caused by a simulate extraction getting rolled back.
