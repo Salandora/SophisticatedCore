@@ -5,16 +5,11 @@
 - Code cleanup
 - Remove custom ItemStackHandler implementation
 - Add ClientRecipesUpdated event
-- Added AudioPLayer compatibility
 
 ### Fixes
-- Make iterator return an empty iterator instead of null
-- Added UpgradeHandlerSlot, this hopefully fixes a bug where upgrades randomly stop working
-- Fix a bug that lead to the nonEmptyView of InventoryHandler to be empty when it shouldn't
-- Commit the extract transactions in dropItem as soon as possible instead of collecting them all.
-- Fix a bug in InventoryHelper that could have lead to item loss/duplication and broke mass item handling
-- Fix a bug with upgrades not getting applied properly when added via right-clicking with an upgrade item
-- Fix a crash bug when a placed down backpack gets broken by another player while someone has the gui ope
-- Fix a bug where inventories would leave empty spaces and refuses items at all when piped in
-- Fixes an incompatibility with other storage mods extracting items via the extract function that was not implemented
-- Fix a crash with the FilteredItemHandler
+- Try to fix a crash with compression upgrade and e.g. hopper, caused by a simulate extraction getting rolled back.
+- Fixes plus sign symbol visible without the trinket slot being visible.
+- Fixes plus sign not visible while trinket slot is visible.
+
+### Compatiblity
+- Added AudioPLayer compatibility

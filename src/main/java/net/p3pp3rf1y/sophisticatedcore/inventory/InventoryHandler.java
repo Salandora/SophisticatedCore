@@ -507,16 +507,15 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return new InventoryHandlerSlot(index, this, stack);
 	}
 
+	// Make the "get stack" functions return a copy of the item due to how the insertion and extraction is handled in the part inventory handler implementations.
 	private class InventoryHandlerSlot extends ItemStackHandlerSlot {
-		private final InventoryHandler handler;
-
 		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
-			this.handler = handler;
+			super.setStack(initial);
 		}
 
 		protected ItemStack getInternalStack() {
-			return super.getStack();
+			return super.getStack().copy();
 		}
 
 		protected void setInternalNewStack(ItemStack stack) {
@@ -527,10 +526,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		@Override
 		public ItemStack getStack() {
 			if (inventoryPartitioner == null) {
-				return super.getStack();
+				return super.getStack().copy();
 			}
 
-			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack());
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack()).copy();
 		}
 
 		@Override
@@ -547,7 +546,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
 			long inserted = super.insert(insertedVariant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
-				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
+				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
 				this.onFinalCommit();
 			});
 			return inserted;
@@ -557,7 +556,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
 			long extracted = super.extract(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
-				this.handler.slotTracker.removeAndSetSlotIndexes(handler, getIndex(), getStack());
+				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
 				this.onFinalCommit();
 			});
 			return extracted;
