@@ -503,6 +503,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		return new InventoryHandlerSlot(index, this, stack);
 	}
 
+	// Make the "get stack" functions return a copy of the item due to how the insertion and extraction is handled in the part inventory handler implementations.
 	public class InventoryHandlerSlot extends SCItemStackHandlerSlot {
 		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
 			super(index, handler, initial);
@@ -510,7 +511,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		}
 
 		protected ItemStack getInternalStack() {
-			return super.getStack();
+			return super.getStack().copy();
 		}
 
 		protected void setInternalNewStack(ItemStack stack) {
@@ -521,10 +522,10 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		@Override
 		public ItemStack getStack() {
 			if (inventoryPartitioner == null) {
-				return super.getStack();
+				return super.getStack().copy();
 			}
 
-			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack());
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack()).copy();
 		}
 
 		@Override
