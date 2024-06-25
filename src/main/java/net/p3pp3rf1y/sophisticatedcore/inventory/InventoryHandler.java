@@ -87,7 +87,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	private void initStackNbts() {
 		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack slotStack = this.getStackInSlot(slot);
+			ItemStack slotStack = this.getSlotStack(slot);
 			if (!slotStack.isEmpty()) {
 				stackNbts.put(slot, getSlotsStackNbt(slot, slotStack));
 			}
@@ -242,11 +242,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return this.getSlot(slot).getStack();
+		return ((InventoryHandlerSlot) this.getSlot(slot)).getInternalStack();
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
-		this.getSlot(slot).setNewStack(stack);
+		((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 		onContentsChanged(slot);
 	}
@@ -260,7 +260,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameTags(getStackInSlot(slot), resource.toStack())) {
-			return triggerOverflowUpgrades(resource.toStack((int) insertItemInternal(slot, resource, maxAmount, ctx))).getCount();
+			return maxAmount - triggerOverflowUpgrades(resource.toStack((int)(maxAmount - insertItemInternal(slot, resource, maxAmount, ctx)))).getCount();
 		}
 
 		return insertItemInternal(slot, resource, maxAmount, ctx);
@@ -496,5 +496,58 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public void setShouldInsertIntoEmpty(BooleanSupplier shouldInsertIntoEmpty) {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
+	}
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new InventoryHandlerSlot(index, this, stack);
+	}
+
+	// Make the "get stack" functions return a copy of the item due to how the insertion and extraction is handled in the part inventory handler implementations.
+	public class InventoryHandlerSlot extends ItemStackHandlerSlot {
+		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+			super.setStack(initial);
+		}
+
+		protected ItemStack getInternalStack() {
+			return super.getStack().copy();
+		}
+
+		protected void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
+			this.onFinalCommit();
+		}
+
+		@Override
+		public ItemStack getStack() {
+			if (inventoryPartitioner == null) {
+				return super.getStack().copy();
+			}
+
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack()).copy();
+		}
+
+		@Override
+		protected void setStack(ItemStack stack) {
+			if (inventoryPartitioner == null) {
+				super.setStack(stack);
+				return;
+			}
+
+			inventoryPartitioner.getPartBySlot(getIndex()).setStackInSlot(getIndex(), stack, (slot, stck) -> super.setStack(stack));
+		}
+
+		@Override
+		public ItemVariant getResource() {
+			return inventoryPartitioner.getPartBySlot(getIndex()).getVariantInSlot(getIndex(), (slot) -> super.getResource());
+		}
+
+		@Override
+		public void load(ItemStack stack) {
+			super.setStack(stack);
+			onStackChange();
+			// intentionally do not notify handler, matches forge
+		}
 	}
 }

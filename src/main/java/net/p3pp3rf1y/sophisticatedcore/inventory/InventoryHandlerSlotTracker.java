@@ -330,7 +330,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 				int slot = it.next();
 				while (memorySettings.isSlotSelected(slot)) {
 					if (!it.hasNext()) {
-						return remaining;
+						return (int)maxAmount - remaining;
 					}
 					slot = it.next();
 				}
