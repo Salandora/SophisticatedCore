@@ -3,6 +3,12 @@ loom {
 }
 
 dependencies {
-    modCompileOnly("maven.modrinth:simple-voice-chat:${simple_voice_chat_version}")
-    modCompileOnly("maven.modrinth:audioplayer:${audioplayer_version}")
+    modCompileOnly("maven.modrinth:simple-voice-chat:${simple_voice_chat_version}") {
+        exclude group: "net.fabricmc"
+        exclude group: "net.fabricmc.fabric-api"
+    }
+    modCompileOnly("maven.modrinth:audioplayer:${audioplayer_version}") {
+        exclude group: "net.fabricmc"
+        exclude group: "net.fabricmc.fabric-api"
+    }
 }
