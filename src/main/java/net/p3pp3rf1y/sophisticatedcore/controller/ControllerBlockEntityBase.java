@@ -670,7 +670,9 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		if (isItemValid(slot, resource, (int) maxAmount)) {return insert(resource, maxAmount, ctx, true);}
+		if (isItemValid(slot, resource, (int) maxAmount)) {
+			return insert(resource, maxAmount, ctx, true);
+		}
 
 		return 0;
 	}
@@ -689,7 +691,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return maxAmount;
 		}
 
-		remaining = insertIntoStoragesThatMatchItem(resource, remaining, ctx);
+		remaining -= insertIntoStoragesThatMatchItem(resource, remaining, ctx);
 		if (remaining == 0) {
 			return maxAmount;
 		}
