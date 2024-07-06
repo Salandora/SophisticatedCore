@@ -653,7 +653,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return maxAmount;
 		}
 
-		remaining = insertIntoStoragesThatMatchItem(resource, remaining, ctx);
+		remaining -= insertIntoStoragesThatMatchItem(resource, remaining, ctx);
 		if (remaining == 0) {
 			return maxAmount;
 		}
