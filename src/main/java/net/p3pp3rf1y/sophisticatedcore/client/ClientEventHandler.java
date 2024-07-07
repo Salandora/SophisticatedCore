@@ -79,7 +79,7 @@ public class ClientEventHandler implements ClientModInitializer {
 
             for (Slot s : menu.slots) {
                 ItemStack stack = s.getItem();
-                if (!s.mayPickup(mc.player) || stack.isEmpty()) {
+                if (!s.isActive() || !s.mayPickup(mc.player) || stack.isEmpty()) {
                     continue;
                 }
 				Optional<StashResultAndTooltip> stashResultAndTooltip = getStashResultAndTooltip(stack, held);
@@ -101,7 +101,9 @@ public class ClientEventHandler implements ClientModInitializer {
         int y = containerGui.getGuiTop() + s.y;
 
         poseStack.pushPose();
-		poseStack.translate(0, 0, 300);
+		// Because of trinkets we need to increase this from the original 300
+		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
+		poseStack.translate(0, 0, 330);
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
         if (stack.getItem() instanceof IStashStorageItem) {
