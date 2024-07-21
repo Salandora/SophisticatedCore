@@ -13,6 +13,7 @@
 - Fix a bug where inserting matching items into a storage via a controller block caused item duplicates
 - Mouse Scrolled function was named keyPressed instead of mouseScrolled
 - Fix a bug with Emi and Rei where memorized/no sort slots where not used for crafting recipes
+- Fix a dupe bug due to a recent change in the InventoryHandler 
 
 ### Compatiblity
-- Added AudioPLayer compatibility
+- Added AudioPlayer compatibility
