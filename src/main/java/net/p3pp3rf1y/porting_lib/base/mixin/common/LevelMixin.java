@@ -1,3 +1,5 @@
+// Code from https://github.com/Fabricators-of-Create/Porting-Lib/blob/1.19.2/base/src/main/java/io/github/fabricators_of_create/porting_lib/mixin/common/LevelMixin.java
+// to not include all of porting_lib_base just for this
 package net.p3pp3rf1y.porting_lib.base.mixin.common;
 
 import org.spongepowered.asm.mixin.Final;
@@ -28,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
 
-@Mixin(value = Level.class)
+@Mixin(value = Level.class, priority = 1100) // need to apply after lithium
 public abstract class LevelMixin implements LevelAccessor, LevelExtensions {
 	// only non-null during transactions. Is set back to null in
 	// onFinalCommit on commits, and through snapshot rollbacks on aborts.
