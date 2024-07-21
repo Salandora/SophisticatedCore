@@ -11,6 +11,7 @@
 - Fixes plus sign symbol visible without the trinket slot being visible.
 - Fixes plus sign not visible while trinket slot is visible.
 - Mouse Scrolled function was named keyPressed instead of mouseScrolled
+- Fix a bug with Emi and Rei where memorized/no sort slots where not used for crafting recipes
 
 ### Compatiblity
 - Added AudioPLayer compatibility
