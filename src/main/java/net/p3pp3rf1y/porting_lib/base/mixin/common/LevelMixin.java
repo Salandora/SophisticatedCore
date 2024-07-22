@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Mixin(value = Level.class)
-public abstract class LevelMixin implements LevelExtensions {
+@Mixin(value = Level.class, priority = 1100) // need to apply after lithium
+public abstract class LevelMixin implements LevelAccessor, LevelExtensions {
 	@Unique
 	private final ArrayList<BlockEntity> sophisticatedCore$freshBlockEntities = new ArrayList<>();
 	@Unique

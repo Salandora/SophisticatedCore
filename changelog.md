@@ -14,6 +14,7 @@
 - Mouse Scrolled function was named keyPressed instead of mouseScrolled
 - Fix a bug with Emi and Rei where memorized/no sort slots where not used for crafting recipes
 - Fix a dupe bug due to a recent change in the InventoryHandler 
+- Fix a lithium incompatibility
 
 ### Compatiblity
 - Added AudioPlayer compatibility
