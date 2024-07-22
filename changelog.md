@@ -15,6 +15,7 @@
 - Fix a bug with Emi and Rei where memorized/no sort slots where not used for crafting recipes
 - Fix a dupe bug due to a recent change in the InventoryHandler 
 - Fix a lithium incompatibility
+- Fix a bug with the pump upgrade crashing the game whenever it tries to place a fluid.
 
 ### Compatiblity
 - Added AudioPlayer compatibility
