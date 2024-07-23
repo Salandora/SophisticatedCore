@@ -19,3 +19,4 @@
 
 ### Compatiblity
 - Added AudioPlayer compatibility
+- Fixed feeding upgrade incompatibility with RPG Inventory

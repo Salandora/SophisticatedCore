@@ -76,7 +76,8 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 		InventoryHelper.iterate(inventory, (slot, stack) -> {
 			if (isEdible(stack) && filterLogic.matchesFilter(stack) && (isHungryEnoughForFood(hungerLevel, stack) || shouldFeedImmediatelyWhenHurt() && hungerLevel > 0 && isHurt)) {
 				ItemStack mainHandItem = player.getMainHandItem();
-				player.getInventory().items.set(player.getInventory().selected, stack);
+				// Changed for compatibility with rpg inventory
+				player.setItemInHand(InteractionHand.MAIN_HAND, stack); // player.getInventory().items.set(player.getInventory().selected, stack);
 				if (stack.use(world, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
 					InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, world, InteractionHand.MAIN_HAND);
 					ItemStack containerItem = result.getObject();
@@ -84,7 +85,8 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 						containerItem = stack.getItem().finishUsingItem(stack, world, player);
 					}
 
-					player.getInventory().items.set(player.getInventory().selected, mainHandItem);
+					// Changed for compatibility with rpg inventory
+					player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem); //player.getInventory().items.set(player.getInventory().selected, mainHandItem);
 					inventory.setStackInSlot(slot, stack);
 					if (!ItemStack.matches(containerItem, stack)) {
 						InventoryHelper.insertOrDropItem(player, containerItem, inventory, PlayerInventoryStorage.of(player));
@@ -92,7 +94,8 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 					fedPlayer.set(true);
 					return true;
 				}
-				player.getInventory().items.set(player.getInventory().selected, mainHandItem);
+				// Changed for compatibility with rpg inventory
+				player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem); //player.getInventory().items.set(player.getInventory().selected, mainHandItem);
 			}
 			return false;
 		}, () -> false, ret -> ret);
