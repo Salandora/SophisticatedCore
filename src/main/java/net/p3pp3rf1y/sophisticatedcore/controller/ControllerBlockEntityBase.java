@@ -732,7 +732,12 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	private long insertIntoStoragesThatMatchItem(ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		long remaining = maxAmount;
 		if (!emptySlotsStorages.isEmpty() && itemStackKeys.containsKey(resource.getItem())) {
-			for (ItemStackKey key : itemStackKeys.get(resource.getItem())) {
+			Set<ItemStackKey> matchingStackKeys = itemStackKeys.get(resource.getItem());
+			if (remaining > resource.toStack().getMaxStackSize()) {
+				matchingStackKeys = new LinkedHashSet<>(matchingStackKeys); //to prevent CME when larger than maxStackSize stack causes new key to be added to set which then continues to be iterated on
+			}
+
+			for (ItemStackKey key : matchingStackKeys) {
 				if (stackStorages.containsKey(key)) {
 					Set<BlockPos> positions = stackStorages.get(key);
 					remaining -= insertIntoStorages(positions, resource, remaining, ctx, true);
