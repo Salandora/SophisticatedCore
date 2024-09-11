@@ -16,9 +16,10 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.fluid.XPFluid;
 
 public class ModFluids {
-	private ModFluids() {}
+	private ModFluids() {
+	}
 
-	public static final ResourceLocation EXPERIENCE_TAG_NAME = new ResourceLocation("forge:experience");
+	public static final ResourceLocation EXPERIENCE_TAG_NAME = new ResourceLocation("c:experience");
 	public static final TagKey<Fluid> EXPERIENCE_TAG = TagKey.create(Registries.FLUID, EXPERIENCE_TAG_NAME);
 
 	public static final FlowingFluid XP_STILL = register("xp_still", new XPFluid.Still());

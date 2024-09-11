@@ -33,11 +33,11 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.AbstractContainerMenuAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncEmptySlotIconsMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncSlotChangeErrorMessage;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoPacket;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataPacket;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncEmptySlotIconsPacket;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncSlotChangeErrorPacket;
 import net.p3pp3rf1y.sophisticatedcore.settings.ISlotColorCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsManager;
@@ -103,8 +103,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	private boolean tryingToMergeUpgrade = false;
 	private boolean initialBroadcast = true;
 
-	protected StorageContainerMenuBase(MenuType<?> pMenuType, int pContainerId, Player player, S storageWrapper, IStorageWrapper parentStorageWrapper, int storageItemSlotIndex, boolean shouldLockStorageItemSlot) {
-		super(pMenuType, pContainerId);
+	protected StorageContainerMenuBase(MenuType<?> menuType, int containerId, Player player, S storageWrapper, IStorageWrapper parentStorageWrapper, int storageItemSlotIndex, boolean shouldLockStorageItemSlot) {
+		super(menuType, containerId);
 		this.player = player;
 		this.storageWrapper = storageWrapper;
 		this.parentStorageWrapper = parentStorageWrapper;
@@ -540,7 +540,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected void sendToServer(Consumer<CompoundTag> addData) {
 		CompoundTag data = new CompoundTag();
 		addData.accept(data);
-		PacketHandler.sendToServer(new SyncContainerClientDataMessage(data));
+		PacketHelper.sendToServer(new SyncContainerClientDataPacket(data));
 	}
 
 	public void setUpgradeEnabled(int upgradeSlot, boolean enabled) {
@@ -609,11 +609,11 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		storageWrapper.setSortBy(sortBy);
 	}
 
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		if (data.contains("containerId")) {
 			int containerId = data.getInt("containerId");
 			if (upgradeContainers.containsKey(containerId)) {
-				upgradeContainers.get(containerId).handleMessage(data);
+				upgradeContainers.get(containerId).handlePacket(data);
 			}
 		} else if (data.contains(OPEN_TAB_ID_TAG)) {
 			setOpenTabId(data.getInt(OPEN_TAB_ID_TAG));
@@ -697,7 +697,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	private boolean shouldShiftClickIntoOpenTabFirst() {
-		MainSettingsCategory category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
+		MainSettingsCategory<?> category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
 		return SettingsManager.getSettingValue(player, category.getPlayerSettingsTagName(), category, SettingsManager.SHIFT_CLICK_INTO_OPEN_TAB_FIRST);
 	}
 
@@ -775,7 +775,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	protected void removeOpenTabIfKeepOff() {
-		MainSettingsCategory category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
+		MainSettingsCategory<?> category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
 		if (Boolean.FALSE.equals(SettingsManager.getSettingValue(player, category.getPlayerSettingsTagName(), category, SettingsManager.KEEP_TAB_OPEN))) {
 			storageWrapper.removeOpenTabId();
 		}
@@ -808,15 +808,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected void triggerSlotListeners(int stackIndex, ItemStack slotStack, Supplier<ItemStack> slotStackCopy, NonNullList<ItemStack> lastSlotsCollection, int slotIndexOffset, Slot slot) {
 		ItemStack itemstack = lastSlotsCollection.get(stackIndex);
 		if (!ItemStack.matches(itemstack, slotStack)) {
-			//boolean clientStackChanged = !slotStack.equals(itemstack);
 			ItemStack stackCopy = slotStackCopy.get();
 			lastSlotsCollection.set(stackIndex, stackCopy);
 
-			//if (clientStackChanged) {
-				for (ContainerListener containerlistener : ((AbstractContainerMenuAccessor) this).getContainerListeners()) {
-					containerlistener.slotChanged(this, stackIndex + slotIndexOffset, stackCopy);
-				}
-			//}
+			for (ContainerListener containerlistener : ((AbstractContainerMenuAccessor) this).getContainerListeners()) {
+				containerlistener.slotChanged(this, stackIndex + slotIndexOffset, stackCopy);
+			}
 
 			if (!initialBroadcast && isUpgradeSettingsSlot(slot.index)) {
 				slot.setChanged(); //updating slots in upgrade tabs to trigger related logic like updating recipe result on another player's screen
@@ -859,7 +856,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncEmptySlotIconsMessage(noItemSlotTextures));
+		PacketHelper.sendToPlayer(new SyncEmptySlotIconsPacket(noItemSlotTextures), serverPlayer);
 	}
 
 	private void sendAdditionalSlotInfo() {
@@ -883,7 +880,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				slotFilterItems.put(slot, inventoryHandler.getFilterItem(slot));
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, slotLimitOverrides, slotFilterItems));
+		PacketHelper.sendToPlayer(new SyncAdditionalSlotInfoPacket(inaccessibleSlots, slotLimitOverrides, slotFilterItems), serverPlayer);
 	}
 
 	@Override
@@ -1193,12 +1190,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	@Override
-	public boolean canTakeItemForPickAll(ItemStack pStack, Slot slot) {
+	public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
 		if (isUpgradeSlot(slot.index) && slot.getItem().getItem() instanceof IUpgradeItem<?> upgradeItem && upgradeItem.getInventoryColumnsTaken() > 0) {
 			return false;
 		}
 
-		return super.canTakeItemForPickAll(pStack, slot);
+		return super.canTakeItemForPickAll(stack, slot);
 	}
 
 	@Override
@@ -1228,7 +1225,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	 * @return remaining sourceStack after merge
 	 */
 	protected ItemStack mergeItemStack(ItemStack sourceStack, int startIndex, int endIndex, boolean reverseDirection, boolean transferMaxStackSizeFromSource, boolean runOverflowLogic) {
-		boolean mergedSomething = false;
 		int i = startIndex;
 		if (reverseDirection) {
 			i = endIndex - 1;
@@ -1260,7 +1256,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 							slot.set(copy);
 							toTransfer = 0;
 							slot.setChanged();
-							mergedSomething = true;
 						} else if (destStack.getCount() < maxSize) {
 							result.shrink(maxSize - destStack.getCount());
 							toTransfer -= maxSize - destStack.getCount();
@@ -1268,14 +1263,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 							copy.setCount(maxSize);
 							slot.set(copy);
 							slot.setChanged();
-							mergedSomething = true;
 						}
 
 						if (runOverflowLogic && !result.isEmpty()) {
 							ItemStack overflowResult = processOverflowLogic(result);
 							if (overflowResult != result) {
 								result.setCount(overflowResult.getCount());
-								mergedSomething = true;
 							}
 						}
 					}
@@ -1305,7 +1298,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 						slot.set(result.split(slot.getMaxStackSize()));
 						slot.setChanged();
 						toTransfer = result.getCount();
-						mergedSomething = true;
 					}
 				}
 			}
@@ -1334,7 +1326,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 					if (toTransfer > destSlot.getMaxStackSize()) {
 						if (runOverflowLogic && processOverflowIfSlotWithSameItemFound(i, result, s -> {})) {
 							result.shrink(result.getCount());
-							mergedSomething = true;
 						} else {
 							if (isUpgradeSlot(i)) {
 								IUpgradeItem<?> upgradeItem = (IUpgradeItem<?>) result.getItem();
@@ -1362,7 +1353,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 						} else {
 							if (runOverflowLogic && processOverflowIfSlotWithSameItemFound(i, result, s -> {})) {
 								result.shrink(result.getCount());
-								mergedSomething = true;
 							} else {
 								destSlot.set(result.split(toTransfer));
 							}
@@ -1370,7 +1360,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 					}
 					if (!errorMerging) {
 						destSlot.setChanged();
-						mergedSomething = true;
 						break;
 					}
 				}
@@ -1427,9 +1416,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	@Override
-	public void setItem(int slotId, int pStateId, ItemStack pStack) {
+	public void setItem(int slotId, int stateId, ItemStack stack) {
 		if (getTotalSlotsNumber() > slotId) {
-			super.setItem(slotId, pStateId, pStack);
+			super.setItem(slotId, stateId, stack);
 		}
 	}
 
@@ -1602,7 +1591,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		if (player.level().isClientSide()) {
 			errorResultExpirationTime = player.level().getGameTime() + 60;
 		} else {
-			PacketHandler.sendToClient((ServerPlayer) player, new SyncSlotChangeErrorMessage(errorUpgradeSlotChangeResult));
+			PacketHelper.sendToPlayer(new SyncSlotChangeErrorPacket(errorUpgradeSlotChangeResult), player);
 		}
 	}
 

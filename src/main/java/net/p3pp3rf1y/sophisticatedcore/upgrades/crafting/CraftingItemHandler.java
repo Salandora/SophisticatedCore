@@ -25,7 +25,7 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 	public CraftingItemHandler(Supplier<SlottedStackStorage> supplyInventory, Consumer<Container> onCraftingMatrixChanged) {
 		super(new AbstractContainerMenu(null, -1) {
 			@Override
-			public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
+			public ItemStack quickMoveStack(Player player, int index) {
 				return ItemStack.EMPTY;
 			}
 

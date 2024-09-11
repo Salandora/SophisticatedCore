@@ -30,7 +30,7 @@
             "net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat"
         ],
         "jei_mod_plugin": [
-            "net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat"
+            "net.p3pp3rf1y.sophisticatedcore.compat.jei.CorePlugin"
         ],
         "rei_client": [
             "net.p3pp3rf1y.sophisticatedcore.compat.rei.REIClientCompat"
@@ -63,7 +63,7 @@
             "net/minecraft/class_1297": ["net/p3pp3rf1y/sophisticatedcore/extensions/entity/SophisticatedEntity"],
             "net/minecraft/class_1735": ["net/p3pp3rf1y/sophisticatedcore/extensions/inventory/SophisticatedSlot"],
             "net/minecraft/class_1792": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItem"],
-            "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack"],
+            "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack", "net/fabricmc/fabric/impl/attachment/AttachmentTargetImpl"],
             "net/minecraft/class_2248": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlock"],
             "net/minecraft/class_2680": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"]
         },

@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,33 +17,15 @@ import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.NONE;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.THREE_BY_THREE;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.TWO_BY_TWO;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.TWO_BY_TWO_UNCRAFTABLE;
+import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.*;
 
 public class RecipeHelper {
 	private static final LoadingCache<Item, Set<CompactingShape>> ITEM_COMPACTING_SHAPES = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build(new CacheLoader<>() {
@@ -195,7 +178,7 @@ public class RecipeHelper {
 
 	private static List<ItemStack> getUncompactResultItems(Level w, Item itemToUncompact) {
 		CraftingContainer craftingInventory = getFilledCraftingInventory(itemToUncompact, 1, 1);
-		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, w).stream().map(r -> r.assemble(craftingInventory, w.registryAccess())).toList();
+		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, w).stream().map(r -> r.value().assemble(craftingInventory, w.registryAccess())).toList();
 	}
 
 	public static CompactingResult getCompactingResult(Item item, CompactingShape shape) {
@@ -218,7 +201,7 @@ public class RecipeHelper {
 		}
 
 		CraftingContainer craftingInventory = getFilledCraftingInventory(item, width, height);
-		List<CraftingRecipe> compactingRecipes = safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, level);
+		List<RecipeHolder<CraftingRecipe>> compactingRecipes = safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, level);
 
 		if (compactingRecipes.isEmpty()) {
 			COMPACTING_RESULTS.put(compactedItem, CompactingResult.EMPTY);
@@ -226,17 +209,18 @@ public class RecipeHelper {
 		}
 
 		if (compactingRecipes.size() == 1) {
-			return cacheAndGetCompactingResult(compactedItem, compactingRecipes.get(0), craftingInventory);
+			return cacheAndGetCompactingResult(compactedItem, compactingRecipes.get(0).value(), craftingInventory);
 		}
 
-		for (CraftingRecipe recipe : compactingRecipes) {
+		for (RecipeHolder<CraftingRecipe> recipeHolder : compactingRecipes) {
+			CraftingRecipe recipe = recipeHolder.value();
 			ItemStack result = recipe.assemble(craftingInventory, level.registryAccess());
 			if (uncompactMatchesItem(result, level, item, width * height)) {
 				return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, result);
 			}
 		}
 
-		return cacheAndGetCompactingResult(compactedItem, compactingRecipes.get(0), craftingInventory);
+		return cacheAndGetCompactingResult(compactedItem, compactingRecipes.get(0).value(), craftingInventory);
 	}
 
 	private static CompactingResult cacheAndGetCompactingResult(CompactedItem compactedItem, CraftingRecipe recipe, CraftingContainer craftingInventory) {
@@ -263,7 +247,7 @@ public class RecipeHelper {
 	private static CraftingContainer getFilledCraftingInventory(Item item, int width, int height) {
 		CraftingContainer craftinginventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
 			@Override
-			public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
+			public ItemStack quickMoveStack(Player player, int index) {
 				return ItemStack.EMPTY;
 			}
 
@@ -278,7 +262,7 @@ public class RecipeHelper {
 		return craftinginventory;
 	}
 
-	public static <T extends AbstractCookingRecipe> Optional<T> getCookingRecipe(ItemStack stack, RecipeType<T> recipeType) {
+	public static <T extends AbstractCookingRecipe> Optional<RecipeHolder<T>> getCookingRecipe(ItemStack stack, RecipeType<T> recipeType) {
 		return getLevel().flatMap(w -> safeGetRecipeFor(recipeType, new SimpleContainer(stack), w));
 	}
 
@@ -286,11 +270,11 @@ public class RecipeHelper {
 		return ITEM_COMPACTING_SHAPES.getUnchecked(item);
 	}
 
-	public static <T extends Recipe<Container>> List<T> getRecipesOfType(RecipeType<T> recipeType, Container inventory) {
+	public static <T extends Recipe<Container>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, Container inventory) {
 		return getLevel().map(w -> w.getRecipeManager().getRecipesFor(recipeType, inventory, w)).orElse(Collections.emptyList());
 	}
 
-	public static <C extends Container, T extends Recipe<C>> Optional<T> safeGetRecipeFor(RecipeType<T> recipeType, C inventory, Level level) {
+	public static <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, C inventory, Level level) {
 		try {
 			return level.getRecipeManager().getRecipeFor(recipeType, inventory, level);
 		} catch (Exception e) {
@@ -299,7 +283,7 @@ public class RecipeHelper {
 		}
 	}
 
-	public static <C extends Container, T extends Recipe<C>> List<T> safeGetRecipesFor(RecipeType<T> recipeType, C inventory, Level level) {
+	public static <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> safeGetRecipesFor(RecipeType<T> recipeType, C inventory, Level level) {
 		try {
 			return level.getRecipeManager().getRecipesFor(recipeType, inventory, level);
 		} catch (Exception e) {

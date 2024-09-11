@@ -43,8 +43,8 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageInventorySlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-import net.p3pp3rf1y.sophisticatedcore.network.TransferFullSlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import net.p3pp3rf1y.sophisticatedcore.network.TransferFullSlotPacket;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 import net.p3pp3rf1y.sophisticatedcore.util.ColorHelper;
@@ -112,8 +112,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		buttonFactories.add(buttonFactory);
 	}
 
-	protected StorageScreenBase(S pMenu, Inventory pPlayerInventory, Component pTitle) {
-		super(pMenu, pPlayerInventory, pTitle);
+	protected StorageScreenBase(S menu, Inventory playerInventory, Component title) {
+		super(menu, playerInventory, title);
 		numberOfUpgradeSlots = getMenu().getNumberOfUpgradeSlots();
 		updateDimensionsAndSlotPositions(Minecraft.getInstance().getWindow().getGuiScaledHeight());
 	}
@@ -123,13 +123,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public void resize(Minecraft pMinecraft, int pWidth, int pHeight) {
-		updateDimensionsAndSlotPositions(pHeight);
-		super.resize(pMinecraft, pWidth, pHeight);
+	public void resize(Minecraft minecraft, int width, int height) {
+		updateDimensionsAndSlotPositions(height);
+		super.resize(minecraft, width, height);
 	}
 
-	private void updateDimensionsAndSlotPositions(int pHeight) {
-		int displayableNumberOfRows = Math.min((pHeight - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
+	private void updateDimensionsAndSlotPositions(int height) {
+		int displayableNumberOfRows = Math.min((height - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
 		int newImageHeight = HEIGHT_WITHOUT_STORAGE_SLOTS + getStorageInventoryHeight(displayableNumberOfRows);
 		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * getMenu().getNumberOfRows()) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
 
@@ -364,7 +364,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0, 0, -20);
-		renderBackground(guiGraphics);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popPose();
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 
@@ -671,7 +671,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 
-
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		for (UpgradeInventoryPartBase<?> inventoryPart : inventoryParts.values()) {
@@ -700,7 +699,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			ItemStack slotItem = slot2.getItem();
 			if (ItemStack.isSameItemSameTags(((AbstractContainerScreenAccessor) this).getLastQuickMoved(), slotItem)) {
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {
-					PacketHandler.sendToServer(new TransferFullSlotMessage(slot2.index));
+					PacketHelper.sendToServer(new TransferFullSlotPacket(slot2.index));
 				} else {
 					slotClicked(slot2, slot2.index, button, ClickType.QUICK_MOVE);
 				}
@@ -774,7 +773,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		Slot slot = findSlot(mouseX, mouseY);
 		if (hasShiftDown() && hasControlDown() && slot instanceof StorageInventorySlot && button == 0) {
-			PacketHandler.sendToServer(new TransferFullSlotMessage(slot.index));
+			PacketHelper.sendToServer(new TransferFullSlotPacket(slot.index));
 			return true;
 		}
 		GuiEventListener focused = getFocused();
@@ -947,8 +946,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public boolean isMouseOverSlot(Slot pSlot, double pMouseX, double pMouseY) {
-		return ((AbstractContainerScreenAccessor) this).callIsHovering(pSlot, pMouseX, pMouseY);
+	public boolean isMouseOverSlot(Slot slot, double mouseX, double mouseY) {
+		return ((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY);
 	}
 
 	@Override

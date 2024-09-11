@@ -13,22 +13,18 @@ import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IFilteredUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IInsertResponseUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgradeWrapper, CompactingUpgradeItem>
 		implements IInsertResponseUpgrade, IFilteredUpgrade, ISlotChangeResponseUpgrade, ITickableUpgrade {
@@ -141,7 +137,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
 		if (slotsToCompact.isEmpty()) {
 			return;
 		}

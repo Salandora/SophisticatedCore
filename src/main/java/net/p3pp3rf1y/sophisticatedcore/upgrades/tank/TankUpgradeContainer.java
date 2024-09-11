@@ -29,7 +29,7 @@ public class TankUpgradeContainer extends UpgradeContainerBase<TankUpgradeWrappe
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		//noop
 	}
 

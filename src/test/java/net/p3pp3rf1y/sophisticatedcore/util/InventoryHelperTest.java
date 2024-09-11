@@ -1,10 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
@@ -15,12 +11,16 @@ import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.BiPredicate;
-import javax.annotation.Nonnull;
 
 import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
 
@@ -48,7 +48,6 @@ class InventoryHelperTest {
 				return super.getStackLimit(slot, resource) * stackLimitMultiplier;
 			}
 
-
             @Override
             public boolean isItemValid(int slot, ItemVariant resource, int count) {
 				return isStackValidForSlot.test(slot, resource.toStack(count));
@@ -57,7 +56,7 @@ class InventoryHelperTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource
+	@MethodSource("transferMovesOnlyStacksThatCanGoIntoInventory")
 	void transferMovesOnlyStacksThatCanGoIntoInventory(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB,
 			BiPredicate<Integer, ItemStack> isStackValidInHandlerB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {
 		SlottedStackStorage handlerA = getItemHandler(stacksHandlerA, limitMultiplierA);
@@ -176,7 +175,7 @@ class InventoryHelperTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource
+	@MethodSource("transferMovesStacksCorrectly")
 	void transferMovesStacksCorrectly(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {
 		SlottedStackStorage handlerA = getItemHandler(stacksHandlerA, limitMultiplierA);
 		SlottedStackStorage handlerB = getItemHandler(stacksHandlerB, limitMultiplierB);
@@ -207,7 +206,7 @@ class InventoryHelperTest {
 		}
 	}
 
-	static Object[][] transferMovesStacksCorrectly() {
+	private static Object[][] transferMovesStacksCorrectly() {
 		return new Object[][] {
 				{
 						stacks(new ItemStack(Items.IRON_INGOT)),

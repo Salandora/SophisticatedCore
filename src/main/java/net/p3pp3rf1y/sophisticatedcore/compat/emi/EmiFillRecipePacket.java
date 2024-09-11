@@ -3,28 +3,33 @@ package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 import com.google.common.collect.Lists;
 import dev.emi.emi.runtime.EmiLog;
 
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
-public class EmiFillRecipeC2SPacket extends SimplePacketBase {
+public class EmiFillRecipePacket implements FabricPacket {
+	public static final PacketType<EmiFillRecipePacket> TYPE = PacketType.create(new ResourceLocation(SophisticatedCore.MOD_ID, "emi_fill_recipe"), EmiFillRecipePacket::new);
     private final int syncId;
     private final int action;
     private final List<Integer> slots, crafting;
     private final int output;
     private final List<ItemStack> stacks;
 
-    public EmiFillRecipeC2SPacket(AbstractContainerMenu handler, int action, List<Slot> slots, List<Slot> crafting, @Nullable Slot output, List<ItemStack> stacks) {
+    public EmiFillRecipePacket(AbstractContainerMenu handler, int action, List<Slot> slots, List<Slot> crafting, @Nullable Slot output, List<ItemStack> stacks) {
         this.syncId = handler.containerId;
         this.action = action;
         this.slots = slots.stream().map(s -> s == null ? -1 : s.index).toList();
@@ -33,7 +38,7 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
         this.stacks = stacks;
     }
 
-    public EmiFillRecipeC2SPacket(FriendlyByteBuf buf) {
+    public EmiFillRecipePacket(FriendlyByteBuf buf) {
         syncId = buf.readInt();
         action = buf.readByte();
         slots = parseCompressedSlots(buf);
@@ -76,94 +81,85 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
         }
     }
 
-    @Override
-    public boolean handle(Context context) {
-        context.enqueueWork(() -> {
-            ServerPlayer sender = context.getSender();
-            if (sender == null) {
-                return;
-            }
+	public void handle(ServerPlayer player, PacketSender responseSender) {
+		if (slots == null || crafting == null) {
+			EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
+			return;
+		}
 
-            if (slots == null || crafting == null) {
-                EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
-                return;
-            }
+		AbstractContainerMenu handler = player.containerMenu;
+		if (handler == null || handler.containerId != syncId || !(handler instanceof StorageContainerMenuBase<?> container)) {
+			EmiLog.warn("Client requested fill but screen handler has changed, aborting");
+			return;
+		}
 
-            AbstractContainerMenu handler = sender.containerMenu;
-            if (handler == null || handler.containerId != syncId || !(handler instanceof StorageContainerMenuBase<?> container)) {
-                EmiLog.warn("Client requested fill but screen handler has changed, aborting");
-                return;
-            }
+		List<Slot> slots = Lists.newArrayList();
+		List<Slot> crafting = Lists.newArrayList();
+		Slot output = null;
+		for (int i : this.slots) {
+			if (i < 0 || i >= container.getTotalSlotsNumber()) {
+				EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
+				return;
+			}
+			slots.add(container.getSlot(i));
+		}
 
-            List<Slot> slots = Lists.newArrayList();
-            List<Slot> crafting = Lists.newArrayList();
-            Slot output = null;
-            for (int i : this.slots) {
-                if (i < 0 || i >= container.getTotalSlotsNumber()) {
-                    EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
-                    return;
-                }
-                slots.add(container.getSlot(i));
-            }
+		for (int i : this.crafting) {
+			if (i >= 0 && i < container.getTotalSlotsNumber()) {
+				crafting.add(container.getSlot(i));
+			} else {
+				crafting.add(null);
+			}
+		}
+		if (this.output != -1) {
+			if (this.output >= 0 && this.output < container.getTotalSlotsNumber()) {
+				output = container.getSlot(this.output);
+			}
+		}
 
-            for (int i : this.crafting) {
-                if (i >= 0 && i < container.getTotalSlotsNumber()) {
-                    crafting.add(container.getSlot(i));
-                } else {
-                    crafting.add(null);
-                }
-            }
-            if (this.output != -1) {
-                if (this.output >= 0 && this.output < container.getTotalSlotsNumber()) {
-                    output = container.getSlot(this.output);
-                }
-            }
-
-            if (crafting.size() >= stacks.size()) {
-                List<ItemStack> rubble = Lists.newArrayList();
-				for (Slot s : crafting) {
-					if (s != null && s.mayPickup(sender) && !s.getItem().isEmpty()) {
-						rubble.add(s.getItem().copy());
-						s.setByPlayer(ItemStack.EMPTY);
+		if (crafting.size() >= stacks.size()) {
+			List<ItemStack> rubble = Lists.newArrayList();
+			for (Slot s : crafting) {
+				if (s != null && s.mayPickup(player) && !s.getItem().isEmpty()) {
+					rubble.add(s.getItem().copy());
+					s.setByPlayer(ItemStack.EMPTY);
+				}
+			}
+			try {
+				for (int i = 0; i < stacks.size(); i++) {
+					ItemStack stack = stacks.get(i);
+					if (stack.isEmpty()) {
+						continue;
+					}
+					int gotten = grabMatching(player, slots, rubble, crafting, stack);
+					if (gotten != stack.getCount()) {
+						if (gotten > 0) {
+							stack.setCount(gotten);
+							player.getInventory().placeItemBackInInventory(stack);
+						}
+						return;
+					} else {
+						Slot s = crafting.get(i);
+						if (s != null && s.mayPlace(stack) && stack.getCount() <= s.getMaxStackSize()) {
+							s.setByPlayer(stack);
+						} else {
+							player.getInventory().placeItemBackInInventory(stack);
+						}
 					}
 				}
-                try {
-                    for (int i = 0; i < stacks.size(); i++) {
-                        ItemStack stack = stacks.get(i);
-                        if (stack.isEmpty()) {
-                            continue;
-                        }
-                        int gotten = grabMatching(sender, slots, rubble, crafting, stack);
-                        if (gotten != stack.getCount()) {
-                            if (gotten > 0) {
-                                stack.setCount(gotten);
-                                sender.getInventory().placeItemBackInInventory(stack);
-                            }
-                            return;
-                        } else {
-                            Slot s = crafting.get(i);
-                            if (s != null && s.mayPlace(stack) && stack.getCount() <= s.getMaxStackSize()) {
-                                s.setByPlayer(stack);
-                            } else {
-                                sender.getInventory().placeItemBackInInventory(stack);
-                            }
-                        }
-                    }
-                    if (output != null) {
-                        if (action == 1) {
-                            handler.clicked(output.getContainerSlot(), 0, ClickType.PICKUP, sender);
-                        } else if (action == 2) {
-                            handler.clicked(output.getContainerSlot(), 0, ClickType.QUICK_MOVE, sender);
-                        }
-                    }
-                } finally {
-                    for (ItemStack stack : rubble) {
-                        sender.getInventory().placeItemBackInInventory(stack);
-                    }
-                }
-            }
-        });
-        return true;
+				if (output != null) {
+					if (action == 1) {
+						handler.clicked(output.getContainerSlot(), 0, ClickType.PICKUP, player);
+					} else if (action == 2) {
+						handler.clicked(output.getContainerSlot(), 0, ClickType.QUICK_MOVE, player);
+					}
+				}
+			} finally {
+				for (ItemStack stack : rubble) {
+					player.getInventory().placeItemBackInInventory(stack);
+				}
+			}
+		}
     }
 
     private static List<Integer> parseCompressedSlots(FriendlyByteBuf buf) {
@@ -247,4 +243,8 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
         }
         return grabbed;
     }
+	@Override
+	public PacketType<?> getType() {
+		return TYPE;
+	}
 }

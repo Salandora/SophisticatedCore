@@ -17,6 +17,7 @@ public class InventoryScrollPanel extends ScrollPanel {
 	private final int firstSlotIndex;
 	private final int numberOfSlots;
 	private final int slotsInARow;
+
 	public InventoryScrollPanel(Minecraft client, IInventoryScreen screen, int firstSlotIndex, int numberOfSlots, int slotsInARow, int height, int top, int left) {
 		super(client, slotsInARow * 18 + 6, height, top, left, 0);
 		this.screen = screen;
@@ -68,8 +69,10 @@ public class InventoryScrollPanel extends ScrollPanel {
 	public interface IInventoryScreen {
 		void renderInventorySlots(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean canShowHover);
 
-		boolean isMouseOverSlot(Slot pSlot, double pMouseX, double pMouseY);
+		boolean isMouseOverSlot(Slot slot, double mouseX, double mouseY);
+
 		void drawSlotBg(GuiGraphics guiGraphics);
+
 		int getTopY();
 
 		int getLeftX();
@@ -83,13 +86,13 @@ public class InventoryScrollPanel extends ScrollPanel {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+	public void updateNarration(NarrationElementOutput narrationElementOutput) {
 		//noop
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-		boolean ret = super.mouseScrolled(mouseX, mouseY, scroll);
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		boolean ret = super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 		updateSlotsYPosition();
 		return ret;
 	}

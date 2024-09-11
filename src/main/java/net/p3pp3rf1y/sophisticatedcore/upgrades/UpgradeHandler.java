@@ -13,16 +13,11 @@ import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.TankPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class UpgradeHandler extends ItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
@@ -132,6 +127,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
+		// TODO: Why was this moved again?
 		// Moved to UpgradeHandlerSlot
 		/*TransactionCallback.onSuccess(ctx, () -> {
 			// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
@@ -141,6 +137,7 @@ public class UpgradeHandler extends ItemStackHandler {
 				onUpgradeAdded(slot);
 			}
 		});*/
+
 		return super.insertSlot(slot, resource, maxAmount, ctx);
 	}
 
@@ -178,6 +175,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
+		// TODO: Why was this moved again?
 		// Moved to UpgradeHandlerSlot
 		/*TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {

@@ -38,38 +38,38 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if (isInCooldown(world) || (entity != null && !(entity instanceof Player))) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if (isInCooldown(level) || (entity != null && !(entity instanceof Player))) {
 			return;
 		}
 
 		boolean hungryPlayer = false;
 		if (entity == null) {
 			AtomicBoolean stillHungryPlayer = new AtomicBoolean(false);
-			world.getEntities(EntityType.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, world)));
+			level.getEntities(EntityType.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, level)));
 			hungryPlayer = stillHungryPlayer.get();
 		} else {
-			if (feedPlayerAndGetHungry((Player) entity, world)) {
+			if (feedPlayerAndGetHungry((Player) entity, level)) {
 				hungryPlayer = true;
 			}
 		}
 		if (hungryPlayer) {
-			setCooldown(world, STILL_HUNGRY_COOLDOWN);
+			setCooldown(level, STILL_HUNGRY_COOLDOWN);
 			return;
 		}
 
-		setCooldown(world, COOLDOWN);
+		setCooldown(level, COOLDOWN);
 	}
 
-	private boolean feedPlayerAndGetHungry(Player player, Level world) {
+	private boolean feedPlayerAndGetHungry(Player player, Level level) {
 		int hungerLevel = 20 - player.getFoodData().getFoodLevel();
 		if (hungerLevel == 0) {
 			return false;
 		}
-		return tryFeedingFoodFromStorage(world, hungerLevel, player) && player.getFoodData().getFoodLevel() < 20;
+		return tryFeedingFoodFromStorage(level, hungerLevel, player) && player.getFoodData().getFoodLevel() < 20;
 	}
 
-	private boolean tryFeedingFoodFromStorage(Level world, int hungerLevel, Player player) {
+	private boolean tryFeedingFoodFromStorage(Level level, int hungerLevel, Player player) {
 		boolean isHurt = player.getHealth() < player.getMaxHealth() - 0.1F;
 		SlottedStackStorage inventory = storageWrapper.getInventoryForUpgradeProcessing();
 		AtomicBoolean fedPlayer = new AtomicBoolean(false);
@@ -78,11 +78,11 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 				ItemStack mainHandItem = player.getMainHandItem();
 				// Changed for compatibility with rpg inventory
 				player.setItemInHand(InteractionHand.MAIN_HAND, stack); // player.getInventory().items.set(player.getInventory().selected, stack);
-				if (stack.use(world, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
-					InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, world, InteractionHand.MAIN_HAND);
+				if (stack.use(level, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
+					InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND);
 					ItemStack containerItem = result.getObject();
 					if (result.getResult() == InteractionResult.PASS) {
-						containerItem = stack.getItem().finishUsingItem(stack, world, player);
+						containerItem = stack.getItem().finishUsingItem(stack, level, player);
 					}
 
 					// Changed for compatibility with rpg inventory

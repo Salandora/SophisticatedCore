@@ -26,7 +26,7 @@ public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgrade
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		if (data.contains(ACTION_DATA)) {
 			String actionName = data.getString(ACTION_DATA);
 			if (actionName.equals("play")) {

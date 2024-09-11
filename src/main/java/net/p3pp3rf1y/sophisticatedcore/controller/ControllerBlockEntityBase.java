@@ -3,8 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.controller;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
-import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
@@ -22,10 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.p3pp3rf1y.porting_lib.base.util.LazyOptional;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.inventory.CachedFailedInsertInventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
@@ -69,10 +65,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	private Set<BlockPos> connectingBlocks = new TreeSet<>(distanceComparator);
 	private Set<BlockPos> nonConnectingBlocks = new TreeSet<>(distanceComparator);
 
-	@Nullable
-	private LazyOptional<SlottedStackStorage> itemHandlerCap;
-	@Nullable
-	private LazyOptional<SlottedStackStorage> noSideItemHandlerCap;
 	private boolean unloaded = false;
 
 	protected ControllerBlockEntityBase(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
@@ -544,37 +536,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		baseIndexes.remove(idx);
 		for (int i = idx; i < baseIndexes.size(); i++) {
 			baseIndexes.set(i, baseIndexes.get(i) - slotsRemoved);
-		}
-	}
-
-	@Nonnull
-	public <T, C> LazyOptional<T> getCapability(BlockApiLookup<T, C> cap, @Nullable C opt) {
-		if (cap == ItemStorage.SIDED) {
-			if (opt == null) {
-				if (noSideItemHandlerCap == null) {
-					noSideItemHandlerCap = LazyOptional.of(() -> this).cast();
-				}
-				return noSideItemHandlerCap.cast();
-			} else {
-				if (itemHandlerCap == null) {
-					itemHandlerCap = LazyOptional.of(() -> new CachedFailedInsertInventoryHandler(() -> this, () -> level != null ? level.getGameTime() : 0));
-				}
-				return itemHandlerCap.cast();
-			}
-		}
-		return LazyOptional.empty();
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		if (itemHandlerCap != null) {
-			itemHandlerCap.invalidate();
-			itemHandlerCap = null;
-		}
-		if (noSideItemHandlerCap != null) {
-			noSideItemHandlerCap.invalidate();
-			noSideItemHandlerCap = null;
 		}
 	}
 

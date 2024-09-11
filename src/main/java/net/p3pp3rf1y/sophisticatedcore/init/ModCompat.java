@@ -1,9 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.p3pp3rf1y.sophisticatedcore.compat.CompatInfo;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
-import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
 import net.p3pp3rf1y.sophisticatedcore.compat.audioplayer.AudioPlayerCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingTweaksCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat;
@@ -11,38 +10,19 @@ import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
-
 public class ModCompat {
 	private ModCompat() {}
 
-	private static final Map<String, Supplier<Callable<ICompat>>> compatFactories = new HashMap<>();
+	public static void register() {
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.EMI, null), () -> EmiCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.JEI, null), () -> JeiCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.REI, null), () -> REICompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.CRAFTING_TWEAKS, null), () -> CraftingTweaksCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.LITEMATICA, null), () -> LitematicaCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.AUDIOPLAYER, null), () -> AudioPlayerCompat::new);
 
-	static {
-		compatFactories.put(CompatModIds.EMI, () -> EmiCompat::new);
-		compatFactories.put(CompatModIds.JEI, () -> JeiCompat::new);
-		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
-		compatFactories.put(CompatModIds.CRAFTING_TWEAKS, () -> CraftingTweaksCompat::new);
-		//compatFactories.put(CompatModIds.INVENTORY_SORTER, () -> InventorySorterCompat::new);
-		//compatFactories.put(CompatModIds.ITEM_BORDERS, () -> ItemBordersCompat::new);
-		//compatFactories.put(CompatModIds.QUARK, () -> QuarkCompat::new); //TODO readd quark compat
-		compatFactories.put(CompatModIds.LITEMATICA, () -> LitematicaCompat::new);
-		compatFactories.put(CompatModIds.AUDIOPLAYER, () -> AudioPlayerCompat::new);
-	}
-
-	public static void initCompats() {
-		for (Map.Entry<String, Supplier<Callable<ICompat>>> entry : compatFactories.entrySet()) {
-			if (FabricLoader.getInstance().isModLoaded(entry.getKey())) {
-				try {
-					entry.getValue().get().call().setup();
-				}
-				catch (Exception e) {
-					SophisticatedCore.LOGGER.error("Error instantiating compatibility ", e);
-				}
-			}
-		}
+		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.INVENTORY_SORTER, null), () -> modBus -> new InventorySorterCompat());
+		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.ITEM_BORDERS, null), () -> ItemBordersCompat::new);
+		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.QUARK, null), QuarkCompat::new); //TODO readd quark compat
 	}
 }

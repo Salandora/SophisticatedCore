@@ -21,8 +21,8 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrapper, BatteryUpgradeItem>
 		implements IRenderedBatteryUpgrade, EnergyStorage, ITickableUpgrade, IStackableContentsUpgrade {
@@ -123,7 +123,11 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	private boolean isValidEnergyItem(ItemStack stack, boolean isOutput) {
-		return isOutput || EnergyStorageUtil.isEnergyStorage(stack);
+		if (isOutput) {
+			return energyStorage.supportsInsertion();
+		} else {
+			return energyStorage.supportsExtraction() && energyStorage.getAmount() > 0;
+		}
 	}
 
 	@Override
@@ -134,11 +138,12 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	@Override
 	public void forceUpdateBatteryRenderInfo() {
 		BatteryRenderInfo batteryRenderInfo = new BatteryRenderInfo(1f);
-		batteryRenderInfo.setChargeRatio((float) Math.round((float) getAmount() / getCapacity() * 4) / 4);
+		//batteryRenderInfo.setChargeRatio((float) Math.round((float) getAmount() / getCapacity() * 4) / 4);
+		batteryRenderInfo.setChargeRatio((float) getAmount() / getCapacity());
 		updateTankRenderInfoCallback.accept(batteryRenderInfo);
 	}
 
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
 		if (getAmount() < getCapacity()) {
 			EnergyStorageUtil.move(
 					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(INPUT_SLOT)).find(EnergyStorage.ITEM),

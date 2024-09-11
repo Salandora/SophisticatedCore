@@ -4,17 +4,19 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 
 import java.util.Collection;
+import javax.annotation.Nullable;
 
 public interface SophisticatedEntity {
 	default CompoundTag getSophisticatedCustomData() {
 		throw new RuntimeException("This should have been implemented via mixin.");
 	}
 
+	@Nullable
 	default Collection<ItemEntity> sophisticatedCaptureDrops() {
 		throw new RuntimeException("This should have been implemented via mixin.");
 	}
 
-	default Collection<ItemEntity> sophisticatedCaptureDrops(Collection<ItemEntity> value) {
+	default Collection<ItemEntity> sophisticatedCaptureDrops(@Nullable Collection<ItemEntity> value) {
 		throw new RuntimeException("This should have been implemented via mixin.");
 	}
 }

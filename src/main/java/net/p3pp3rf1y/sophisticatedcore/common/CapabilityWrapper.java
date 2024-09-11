@@ -1,3 +1,4 @@
+/*
 package net.p3pp3rf1y.sophisticatedcore.common;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -14,3 +15,4 @@ public class CapabilityWrapper {
         });
     }
 }
+*/

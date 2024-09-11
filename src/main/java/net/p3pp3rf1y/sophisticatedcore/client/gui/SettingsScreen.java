@@ -41,13 +41,13 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void resize(Minecraft pMinecraft, int pWidth, int pHeight) {
-		updateDimensionsAndSlotPositions(pHeight);
-		super.resize(pMinecraft, pWidth, pHeight);
+	public void resize(Minecraft minecraft, int width, int height) {
+		updateDimensionsAndSlotPositions(height);
+		super.resize(minecraft, width, height);
 	}
 
-	private void updateDimensionsAndSlotPositions(int pHeight) {
-		int displayableNumberOfRows = Math.min((pHeight - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
+	private void updateDimensionsAndSlotPositions(int height) {
+		int displayableNumberOfRows = Math.min((height - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
 		int newImageHeight = HEIGHT_WITHOUT_STORAGE_SLOTS + getStorageInventoryHeight(displayableNumberOfRows);
 		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * getMenu().getNumberOfRows()) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
 
@@ -146,7 +146,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0, 0, -20);
-		renderBackground(guiGraphics);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popPose();
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 		templatePersistanceControl.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -154,6 +154,15 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		settingsTabControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
 		templatePersistanceControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
 		renderTooltip(guiGraphics, mouseX, mouseY);
+	}
+
+	@Override
+	public void renderTransparentBackground(GuiGraphics guiGraphics) {
+		PoseStack pose = guiGraphics.pose();
+		pose.pushPose();
+		pose.translate(0, 0, -12);
+		super.renderTransparentBackground(guiGraphics);
+		pose.popPose();
 	}
 
 	@Override
@@ -189,13 +198,13 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0, 0, 100);
+		//noinspection ConstantConditions - by this point minecraft isn't null
 		if (!settingsTabControl.renderGuiItem(guiGraphics, minecraft.getItemRenderer(), itemstack, slot, isTemplateLoadHovered())) {
 			if (!getMenu().getSlotFilterItem(slot.getContainerSlot()).isEmpty()) {
 				guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.getContainerSlot()), slot.x, slot.y);
 			} else {
 				Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
 				if (pair != null) {
-					//noinspection ConstantConditions - by this point minecraft isn't null
 					TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
 					guiGraphics.blit(slot.x, slot.y, 0, 16, 16, textureatlassprite);
 				}
@@ -258,10 +267,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		return settingsTabControl.getTabRectangles().stream().noneMatch(r -> r.contains((int) mouseX, (int) mouseY));
 	}
 
-	private void renderSlotOverlay(GuiGraphics guiGraphics, Slot slot, int slotColor) {
-		renderSlotOverlay(guiGraphics, slot.x, slot.y, 16, slotColor);
-	}
-
 	private void renderSlotOverlay(GuiGraphics guiGraphics, int xPos, int yPos, int height, int slotColor) {
 		RenderSystem.disableDepthTest();
 		RenderSystem.colorMask(true, true, true, false);
@@ -286,8 +291,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public boolean isMouseOverSlot(Slot pSlot, double pMouseX, double pMouseY) {
-		return ((AbstractContainerScreenAccessor) this).callIsHovering(pSlot, pMouseX, pMouseY);
+	public boolean isMouseOverSlot(Slot slot, double mouseX, double mouseY) {
+		return ((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY);
 	}
 
 	@Override

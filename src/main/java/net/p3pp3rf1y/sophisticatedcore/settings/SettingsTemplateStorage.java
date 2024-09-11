@@ -21,7 +21,8 @@ public class SettingsTemplateStorage extends SavedData {
 	private Map<UUID, Map<String, CompoundTag>> playerNamedTemplates = new HashMap<>();
 	private static final SettingsTemplateStorage clientStorageCopy = new SettingsTemplateStorage();
 
-	private SettingsTemplateStorage() {}
+	private SettingsTemplateStorage() {
+	}
 
 	private SettingsTemplateStorage(Map<UUID, Map<Integer, CompoundTag>> playerTemplates, Map<UUID, Map<String, CompoundTag>> playerNamedTemplates) {
 		this.playerTemplates = playerTemplates;
@@ -58,7 +59,7 @@ public class SettingsTemplateStorage extends SavedData {
 			ServerLevel overworld = SophisticatedCore.getCurrentServer().getLevel(Level.OVERWORLD);
 			//noinspection ConstantConditions - by this time overworld is loaded
 			DimensionDataStorage storage = overworld.getDataStorage();
-			return storage.computeIfAbsent(SettingsTemplateStorage::load, SettingsTemplateStorage::new, SAVED_DATA_NAME);
+			return storage.computeIfAbsent(new Factory<>(SettingsTemplateStorage::new, SettingsTemplateStorage::load, null), SAVED_DATA_NAME);
 		}
 		return clientStorageCopy;
 	}
@@ -66,11 +67,11 @@ public class SettingsTemplateStorage extends SavedData {
 	private static SettingsTemplateStorage load(CompoundTag tag) {
 		return new SettingsTemplateStorage(
 				NBTHelper.getMap(tag, "playerTemplates", UUID::fromString,
-				(key, playerTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerTemplatesTag, "slotTemplates", Integer::valueOf, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag))
-		).orElse(new HashMap<>()),
+						(key, playerTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerTemplatesTag, "slotTemplates", Integer::valueOf, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag))
+				).orElse(new HashMap<>()),
 				NBTHelper.getMap(tag, "playerNamedTemplates", UUID::fromString,
-				(key, playerNamedTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerNamedTemplatesTag, "namedTemplates", v -> v, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag), TreeMap::new)
-		).orElse(new TreeMap<>()));
+						(key, playerNamedTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerNamedTemplatesTag, "namedTemplates", v -> v, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag), TreeMap::new)
+				).orElse(new TreeMap<>()));
 	}
 
 	public void clearPlayerTemplates(Player player) {

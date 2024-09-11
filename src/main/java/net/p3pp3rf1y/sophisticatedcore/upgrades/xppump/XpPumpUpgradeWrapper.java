@@ -19,9 +19,9 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrapper, XpPumpUpgradeItem> implements ITickableUpgrade {
 	private static final int DEFAULT_LEVEL = 10;
@@ -37,14 +37,14 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if ((entity != null && !(entity instanceof Player)) || isInCooldown(world)) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if ((entity != null && !(entity instanceof Player)) || isInCooldown(level)) {
 			return;
 		}
 
 		if (entity == null) {
 			AABB searchBox = new AABB(pos).inflate(PLAYER_SEARCH_RANGE);
-			for (Player player : world.players()) {
+			for (Player player : level.players()) {
 				if (searchBox.contains(player.getX(), player.getY(), player.getZ())) {
 					interactWithPlayer(player);
 					mendItems(player);
@@ -56,7 +56,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 			mendItems(player);
 		}
 
-		setCooldown(world, COOLDOWN);
+		setCooldown(level, COOLDOWN);
 	}
 
 	private void mendItems(Player player) {

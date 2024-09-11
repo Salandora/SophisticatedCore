@@ -84,6 +84,9 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private boolean isValidFluidItem(ItemStack stack, boolean isOutput) {
+		// TODO:
+		// return CapabilityHelper.getFromFluidHandler(stack, fluidHandler -> isValidFluidHandler(fluidHandler, isOutput), false);
+
 		if (!stack.isEmpty()) {
 			Storage<FluidVariant> storage = ContainerItemContext.withConstant(stack).find(FluidStorage.ITEM);
 			if (storage == null) {
@@ -190,10 +193,23 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if (world.getGameTime() < cooldownTime) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if (level.getGameTime() < cooldownTime) {
 			return;
 		}
+
+		// TODO:
+		/*AtomicBoolean didSomething = new AtomicBoolean(false);
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(INPUT_SLOT), fluidHandler ->
+				didSomething.set(drainHandler(fluidHandler, stack -> inventory.setStackInSlot(INPUT_SLOT, stack)))
+		);
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(OUTPUT_SLOT), fluidHandler ->
+				didSomething.set(fillHandler(fluidHandler, stack -> inventory.setStackInSlot(OUTPUT_SLOT, stack)))
+		);
+
+		if (didSomething.get()) {
+			cooldownTime = level.getGameTime() + upgradeItem.getTankUpgradeConfig().autoFillDrainContainerCooldown.get();
+		}*/
 
 		boolean didSomething = false;
 		ContainerItemContext cic = ContainerItemContext.ofSingleSlot(inventory.getSlot(INPUT_SLOT));
@@ -209,7 +225,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		if (didSomething) {
-			cooldownTime = world.getGameTime() + upgradeItem.getTankUpgradeConfig().autoFillDrainContainerCooldown.get();
+			cooldownTime = level.getGameTime() + upgradeItem.getTankUpgradeConfig().autoFillDrainContainerCooldown.get();
 		}
 	}
 

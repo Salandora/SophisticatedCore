@@ -20,7 +20,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
@@ -76,8 +76,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 			return false;
 		}
 
-		PacketHandler.sendToServer(new TankClickMessage(upgradeSlot));
-
+		PacketHelper.sendToServer(new TankClickPacket(upgradeSlot));
 		return true;
 	}
 

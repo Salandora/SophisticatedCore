@@ -14,7 +14,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +91,6 @@ public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements S
         T screenHandler = screen.getMenu();
         List<Slot> crafting = handler.getCraftingSlots(recipe, screenHandler);
         Slot output = handler.getOutputSlot(screenHandler);
-        PacketHandler.sendToServer(new EmiFillRecipeC2SPacket(screenHandler, action, handler.getInputSources(screenHandler), crafting, output, stacks));
+        PacketHelper.sendToServer(new EmiFillRecipePacket(screenHandler, action, handler.getInputSources(screenHandler), crafting, output, stacks));
     }
 }

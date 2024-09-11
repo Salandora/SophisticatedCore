@@ -25,11 +25,11 @@ import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.AbstractContainerMenuAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncEmptySlotIconsMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncTemplateSettingsMessage;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoPacket;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataPacket;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncEmptySlotIconsPacket;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncTemplateSettingsPacket;
 import net.p3pp3rf1y.sophisticatedcore.settings.ISettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsHandler;
@@ -158,15 +158,12 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	private void triggerSlotListeners(int slotIndex, ItemStack slotStack, Supplier<ItemStack> slotStackCopy) {
 		ItemStack itemstack = lastGhostSlots.get(slotIndex);
 		if (!ItemStack.matches(itemstack, slotStack)) {
-			//boolean clientStackChanged = !slotStack.equals(itemstack);
 			ItemStack itemstack1 = slotStackCopy.get();
 			lastGhostSlots.set(slotIndex, itemstack1);
 
-			//if (clientStackChanged) {
-				for (ContainerListener containerlistener : ((AbstractContainerMenuAccessor) this).getContainerListeners()) {
-					containerlistener.slotChanged(this, slotIndex, itemstack1);
-				}
-			//}
+			for (ContainerListener containerlistener : ((AbstractContainerMenuAccessor) this).getContainerListeners()) {
+				containerlistener.slotChanged(this, slotIndex, itemstack1);
+			}
 		}
 
 	}
@@ -204,9 +201,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		if (player instanceof ServerPlayer serverPlayer) {
 			SettingsTemplateStorage settingsTemplateStorage = SettingsTemplateStorage.get();
-			PacketHandler.sendToClient(serverPlayer,
-					new SyncTemplateSettingsMessage(settingsTemplateStorage.getPlayerTemplates(serverPlayer), settingsTemplateStorage.getPlayerNamedTemplates(serverPlayer))
-			);
+			PacketHelper.sendToPlayer(new SyncTemplateSettingsPacket(settingsTemplateStorage.getPlayerTemplates(serverPlayer), settingsTemplateStorage.getPlayerNamedTemplates(serverPlayer)), serverPlayer);
 		}
 
 		sendEmptySlotIcons();
@@ -256,14 +251,14 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		if (data.contains("categoryName")) {
 			String categoryName = data.getString("categoryName");
 			if (settingsContainers.containsKey(categoryName)) {
-				settingsContainers.get(categoryName).handleMessage(data);
+				settingsContainers.get(categoryName).handlePacket(data);
 			}
 		} else if (data.contains(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG, Tag.TAG_COMPOUND)) {
-			templatePersistanceContainer.handleMessage(data.getCompound(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG));
+			templatePersistanceContainer.handlePacket(data.getCompound(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG));
 		}
 	}
 
@@ -273,7 +268,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	@Override
-	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
+	public ItemStack quickMoveStack(Player player, int index) {
 		return ItemStack.EMPTY;
 	}
 
@@ -323,20 +318,20 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		return storageWrapper.getNumberOfSlotRows();
 	}
 
-	protected static <C extends ISettingsCategory, T extends SettingsContainerBase<C>> void addFactory(String categoryName, ISettingsContainerFactory<C, T> factory) {
+	protected static <C extends ISettingsCategory<?>, T extends SettingsContainerBase<C>> void addFactory(String categoryName, ISettingsContainerFactory<C, T> factory) {
 		SETTINGS_CONTAINER_FACTORIES.put(categoryName, factory);
 	}
 
-	public interface ISettingsContainerFactory<C extends ISettingsCategory, T extends SettingsContainerBase<C>> {
+	public interface ISettingsContainerFactory<C extends ISettingsCategory<?>, T extends SettingsContainerBase<C>> {
 		T create(SettingsContainerMenu<?> settingsContainer, String categoryName, C category);
 	}
 
-	private static <C extends ISettingsCategory> SettingsContainerBase<C> instantiateContainer(SettingsContainerMenu<?> settingsContainer, String name, C category) {
+	private static <C extends ISettingsCategory<?>> SettingsContainerBase<C> instantiateContainer(SettingsContainerMenu<?> settingsContainer, String name, C category) {
 		//noinspection unchecked
 		return (SettingsContainerBase<C>) getSettingsContainerFactory(name).create(settingsContainer, name, category);
 	}
 
-	private static <C extends ISettingsCategory, T extends SettingsContainerBase<C>> ISettingsContainerFactory<C, T> getSettingsContainerFactory(String name) {
+	private static <C extends ISettingsCategory<?>, T extends SettingsContainerBase<C>> ISettingsContainerFactory<C, T> getSettingsContainerFactory(String name) {
 		//noinspection unchecked
 		return (ISettingsContainerFactory<C, T>) SETTINGS_CONTAINER_FACTORIES.get(name);
 	}
@@ -346,7 +341,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 			return;
 		}
 		CompoundTag data = supplyData.get();
-		PacketHandler.sendToServer(new SyncContainerClientDataMessage(data));
+		PacketHelper.sendToServer(new SyncContainerClientDataPacket(data));
 	}
 
 	protected boolean isServer() {
@@ -369,7 +364,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 				slotFilterItems.put(slot, inventoryHandler.getFilterItem(slot));
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, Map.of(), slotFilterItems));
+		PacketHelper.sendToPlayer(new SyncAdditionalSlotInfoPacket(inaccessibleSlots, Map.of(), slotFilterItems), serverPlayer);
 	}
 
 	@Override
@@ -408,7 +403,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncEmptySlotIconsMessage(noItemSlotTextures));
+		PacketHelper.sendToPlayer(new SyncEmptySlotIconsPacket(noItemSlotTextures), serverPlayer);
 	}
 
 	public ItemStack getSlotFilterItem(int slot) {

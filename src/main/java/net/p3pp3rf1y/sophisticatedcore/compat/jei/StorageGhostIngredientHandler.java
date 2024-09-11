@@ -10,7 +10,7 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 
 							@Override
 							public void accept(I i) {
-								PacketHandler.sendToServer(new SetGhostSlotMessage(ghostStack, s.index));
+								PacketHelper.sendToServer(new SetGhostSlotMessage(ghostStack, s.index));
 							}
 						});
 					}

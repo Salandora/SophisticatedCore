@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 
 @Environment(EnvType.CLIENT)
-public interface ClientLifecycleEvent {
+public interface ClientLifecycleEvents {
     Event<Load> CLIENT_LEVEL_LOAD = EventFactory.createArrayBacked(Load.class, callback -> (client, world) -> {
        for(Load event : callback) {
            event.onWorldLoad(client, world);

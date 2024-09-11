@@ -12,6 +12,7 @@ import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -33,9 +34,9 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	private final CraftingItemHandler craftMatrix;
 	private final ResultSlot craftingResultSlot;
 	@Nullable
-	private CraftingRecipe lastRecipe = null;
-	private List<CraftingRecipe> matchedCraftingRecipes = new ArrayList<>();
-	private List<ItemStack> matchedCraftingResults = new ArrayList<>();
+	private RecipeHolder<CraftingRecipe> lastRecipe = null;
+	private List<RecipeHolder<CraftingRecipe>> matchedCraftingRecipes = new ArrayList<>();
+	private final List<ItemStack> matchedCraftingResults = new ArrayList<>();
 	private int selectedCraftingResultIndex = 0;
 
 	public CraftingUpgradeContainer(Player player, int upgradeContainerId, CraftingUpgradeWrapper upgradeWrapper, UpgradeContainerType<CraftingUpgradeWrapper, CraftingUpgradeContainer> type) {
@@ -59,8 +60,8 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 				ItemStack remainingStack = getItem();
 				checkTakeAchievements(stack);
 				List<ItemStack> items;
-				if (lastRecipe != null && lastRecipe.matches(craftMatrix, player.level())) {
-					items = lastRecipe.getRemainingItems(craftMatrix);
+				if (lastRecipe != null && lastRecipe.value().matches(craftMatrix, player.level())) {
+					items = lastRecipe.value().getRemainingItems(craftMatrix);
 				} else {
 					items = craftMatrix.getItems();
 				}
@@ -101,7 +102,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 						player.drop(remaining, false);
 					}
 				}
-				SophisticatedCore.LOGGER.error("Recipe " + (lastRecipe != null ? lastRecipe.getId() : "[unknown]") + " returned more than 9 remaining items, dropping the rest!");
+				SophisticatedCore.LOGGER.error("Recipe " + (lastRecipe != null ? lastRecipe.id() : "[unknown]") + " returned more than 9 remaining items, dropping the rest!");
 			}
 
 			@Override
@@ -113,8 +114,8 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 					if (!getItem().isEmpty()) {
 						matchedCraftingRecipes = RecipeHelper.safeGetRecipesFor(RecipeType.CRAFTING, craftMatrix, player.level());
 						int resultIndex = 0;
-						for (CraftingRecipe craftingRecipe : matchedCraftingRecipes) {
-							ItemStack result = craftingRecipe.assemble(craftMatrix, player.level().registryAccess());
+						for (RecipeHolder<CraftingRecipe> craftingRecipe : matchedCraftingRecipes) {
+							ItemStack result = craftingRecipe.value().assemble(craftMatrix, player.level().registryAccess());
 							matchedCraftingResults.add(result);
 							if (ItemHandlerHelper.canItemStacksStack(getItem(), result)) {
 								selectedCraftingResultIndex = resultIndex;
@@ -142,25 +143,24 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 		if (!level.isClientSide) {
 			ServerPlayer serverplayerentity = (ServerPlayer) player;
 			ItemStack itemstack = ItemStack.EMPTY;
-			if (lastRecipe != null && lastRecipe.matches(inventory, level)) {
-				itemstack = lastRecipe.assemble(inventory, level.registryAccess());
+			if (lastRecipe != null && lastRecipe.value().matches(inventory, level)) {
+				itemstack = lastRecipe.value().assemble(inventory, level.registryAccess());
 			} else {
-				//noinspection ConstantConditions - we're on server and for sure in the world so getServer can't return null here
-				List<CraftingRecipe> recipes = RecipeHelper.safeGetRecipesFor(RecipeType.CRAFTING, inventory, level);
+				List<RecipeHolder<CraftingRecipe>> recipes = RecipeHelper.safeGetRecipesFor(RecipeType.CRAFTING, inventory, level);
 				if (!recipes.isEmpty()) {
 					matchedCraftingRecipes = recipes;
 					matchedCraftingResults.clear();
 					selectedCraftingResultIndex = 0;
-					CraftingRecipe craftingRecipe = matchedCraftingRecipes.get(0);
+					RecipeHolder<CraftingRecipe> craftingRecipe = matchedCraftingRecipes.get(0);
 					if (inventoryResult.setRecipeUsed(level, serverplayerentity, craftingRecipe)) {
 						lastRecipe = craftingRecipe;
-						itemstack = lastRecipe.assemble(inventory, level.registryAccess());
+						itemstack = lastRecipe.value().assemble(inventory, level.registryAccess());
 						matchedCraftingResults.add(itemstack.copy());
 					} else {
 						lastRecipe = null;
 					}
 					for (int i = 1; i < matchedCraftingRecipes.size(); i++) {
-						matchedCraftingResults.add(matchedCraftingRecipes.get(i).assemble(inventory, level.registryAccess()));
+						matchedCraftingResults.add(matchedCraftingRecipes.get(i).value().assemble(inventory, level.registryAccess()));
 					}
 				}
 			}
@@ -202,7 +202,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		if (data.contains(DATA_SHIFT_CLICK_INTO_STORAGE)) {
 			setShiftClickIntoStorage(data.getBoolean(DATA_SHIFT_CLICK_INTO_STORAGE));
 		} else if (data.contains(DATA_SELECT_RESULT)) {
@@ -232,14 +232,14 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 
 	@Override
 	public void setRecipeUsed(ResourceLocation recipeId) {
-		if (lastRecipe != null && lastRecipe.getId().equals(recipeId)) {
+		if (lastRecipe != null && lastRecipe.id().equals(recipeId)) {
 			return;
 		}
-		player.level().getRecipeManager().byKey(recipeId).filter(r -> r.getType() == RecipeType.CRAFTING).map(r -> (CraftingRecipe) r)
+		player.level().getRecipeManager().byKey(recipeId).filter(r -> r.value().getType() == RecipeType.CRAFTING).map(r -> (RecipeHolder<CraftingRecipe>) r)
 				.ifPresent(recipe -> {
 					lastRecipe = recipe;
 					for (int i = 0; i < matchedCraftingRecipes.size(); i++) {
-						if (matchedCraftingRecipes.get(i).getId().equals(recipeId)) {
+						if (matchedCraftingRecipes.get(i).id().equals(recipeId)) {
 							selectCraftingResult(i);
 							return;
 						}

@@ -22,8 +22,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public abstract class StorageDyeRecipeBase extends CustomRecipe {
-	protected StorageDyeRecipeBase(ResourceLocation registryName, CraftingBookCategory category) {
-		super(registryName, category);
+	protected StorageDyeRecipeBase(CraftingBookCategory category) {
+		super(category);
 	}
 
 	@Override
@@ -122,7 +122,6 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		}
 
 		for (DyeColor color : DyeColor.values()) {
-			// TODO: Proper way to get the tag key
 			if (stack.is(TagKey.create(Registries.ITEM, new ResourceLocation("c", color.getName() + "_dyes"))))
 				return color;
 		}

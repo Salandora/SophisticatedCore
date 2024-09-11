@@ -17,7 +17,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.p3pp3rf1y.sophisticatedcore.event.client.ClientLifecycleEvent;
+import net.p3pp3rf1y.sophisticatedcore.event.client.ClientLifecycleEvents;
 import net.p3pp3rf1y.sophisticatedcore.event.common.EntityEvents;
 import net.p3pp3rf1y.sophisticatedcore.util.MixinHelper;
 
@@ -31,11 +31,11 @@ public class ClientLevelMixin {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void sophisticatedcore$construct(ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, int i, int j, Supplier<ProfilerFiller> supplier, LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci) {
-        ClientLifecycleEvent.CLIENT_LEVEL_LOAD.invoker().onWorldLoad(minecraft, MixinHelper.cast(this));
+        ClientLifecycleEvents.CLIENT_LEVEL_LOAD.invoker().onWorldLoad(minecraft, MixinHelper.cast(this));
     }
 
     @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
-    public void sophisticatedcore$addEntityEvent(int i, Entity entity, CallbackInfo ci) {
+    public void sophisticatedcore$addEntityEvent(Entity entity, CallbackInfo ci) {
         if (EntityEvents.ON_JOIN_WORLD.invoker().onJoinWorld(entity, MixinHelper.cast(this), false))
             ci.cancel();
     }

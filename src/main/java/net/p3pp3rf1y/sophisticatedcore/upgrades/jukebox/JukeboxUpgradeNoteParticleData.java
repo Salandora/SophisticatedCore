@@ -20,7 +20,7 @@ public class JukeboxUpgradeNoteParticleData extends ParticleType<JukeboxUpgradeN
 	}
 
 	@Override
-	public void writeToNetwork(FriendlyByteBuf pBuffer) {
+	public void writeToNetwork(FriendlyByteBuf buffer) {
 		//noop
 	}
 
@@ -33,13 +33,13 @@ public class JukeboxUpgradeNoteParticleData extends ParticleType<JukeboxUpgradeN
 	@SuppressWarnings("deprecation")
 	public static final Deserializer<JukeboxUpgradeNoteParticleData> DESERIALIZER = new Deserializer<>() {
 		@Override
-		public JukeboxUpgradeNoteParticleData fromCommand(ParticleType<JukeboxUpgradeNoteParticleData> pParticleType, StringReader pReader) {
-			return (JukeboxUpgradeNoteParticleData) pParticleType;
+		public JukeboxUpgradeNoteParticleData fromCommand(ParticleType<JukeboxUpgradeNoteParticleData> particleType, StringReader reader) {
+			return (JukeboxUpgradeNoteParticleData) particleType;
 		}
 
 		@Override
-		public JukeboxUpgradeNoteParticleData fromNetwork(ParticleType<JukeboxUpgradeNoteParticleData> pParticleType, FriendlyByteBuf pBuffer) {
-			return (JukeboxUpgradeNoteParticleData) pParticleType;
+		public JukeboxUpgradeNoteParticleData fromNetwork(ParticleType<JukeboxUpgradeNoteParticleData> particleType, FriendlyByteBuf buffer) {
+			return (JukeboxUpgradeNoteParticleData) particleType;
 		}
 	};
 

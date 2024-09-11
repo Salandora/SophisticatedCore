@@ -41,7 +41,7 @@ public class FluidFilterControl extends WidgetBase {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int pButton) {
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (!isMouseOver(mouseX, mouseY)) {
 			return false;
 		}
@@ -60,7 +60,7 @@ public class FluidFilterControl extends WidgetBase {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+	public void updateNarration(NarrationElementOutput narrationElementOutput) {
 		//TODO narration
 	}
 }

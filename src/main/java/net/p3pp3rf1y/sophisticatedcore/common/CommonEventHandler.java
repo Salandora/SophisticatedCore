@@ -11,6 +11,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
+import net.p3pp3rf1y.sophisticatedcore.init.ModPackets;
 import net.p3pp3rf1y.sophisticatedcore.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.init.ModRecipes;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
@@ -21,9 +22,9 @@ public class CommonEventHandler {
 		ModFluids.registerHandlers();
 		ModParticles.registerParticles();
 		ModRecipes.registerHandlers();
+		ModPackets.registerPackets();
 
 		ServerTickEvents.END_SERVER_TICK.register((server) -> ItemStackKey.clearCacheOnTickEnd());
-
 		ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register(RecipeHelper::onDataPackSync);
 
 		UseBlockCallback.EVENT.register(this::onUseBlock);

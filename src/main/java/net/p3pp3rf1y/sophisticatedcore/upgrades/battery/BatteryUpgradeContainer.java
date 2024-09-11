@@ -29,7 +29,7 @@ public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgrade
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		//noop
 	}
 

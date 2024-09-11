@@ -24,7 +24,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.ArrayList;
@@ -92,7 +91,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			@Override
 			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 				if (visible && isMouseOver(mouseX, mouseY)) {
-					guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
+					guiGraphics.renderTooltip(minecraft.font, getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
 				}
 			}
 		};
@@ -288,7 +287,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			List<ItemStack> matchedCraftingResults = getContainer().getMatchedCraftingResults();
 			if (i < matchedCraftingResults.size()) {
 				ItemStack stack = matchedCraftingResults.get(i);
-				guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), stack, mouseX, mouseY);
+				guiGraphics.renderTooltip(minecraft.font, stack, mouseX, mouseY);
 			}
 		});
 		guiGraphics.pose().popPose();

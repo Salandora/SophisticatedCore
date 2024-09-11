@@ -11,12 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InventorySorter {
@@ -27,7 +22,7 @@ public class InventorySorter {
 			Comparator
 					.<Map.Entry<ItemStackKey, Integer>, String>comparing(o -> {
 						ResourceLocation registryName = BuiltInRegistries.ITEM.getKey(o.getKey().getStack().getItem());
-						return registryName == null ? null : registryName.getNamespace();
+						return registryName.getNamespace();
 					})
 					.thenComparing(o -> o.getKey().getStack().getHoverName().getString());
 
@@ -80,6 +75,7 @@ public class InventorySorter {
 		return BuiltInRegistries.ITEM.getKey(itemStackKey.getStack().getItem()).toString();
 	}
 
+	// TODO: IItemHandlerModifiable handler
 	public static void sortHandler(SlottedStackStorage handler, Comparator<? super Map.Entry<ItemStackKey, Integer>> comparator, Set<Integer> noSortSlots) {
 		Map<ItemStackKey, Integer> compactedStacks = InventoryHelper.getCompactedStacks(handler, noSortSlots);
 		List<Map.Entry<ItemStackKey, Integer>> sortedList = new ArrayList<>(compactedStacks.entrySet());
@@ -92,6 +88,7 @@ public class InventorySorter {
 		sortIntoOtherSlots(handler, noSortSlots, sortedList, slots);
 	}
 
+	// TODO: IItemHandlerModifiable handler
 	private static void sortIntoOtherSlots(SlottedStackStorage handler, Set<Integer> noSortSlots, List<Map.Entry<ItemStackKey, Integer>> sortedList, int slots) {
 		Iterator<Map.Entry<ItemStackKey, Integer>> ite = sortedList.iterator();
 		ItemStackKey current = null;
@@ -114,6 +111,7 @@ public class InventorySorter {
 		}
 	}
 
+	// TODO: IItemHandlerModifiable handler
 	private static void sortIntoNoSortSlots(SlottedStackStorage handler, Set<Integer> noSortSlots, List<Map.Entry<ItemStackKey, Integer>> sortedList) {
 		Iterator<Map.Entry<ItemStackKey, Integer>> it = sortedList.iterator();
 		if (!noSortSlots.isEmpty()) {
@@ -139,12 +137,14 @@ public class InventorySorter {
 		}
 	}
 
+	// TODO: IItemHandlerModifiable handler
 	private static void emptySlot(SlottedStackStorage handler, int slot) {
 		if (!handler.getStackInSlot(slot).isEmpty()) {
 			handler.setStackInSlot(slot, ItemStack.EMPTY);
 		}
 	}
 
+	// TODO: IItemHandlerModifiable handler
 	private static int placeStack(SlottedStackStorage handler, ItemStackKey current, int count, int slot, boolean countWithCurrentStack) {
 		ItemStack copy = current.getStack().copy();
 		int slotLimit = handler instanceof InventoryHandler inventoryHandler ? inventoryHandler.getStackLimit(slot, ItemVariant.of(copy)) : handler.getSlotLimit(slot);

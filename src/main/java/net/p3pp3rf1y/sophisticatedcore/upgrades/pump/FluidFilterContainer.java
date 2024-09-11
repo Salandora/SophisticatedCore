@@ -44,7 +44,7 @@ public class FluidFilterContainer {
 		return ret;
 	}
 
-	public boolean handleMessage(CompoundTag data) {
+	public boolean handlePacket(CompoundTag data) {
 		if (data.contains(DATA_FLUID)) {
 			CompoundTag fluidData = data.getCompound(DATA_FLUID);
 			FluidStack fluid = FluidStack.loadFluidStackFromNBT(data.getCompound("fluid"));
@@ -66,6 +66,10 @@ public class FluidFilterContainer {
 			setFluid(index, FluidStack.EMPTY);
 			return;
 		}
+
+		// TODO:
+		//CapabilityHelper.runOnCapability(carried, Capabilities.FluidHandler.ITEM, null, itemFluidHandler -> {
+		//	FluidStack containedFluid = itemFluidHandler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
 
         Storage<FluidVariant> storage = ContainerItemContext.withConstant(carried).find(FluidStorage.ITEM);
 		if (storage != null) {

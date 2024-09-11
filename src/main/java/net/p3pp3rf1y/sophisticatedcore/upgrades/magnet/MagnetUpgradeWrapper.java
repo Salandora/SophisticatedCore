@@ -22,20 +22,16 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.ContentsFilterLogic;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IContentsFilteredUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrapper, MagnetUpgradeItem>
 		implements IContentsFilteredUpgrade, ITickableUpgrade, IPickupResponseUpgrade {
@@ -63,7 +59,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	@Override
-	public ItemStack pickup(Level world, ItemStack stack, TransactionContext ctx) {
+	public ItemStack pickup(Level level, ItemStack stack, TransactionContext ctx) {
 		if (!shouldPickupItems() || !filterLogic.matchesFilter(stack)) {
 			return stack;
 		}
@@ -74,33 +70,33 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if (isInCooldown(world)) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if (isInCooldown(level)) {
 			return;
 		}
 
-		int cooldown = shouldPickupItems() ? pickupItems(entity, world, pos) : FULL_COOLDOWN_TICKS;
+		int cooldown = shouldPickupItems() ? pickupItems(entity, level, pos) : FULL_COOLDOWN_TICKS;
 
 		if (shouldPickupXp() && canFillStorageWithXp()) {
-			cooldown = Math.min(cooldown, pickupXpOrbs(entity, world, pos));
+			cooldown = Math.min(cooldown, pickupXpOrbs(entity, level, pos));
 		}
 
-		setCooldown(world, cooldown);
+		setCooldown(level, cooldown);
 	}
 
 	private boolean canFillStorageWithXp() {
 		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.simulateInsert(ModFluids.EXPERIENCE_TAG, FluidConstants.BUCKET, ModFluids.XP_STILL, null) > 0).orElse(false);
 	}
 
-	private int pickupXpOrbs(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		List<ExperienceOrb> xpEntities = world.getEntitiesOfClass(ExperienceOrb.class, new AABB(pos).inflate(upgradeItem.getRadius()), e -> true);
+	private int pickupXpOrbs(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		List<ExperienceOrb> xpEntities = level.getEntitiesOfClass(ExperienceOrb.class, new AABB(pos).inflate(upgradeItem.getRadius()), e -> true);
 		if (xpEntities.isEmpty()) {
 			return COOLDOWN_TICKS;
 		}
 
 		int cooldown = COOLDOWN_TICKS;
 		for (ExperienceOrb xpOrb : xpEntities) {
-			if (xpOrb.isAlive() && !canNotPickup(xpOrb, entity) && !tryToFillTank(xpOrb, entity, world)) {
+			if (xpOrb.isAlive() && !canNotPickup(xpOrb, entity) && !tryToFillTank(xpOrb, entity, level)) {
 				cooldown = FULL_COOLDOWN_TICKS;
 				break;
 			}
@@ -108,7 +104,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		return cooldown;
 	}
 
-	private boolean tryToFillTank(ExperienceOrb xpOrb, @Nullable LivingEntity entity, Level world) {
+	private boolean tryToFillTank(ExperienceOrb xpOrb, @Nullable LivingEntity entity, Level level) {
 		// TODO: multiply with the xpOrb count value?
 		long amountToTransfer = XpHelper.experienceToLiquid(xpOrb.getValue());
 
@@ -127,11 +123,11 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 				Player player = (Player) entity;
 
 				if (player != null) {
-					playXpPickupSound(world, player);
+					playXpPickupSound(level, player);
 				}
 
 				if (amountToTransfer > amountAdded) {
-					world.addFreshEntity(new ExperienceOrb(world, pos.x(), pos.y(), pos.z(), (int) XpHelper.liquidToExperience(amountToTransfer - amountAdded)));
+					level.addFreshEntity(new ExperienceOrb(level, pos.x(), pos.y(), pos.z(), (int) XpHelper.liquidToExperience(amountToTransfer - amountAdded)));
 				}
 				return true;
 			}
@@ -139,8 +135,8 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		}).orElse(false);
 	}
 
-	private int pickupItems(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		List<ItemEntity> itemEntities = world.getEntities(EntityType.ITEM, new AABB(pos).inflate(upgradeItem.getRadius()), e -> true);
+	private int pickupItems(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		List<ItemEntity> itemEntities = level.getEntities(EntityType.ITEM, new AABB(pos).inflate(upgradeItem.getRadius()), e -> true);
 		if (itemEntities.isEmpty()) {
 			return COOLDOWN_TICKS;
 		}
@@ -155,7 +151,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			}
 			if (tryToInsertItem(itemEntity)) {
 				if (player != null) {
-					playItemPickupSound(world, player);
+					playItemPickupSound(level, player);
 				}
 			} else {
 				cooldown = FULL_COOLDOWN_TICKS;
@@ -165,13 +161,13 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	@SuppressWarnings("squid:S1764") // this actually isn't a case of identical values being used as both side are random float value thus -1 to 1 as a result
-	private static void playItemPickupSound(Level world, @Nonnull Player player) {
-		world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, (world.random.nextFloat() - world.random.nextFloat()) * 1.4F + 2.0F);
+	private static void playItemPickupSound(Level level, @Nonnull Player player) {
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, (level.random.nextFloat() - level.random.nextFloat()) * 1.4F + 2.0F);
 	}
 
 	@SuppressWarnings("squid:S1764") // this actually isn't a case of identical values being used as both side are random float value thus -1 to 1 as a result
-	private static void playXpPickupSound(Level world, @Nonnull Player player) {
-		world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (world.random.nextFloat() - world.random.nextFloat()) * 0.35F + 0.9F);
+	private static void playXpPickupSound(Level level, @Nonnull Player player) {
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (level.random.nextFloat() - level.random.nextFloat()) * 0.35F + 0.9F);
 	}
 
 	private boolean isBlockedBySomething(Entity entity) {

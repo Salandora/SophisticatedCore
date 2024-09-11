@@ -7,7 +7,8 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.JukeboxUpgradeNoteParticleData;
 
 public class ModParticles {
-	private ModParticles() {}
+	private ModParticles() {
+	}
 
 	public static final JukeboxUpgradeNoteParticleData JUKEBOX_NOTE = register("jukebox_note", new JukeboxUpgradeNoteParticleData());
 

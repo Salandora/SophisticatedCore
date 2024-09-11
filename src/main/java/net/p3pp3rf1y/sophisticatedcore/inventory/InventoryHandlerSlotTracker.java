@@ -8,16 +8,11 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import javax.annotation.Nullable;
 
 public class InventoryHandlerSlotTracker implements ISlotTracker {
 	private final Map<ItemStackKey, Set<Integer>> fullStackSlots = new HashMap<>();
@@ -27,7 +22,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 	private final Map<Item, Set<ItemStackKey>> itemStackKeys = new HashMap<>();
 	private final Set<Integer> emptySlots = new TreeSet<>();
 	private final MemorySettingsCategory memorySettings;
-	private Map<Item, Set<Integer>> filterItemSlots;
+	private final Map<Item, Set<Integer>> filterItemSlots;
 	private Consumer<ItemStackKey> onAddStackKey = sk -> {};
 	private Consumer<ItemStackKey> onRemoveStackKey = sk -> {};
 

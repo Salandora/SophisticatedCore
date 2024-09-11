@@ -38,8 +38,8 @@ public class ItemButton extends ButtonBase {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
-		pNarrationElementOutput.add(NarratedElementType.TITLE, narration);
-		pNarrationElementOutput.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
+	public void updateNarration(NarrationElementOutput narrationElementOutput) {
+		narrationElementOutput.add(NarratedElementType.TITLE, narration);
+		narrationElementOutput.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
 	}
 }

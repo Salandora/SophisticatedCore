@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ScreenEffectRenderer;
@@ -33,10 +33,8 @@ public class ScreenEffectRendererMixin {
         return instance.getParticleIcon(state);
     }
 
-    @Inject(method = "getViewBlockingState", at = @At(value = "RETURN", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
-    private static void sophisticatedcore$getViewBlockingState(Player player, CallbackInfoReturnable<BlockState> cir, BlockPos.MutableBlockPos mutableBlockPos) {
-        if (cir.getReturnValue() != null) {
-            sophisticatedcore$pos = mutableBlockPos.immutable();
-        }
+    @Inject(method = "getViewBlockingState", at = @At(value = "RETURN", ordinal = 0))
+    private static void sophisticatedcore$getViewBlockingState(Player player, CallbackInfoReturnable<BlockState> cir, @Local BlockPos.MutableBlockPos mutableBlockPos) {
+        sophisticatedcore$pos = mutableBlockPos.immutable();
     }
 }

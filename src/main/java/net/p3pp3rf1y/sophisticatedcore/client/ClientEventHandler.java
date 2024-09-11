@@ -24,11 +24,11 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPackets;
 import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
+import net.p3pp3rf1y.sophisticatedcore.init.ModPackets;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
@@ -37,12 +37,13 @@ import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("unused")
 public class ClientEventHandler implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModParticles.registerFactories();
         ModFluids.registerFluids();
+		ModPackets.registerClientPackets();
+		LitematicaPackets.registerClientPackets();
 
         ServerWorldEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
 		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
@@ -57,9 +58,6 @@ public class ClientEventHandler implements ClientModInitializer {
 
             ScreenEvents.afterRender(screen).register(ClientEventHandler::onDrawScreen);
         });
-
-        PacketHandler.getChannel().initClientListener();
-		LitematicaPacketHandler.getChannel().initClientListener();
     }
 
     private static void onDrawScreen(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {

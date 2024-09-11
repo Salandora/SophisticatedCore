@@ -18,6 +18,8 @@
         "common.ShapedRecipeMixin",
         "common.SlotMixin",
         "common.accessor.AbstractContainerMenuAccessor",
+        "common.accessor.ShapedRecipeAccessor",
+        "common.accessor.ShapelessRecipeAccessor",
         "common.accessor.SlotAccessor"
     ],
     "client": [

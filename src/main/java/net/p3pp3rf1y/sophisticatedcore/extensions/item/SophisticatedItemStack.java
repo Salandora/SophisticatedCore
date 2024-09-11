@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 
@@ -18,14 +17,6 @@ public interface SophisticatedItemStack {
     private ItemStack self()
     {
         return (ItemStack)this;
-    }
-
-    /**
-     * Called to tick armor in the armor slot. Override to do something
-     */
-    default void onArmorTick(Level level, Player player)
-    {
-        self().getItem().onArmorTick(self(), level, player);
     }
 
     default InteractionResult onItemUseFirst(UseOnContext context) {

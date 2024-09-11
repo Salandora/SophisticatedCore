@@ -74,9 +74,9 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 			return discInventory.getStackInSlot(0);
 		}
 
-		public void play(Level world, BlockPos pos) {
-			play(world, (serverWorld, storageUuid) ->
-					ServerStorageSoundHandler.startPlayingDisc(serverWorld, pos, storageUuid, getDisc(), () -> setIsPlaying(false)));
+		public void play(Level level, BlockPos pos) {
+			play(level, (serverLevel, storageUuid) ->
+					ServerStorageSoundHandler.startPlayingDisc(serverLevel, pos, storageUuid, getDisc(), () -> setIsPlaying(false)));
 		}
 
 		public void play(LivingEntity entity) {
@@ -84,11 +84,11 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 					ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(), getDisc(), () -> setIsPlaying(false)));
 		}
 
-		private void play(Level world, BiConsumer<ServerLevel, UUID> play) {
-			if (!(world instanceof ServerLevel) || getDisc().isEmpty()) {
+		private void play(Level level, BiConsumer<ServerLevel, UUID> play) {
+			if (!(level instanceof ServerLevel) || getDisc().isEmpty()) {
 				return;
 			}
-			storageWrapper.getContentsUuid().ifPresent(storageUuid -> play.accept((ServerLevel) world, storageUuid));
+			storageWrapper.getContentsUuid().ifPresent(storageUuid -> play.accept((ServerLevel) level, storageUuid));
 			setIsPlaying(true);
 		}
 
@@ -108,11 +108,11 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 		}
 
 		public void stop(LivingEntity entity) {
-			if (!(entity.level() instanceof ServerLevel)) {
+			if (!(entity.level() instanceof ServerLevel serverLevel)) {
 				return;
 			}
 			storageWrapper.getContentsUuid().ifPresent(storageUuid ->
-					ServerStorageSoundHandler.stopPlayingDisc((ServerLevel) entity.level(), entity.position(), storageUuid)
+					ServerStorageSoundHandler.stopPlayingDisc(serverLevel, entity.position(), storageUuid)
 			);
 			setIsPlaying(false);
 		}
@@ -122,12 +122,12 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 		}
 
 		@Override
-		public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-			if (isPlaying && lastKeepAliveSendTime < world.getGameTime() - KEEP_ALIVE_SEND_INTERVAL) {
+		public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+			if (isPlaying && lastKeepAliveSendTime < level.getGameTime() - KEEP_ALIVE_SEND_INTERVAL) {
 				storageWrapper.getContentsUuid().ifPresent(storageUuid ->
-						ServerStorageSoundHandler.updateKeepAlive(storageUuid, world, entity != null ? entity.position() : Vec3.atCenterOf(pos), () -> setIsPlaying(false))
+						ServerStorageSoundHandler.updateKeepAlive(storageUuid, level, entity != null ? entity.position() : Vec3.atCenterOf(pos), () -> setIsPlaying(false))
 				);
-				lastKeepAliveSendTime = world.getGameTime();
+				lastKeepAliveSendTime = level.getGameTime();
 			}
 		}
 

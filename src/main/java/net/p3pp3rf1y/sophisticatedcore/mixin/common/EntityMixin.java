@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -8,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +23,8 @@ import java.util.Collection;
 
 @Mixin(Entity.class)
 public class EntityMixin implements SophisticatedEntity {
-    @Shadow public Level level;
+    @Shadow
+	private Level level;
 
 	@Unique
 	private Collection<ItemEntity> sophisticatedCore$captureDrops = null;
@@ -60,8 +61,8 @@ public class EntityMixin implements SophisticatedEntity {
 	@Unique
 	private CompoundTag sophisticatedCore$customData;
 
-    @Inject(method = "spawnSprintParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getRenderShape()Lnet/minecraft/world/level/block/RenderShape;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void sophisticatedCore$addRunningEffects(CallbackInfo ci, BlockPos blockPos, BlockState blockState) {
+    @Inject(method = "spawnSprintParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getRenderShape()Lnet/minecraft/world/level/block/RenderShape;"), cancellable = true)
+    private void sophisticatedCore$addRunningEffects(CallbackInfo ci, @Local BlockPos blockPos, @Local BlockState blockState) {
         if (blockState.addRunningEffects(level, blockPos, MixinHelper.cast(this))) {
             ci.cancel();
         }

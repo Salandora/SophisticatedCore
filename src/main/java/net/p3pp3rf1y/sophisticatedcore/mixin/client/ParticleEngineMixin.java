@@ -21,7 +21,7 @@ public class ParticleEngineMixin {
     @Shadow
     protected ClientLevel level;
 
-    @Redirect(method = "destroy", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;shouldSpawnParticlesOnBreak()Z"))
+    @Redirect(method = "destroy", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;shouldSpawnTerrainParticles()Z"))
     private boolean sophisticatedcore$addDestroyEffects(BlockState blockState, BlockPos pos) {
         return !blockState.addDestroyEffects(level, pos, MixinHelper.cast(this));
     }

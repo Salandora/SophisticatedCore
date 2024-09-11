@@ -1,16 +1,19 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TransferRecipeMessage extends SimplePacketBase {
+public class TransferRecipeMessage implements FabricPacket {
+	public static final PacketType<TransferRecipeMessage> TYPE = PacketType.create(new ResourceLocation(SophisticatedCore.MOD_ID, "transfer_recipe"), TransferRecipeMessage::new);
 	private final Map<Integer, Integer> matchingItems;
 	private final List<Integer> craftingSlotIndexes;
 	private final List<Integer> inventorySlotIndexes;
@@ -26,58 +29,26 @@ public class TransferRecipeMessage extends SimplePacketBase {
 	}
 
 	public TransferRecipeMessage(FriendlyByteBuf buffer) {
-		this(buffer.readResourceLocation(), readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
+		this(buffer.readResourceLocation(), buffer.readMap(FriendlyByteBuf::readInt, FriendlyByteBuf::readInt),
+				buffer.readCollection(ArrayList::new, FriendlyByteBuf::readInt), buffer.readCollection(ArrayList::new, FriendlyByteBuf::readInt),
+				buffer.readBoolean());
+	}
+
+	public void handle(ServerPlayer player, PacketSender responseSender) {
+		CraftingContainerRecipeTransferHandlerServer.setItems(player, this.recipeId, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
 	}
 
 	@Override
-	public void write(FriendlyByteBuf packetBuffer) {
-		packetBuffer.writeResourceLocation(this.recipeId);
-		writeMap(packetBuffer, this.matchingItems);
-		writeList(packetBuffer, this.craftingSlotIndexes);
-		writeList(packetBuffer, this.inventorySlotIndexes);
-		packetBuffer.writeBoolean(this.maxTransfer);
-	}
-
-	private static void writeMap(FriendlyByteBuf packetBuffer, Map<Integer, Integer> map) {
-		packetBuffer.writeInt(map.size());
-		map.forEach((key, value) -> {
-			packetBuffer.writeInt(key);
-			packetBuffer.writeInt(value);
-		});
-	}
-
-	private static void writeList(FriendlyByteBuf packetBuffer, List<Integer> list) {
-		packetBuffer.writeInt(list.size());
-		list.forEach(packetBuffer::writeInt);
-	}
-
-	private static Map<Integer, Integer> readMap(FriendlyByteBuf packetBuffer) {
-		Map<Integer, Integer> ret = new HashMap<>();
-		int size = packetBuffer.readInt();
-		for (int i = 0; i < size; i++) {
-			ret.put(packetBuffer.readInt(), packetBuffer.readInt());
-		}
-		return ret;
-	}
-
-	private static List<Integer> readList(FriendlyByteBuf packetBuffer) {
-		List<Integer> ret = new ArrayList<>();
-		int size = packetBuffer.readInt();
-		for (int i = 0; i < size; i++) {
-			ret.add(packetBuffer.readInt());
-		}
-		return ret;
+	public void write(FriendlyByteBuf buffer) {
+		buffer.writeResourceLocation(recipeId);
+		buffer.writeMap(matchingItems, FriendlyByteBuf::writeInt, FriendlyByteBuf::writeInt);
+		buffer.writeCollection(craftingSlotIndexes, FriendlyByteBuf::writeInt);
+		buffer.writeCollection(inventorySlotIndexes, FriendlyByteBuf::writeInt);
+		buffer.writeBoolean(maxTransfer);
 	}
 
 	@Override
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			ServerPlayer sender = context.getSender();
-			if (sender == null) {
-				return;
-			}
-			CraftingContainerRecipeTransferHandlerServer.setItems(sender, this.recipeId, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
-		});
-		return true;
+	public PacketType<?> getType() {
+		return TYPE;
 	}
 }

@@ -43,11 +43,11 @@ public class CookingLogicControl<T extends AbstractCookingRecipe> extends Compos
 	}
 
 	private float getProgress(long finishTime, int timeTotal) {
-		Level world = Minecraft.getInstance().level;
-		if (world == null) {
+		Level level = Minecraft.getInstance().level;
+		if (level == null) {
 			return 0;
 		}
-		return 1 - ((float) Math.max(finishTime - world.getGameTime(), 0) / timeTotal);
+		return 1 - ((float) Math.max(finishTime - level.getGameTime(), 0) / timeTotal);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class CookingLogicControl<T extends AbstractCookingRecipe> extends Compos
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
+	public void updateNarration(NarrationElementOutput narrationElementOutput) {
 		//TODO add narration
 	}
 }

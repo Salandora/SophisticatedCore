@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
-import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+import fuzs.forgeconfigapiport.api.config.v3.ForgeConfigRegistry;
+import net.neoforged.fml.config.ModConfig;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -9,19 +10,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.config.ModConfig;
-import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPackets;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.init.ModPackets;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class SophisticatedCore implements ModInitializer {
 	public static final String MOD_ID = "sophisticatedcore";
@@ -40,17 +39,20 @@ public class SophisticatedCore implements ModInitializer {
 		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, Config.COMMON_SPEC);
 		commonEventHandler.registerHandlers();
+		ModCompat.register();
+		CompatRegistry.initCompats();
 		Config.COMMON.initListeners();
-		PacketHandler.init();
-		ModCompat.initCompats();
-		LitematicaPacketHandler.init();
-		CapabilityWrapper.register();
+		//CapabilityWrapper.register();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setLevel(server.getLevel(Level.OVERWORLD)));
-		PacketHandler.getChannel().initServerListener();
-		LitematicaPacketHandler.getChannel().initServerListener();
+
+		ModPackets.registerPackets();
+		LitematicaPackets.registerPackets();
+
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
+
+		CompatRegistry.setupCompats();
 	}
 
 	public static ResourceLocation getRL(String regName) {
