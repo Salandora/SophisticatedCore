@@ -21,8 +21,8 @@ public class ParticleEngineMixin {
     protected ClientLevel level;
 
     @Redirect(method = "destroy", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isAir()Z"))
-    private boolean sophisticatedcore$addDestroyEffects(BlockState blockState, BlockPos pos) {
-        return !blockState.addDestroyEffects(level, pos, MixinHelper.cast(this));
+    private boolean sophisticatedcore$addDestroyEffects(BlockState state, BlockPos pos) {
+        return state.isAir() && !state.addDestroyEffects(level, pos, MixinHelper.cast(this));
     }
 
 	// lambda inside destroy
