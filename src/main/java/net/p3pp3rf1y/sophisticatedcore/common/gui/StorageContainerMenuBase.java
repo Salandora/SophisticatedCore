@@ -1443,8 +1443,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		initialBroadcast = false;
 	}
-
-
+	
 	public Optional<ItemStack> getVisibleStorageItem() {
 		return storageItemSlotNumber != -1 ? Optional.of(getSlot(storageItemSlotNumber).getItem()) : Optional.empty();
 	}

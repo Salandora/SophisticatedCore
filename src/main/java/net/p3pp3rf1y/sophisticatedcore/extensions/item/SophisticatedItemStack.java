@@ -19,6 +19,17 @@ public interface SophisticatedItemStack {
         return (ItemStack)this;
     }
 
+	/**
+	 * Called when a player drops the item into the world, returning false from this
+	 * will prevent the item from being removed from the players inventory and
+	 * spawning in the world
+	 *
+	 * @param player The player that dropped the item
+	 */
+	default boolean onDroppedByPlayer(Player player) {
+		return self().getItem().onDroppedByPlayer(self(), player);
+	}
+
     default InteractionResult onItemUseFirst(UseOnContext context) {
         Player player = context.getPlayer();
         BlockPos pos = context.getClickedPos();
