@@ -1,7 +1,7 @@
 # Changelog
 
 ### General
-- Update to version 0.6.22
+- Update to version 0.6.26
 - Code cleanup
 - Remove custom ItemStackHandler implementation
 - Add ClientRecipesUpdated event
@@ -16,7 +16,8 @@
 - Fix a dupe bug due to a recent change in the InventoryHandler 
 - Fix a lithium incompatibility
 - Fix a bug with the pump upgrade crashing the game whenever it tries to place a fluid.
+- Implement onDroppedByPlayer
 
-### Compatiblity
+### Compatibility
 - Added AudioPlayer compatibility
 - Fixed feeding upgrade incompatibility with RPG Inventory
