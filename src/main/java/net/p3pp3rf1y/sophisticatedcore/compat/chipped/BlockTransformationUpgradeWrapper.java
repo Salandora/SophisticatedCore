@@ -1,13 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
-
 import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
@@ -23,7 +22,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 	protected BlockTransformationUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
 
-		inputInventory = new SCItemStackHandler(1) {
+		inputInventory = new ItemStackHandler(1) {
 			@Override
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);

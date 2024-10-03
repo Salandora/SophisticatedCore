@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,9 +12,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import javax.annotation.Nullable;
 
 public class MenuProviderHelper {
-    public interface ContextProvider {
-        void toBuffer(FriendlyByteBuf buffer);
-    }
+
+	public static ExtendedScreenHandlerFactory createMenuProvider(MenuConstructor<ContextProvider> menuConstructor, Component name, BlockPos pos) {
+		return createMenuProvider(menuConstructor, buf -> buf.writeBlockPos(pos), name);
+	}
 
     public static <T extends ContextProvider> ExtendedScreenHandlerFactory createMenuProvider(MenuConstructor<T> menuConstructor, T context, Component name) {
         return new ExtendedScreenHandlerFactory() {
@@ -34,6 +36,11 @@ public class MenuProviderHelper {
             }
         };
     }
+
+	@FunctionalInterface
+	public interface ContextProvider {
+		void toBuffer(FriendlyByteBuf buffer);
+	}
 
     @FunctionalInterface
     public interface MenuConstructor<T extends ContextProvider> {

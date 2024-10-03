@@ -122,6 +122,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		}
 
 		for (DyeColor color : DyeColor.values()) {
+			// TODO: Proper way to get the tag key
 			if (stack.is(TagKey.create(Registries.ITEM, new ResourceLocation("c", color.getName() + "_dyes"))))
 				return color;
 		}

@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 public class RecipeWrapperSerializer<T extends Recipe<?>, R extends Recipe<?> & IWrapperRecipe<T>> implements RecipeSerializer<R> {
 	private final Function<T, R> initialize;
@@ -23,9 +24,11 @@ public class RecipeWrapperSerializer<T extends Recipe<?>, R extends Recipe<?> & 
 		return initialize.apply(recipeSerializer.fromJson(recipeId, json));
 	}
 
+	@Nullable
 	@Override
 	public R fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-		return initialize.apply(recipeSerializer.fromNetwork(recipeId, buffer));
+		T compose = recipeSerializer.fromNetwork(recipeId, buffer);
+		return compose == null ? null : initialize.apply(compose);
 	}
 
 	@Override

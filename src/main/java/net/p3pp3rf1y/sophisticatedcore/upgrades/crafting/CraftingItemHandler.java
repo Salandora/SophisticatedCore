@@ -45,7 +45,7 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 
 	@Override
 	public boolean isEmpty() {
-		return supplyInventory.get().nonEmptyIterator().hasNext();
+		return InventoryHelper.isEmpty(supplyInventory.get());
 	}
 
 	@Override

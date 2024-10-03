@@ -74,7 +74,7 @@ public class Button extends ButtonBase {
 	@Override
 	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
-		if (isMouseOver(mouseX, mouseY)) {
+		if (visible && isMouseOver(mouseX, mouseY)) {
 			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), getTooltip(), Optional.empty(), mouseX, mouseY);
 		}
 	}

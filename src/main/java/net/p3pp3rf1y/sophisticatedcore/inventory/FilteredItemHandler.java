@@ -37,7 +37,6 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -81,7 +80,6 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		public void setStackInSlot(int slot, @NotNull ItemStack stack) {
 			((ITrackedContentsItemHandler) backingStorage.get()).setStackInSlot(slot, stack);
 		}
-
 
 		@Override
 		public Set<ItemStackKey> getTrackedStacks() {

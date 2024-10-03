@@ -24,7 +24,6 @@ public class StackUpgradeConfig {
 	public StackUpgradeConfig(ForgeConfigSpec.Builder builder) {
 		builder.comment("Stack Upgrade Settings").push("stackUpgrade");
 		nonStackableItemsList = builder.comment("List of items that are not supposed to stack in storage even when stack upgrade is inserted. Item registry names are expected here.").define("nonStackableItems", this::getDefaultNonStackableList, itemNames -> {
-			//noinspection unchecked
 			List<String> registryNames = (List<String>) itemNames;
 			return registryNames != null && registryNames.stream().allMatch(itemName -> itemName.matches(REGISTRY_NAME_MATCHER));
 		});
@@ -57,7 +56,7 @@ public class StackUpgradeConfig {
 	}
 
 	public boolean canStackItem(Item item) {
-		if (!Config.COMMON.specification.isLoaded()) {
+		if (!Config.COMMON_SPEC.isLoaded()) {
 			return true;
 		}
 		if (nonStackableItems == null) {

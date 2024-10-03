@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionHand;
@@ -22,7 +23,8 @@ public class CommonEventHandler {
 		ModRecipes.registerHandlers();
 
 		ServerTickEvents.END_SERVER_TICK.register((server) -> ItemStackKey.clearCacheOnTickEnd());
-		RecipeHelper.addReloadListener();
+
+		ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register(RecipeHelper::onDataPackSync);
 
 		UseBlockCallback.EVENT.register(this::onUseBlock);
 	}

@@ -20,7 +20,7 @@ import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 public class JeiCompat implements IModPlugin, ICompat {
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(SophisticatedCore.ID, "default");
+		return new ResourceLocation(SophisticatedCore.MOD_ID, "default");
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.audioplayer.AudioPlayerCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingTweaksCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
@@ -25,8 +26,11 @@ public class ModCompat {
 		compatFactories.put(CompatModIds.JEI, () -> JeiCompat::new);
 		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
 		compatFactories.put(CompatModIds.CRAFTING_TWEAKS, () -> CraftingTweaksCompat::new);
+		//compatFactories.put(CompatModIds.INVENTORY_SORTER, () -> InventorySorterCompat::new);
+		//compatFactories.put(CompatModIds.ITEM_BORDERS, () -> ItemBordersCompat::new);
 		//compatFactories.put(CompatModIds.QUARK, () -> QuarkCompat::new); //TODO readd quark compat
 		compatFactories.put(CompatModIds.LITEMATICA, () -> LitematicaCompat::new);
+		compatFactories.put(CompatModIds.AUDIOPLAYER, () -> AudioPlayerCompat::new);
 	}
 
 	public static void initCompats() {

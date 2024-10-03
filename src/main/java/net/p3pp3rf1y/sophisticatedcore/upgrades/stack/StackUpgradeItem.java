@@ -5,26 +5,30 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeSlotChangeResult;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeCountLimitConfig;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeGroup;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
 public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> {
 	public static final UpgradeType<Wrapper> TYPE = new UpgradeType<>(Wrapper::new);
-	private final int stackSizeMultiplier;
+	public static final UpgradeGroup UPGRADE_GROUP = new UpgradeGroup("stack_upgrades", TranslationHelper.INSTANCE.translUpgradeGroup("stack_upgrades"));
+	private final double stackSizeMultiplier;
 
-	public StackUpgradeItem(int stackSizeMultiplier) {
-		super();
+	public StackUpgradeItem(double stackSizeMultiplier, IUpgradeCountLimitConfig upgradeTypeLimitConfig) {
+		super(upgradeTypeLimitConfig);
 		this.stackSizeMultiplier = stackSizeMultiplier;
 	}
 
 	public static int getInventorySlotLimit(IStorageWrapper storageWrapper) {
-		int multiplier = storageWrapper.getBaseStackSizeMultiplier();
+		double multiplier = storageWrapper.getBaseStackSizeMultiplier();
 
 		for (Wrapper stackWrapper : storageWrapper.getUpgradeHandler().getTypeWrappers(TYPE)) {
 			if (Integer.MAX_VALUE / stackWrapper.getStackSizeMultiplier() < multiplier) {
@@ -33,7 +37,7 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 			multiplier *= stackWrapper.getStackSizeMultiplier();
 		}
 
-		return Integer.MAX_VALUE / 64 < multiplier ? Integer.MAX_VALUE : multiplier * 64;
+		return Integer.MAX_VALUE / 64D < multiplier ? Integer.MAX_VALUE : (int) (multiplier * 64);
 	}
 
 	@Override
@@ -41,7 +45,12 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 		return TYPE;
 	}
 
-	int getStackSizeMultiplier() {
+	@Override
+	public List<UpgradeConflictDefinition> getUpgradeConflicts() {
+		return List.of();
+	}
+
+	double getStackSizeMultiplier() {
 		return stackSizeMultiplier;
 	}
 
@@ -51,13 +60,18 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 			return new UpgradeSlotChangeResult.Success();
 		}
 
-		int currentInventoryMultiplier = getInventorySlotLimit(storageWrapper) / 64;
-		int multiplierWhenRemoved = currentInventoryMultiplier / stackSizeMultiplier;
+		double currentInventoryMultiplier = getInventorySlotLimit(storageWrapper) / 64D;
+		double multiplierWhenRemoved = currentInventoryMultiplier / stackSizeMultiplier;
 		return isMultiplierHighEnough(storageWrapper, multiplierWhenRemoved);
 	}
 
 	@Override
-	public UpgradeSlotChangeResult canSwapUpgradeFor(ItemStack upgradeStackToPut, IStorageWrapper storageWrapper, boolean isClientSide) {
+	public UpgradeSlotChangeResult canSwapUpgradeFor(ItemStack upgradeStackToPut, int upgradeSlot, IStorageWrapper storageWrapper, boolean isClientSide) {
+		UpgradeSlotChangeResult result = super.canSwapUpgradeFor(upgradeStackToPut, upgradeSlot, storageWrapper, isClientSide);
+		if (!result.isSuccessful()) {
+			return result;
+		}
+
 		if (isClientSide) {
 			return new UpgradeSlotChangeResult.Success();
 		}
@@ -71,17 +85,17 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 		}
 
 		int currentInventoryMultiplier = getInventorySlotLimit(storageWrapper) / 64;
-		int multiplierWhenRemoved = currentInventoryMultiplier / stackSizeMultiplier;
+		double multiplierWhenRemoved = currentInventoryMultiplier / stackSizeMultiplier;
 
 		return isMultiplierHighEnough(storageWrapper, multiplierWhenRemoved * otherStackUpgradeItem.stackSizeMultiplier);
 	}
 
-	private UpgradeSlotChangeResult isMultiplierHighEnough(IStorageWrapper storageWrapper, int multiplier) {
+	private UpgradeSlotChangeResult isMultiplierHighEnough(IStorageWrapper storageWrapper, double multiplier) {
 		Set<Integer> slotsOverMultiplier = new HashSet<>();
 
 		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlotCount(); slot++) {
 			ItemStack stack = storageWrapper.getInventoryHandler().getSlotStack(slot);
-			int stackMultiplierNeeded = (stack.getCount() / stack.getMaxStackSize()) + (stack.getCount() % stack.getMaxStackSize() != 0 ? 1 : 0);
+			double stackMultiplierNeeded = (double) stack.getCount() / stack.getMaxStackSize();
 			if (stackMultiplierNeeded > multiplier) {
 				slotsOverMultiplier.add(slot);
 			}
@@ -102,12 +116,17 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 		return new UpgradeSlotChangeResult.Success();
 	}
 
+	@Override
+	public UpgradeGroup getUpgradeGroup() {
+		return UPGRADE_GROUP;
+	}
+
 	public static class Wrapper extends UpgradeWrapperBase<Wrapper, StackUpgradeItem> {
 		protected Wrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 			super(storageWrapper, upgrade, upgradeSaveHandler);
 		}
 
-		public int getStackSizeMultiplier() {
+		public double getStackSizeMultiplier() {
 			return upgradeItem.getStackSizeMultiplier();
 		}
 

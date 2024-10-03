@@ -15,6 +15,7 @@
         "common.MobMixin",
         "common.PersistentEntitySectionManagerMixin",
         "common.ServerLevelMixin",
+        "common.ServerPlayerMixin",
         "common.ShapedRecipeMixin",
         "common.SlotMixin",
         "common.accessor.AbstractContainerMenuAccessor",
@@ -23,6 +24,7 @@
     "client": [
         "client.AbstractContainerScreenMixin",
         "client.ClientLevelMixin",
+        "client.ClientPacketListenerMixin",
         "client.KeyboardHandlerMixin",
         "client.MinecraftMixin",
         "client.MouseHandlerMixin",

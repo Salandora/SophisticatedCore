@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
-import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -13,26 +12,30 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.SortButtonsPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public class Config {
-	private static final Map<ModConfig.Type, BaseConfig> CONFIGS = new EnumMap<>(ModConfig.Type.class);
 
-	public static Client CLIENT;
-	public static Common COMMON;
+	private Config() {}
 
-	public static class BaseConfig {
-		public ForgeConfigSpec specification;
+	public static final Client CLIENT;
+	public static final ForgeConfigSpec CLIENT_SPEC;
+	public static final Common COMMON;
+	public static final ForgeConfigSpec COMMON_SPEC;
 
-		public void onConfigLoad() { }
-		public void onConfigReload() { }
+	static {
+		final Pair<Client, ForgeConfigSpec> clientSpec = new ForgeConfigSpec.Builder().configure(Client::new);
+		CLIENT_SPEC = clientSpec.getRight();
+		CLIENT = clientSpec.getLeft();
+
+		final Pair<Common, ForgeConfigSpec> commonSpec = new ForgeConfigSpec.Builder().configure(Common::new);
+		COMMON_SPEC = commonSpec.getRight();
+		COMMON = commonSpec.getLeft();
 	}
 
-	public static class Client extends BaseConfig {
+	public static class Client {
 		public final ForgeConfigSpec.EnumValue<SortButtonsPosition> sortButtonsPosition;
 		public final ForgeConfigSpec.BooleanValue playButtonSound;
 
@@ -44,11 +47,15 @@ public class Config {
 		}
 	}
 
-	public static class Common extends BaseConfig {
+	public static class Common {
 		public final EnabledItems enabledItems;
 
+		public void initListeners() {
+			ModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
+		}
+
 		@SuppressWarnings("unused") //need the Event parameter for forge reflection to understand what event this listens to
-		public void onConfigReload() {
+		public void onConfigReload(ModConfig modConfig) {
 			enabledItems.enabledMap.clear();
 		}
 
@@ -71,7 +78,7 @@ public class Config {
 			}
 
 			public boolean isItemEnabled(ResourceLocation itemRegistryName) {
-				if (!COMMON.specification.isLoaded()) {
+				if (!COMMON_SPEC.isLoaded()) {
 					return true;
 				}
 				if (enabledMap.isEmpty()) {
@@ -100,38 +107,6 @@ public class Config {
 				}
 			}
 		}
-	}
 
-	private static <T extends BaseConfig> T register(Function<ForgeConfigSpec.Builder, T> factory, ModConfig.Type side) {
-		Pair<T, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(factory);
-
-		T config = specPair.getLeft();
-		config.specification = specPair.getRight();
-		CONFIGS.put(side, config);
-		return config;
-	}
-
-	public static void register() {
-		CLIENT = register(Client::new, ModConfig.Type.CLIENT);
-		COMMON = register(Common::new, ModConfig.Type.SERVER);
-
-		for (Map.Entry<ModConfig.Type, BaseConfig> pair : CONFIGS.entrySet()) {
-			ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.ID, pair.getKey(), pair.getValue().specification);
-		}
-
-		ModConfigEvents.loading(SophisticatedCore.ID).register(Config::onConfigLoad);
-		ModConfigEvents.reloading(SophisticatedCore.ID).register(Config::onConfigReload);
-	}
-
-	public static void onConfigLoad(ModConfig modConfig) {
-		for (BaseConfig config : CONFIGS.values())
-			if (config.specification == modConfig.getSpec())
-				config.onConfigLoad();
-	}
-
-	public static void onConfigReload(ModConfig modConfig) {
-		for (BaseConfig config : CONFIGS.values())
-			if (config.specification == modConfig.getSpec())
-				config.onConfigReload();
 	}
 }

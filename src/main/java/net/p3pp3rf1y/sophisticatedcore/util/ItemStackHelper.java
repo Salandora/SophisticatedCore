@@ -7,6 +7,8 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class ItemStackHelper {
+	private ItemStackHelper() {}
+
 	public static boolean areItemStackTagsEqualIgnoreDurability(ItemStack stackA, ItemStack stackB) {
 		if (stackA.isEmpty() && stackB.isEmpty()) {
 			return true;

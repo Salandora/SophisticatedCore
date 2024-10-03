@@ -36,7 +36,16 @@ public final class ItemStackKey {
 		if (this == o) {return true;}
 		if (o == null || getClass() != o.getClass()) {return false;}
 		ItemStackKey that = (ItemStackKey) o;
-		return ItemStack.isSameItemSameTags(stack, that.stack);
+		return canItemStacksStack(stack, that.stack);
+	}
+
+	public static boolean canItemStacksStack(ItemStack a, ItemStack b) {
+		if (a.isEmpty() || a.getItem() != b.getItem() || a.hasTag() != b.hasTag()) {
+			return false;
+		}
+
+		//noinspection DataFlowIssue
+		return (!a.hasTag() || a.getTag().equals(b.getTag()));
 	}
 
 	public boolean hashCodeNotEquals(ItemStack otherStack) {

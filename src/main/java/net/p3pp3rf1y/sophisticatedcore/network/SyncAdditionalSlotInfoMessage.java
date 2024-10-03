@@ -18,7 +18,6 @@ public class SyncAdditionalSlotInfoMessage extends SimplePacketBase {
 	private final Set<Integer> inaccessibleSlots;
 	private final Map<Integer, Integer> slotLimitOverrides;
 	private final Map<Integer, Item> slotFilterItems;
-
 	public SyncAdditionalSlotInfoMessage(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Map<Integer, Item> slotFilterItems) {
 		this.inaccessibleSlots = inaccessibleSlots;
 		this.slotLimitOverrides = slotLimitOverrides;

@@ -4,7 +4,6 @@ import me.pepperbell.simplenetworking.C2SPacket;
 import me.pepperbell.simplenetworking.S2CPacket;
 import me.pepperbell.simplenetworking.SimpleChannel;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -62,9 +61,6 @@ public class PacketHandler {
 		getChannel().sendToClient((S2CPacket) message, player);
 	}
 
-	public static void sendToAllNear(ServerLevel world, BlockPos pos, int range, Object message) {
-		getChannel().sendToClientsAround((S2CPacket) message, world, pos, range);
-	}
 	public static void sendToAllNear(ServerLevel world, Vec3 pos, int range, Object message) {
 		getChannel().sendToClientsAround((S2CPacket) message, world, pos, range);
 	}

@@ -241,6 +241,7 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
                 } else {
                     grabbed = amount;
                     st.setCount(st.getCount() - wanted);
+					s.setByPlayer(st);
                 }
             }
         }

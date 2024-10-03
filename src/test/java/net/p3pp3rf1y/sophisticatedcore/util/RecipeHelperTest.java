@@ -22,6 +22,11 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +60,7 @@ public class RecipeHelperTest {
 		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_nugget_to_gold_ingot"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GOLD_NUGGET), new ItemStack(Items.GOLD_INGOT)));
 		craftingRecipes.add(new ShapelessRecipe(new ResourceLocation("gold_nugget_from_gold_ingot"), "", CraftingBookCategory.MISC, new ItemStack(Items.GOLD_NUGGET, 9), NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.GOLD_INGOT))));
 
+
 		//confusion recipes
 		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("gold_nugget_to_diorite"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GOLD_NUGGET), new ItemStack(Items.DIORITE)));
 		craftingRecipes.add(new ShapedRecipe(new ResourceLocation("granite_to_gold_block"), "", CraftingBookCategory.MISC, 3, 3, ingredients(Items.GRANITE), new ItemStack(Items.GOLD_BLOCK)));
@@ -76,7 +82,7 @@ public class RecipeHelperTest {
 	}
 
 	private static class CombinedArguments implements Arguments {
-		private final Object[] arguments;
+		private Object[] arguments;
 
 		public CombinedArguments(Level level, Arguments methodArguments) {
 			arguments = new Object[methodArguments.get().length + 1];
@@ -135,15 +141,15 @@ public class RecipeHelperTest {
 
 	@ParameterizedTest
 	@MethodSource
-	void testGetCompactingResult(Level level, Item item, RecipeHelper.CompactingResult expectedResult) {
-		RecipeHelper.setWorld(level);
+	void testGetCompatingResult(Level level, Item item, RecipeHelper.CompactingResult expectedResult) {
+		RecipeHelper.setLevel(level);
 
 		RecipeHelper.CompactingResult actualResult = RecipeHelper.getCompactingResult(item, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE);
 
 		assertCompactingResultEquals(expectedResult, actualResult, "getCompactingResult returned wrong result");
 	}
 
-	static Stream<Arguments> testGetCompactingResult() {
+	static Stream<Arguments> testGetCompatingResult() {
 		return withClassParams(
 				List.of(
 						Arguments.of(Items.GOLD_INGOT, new RecipeHelper.CompactingResult(new ItemStack(Items.GOLD_BLOCK), Collections.emptyList())),
@@ -158,7 +164,7 @@ public class RecipeHelperTest {
 	@ParameterizedTest
 	@MethodSource
 	void testGetUncompactingResult(Level level, Item item, RecipeHelper.UncompactingResult expectedResult) {
-		RecipeHelper.setWorld(level);
+		RecipeHelper.setLevel(level);
 
 		RecipeHelper.UncompactingResult actualResult = RecipeHelper.getUncompactingResult(item);
 
@@ -179,7 +185,7 @@ public class RecipeHelperTest {
 	@ParameterizedTest
 	@MethodSource
 	void testGetItemCompactingShapes(Level level, Item item, Set<RecipeHelper.CompactingShape> shapes) {
-		RecipeHelper.setWorld(level);
+		RecipeHelper.setLevel(level);
 
 		Set<RecipeHelper.CompactingShape> actualShapes = RecipeHelper.getItemCompactingShapes(item);
 

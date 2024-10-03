@@ -58,7 +58,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public Iterable<SlotAccessor> getInventorySlots(MenuInfoContext<T, ?, D> context) {
-        return context.getMenu().slots.stream().map(SlotAccessor::fromSlot).toList();
+        return context.getMenu().realInventorySlots.stream().map(SlotAccessor::fromSlot).toList();
     }
 
     @Override
@@ -84,7 +84,6 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
     @Override
     public void markDirty(MenuInfoContext<T, ? extends ServerPlayer, D> context) {
         SimpleGridMenuInfo.super.markDirty(context);
-        context.getMenu().sendSlotUpdates();
         context.getMenu().broadcastChanges();
     }
 

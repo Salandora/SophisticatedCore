@@ -31,6 +31,6 @@ public class ModRecipes {
 			}
 		});
 
-		ResourceConditions.register(ItemEnabledCondition.ID, ItemEnabledCondition::test);
+		ResourceConditions.register(ItemEnabledCondition.NAME, ItemEnabledCondition::test);
 	}
 }

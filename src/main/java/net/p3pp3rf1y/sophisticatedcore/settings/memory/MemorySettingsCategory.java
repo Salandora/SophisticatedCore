@@ -54,7 +54,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void deserialize() {
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_ITEMS_TAG,
 						Integer::valueOf,
-						(k, v) -> Optional.of(BuiltInRegistries.ITEM.get(new ResourceLocation(v.getAsString()))))
+						(k, v) -> Optional.ofNullable(BuiltInRegistries.ITEM.get(new ResourceLocation(v.getAsString()))))
 				.ifPresent(map -> map.forEach(this::addSlotItem));
 
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_STACKS_TAG,
@@ -360,5 +360,29 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	@Override
 	public boolean isLargerThanNumberOfSlots(int slots) {
 		return slotFilterItems.keySet().stream().anyMatch(slotIndex -> slotIndex >= slots) || slotFilterStacks.keySet().stream().anyMatch(slotIndex -> slotIndex >= slots);
+	}
+
+	@Override
+	public void copyTo(MemorySettingsCategory otherCategory, int startFromSlot, int slotOffset) {
+		slotFilterItems.forEach((slotIndex, item) -> {
+			if (slotIndex < startFromSlot) {
+				return;
+			}
+			otherCategory.slotFilterItems.put(slotIndex + slotOffset, item);
+		});
+		slotFilterStacks.forEach((slotIndex, isk) -> {
+			if (slotIndex < startFromSlot) {
+				return;
+			}
+			otherCategory.slotFilterStacks.put(slotIndex + slotOffset, isk);
+		});
+		otherCategory.serializeFilterItems();
+	}
+
+	@Override
+	public void deleteSlotSettingsFrom(int slotIndex) {
+		slotFilterItems.entrySet().removeIf(e -> e.getKey() >= slotIndex);
+		slotFilterStacks.entrySet().removeIf(e -> e.getKey() >= slotIndex);
+		serializeFilterItems();
 	}
 }

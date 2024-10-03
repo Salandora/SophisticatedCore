@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.SharedConstants;
@@ -14,7 +15,6 @@ import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,7 +37,7 @@ class InventoryHelperTest {
 	}
 
 	private SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier, BiPredicate<Integer, ItemStack> isStackValidForSlot) {
-		return new SCItemStackHandler(stacks.toArray(new ItemStack[0])) {
+		return new ItemStackHandler(stacks.toArray(new ItemStack[0])) {
 			@Override
 			public int getSlotLimit(int slot) {
 				return super.getSlotLimit(slot) * stackLimitMultiplier;
