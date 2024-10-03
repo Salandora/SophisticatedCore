@@ -28,7 +28,7 @@ public class TextBox extends WidgetBase {
 	public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 		poseStack.pushPose();
 		poseStack.translate(0, 0, 100);
-		editBox.render(poseStack, mouseX, mouseY, partialTicks);
+		editBox.renderButton(poseStack, mouseX, mouseY, partialTicks);
 		poseStack.popPose();
 	}
 
@@ -37,8 +37,10 @@ public class TextBox extends WidgetBase {
 		if (editBox.isFocused() != focused) {
 			editBox.setFocus(focused);
 		}
-		super.setFocus(focused);
+		changeFocus(focused);
 	}
+
+
 
 	@Override
 	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {

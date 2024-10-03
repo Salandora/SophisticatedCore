@@ -160,7 +160,7 @@ public abstract class RenderInfo {
 	}
 
 	private void deserializeUpgradeData(CompoundTag renderInfoTag) {
-		CompoundTag upgrades = renderInfoTag.getCompound(UPGRADES_TAG).copy();
+		CompoundTag upgrades = renderInfoTag.getCompound(UPGRADES_TAG);
 		upgrades.getAllKeys().forEach(key -> {
 			if (RENDER_DATA_TYPES.containsKey(key)) {
 				UpgradeRenderDataType<?> upgradeRenderDataType = RENDER_DATA_TYPES.get(key);

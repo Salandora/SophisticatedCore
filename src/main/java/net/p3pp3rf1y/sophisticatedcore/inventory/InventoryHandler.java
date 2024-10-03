@@ -20,7 +20,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IOverflowResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ISlotLimitUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeConfig;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	private int baseSlotLimit;
 	private int slotLimit;
-	private int maxStackSizeMultiplier;
+	private double maxStackSizeMultiplier;
 	private boolean isInitializing;
 	private final StackUpgradeConfig stackUpgradeConfig;
 	private final InventoryPartitioner inventoryPartitioner;
@@ -207,7 +206,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public void setBaseSlotLimit(int baseSlotLimit) {
 		slotLimitInitialized = false; // not the most ideal of places to do this, but base slot limit is set when upgrades change and that's when slot limit needs to be reinitialized as well
 		this.baseSlotLimit = baseSlotLimit;
-		maxStackSizeMultiplier = baseSlotLimit / 64;
+		maxStackSizeMultiplier = baseSlotLimit / 64f;
 
 		if (inventoryPartitioner != null) {
 			inventoryPartitioner.onSlotLimitChange();
@@ -260,7 +259,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
-		if (ItemStackHelper.canItemStacksStack(getStackInSlot(slot), resource.toStack())) {
+		if (ItemStack.isSameItemSameTags(getStackInSlot(slot), resource.toStack())) {
 			return maxAmount - triggerOverflowUpgrades(resource.toStack((int)(maxAmount - insertItemInternal(slot, resource, maxAmount, ctx)))).getCount();
 		}
 
@@ -384,7 +383,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return nbt;
 	}
 
-	public int getStackSizeMultiplier() {
+	public double getStackSizeMultiplier() {
 		return maxStackSizeMultiplier;
 	}
 

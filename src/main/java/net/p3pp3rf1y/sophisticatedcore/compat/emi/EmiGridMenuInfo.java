@@ -25,7 +25,7 @@ public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements S
 
     @Override
     public List<Slot> getInputSources(T handler) {
-        List<Slot> slots = new ArrayList<>(handler.slots);
+        List<Slot> slots = new ArrayList<>(handler.realInventorySlots);
         handler.getOpenOrFirstCraftingContainer().ifPresent(c -> slots.addAll(c.getRecipeSlots()));
         return slots;
     }

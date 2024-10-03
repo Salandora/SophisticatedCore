@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.extensions.item;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -11,11 +10,15 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 
 public interface SophisticatedItem {
-    // Helpers for accessing Item data
-    private Item self()
-    {
-        return (Item)this;
-    }
+	/**
+	 * Called when a player drops the item into the world, returning false from this will prevent the item from being removed from the players inventory and spawning in the world
+	 * Params:
+	 * @param stack - The item stack, before the item is removed. The item stack, before the item is removed.
+	 * @param player – The player that dropped the item
+	 */
+	default boolean onDroppedByPlayer(ItemStack stack, Player player) {
+		return true;
+	}
 
     /**
      * Called to tick armor in the armor slot. Override to do something

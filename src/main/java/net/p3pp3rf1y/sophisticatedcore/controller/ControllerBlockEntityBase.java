@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
+import net.p3pp3rf1y.porting_lib.base.util.LazyOptional;
 import net.p3pp3rf1y.porting_lib.transfer.items.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -64,7 +65,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	private Set<BlockPos> linkedBlocks = new LinkedHashSet<>();
 
 	@Nullable
-	private SlottedStackStorage itemHandlerCap;
+	private LazyOptional<SlottedStackStorage> itemHandlerCap;
 	private boolean unloaded = false;
 
 	protected ControllerBlockEntityBase(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
@@ -130,6 +131,10 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			emptySlotsStorages.clear();
 			storagePositions.forEach(this::addStorageStacksAndRegisterListeners);
 		}
+	}
+
+	public boolean isStorageConnected(BlockPos storagePos) {
+		return storagePositions.contains(storagePos);
 	}
 
 	public void searchAndAddStorages() {
@@ -510,19 +515,19 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	@Nullable
-	public <T, C> T getCapability(BlockApiLookup<T, C> cap, @Nullable C opt) {
+	public <T, C> LazyOptional<T> getCapability(BlockApiLookup<T, C> cap, @Nullable C opt) {
 		if (cap == ItemStorage.SIDED) {
 			if (itemHandlerCap == null) {
-				itemHandlerCap = new CachedFailedInsertInventoryHandler(this, () -> level != null ? level.getGameTime() : 0);
+				itemHandlerCap = LazyOptional.of(() -> new CachedFailedInsertInventoryHandler(() -> this, () -> level != null ? level.getGameTime() : 0));
 			}
-			//noinspection unchecked
-			return (T)itemHandlerCap;
+			return itemHandlerCap.cast();
 		}
-		return null;
+		return LazyOptional.empty();
 	}
 
 	public void invalidateCaps() {
 		if (itemHandlerCap != null) {
+			itemHandlerCap.invalidate();
 			itemHandlerCap = null;
 		}
 	}
@@ -617,11 +622,21 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		return false;
 	}
 
-	@Override
+	// TODO: Old
+	/*@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		if (isItemValid(slot, resource)) {return insert(resource, maxAmount, ctx, true);}
 
 		return 0;
+	}*/
+
+	@Override
+	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
+		if (isSlotIndexInvalid(slot)) {
+			return 0;
+		}
+
+		return insert(resource, maxAmount, ctx, true);
 	}
 
 	@Override
@@ -638,7 +653,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return maxAmount;
 		}
 
-		remaining = insertIntoStoragesThatMatchItem(resource, remaining, ctx);
+		remaining -= insertIntoStoragesThatMatchItem(resource, remaining, ctx);
 		if (remaining == 0) {
 			return maxAmount;
 		}

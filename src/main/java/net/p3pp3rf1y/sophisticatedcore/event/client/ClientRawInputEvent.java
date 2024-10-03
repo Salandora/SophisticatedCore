@@ -22,7 +22,7 @@ public interface ClientRawInputEvent {
 
     Event<MouseScrolled> MOUSE_SCROLLED = EventFactory.createArrayBacked(MouseScrolled.class, callbacks -> (client, delta) -> {
         for (var event : callbacks) {
-            var result = event.keyPressed(client, delta);
+            var result = event.mouseScrolled(client, delta);
             if (result != InteractionResult.PASS) {
                 return result;
             }
@@ -37,6 +37,6 @@ public interface ClientRawInputEvent {
 
     @FunctionalInterface
     interface MouseScrolled {
-        InteractionResult keyPressed(Minecraft client, double delta);
+        InteractionResult mouseScrolled(Minecraft client, double delta);
     }
 }

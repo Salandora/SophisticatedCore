@@ -6,7 +6,6 @@ import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
 

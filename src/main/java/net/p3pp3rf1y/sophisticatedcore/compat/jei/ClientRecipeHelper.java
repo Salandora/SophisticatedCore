@@ -1,4 +1,4 @@
-package net.p3pp3rf1y.sophisticatedcore.compat.common;
+package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
