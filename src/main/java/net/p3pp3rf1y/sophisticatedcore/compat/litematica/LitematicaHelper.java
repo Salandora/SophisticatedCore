@@ -1,10 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica;
 
-import fi.dy.masa.litematica.materials.MaterialListBase;
-import fi.dy.masa.litematica.scheduler.TaskScheduler;
-
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.RequestContentsPacket;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import fi.dy.masa.litematica.materials.MaterialListBase;
+import fi.dy.masa.litematica.scheduler.TaskScheduler;
 
 public class LitematicaHelper {
 	private static TaskCountReceivedContents task;

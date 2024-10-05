@@ -2,8 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -13,11 +11,12 @@ import net.minecraft.client.renderer.Rect2i;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.CompositeWidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
+import org.apache.commons.lang3.mutable.MutableInt;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T extends SettingsTabBase<C>> extends CompositeWidgetBase<Tab> {
 	private static final int VERTICAL_SPACE = 1;

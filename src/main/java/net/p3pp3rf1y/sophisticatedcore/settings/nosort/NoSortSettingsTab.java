@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.nosort;
 
 import com.google.common.collect.ImmutableList;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;

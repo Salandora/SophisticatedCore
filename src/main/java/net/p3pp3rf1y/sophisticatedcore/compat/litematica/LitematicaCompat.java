@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica;
 
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;

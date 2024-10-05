@@ -1,5 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.audioplayer;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import de.maxhenkel.audioplayer.AudioManager;
 import de.maxhenkel.audioplayer.StaticAudioPlayer;
 import de.maxhenkel.voicechat.api.Player;
@@ -8,13 +14,7 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.phys.Vec3;
-import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nullable;
 
 public class SCPlayerManager {
 	private final Map<UUID, PlayerReference> players;

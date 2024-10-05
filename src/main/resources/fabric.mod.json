@@ -6,7 +6,7 @@
     "description": "${mod_description}",
     "license": "${mod_license}",
     "icon": "${mod_logo_file}",
-    "authors": "mod_authors",
+    "authors": ["mod_authors"],
     "contact": {
         "homepage": "${mod_display_url}",
         "issues": "${mod_issue_tracker_url}",
@@ -21,7 +21,7 @@
             "net.p3pp3rf1y.sophisticatedcore.client.ClientEventHandler"
         ],
         "fabric-datagen": [
-            "net.p3pp3rf1y.sophisticatedcore.data.SophisticatedCoreData"
+            "net.p3pp3rf1y.sophisticatedcore.data.DataGenerators"
         ],
         "emi": [
             "net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat"
@@ -59,9 +59,10 @@
             "net/minecraft/class_1297": ["net/p3pp3rf1y/sophisticatedcore/extensions/entity/SophisticatedEntity"],
             "net/minecraft/class_1735": ["net/p3pp3rf1y/sophisticatedcore/extensions/inventory/SophisticatedSlot"],
             "net/minecraft/class_1792": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItem"],
-            "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack", "net/fabricmc/fabric/impl/attachment/AttachmentTargetImpl"],
+            "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack"],
             "net/minecraft/class_2248": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlock"],
-            "net/minecraft/class_2680": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"]
+            "net/minecraft/class_2680": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"],
+            "net/minecraft/class_2586": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/entity/CapabilityHelper"]
         },
         "modmenu": {
             "badges": ["library"],

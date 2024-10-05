@@ -9,11 +9,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
 public class SettingsTemplateStorage extends SavedData {
 	private static final String SAVED_DATA_NAME = SophisticatedCore.MOD_ID + "_settings_templates";

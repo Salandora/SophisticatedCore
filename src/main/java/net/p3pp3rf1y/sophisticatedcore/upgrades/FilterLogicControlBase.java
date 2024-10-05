@@ -18,18 +18,15 @@ import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerSc
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
-import javax.annotation.Nullable;
 
-import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.MatchButton.ALLOW_LIST;
-import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.MatchButton.DURABILITY;
-import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.MatchButton.NBT;
-import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.MatchButton.PRIMARY_MATCH;
+import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.MatchButton.*;
 
 public abstract class FilterLogicControlBase<F extends FilterLogicBase, S extends Slot, C extends FilterLogicContainerBase<F, S>>
 		extends CompositeWidgetBase<WidgetBase> {

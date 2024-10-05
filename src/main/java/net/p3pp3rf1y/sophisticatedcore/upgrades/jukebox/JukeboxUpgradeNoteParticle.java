@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.util.Mth;
@@ -53,7 +51,6 @@ public class JukeboxUpgradeNoteParticle extends TextureSheetParticle {
 		}
 	}
 
-	@Environment(EnvType.CLIENT)
 	public static class Factory implements ParticleProvider<JukeboxUpgradeNoteParticleData> {
 		private final SpriteSet spriteSet;
 

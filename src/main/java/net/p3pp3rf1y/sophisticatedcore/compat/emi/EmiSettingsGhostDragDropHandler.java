@@ -1,14 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import dev.emi.emi.api.EmiDragDropHandler;
-import dev.emi.emi.api.stack.EmiStack;
-
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
+import dev.emi.emi.api.EmiDragDropHandler;
+import dev.emi.emi.api.stack.EmiStack;
 
 import java.util.ArrayList;
 import java.util.List;

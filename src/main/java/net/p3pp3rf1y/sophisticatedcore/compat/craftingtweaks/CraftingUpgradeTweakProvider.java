@@ -3,11 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import net.blay09.mods.craftingtweaks.api.CraftingGrid;
-import net.blay09.mods.craftingtweaks.api.CraftingGridBuilder;
-import net.blay09.mods.craftingtweaks.api.CraftingGridProvider;
-import net.blay09.mods.craftingtweaks.api.GridTransferHandler;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -19,6 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.blay09.mods.craftingtweaks.api.CraftingGrid;
+import net.blay09.mods.craftingtweaks.api.CraftingGridBuilder;
+import net.blay09.mods.craftingtweaks.api.CraftingGridProvider;
+import net.blay09.mods.craftingtweaks.api.GridTransferHandler;
 
 import java.util.List;
 import java.util.Objects;

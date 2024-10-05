@@ -7,12 +7,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
+import java.util.*;
 
 public class CraftingContainerRecipeTransferHandlerServer {
 	private CraftingContainerRecipeTransferHandlerServer() {}

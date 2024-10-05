@@ -1,16 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.crafting.ItemEnabledCondition;
-import net.p3pp3rf1y.sophisticatedcore.crafting.SCShapedRecipe;
-import net.p3pp3rf1y.sophisticatedcore.crafting.SCShapelessRecipe;
-import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeClearRecipe;
-import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeNextTierRecipe;
+import net.p3pp3rf1y.sophisticatedcore.crafting.*;
 
 public class ModRecipes {
 	private ModRecipes() {

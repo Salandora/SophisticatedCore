@@ -1,8 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.feeding;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,17 +11,21 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IFilteredUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrapper, FeedingUpgradeItem> implements ITickableUpgrade, IFilteredUpgrade {
 	private static final int COOLDOWN = 100;
@@ -80,16 +81,19 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 				player.setItemInHand(InteractionHand.MAIN_HAND, stack); // player.getInventory().items.set(player.getInventory().selected, stack);
 				if (stack.use(level, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
 					InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND);
-					ItemStack containerItem = result.getObject();
+					ItemStack containerItem;
 					if (result.getResult() == InteractionResult.PASS) {
 						containerItem = stack.getItem().finishUsingItem(stack, level, player);
+					} else {
+						containerItem = result.getObject();
 					}
 
 					// Changed for compatibility with rpg inventory
 					player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem); //player.getInventory().items.set(player.getInventory().selected, mainHandItem);
 					inventory.setStackInSlot(slot, stack);
 					if (!ItemStack.matches(containerItem, stack)) {
-						InventoryHelper.insertOrDropItem(player, containerItem, inventory, PlayerInventoryStorage.of(player));
+						//not handling the case where player doesn't have item handler cap as the player should always have it. if that changes in the future well I guess I fix it
+						CapabilityHelper.runOnCapability(player, CapabilityHelper.ENTITY, null, playerInventory -> InventoryHelper.insertOrDropItem(player, containerItem, inventory, playerInventory));
 					}
 					fedPlayer.set(true);
 					return true;

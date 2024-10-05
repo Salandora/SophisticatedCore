@@ -1,5 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.audioplayer;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.ServerStorageSoundHandler;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundHandler;
 import de.maxhenkel.audioplayer.AudioPlayer;
 import de.maxhenkel.audioplayer.CustomSound;
 import de.maxhenkel.audioplayer.PlayerType;
@@ -8,17 +14,10 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import de.maxhenkel.voicechat.plugins.impl.PositionImpl;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.ServerStorageSoundHandler;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundHandler;
-
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class AudioPlayerSoundHandler implements SoundHandler {
 	private static final int SOUND_STOP_CHECK_INTERVAL = 10;

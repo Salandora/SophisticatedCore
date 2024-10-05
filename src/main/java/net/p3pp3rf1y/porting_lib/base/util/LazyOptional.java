@@ -1,20 +1,19 @@
 package net.p3pp3rf1y.porting_lib.base.util;
 
-import org.apache.commons.lang3.mutable.Mutable;
-import org.apache.commons.lang3.mutable.MutableObject;
-
 import io.github.fabricators_of_create.porting_lib.common.util.NonNullConsumer;
 import io.github.fabricators_of_create.porting_lib.common.util.NonNullFunction;
 import io.github.fabricators_of_create.porting_lib.common.util.NonNullSupplier;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This is pretty much the Forge class copied over, theres really not much change you can do while keeping things functioning.

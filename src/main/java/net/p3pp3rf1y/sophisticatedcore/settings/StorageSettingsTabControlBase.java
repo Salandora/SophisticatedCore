@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.inventory.Slot;

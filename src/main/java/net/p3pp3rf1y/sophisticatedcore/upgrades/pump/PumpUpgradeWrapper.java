@@ -1,14 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -21,18 +12,28 @@ import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, PumpUpgradeItem> implements ITickableUpgrade {
 	private static final int DID_NOTHING_COOLDOWN_TIME = 40;
@@ -99,17 +100,16 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	private Optional<Integer> interactWithAttachedFluidHandlers(Level level, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
 		for (Direction dir : Direction.values()) {
 
-			// TODO:
-			/*boolean successful = WorldHelper.getBlockEntity(level, pos.offset(dir.getNormal())).map(be ->
+			boolean successful = WorldHelper.getBlockEntity(level, pos.offset(dir.getNormal())).map(be ->
 					CapabilityHelper.<Boolean>getFromFluidHandler(be, dir.getOpposite(), fluidHandler -> {
 						if (isInput()) {
 							return fillFromFluidHandler(fluidHandler, storageFluidHandler, getMaxInOut());
 						} else {
 							return fillFluidHandler(fluidHandler, storageFluidHandler, getMaxInOut());
 						}
-					}, false)).orElse(false);*/
+					}, false)).orElse(false);
 
-            boolean successful = false;
+            /*boolean successful = false;
 			Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos.offset(dir.getNormal()), dir.getOpposite());
 			if (storage != null) {
 				if (isInput()) {
@@ -117,7 +117,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 				} else {
 					successful = fillFluidHandler(storage, storageFluidHandler, getMaxInOut());
 				}
-			}
+			}*/
 
 			if (successful) {
 				return Optional.of(FLUID_HANDLER_INTERACTION_COOLDOWN_TIME);
@@ -227,16 +227,16 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 			return false;
 		}
 
-		// TODO:
-		/*return CapabilityHelper.getFromFluidHandler(itemInHand, itemFluidHandler -> {
-			if (isInput()) {
+		return CapabilityHelper.getFromFluidHandler(itemInHand, itemFluidHandler -> {
+			return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
+			/*if (isInput()) {
 				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);
 			} else {
 				return fillContainerInHand(player, hand, itemFluidHandler, storageFluidHandler);
-			}
-		}, false);*/
+			}*/
+		}, false);
 
-		return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
+		//return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
 	}
 
 	/*private boolean fillContainerInHand(Player player, InteractionHand hand, IFluidHandlerItem itemFluidHandler, IFluidHandler storageFluidHandler) {

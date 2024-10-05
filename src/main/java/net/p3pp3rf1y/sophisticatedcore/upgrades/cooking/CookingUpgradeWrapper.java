@@ -11,8 +11,8 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public abstract class CookingUpgradeWrapper<W extends CookingUpgradeWrapper<W, U, R>, U extends UpgradeItemBase<W> & ICookingUpgradeItem, R extends AbstractCookingRecipe>
 		extends UpgradeWrapperBase<W, U> implements ITickableUpgrade, ICookingUpgrade<R> {

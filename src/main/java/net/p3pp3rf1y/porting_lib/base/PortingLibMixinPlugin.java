@@ -1,10 +1,9 @@
 package net.p3pp3rf1y.porting_lib.base;
 
+import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-
-import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.List;
 import java.util.Set;

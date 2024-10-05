@@ -17,9 +17,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_BACKGROUND;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_HOVERED_BACKGROUND;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.ICONS;
+import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.*;
 
 public class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgradeContainer> {
 	private static final TextureBlitData PLAY_FOREGROUND = new TextureBlitData(ICONS, new Position(1, 1), Dimension.SQUARE_256, new UV(16, 64), Dimension.SQUARE_16);

@@ -1,18 +1,18 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.world.item.ItemStack;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
 
 public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 	private final Supplier<SlottedStackStorage> wrappedHandlerGetter;

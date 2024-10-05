@@ -4,12 +4,7 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeSlotChangeResult;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeCountLimitConfig;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeGroup;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 
 import java.util.Collections;
 import java.util.HashSet;

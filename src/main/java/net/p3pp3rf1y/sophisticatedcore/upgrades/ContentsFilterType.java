@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Map;

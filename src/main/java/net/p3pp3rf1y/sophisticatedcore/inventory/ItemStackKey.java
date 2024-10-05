@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ItemStackKey {
-	// TODO: Check
 	// private static final Field ATTACHMENTS = ObfuscationReflectionHelper.findField(AttachmentHolder.class, "attachments");
 	private final ItemStack stack;
 
@@ -51,7 +51,8 @@ public final class ItemStackKey {
 		}
 
 		//noinspection DataFlowIssue
-		return (!a.hasTag() || a.getTag().equals(b.getTag())); // TODO: && a.areAttachmentsCompatible(b);
+		return (!a.hasTag() || a.getTag().equals(b.getTag()));
+		// TODO: Add this if fabric adds ItemStack attachments /* && a.areAttachmentsCompatible(b);*/
 	}
 
 	public boolean hashCodeNotEquals(ItemStack otherStack) {
@@ -73,8 +74,10 @@ public final class ItemStackKey {
 			//noinspection ConstantConditions - hasTag call makes sure getTag doesn't return null
 			hash = hash * 31 + stack.getTag().hashCode();
 		}
-		/*if (stack.hasAttachments()) {
-			Map<AttachmentType<?>, Object> attachments = getAttachments(stack);
+
+		// TODO: Add this if fabric adds ItemStack attachments
+		/*if (stack.fabric_getAttachments() != null) {
+			Map<AttachmentType<?>, ?> attachments = stack.fabric_getAttachments();
 			if (attachments != null) {
 				hash = hash * 31 + attachments.hashCode();
 			}
@@ -82,10 +85,10 @@ public final class ItemStackKey {
 		return hash;
 	}
 
-	/*@Nullable
+/*	@Nullable
 	private static Map<AttachmentType<?>, Object> getAttachments(ItemStack stack) {
 		try {
-			return (Map<AttachmentType<?>, Object>) ATTACHMENTS.get(stack);
+			return (Map<AttachmentType<?>, ?>) stack.fabric_getAttachments();
 		} catch (IllegalAccessException e) {
 			SophisticatedCore.LOGGER.error("Error getting attachments of stack ", e);
 			return null;

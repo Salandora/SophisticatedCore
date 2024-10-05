@@ -14,12 +14,12 @@ public class ModCompat {
 	private ModCompat() {}
 
 	public static void register() {
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.EMI, null), () -> EmiCompat::new);
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.JEI, null), () -> JeiCompat::new);
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.REI, null), () -> REICompat::new);
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.CRAFTING_TWEAKS, null), () -> CraftingTweaksCompat::new);
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.LITEMATICA, null), () -> LitematicaCompat::new);
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.AUDIOPLAYER, null), () -> AudioPlayerCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.EMI, null), EmiCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.JEI, null), JeiCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.REI, null), REICompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.CRAFTING_TWEAKS, null), CraftingTweaksCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.LITEMATICA, null), LitematicaCompat::new);
+		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.AUDIOPLAYER, null), AudioPlayerCompat::new);
 
 		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.INVENTORY_SORTER, null), () -> modBus -> new InventorySorterCompat());
 		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.ITEM_BORDERS, null), () -> ItemBordersCompat::new);

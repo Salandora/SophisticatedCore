@@ -2,10 +2,10 @@ package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 public class UpgradeSlotChangeResult {
 	private final boolean successful;

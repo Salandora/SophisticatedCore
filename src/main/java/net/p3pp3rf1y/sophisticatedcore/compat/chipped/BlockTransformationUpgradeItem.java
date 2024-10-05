@@ -1,11 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
-import earth.terrarium.chipped.common.recipes.ChippedRecipe;
-
 import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeCountLimitConfig;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
+import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 
 import java.util.List;
 import java.util.function.Supplier;

@@ -9,8 +9,8 @@ import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.ItemBase;
 
-import java.util.List;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public abstract class UpgradeItemBase<T extends IUpgradeWrapper> extends ItemBase implements IUpgradeItem<T> {
 	private final IUpgradeCountLimitConfig upgradeTypeLimitConfig;

@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +8,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 public interface SophisticatedBlockState {
     // Helpers for accessing Item data

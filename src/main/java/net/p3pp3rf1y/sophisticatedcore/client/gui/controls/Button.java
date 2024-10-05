@@ -11,10 +11,10 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.IntConsumer;
-import javax.annotation.Nullable;
 
 public class Button extends ButtonBase {
 	private final TextureBlitData backgroundTexture;

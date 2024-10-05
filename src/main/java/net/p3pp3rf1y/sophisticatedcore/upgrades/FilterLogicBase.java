@@ -11,13 +11,9 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class FilterLogicBase {
 	protected final ItemStack upgrade;

@@ -1,14 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,7 +78,7 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		}
 
 		@Override
-		public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+		public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
 			((ITrackedContentsItemHandler) backingStorage.get()).setStackInSlot(slot, stack);
 		}
 

@@ -1,15 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
-import mezz.jei.api.ingredients.ITypedIngredient;
-
 import net.minecraft.client.renderer.Rect2i;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
+import mezz.jei.api.ingredients.ITypedIngredient;
 
 import java.util.ArrayList;
 import java.util.List;

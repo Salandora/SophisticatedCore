@@ -6,9 +6,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class TranslationHelper {
 	public static final String TOOLTIP_SUFFIX = ".tooltip";

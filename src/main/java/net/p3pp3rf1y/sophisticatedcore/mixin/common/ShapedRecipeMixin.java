@@ -1,8 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
-import org.spongepowered.asm.mixin.Mixin;
-
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ShapedRecipe.class)
 public abstract class ShapedRecipeMixin {

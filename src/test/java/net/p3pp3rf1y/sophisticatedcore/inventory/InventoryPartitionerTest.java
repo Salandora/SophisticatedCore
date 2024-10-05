@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
+import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,8 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import net.minecraft.nbt.CompoundTag;
 
 import java.util.Optional;
 

@@ -1,11 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
 import com.google.common.collect.Lists;
-import dev.emi.emi.runtime.EmiLog;
-
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,12 +9,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import dev.emi.emi.runtime.EmiLog;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class EmiFillRecipePacket implements FabricPacket {
 	public static final PacketType<EmiFillRecipePacket> TYPE = PacketType.create(new ResourceLocation(SophisticatedCore.MOD_ID, "emi_fill_recipe"), EmiFillRecipePacket::new);

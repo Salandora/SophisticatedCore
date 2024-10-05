@@ -1,9 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import com.google.common.base.Preconditions;
-
-import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
-import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,12 +12,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.ItemLike;
+import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
+import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.ShapedRecipeAccessor;
 
-import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
+import java.util.function.Function;
 
 public class ShapeBasedRecipeBuilder extends ShapedRecipeBuilder {
+
 	private final Function<ShapedRecipe, ? extends ShapedRecipe> factory;
 
 	private ShapeBasedRecipeBuilder(ItemStack result, Function<ShapedRecipe, ? extends ShapedRecipe> factory) {

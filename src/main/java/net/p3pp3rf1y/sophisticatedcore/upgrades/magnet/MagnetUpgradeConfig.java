@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.magnet;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilteredUpgradeConfigBase;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class MagnetUpgradeConfig extends FilteredUpgradeConfigBase {
 	public final ModConfigSpec.IntValue magnetRange;

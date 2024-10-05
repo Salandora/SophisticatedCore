@@ -4,12 +4,12 @@ import net.fabricmc.loader.api.VersionParsingException;
 import net.fabricmc.loader.api.metadata.version.VersionPredicate;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 public class CompatRegistry {
 	private static final Map<CompatInfo, List<Supplier<ICompat>>> compatFactories = new HashMap<>();
@@ -31,7 +31,11 @@ public class CompatRegistry {
 	}
 
 	public static void setupCompats() {
-		loadedCompats.values().forEach(compats -> compats.forEach(ICompat::setup));
+		for (List<ICompat> compats : loadedCompats.values()) {
+			for (ICompat compat : compats) {
+				compat.setup();
+			}
+		}
 	}
 
 	public static void initCompats() {

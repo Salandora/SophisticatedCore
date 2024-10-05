@@ -1,9 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import com.google.common.base.Preconditions;
-
-import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
-import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -14,13 +11,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
+import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
+import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 
-import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
+import java.util.function.Function;
 
 public class ShapelessBasedRecipeBuilder extends ShapelessRecipeBuilder {
 	private final Function<ShapelessRecipe, ? extends ShapelessRecipe> factory;
-
 
 	public ShapelessBasedRecipeBuilder(ItemStack result, Function<ShapelessRecipe, ? extends ShapelessRecipe> factory) {
 		super(RecipeCategory.MISC, result.getItem(), result.getCount());

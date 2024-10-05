@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
 import com.google.common.collect.Lists;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -36,14 +35,13 @@ public class ServerStorageSoundHandler {
 		registerSoundHandler(new SoundHandler() {
 			@Override
 			public boolean play(ServerLevel level, BlockPos position, UUID storageUuid, ItemStack discItemStack) {
-				Vec3 pos = Vec3.atCenterOf(position);
-				PacketHelper.sendToAllNear(level, pos, 128, new PlayDiscPacket(storageUuid, Item.getId(discItemStack.getItem()), position));
+				PacketHelper.sendToAllNear(new PlayDiscPacket(storageUuid, Item.getId(discItemStack.getItem()), position), level, Vec3.atCenterOf(position), 128);
 				return true;
 			}
 
 			@Override
 			public boolean play(ServerLevel level, Vec3 position, UUID storageUuid, int entityId, ItemStack discItemStack) {
-				PacketHelper.sendToAllNear(level, position, 128, new PlayDiscPacket(storageUuid, Item.getId(discItemStack.getItem()), entityId));
+				PacketHelper.sendToAllNear(new PlayDiscPacket(storageUuid, Item.getId(discItemStack.getItem()), entityId), level, position, 128);
 				return true;
 			}
 
@@ -170,6 +168,6 @@ public class ServerStorageSoundHandler {
 	}
 
 	private static void sendStopMessage(ServerLevel serverWorld, Vec3 position, UUID storageUuid) {
-		PacketHelper.sendToAllNear(serverWorld, position, 128, new StopDiscPlaybackPacket(storageUuid));
+		PacketHelper.sendToAllNear(new StopDiscPlaybackPacket(storageUuid), serverWorld, position, 128);
 	}
 }

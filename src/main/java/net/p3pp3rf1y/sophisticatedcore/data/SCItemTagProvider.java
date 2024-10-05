@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Items;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.p3pp3rf1y.sophisticatedcore.api.Tags;
 
-import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.Nullable;
+import java.util.concurrent.CompletableFuture;
 
 public class SCItemTagProvider extends FabricTagProvider.ItemTagProvider {
 	public SCItemTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> completableFuture, @Nullable FabricTagProvider.BlockTagProvider blockTagProvider) {

@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
-import org.spongepowered.asm.mixin.Mixin;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -13,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.client.render.CustomParticleIcon;
 import net.p3pp3rf1y.sophisticatedcore.extensions.client.particle.SophisticatedTerrainParticle;
+import org.spongepowered.asm.mixin.Mixin;
 
 import org.jetbrains.annotations.Nullable;
 
