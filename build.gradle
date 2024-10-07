@@ -271,7 +271,8 @@ processResources {
             fabric_version      : project.fabric_version,
             forge_config_version: project.forge_config_api_port_version,
             energy_version      : project.energy_version,
-            port_lib_version    : project.port_lib_version
+            port_lib_version    : project.port_lib_version,
+            jei_version         : project.jei_version
     ]
 
     inputs.properties replaceProperties

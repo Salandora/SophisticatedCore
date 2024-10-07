@@ -48,6 +48,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IOverflowResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeItem;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
+import net.p3pp3rf1y.sophisticatedcore.util.DummySlot;
 import net.p3pp3rf1y.sophisticatedcore.util.NoopStorageWrapper;
 
 import java.util.ArrayList;
@@ -402,16 +403,19 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 				updateColumnsTaken(columnsToRemove);
 				slot.setChanged();
+				if (columnsToRemove != 0 && player.level().isClientSide()) {
+					onUpgradesChanged(); // need to trigger onUpgradesChanged again so that screen can react to this with updating slot positions after slots were refreshed as part of columns update
+				}
 			} else if (getCarried().isEmpty() && !slotStack.isEmpty() && slot.mayPickup(player)) {
 				int k2 = dragType == 0 ? Math.min(slotStack.getCount(), slotStack.getMaxStackSize()) : Math.min(slotStack.getMaxStackSize() + 1, slotStack.getCount() + 1) / 2;
 				IUpgradeItem<?> upgradeItem = (IUpgradeItem<?>) slotStack.getItem();
 				int columnsTaken = upgradeItem.getInventoryColumnsTaken();
-				slot.wasEmpty = false; // slot was not empty when this was reached and need to force onTake below to trigger slot position recalculation if slots are refreshed when columns taken changes
 				if (clickType == ClickType.QUICK_MOVE) {
 					quickMoveStack(player, slotId);
 				} else {
 					setCarried(upgradeItem.getCleanedUpgradeStack(slot.remove(k2)));
 				}
+				slot.wasEmpty = false; // slot was not empty when this was reached and need to force onTake below to trigger slot position recalculation if slots are refreshed when columns taken changes
 				updateColumnsTaken(-columnsTaken);
 				slot.onTake(player, getCarried());
 			}
@@ -1420,7 +1424,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	@Override
 	public Slot getSlot(int slotId) {
 		if (slotId >= getInventorySlotsSize()) {
-			return upgradeSlots.get(slotId - getInventorySlotsSize());
+			int upgradeSlotId = slotId - getInventorySlotsSize();
+			return upgradeSlots.size() > upgradeSlotId ? upgradeSlots.get(upgradeSlotId) : DummySlot.INSTANCE;
 		} else {
 			return realInventorySlots.get(slotId);
 		}

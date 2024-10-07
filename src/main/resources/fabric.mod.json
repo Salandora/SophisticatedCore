@@ -53,6 +53,9 @@
     "suggests": {
         "modmenu": "*"
     },
+    "breaks": {
+        "jei": "<${jei_version}"
+    },
     "custom": {
         "loom:injected_interfaces": {
             "net/minecraft/class_465": ["net/p3pp3rf1y/sophisticatedcore/extensions/client/gui/screens/inventory/SophisticatedAbstractContainerScreen"],

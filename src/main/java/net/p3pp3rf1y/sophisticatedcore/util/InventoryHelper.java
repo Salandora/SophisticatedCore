@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -28,27 +27,11 @@ import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.*;
 
 public class InventoryHelper {
 	private InventoryHelper() {}
@@ -150,13 +133,30 @@ public class InventoryHelper {
 		}
 	}
 
-	public static ItemStack insertIntoInventory(SlottedStackStorage inventory, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long remaining = maxAmount;
-		int slots = inventory.getSlotCount();
-		for (int slot = 0; slot < slots && remaining > 0; slot++) {
-			remaining -= inventory.insertSlot(slot, resource, remaining, ctx);
+	public static ItemStack insertIntoInventory(SlottedStackStorage inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			long inserted = inventory.insert(resource, maxAmount, ctx);
+			inner.commit();
+			return resource.toStack((int)(maxAmount - inserted));
 		}
-		return resource.toStack((int) remaining);
+	}
+
+	public static ItemStack extractFromInventory(ItemVariant resource, long maxAmount, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		long extractedCount;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			extractedCount = inventory.extract(resource, maxAmount, inner);
+			inner.commit();
+		}
+
+		if (extractedCount == 0) {
+			return ItemStack.EMPTY;
+		}
+
+		return resource.toStack((int) extractedCount);
+	}
+
+	public static ItemStack extractFromInventory(ItemStack stack, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		return extractFromInventory(ItemVariant.of(stack), stack.getCount(), inventory, ctx);
 	}
 
 	public static ItemStack runPickupOnPickupResponseUpgrades(Level world, UpgradeHandler upgradeHandler, ItemStack remainingStack, TransactionContext ctx) {
@@ -168,17 +168,17 @@ public class InventoryHelper {
 
 		for (IPickupResponseUpgrade pickupUpgrade : pickupUpgrades) {
 			int countBeforePickup = remainingStack.getCount();
-			try (Transaction pickupTransaction = Transaction.openNested(ctx)) {
-				remainingStack = pickupUpgrade.pickup(world, remainingStack, pickupTransaction);
+			try (Transaction inner = Transaction.openNested(ctx)) {
+				remainingStack = pickupUpgrade.pickup(world, remainingStack, inner);
 
 				ItemStack finalRemainingStack = remainingStack;
-				TransactionCallback.onSuccess(pickupTransaction, () -> {
+				TransactionCallback.onSuccess(inner, () -> {
 					if (player != null && finalRemainingStack.getCount() != countBeforePickup) {
 						playPickupSound(world, player);
 					}
 				});
 
-				pickupTransaction.commit();
+				inner.commit();
 			}
 
 			if (remainingStack.isEmpty()) {
@@ -193,14 +193,27 @@ public class InventoryHelper {
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.random) * 1.4F + 2.0F);
 	}
 
+	public static void iterate(Storage<ItemVariant> handler, Consumer<ItemStack> actOn) {
+		iterate(handler, actOn, () -> false);
+	}
+
+	public static void iterate(Storage<ItemVariant> handler, Consumer<ItemStack> actOn, BooleanSupplier shouldExit) {
+		for (StorageView<ItemVariant> view : handler.nonEmptyViews()) {
+			actOn.accept(view.isResourceBlank() ? ItemStack.EMPTY : view.getResource().toStack((int) view.getAmount()));
+			if (shouldExit.getAsBoolean()) {
+				break;
+			}
+		}
+	}
+
 	public static void iterate(SlottedStorage<ItemVariant> handler, BiConsumer<Integer, ItemStack> actOn) {
 		iterate(handler, actOn, () -> false);
 	}
 
 	public static void iterate(SlottedStorage<ItemVariant> handler, BiConsumer<Integer, ItemStack> actOn, BooleanSupplier shouldExit) {
 		Function<Integer, ItemStack> getStackHandler;
-		if (handler instanceof SlottedStackStorage) {
-			getStackHandler = (slot -> ((SlottedStackStorage) handler).getStackInSlot(slot));
+		if (handler instanceof SlottedStackStorage slottedHandler) {
+			getStackHandler = slottedHandler::getStackInSlot;
 		} else {
 			getStackHandler = slot -> {
 				var slotStorage = handler.getSlot(slot);
@@ -351,9 +364,9 @@ public class InventoryHelper {
 		return ret;
 	}
 
-	public static Set<ItemStackKey> getUniqueStacks(SlottedStorage<ItemVariant> handler) {
+	public static Set<ItemStackKey> getUniqueStacks(Storage<ItemVariant> handler) {
 		Set<ItemStackKey> uniqueStacks = new HashSet<>();
-		iterate(handler, (slot, stack) -> {
+		iterate(handler, stack -> {
 			if (stack.isEmpty()) {
 				return;
 			}
