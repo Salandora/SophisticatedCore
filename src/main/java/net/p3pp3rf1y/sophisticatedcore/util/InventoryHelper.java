@@ -129,13 +129,13 @@ public class InventoryHelper {
 
 	public static ItemStack simulateInsertIntoInventory(SlottedStackStorage inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		try (Transaction simulate = Transaction.openNested(ctx)) {
-			return insertIntoInventory(inventory, resource, maxAmount,  simulate);
+			return insertIntoInventory(inventory, resource, maxAmount, simulate);
 		}
 	}
 
 	public static ItemStack insertIntoInventory(SlottedStackStorage inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		try (Transaction inner = Transaction.openNested(ctx)) {
-			long inserted = inventory.insert(resource, maxAmount, ctx);
+			long inserted = inventory.insert(resource, maxAmount, inner);
 			inner.commit();
 			return resource.toStack((int)(maxAmount - inserted));
 		}
