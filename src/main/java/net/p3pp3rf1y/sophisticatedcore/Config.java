@@ -113,11 +113,11 @@ public class Config {
 
 	public static void register() {
 		for (Map.Entry<ModConfig.Type, BaseConfig> pair : CONFIGS.entrySet()) {
-			ModLoadingContext.registerConfig(SophisticatedCore.ID, pair.getKey(), pair.getValue().specification);
+			ModLoadingContext.registerConfig(SophisticatedCore.MOD_ID, pair.getKey(), pair.getValue().specification);
 		}
 
-		ModConfigEvents.loading(SophisticatedCore.ID).register(Config::onConfigLoad);
-		ModConfigEvents.reloading(SophisticatedCore.ID).register(Config::onConfigReload);
+		ModConfigEvents.loading(SophisticatedCore.MOD_ID).register(Config::onConfigLoad);
+		ModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(Config::onConfigReload);
 	}
 
 	public static void onConfigLoad(ModConfig modConfig) {

@@ -1,19 +1,20 @@
 # Changelog
 
 ### General
-- Added fabric version of the logo and used it in `fabric.mod.json`.
-
-### Improvements
-- Changed the way Litematica support works by adding the trinket slots as a container in the `getInventoryItemCounts` function.
-- Moved Storage Wrappers to `SophisticatedCore` for better compatibility between sophisticated mods. *(Reverted later)*
+- Update to version 0.6.22
+- Code cleanup
+- Remove custom ItemStackHandler implementation
+- Add ClientRecipesUpdated event
 
 ### Fixes
-- Fixed chipped compatibility.
-- Fixed an issue where the Tool Swapper caused item loss when the backpack was full.
-- Fixed incompatibility with repurposed structures.
-- Fixed server incompatibility with reworked Litematica compatibility.
-- Reworked Litematica compatibility due to reverting the Storage Wrapper move commits.
-- Completely reworked Litematica compatibility.
-- Disabled `isSameThread` requirement as it stopped the StorageWrapper from getting the right data.
-- Attempted to fix a `ConcurrentModificationException`.
-- A bug in Litematica compat preventing it from updating correctly
+- Try to fix a crash with compression upgrade and e.g. hopper, caused by a simulate extraction getting rolled back.
+- Fixes plus sign symbol visible without the trinket slot being visible.
+- Fixes plus sign not visible while trinket slot is visible.
+- Fix a bug where inserting matching items into a storage via a controller block caused item duplicates
+- Mouse Scrolled function was named keyPressed instead of mouseScrolled
+- Fix a bug with Emi and Rei where memorized/no sort slots where not used for crafting recipes
+- Fix a dupe bug due to a recent change in the InventoryHandler 
+- Fix a lithium incompatibility
+
+### Compatiblity
+- Added AudioPlayer compatibility

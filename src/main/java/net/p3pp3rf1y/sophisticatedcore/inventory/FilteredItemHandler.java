@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
@@ -76,12 +74,12 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 
 		@Override
 		public ItemStack getStackInSlot(int slot) {
-			throw new NotImplementedException();
+			return ((ITrackedContentsItemHandler) backingStorage.get()).getStackInSlot(slot);
 		}
 
 		@Override
 		public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-			throw new NotImplementedException();
+			((ITrackedContentsItemHandler) backingStorage.get()).setStackInSlot(slot, stack);
 		}
 
 
@@ -89,7 +87,7 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		public Set<ItemStackKey> getTrackedStacks() {
 			Set<ItemStackKey> ret = new HashSet<>();
 
-			((ITrackedContentsItemHandler) backingStorage).getTrackedStacks().forEach(ts -> {
+			((ITrackedContentsItemHandler) backingStorage.get()).getTrackedStacks().forEach(ts -> {
 				if (inputFiltersMatchStack(ts.stack())) {
 					ret.add(ts);
 				}

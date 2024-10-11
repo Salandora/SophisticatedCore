@@ -8,7 +8,7 @@ import me.shedaniel.rei.plugin.common.BuiltinPlugin;
 
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.ClientRecipeHelper;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.ClientRecipeHelper;
 import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeNextTierRecipe;
 
 import java.util.Collection;

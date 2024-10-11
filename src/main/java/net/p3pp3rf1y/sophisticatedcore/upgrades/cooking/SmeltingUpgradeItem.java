@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
 import net.minecraft.world.item.CreativeModeTab;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeCountLimitConfig;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeGroup;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 
@@ -9,8 +11,8 @@ public class SmeltingUpgradeItem extends UpgradeItemBase<CookingUpgradeWrapper.S
 
 	private final CookingUpgradeConfig smeltingUpgradeConfig;
 
-	public SmeltingUpgradeItem(CreativeModeTab creativeModeTab, CookingUpgradeConfig smeltingUpgradeConfig) {
-		super(creativeModeTab);
+	public SmeltingUpgradeItem(CreativeModeTab itemGroup, CookingUpgradeConfig smeltingUpgradeConfig, IUpgradeCountLimitConfig upgradeTypeLimitConfig) {
+		super(itemGroup, upgradeTypeLimitConfig);
 		this.smeltingUpgradeConfig = smeltingUpgradeConfig;
 	}
 
@@ -22,5 +24,10 @@ public class SmeltingUpgradeItem extends UpgradeItemBase<CookingUpgradeWrapper.S
 	@Override
 	public CookingUpgradeConfig getCookingUpgradeConfig() {
 		return smeltingUpgradeConfig;
+	}
+
+	@Override
+	public UpgradeGroup getUpgradeGroup() {
+		return ICookingUpgrade.UPGRADE_GROUP;
 	}
 }

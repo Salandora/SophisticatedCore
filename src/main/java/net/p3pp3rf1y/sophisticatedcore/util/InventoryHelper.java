@@ -39,7 +39,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -153,6 +155,21 @@ public class InventoryHelper {
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.random) * 1.4F + 2.0F);
 	}
 
+	public static void iterate(SlottedStackStorage handler, BiConsumer<Integer, ItemStack> actOn) {
+		iterate(handler, actOn, () -> false);
+	}
+
+	public static void iterate(SlottedStackStorage handler, BiConsumer<Integer, ItemStack> actOn, BooleanSupplier shouldExit) {
+		int slots = handler.getSlotCount();
+		for (int slot = 0; slot < slots; slot++) {
+			ItemStack stack = handler.getStackInSlot(slot);
+			actOn.accept(slot, stack);
+			if (shouldExit.getAsBoolean()) {
+				break;
+			}
+		}
+	}
+
 	public static <T> T iterate(SlottedStorage<ItemVariant> handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
 		T ret = supplyDefault.get();
 		int slots = handler.getSlotCount();
@@ -206,7 +223,7 @@ public class InventoryHelper {
 
 					// extract it, or rollback if the amounts don't match
 					if (accepted > 0 && view.extract(resource, accepted, transferTransaction) == accepted) {
-						TransactionCallback.onSuccess(outer, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
+						TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
 						transferTransaction.commit();
 					}
 				}
@@ -347,17 +364,22 @@ public class InventoryHelper {
 	}
 
 	public static void dropItems(SlottedStackStorage inventoryHandler, Level level, double x, double y, double z) {
-		for (StorageView<ItemVariant> view : inventoryHandler.nonEmptyViews()) {
-			long extracted;
-			ItemVariant resource = view.getResource();
-			try (Transaction ctx = Transaction.openOuter()) {
-				extracted = view.extract(resource, view.getAmount(), ctx);
-				ctx.commit();
+		iterate(inventoryHandler, (slot, stack) -> dropItem(inventoryHandler, level, x, y, z, slot, stack));
+	}
+
+	public static void dropItem(SlottedStackStorage inventoryHandler, Level level, double x, double y, double z, Integer slot, ItemStack stack) {
+		if (stack.isEmpty()) {
+			return;
+		}
+
+		ItemVariant resource = ItemVariant.of(stack);
+		try (Transaction ctx = Transaction.openOuter()) {
+			long extracted = inventoryHandler.extractSlot(slot, resource, stack.getMaxStackSize(), ctx);
+			while (extracted > 0) {
+				Containers.dropItemStack(level, x, y, z, resource.toStack((int) extracted));
+				extracted = inventoryHandler.extractSlot(slot, resource, stack.getMaxStackSize(), ctx);
 			}
-			ItemStack extractedStack = resource.toStack((int) extracted);
-			while (!extractedStack.isEmpty()) {
-				Containers.dropItemStack(level, x, y, z, extractedStack.split(Math.min(extractedStack.getCount(), extractedStack.getMaxStackSize())));
-			}
+			ctx.commit();
 		}
 	}
 

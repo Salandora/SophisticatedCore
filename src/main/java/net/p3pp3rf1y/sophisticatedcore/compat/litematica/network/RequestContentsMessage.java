@@ -2,9 +2,12 @@ package net.p3pp3rf1y.sophisticatedcore.compat.litematica.network;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import fi.dy.masa.malilib.util.InventoryUtils;
 import me.pepperbell.simplenetworking.S2CPacket;
 
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -80,9 +83,45 @@ public class RequestContentsMessage extends SimplePacketBase {
 					}
 					requestContents(wrapperStacks, requested);
 				}
-			} else if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock && InventoryUtils.shulkerBoxHasItems(stack)) {
-				requestContents(InventoryUtils.getStoredItems(stack), requested);
+			} else if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock && shulkerBoxHasItems(stack)) {
+				requestContents(getStoredItems(stack), requested);
 			}
 		}
+	}
+
+	public static boolean shulkerBoxHasItems(ItemStack stackShulkerBox) {
+		CompoundTag nbt = stackShulkerBox.getTag();
+		if (nbt != null && nbt.contains("BlockEntityTag", Tag.TAG_COMPOUND)) {
+			CompoundTag tag = nbt.getCompound("BlockEntityTag");
+			if (tag.contains("Items", Tag.TAG_LIST)) {
+				ListTag tagList = tag.getList("Items", Tag.TAG_COMPOUND);
+				return !tagList.isEmpty();
+			}
+		}
+
+		return false;
+	}
+
+	public static NonNullList<ItemStack> getStoredItems(ItemStack stackIn) {
+		CompoundTag nbt = stackIn.getTag();
+		if (nbt != null && nbt.contains("BlockEntityTag", Tag.TAG_COMPOUND)) {
+			CompoundTag tagBlockEntity = nbt.getCompound("BlockEntityTag");
+			if (tagBlockEntity.contains("Items", Tag.TAG_LIST)) {
+				NonNullList<ItemStack> items = NonNullList.create();
+				ListTag tagList = tagBlockEntity.getList("Items", Tag.TAG_COMPOUND);
+
+				int count = tagList.size();
+				for(int i = 0; i < count; ++i) {
+					ItemStack stack = ItemStack.of(tagList.getCompound(i));
+					if (!stack.isEmpty()) {
+						items.add(stack);
+					}
+				}
+
+				return items;
+			}
+		}
+
+		return NonNullList.create();
 	}
 }

@@ -20,7 +20,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IOverflowResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ISlotLimitUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeConfig;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	private int baseSlotLimit;
 	private int slotLimit;
-	private int maxStackSizeMultiplier;
+	private double maxStackSizeMultiplier;
 	private boolean isInitializing;
 	private final StackUpgradeConfig stackUpgradeConfig;
 	private final InventoryPartitioner inventoryPartitioner;
@@ -88,7 +87,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	private void initStackNbts() {
 		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack slotStack = this.getStackInSlot(slot);
+			ItemStack slotStack = this.getSlotStack(slot);
 			if (!slotStack.isEmpty()) {
 				stackNbts.put(slot, getSlotsStackNbt(slot, slotStack));
 			}
@@ -207,7 +206,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public void setBaseSlotLimit(int baseSlotLimit) {
 		slotLimitInitialized = false; // not the most ideal of places to do this, but base slot limit is set when upgrades change and that's when slot limit needs to be reinitialized as well
 		this.baseSlotLimit = baseSlotLimit;
-		maxStackSizeMultiplier = baseSlotLimit / 64;
+		maxStackSizeMultiplier = baseSlotLimit / 64f;
 
 		if (inventoryPartitioner != null) {
 			inventoryPartitioner.onSlotLimitChange();
@@ -243,11 +242,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return this.getSlot(slot).getStack();
+		return ((InventoryHandlerSlot) this.getSlot(slot)).getInternalStack();
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
-		this.getSlot(slot).setNewStack(stack);
+		((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 		onContentsChanged(slot);
 	}
@@ -260,8 +259,8 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
-		if (ItemStackHelper.canItemStacksStack(getStackInSlot(slot), resource.toStack())) {
-			return triggerOverflowUpgrades(resource.toStack((int) insertItemInternal(slot, resource, maxAmount, ctx))).getCount();
+		if (ItemStack.isSameItemSameTags(getStackInSlot(slot), resource.toStack())) {
+			return maxAmount - triggerOverflowUpgrades(resource.toStack((int)(maxAmount - insertItemInternal(slot, resource, maxAmount, ctx)))).getCount();
 		}
 
 		return insertItemInternal(slot, resource, maxAmount, ctx);
@@ -384,7 +383,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return nbt;
 	}
 
-	public int getStackSizeMultiplier() {
+	public double getStackSizeMultiplier() {
 		return maxStackSizeMultiplier;
 	}
 
@@ -497,5 +496,58 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public void setShouldInsertIntoEmpty(BooleanSupplier shouldInsertIntoEmpty) {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
+	}
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new InventoryHandlerSlot(index, this, stack);
+	}
+
+	// Make the "get stack" functions return a copy of the item due to how the insertion and extraction is handled in the part inventory handler implementations.
+	public class InventoryHandlerSlot extends ItemStackHandlerSlot {
+		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+			super.setStack(initial);
+		}
+
+		protected ItemStack getInternalStack() {
+			return super.getStack().copy();
+		}
+
+		protected void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
+			this.onFinalCommit();
+		}
+
+		@Override
+		public ItemStack getStack() {
+			if (inventoryPartitioner == null) {
+				return super.getStack().copy();
+			}
+
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack()).copy();
+		}
+
+		@Override
+		protected void setStack(ItemStack stack) {
+			if (inventoryPartitioner == null) {
+				super.setStack(stack);
+				return;
+			}
+
+			inventoryPartitioner.getPartBySlot(getIndex()).setStackInSlot(getIndex(), stack, (slot, stck) -> super.setStack(stack));
+		}
+
+		@Override
+		public ItemVariant getResource() {
+			return inventoryPartitioner.getPartBySlot(getIndex()).getVariantInSlot(getIndex(), (slot) -> super.getResource());
+		}
+
+		@Override
+		public void load(ItemStack stack) {
+			super.setStack(stack);
+			onStackChange();
+			// intentionally do not notify handler, matches forge
+		}
 	}
 }

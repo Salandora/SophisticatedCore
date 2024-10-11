@@ -12,6 +12,12 @@ public class Tags {
 		public static final TagKey<Item> CHESTS = register("chests");
 		public static final TagKey<Item> WOODEN_CHESTS = register("wooden_chests");
 
+		public static final TagKey<Item> STORAGE_BLOCKS_COPPER = register("copper_blocks");
+		public static final TagKey<Item> STORAGE_BLOCKS_IRON = register("iron_blocks");
+		public static final TagKey<Item> STORAGE_BLOCKS_GOLD = register("gold_blocks");
+		public static final TagKey<Item> STORAGE_BLOCKS_DIAMOND = register("diamond_blocks");
+		public static final TagKey<Item> STORAGE_BLOCKS_NETHERITE = register("netherite_blocks");
+
 		private static TagKey<Item> register(String tagID) {
 			return TagKey.create(Registry.ITEM.key(), new ResourceLocation("c", tagID));
 		}

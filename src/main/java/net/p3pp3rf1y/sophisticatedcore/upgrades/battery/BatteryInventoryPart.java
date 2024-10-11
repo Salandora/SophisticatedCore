@@ -89,6 +89,7 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 
 	private void renderCharge(PoseStack matrixStack) {
 		long energyStored = container.getAmount();
+
 		long maxEnergyStored = container.getCapacity();
 
 		int segmentHeight = CHARGE_SEGMENT.getHeight();
@@ -104,6 +105,7 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 		int initialBlue = BOTTOM_BAR_COLOR & 255;
 
 		Matrix4f matrix = matrixStack.last().pose();
+
 		for (int i = 0; i < displayLevel; i++) {
 			float percentage = (float) i / (numberOfSegments - 1);
 			int red = (int) (initialRed * (1 - percentage) + finalRed * percentage);

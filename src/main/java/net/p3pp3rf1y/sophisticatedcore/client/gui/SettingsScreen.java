@@ -283,7 +283,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	protected abstract void sendStorageInventoryScreenOpenMessage();
 
-	@Nullable
 	public StorageSettingsTabControlBase getSettingsTabControl() {
 		return settingsTabControl;
 	}

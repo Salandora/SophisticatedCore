@@ -22,7 +22,7 @@ public class MouseHandlerMixin {
     @Inject(method = "onScroll", at= @At(value="FIELD", target="Lnet/minecraft/client/MouseHandler;accumulatedScroll:D", ordinal = 5, shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     private void  sophisticatedCore$onScroll(long handle, double xOffset, double yOffset, CallbackInfo ci, double d) {
         if (handle == this.minecraft.getWindow().getWindow()) {
-            var result = ClientRawInputEvent.MOUSE_SCROLLED.invoker().keyPressed(minecraft, d);
+            var result = ClientRawInputEvent.MOUSE_SCROLLED.invoker().mouseScrolled(minecraft, d);
             if (result != InteractionResult.PASS)
                 ci.cancel();
         }

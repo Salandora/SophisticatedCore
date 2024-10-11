@@ -9,9 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.ClientRecipeHelper;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeNextTierRecipe;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 
@@ -20,7 +17,7 @@ import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 public class JeiCompat implements IModPlugin, ICompat {
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(SophisticatedCore.ID, "default");
+		return new ResourceLocation(SophisticatedCore.MOD_ID, "default");
 	}
 
 	@Override
