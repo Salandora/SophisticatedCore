@@ -1,21 +1,23 @@
 # Changelog
 
 ### General
-- Added fabric version of the logo and used it in `fabric.mod.json`.
-
-### Improvements
-- Moved Litematica support to `SophisticatedCore`.
-- Moved Storage Wrappers to `SophisticatedCore` for better compatibility between sophisticated mods. *(Reverted later)*
+- Update to version 0.6.26
+- Code cleanup
+- Remove custom ItemStackHandler implementation
+- Add ClientRecipesUpdated event
 
 ### Fixes
-- Reworked Litematica compatibility due to reverting the Storage Wrapper move commits.
-- Fixed server incompatibility with reworked Litematica compatibility.
-- Placing backpacks in creative mode no longer removes items or limits counts to 64 due to wrong handling in the `copyTo` function. Fixes [Salandora/SophisticatedBackpacks#7](https://github.com/Salandora/SophisticatedBackpacks/issues/7).
-- Completely reworked Litematica compatibility.
-- Battery upgrade can now be charged or discharged correctly.
-- `insertIntoStorage` now returns the inserted amount, not the remaining. This aligns with Fabric's approach to handling insertion/extraction.
-- Properly implemented `getSlot` in `ControllerBlockEntityBase`.
-- Selecting a recipe with a non-empty crafting grid no longer causes an infinite loop.
-- Updated names for chipped compatibility.
-- Checked for `null` in `soundEvent`, preventing errors from broken records in a jukebox upgrade.
-- A bug in Litematica compat preventing it from updating correctly
+- Try to fix a crash with compression upgrade and e.g. hopper, caused by a simulate extraction getting rolled back.
+- Fixes plus sign symbol visible without the trinket slot being visible.
+- Fixes plus sign not visible while trinket slot is visible.
+- Fix a bug where inserting matching items into a storage via a controller block caused item duplicates
+- Mouse Scrolled function was named keyPressed instead of mouseScrolled
+- Fix a bug with Emi and Rei where memorized/no sort slots where not used for crafting recipes
+- Fix a dupe bug due to a recent change in the InventoryHandler 
+- Fix a lithium incompatibility
+- Fix a bug with the pump upgrade crashing the game whenever it tries to place a fluid.
+- Implement onDroppedByPlayer
+
+### Compatibility
+- Added AudioPlayer compatibility
+- Fixed feeding upgrade incompatibility with RPG Inventory

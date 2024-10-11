@@ -2,9 +2,8 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,9 +21,11 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -155,30 +156,32 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 	}
 
 	private boolean tryPullingGetUnsucessful(ItemStack stack, Consumer<ItemStack> setSlot, Predicate<ItemStack> isItemValid) {
-		ResourceAmount<ItemVariant> toExtract = null;
-		Storage<ItemVariant> inventory = storageWrapper.getInventoryForUpgradeProcessing();
+		ItemStack toExtract;
+		SlottedStorage<ItemVariant> inventory = storageWrapper.getInventoryForUpgradeProcessing();
 		if (stack.isEmpty()) {
-			for (var view : inventory.nonEmptyViews()) {
-				ItemStack ret = view.getResource().toStack((int) view.getAmount());
-				if (isItemValid.test(ret)) {
-					toExtract = new ResourceAmount<>(view.getResource(), ret.getMaxStackSize());
-					break;
+			AtomicReference<ItemStack> ret = new AtomicReference<>(ItemStack.EMPTY);
+			InventoryHelper.iterate(inventory, (slot, st) -> {
+				if (isItemValid.test(st)) {
+					ret.set(st.copy());
 				}
-			}
-
-			if (toExtract == null) {
+			}, () -> !ret.get().isEmpty());
+			if (!ret.get().isEmpty()) {
+				toExtract = ret.get();
+				toExtract.setCount(toExtract.getMaxStackSize());
+			} else {
 				return true;
 			}
 		} else if (stack.getCount() == stack.getMaxStackSize() || !isItemValid.test(stack)) {
 			return true;
 		} else {
-			toExtract = new ResourceAmount<>(ItemVariant.of(stack), stack.getMaxStackSize() - stack.getCount());
+			toExtract = stack.copy();
+			toExtract.setCount(stack.getMaxStackSize() - stack.getCount());
 		}
 
 		try (Transaction ctx = Transaction.openOuter()) {
-			long extracted = inventory.extract(toExtract.resource(), toExtract.amount(), ctx);
+			long extracted = inventory.extract(ItemVariant.of(toExtract), toExtract.getCount(), ctx);
 			if (extracted > 0) {
-				ItemStack toSet = toExtract.resource().toStack((int) extracted);
+				ItemStack toSet = toExtract.copyWithCount((int) extracted);
 				toSet.grow(stack.getCount());
 				setSlot.accept(toSet);
 				ctx.commit();

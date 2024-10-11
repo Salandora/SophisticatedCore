@@ -4,11 +4,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -21,8 +19,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
@@ -55,14 +53,25 @@ public class RecipeHelper {
 		}
 	});
 	private static final int MAX_FOLLOW_UP_COMPACTING_RECIPES = 30;
-	private static WeakReference<Level> world;
+	private static WeakReference<Level> clientLevel;
+	private static WeakReference<Level> serverLevel;
 	private static final Map<CompactedItem, CompactingResult> COMPACTING_RESULTS = new HashMap<>();
 	private static final Map<Item, UncompactingResult> UNCOMPACTING_RESULTS = new HashMap<>();
+	private static final RecipeChangeListenerList RECIPE_CHANGE_LISTENERS = new RecipeChangeListenerList();
 
-	private RecipeHelper() {}
+	private RecipeHelper() {
+	}
 
-	public static void setWorld(Level w) {
-		world = new WeakReference<>(w);
+	public static void setLevel(Level l) {
+		if (l instanceof ServerLevel) {
+			serverLevel = new WeakReference<>(l);
+		} else {
+			clientLevel = new WeakReference<>(l);
+		}
+	}
+
+	public static void addRecipeChangeListener(Runnable runnable) {
+		RECIPE_CHANGE_LISTENERS.add(runnable);
 	}
 
 	public static void clearCache() {
@@ -71,21 +80,28 @@ public class RecipeHelper {
 		ITEM_COMPACTING_SHAPES.invalidateAll();
 	}
 
-	public static void addReloadListener() {
-		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleIdentifiablePrepareableReloadListener<Void>(SophisticatedCore.getRL("recipe_helper")) {
-			@Override
-			protected void apply(Void object, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-				RecipeHelper.clearCache();
-			}
-		});
+	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
+	public static void onRecipesUpdated(RecipeManager manager) {
+		clearCache();
+		RECIPE_CHANGE_LISTENERS.notifyAllListeners();
 	}
 
-	private static Optional<Level> getWorld() {
-		return world != null ? Optional.ofNullable(world.get()) : Optional.empty();
+	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
+	public static void onDataPackSync(ServerPlayer serverPlayer, boolean b) {
+		clearCache();
+		RECIPE_CHANGE_LISTENERS.notifyAllListeners();
+	}
+
+	private static Optional<Level> getLevel() {
+		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
+			return serverLevel != null ? Optional.ofNullable(serverLevel.get()) : Optional.empty();
+		} else {
+			return clientLevel != null ? Optional.ofNullable(clientLevel.get()) : Optional.empty();
+		}
 	}
 
 	private static Set<CompactingShape> getCompactingShapes(Item item) {
-		return getWorld().map(w -> {
+		return getLevel().map(w -> {
 			Set<CompactingShape> compactingShapes = new HashSet<>();
 			getCompactingShape(item, w, 2, 2, TWO_BY_TWO_UNCRAFTABLE, TWO_BY_TWO).ifPresent(compactingShapes::add);
 			getCompactingShape(item, w, 3, 3, THREE_BY_THREE_UNCRAFTABLE, THREE_BY_THREE).ifPresent(compactingShapes::add);
@@ -154,7 +170,7 @@ public class RecipeHelper {
 
 	private static boolean uncompactMatchesItem(ItemStack result, Level w, Item item, int count) {
 		Item itemToUncompact = result.getItem();
-		for(ItemStack uncompactResult : getUncompactResultItems(w, itemToUncompact)) {
+		for (ItemStack uncompactResult : getUncompactResultItems(w, itemToUncompact)) {
 			if (uncompactResult.getItem() == item && uncompactResult.getCount() == count) {
 				return true;
 			}
@@ -163,7 +179,7 @@ public class RecipeHelper {
 	}
 
 	public static UncompactingResult getUncompactingResult(Item resultItem) {
-		return UNCOMPACTING_RESULTS.computeIfAbsent(resultItem, k -> getWorld().map(w -> {
+		return UNCOMPACTING_RESULTS.computeIfAbsent(resultItem, k -> getLevel().map(w -> {
 			for (ItemStack uncompactResultItem : getUncompactResultItems(w, resultItem)) {
 				if (uncompactResultItem.getCount() == 9) {
 					if (getCompactingResult(uncompactResultItem.getItem(), 3, 3).getResult().getItem() == resultItem) {
@@ -192,17 +208,17 @@ public class RecipeHelper {
 	}
 
 	public static CompactingResult getCompactingResult(Item item, int width, int height) {
-		return getWorld().map(w -> getCompactingResult(item, w, width, height)).orElse(CompactingResult.EMPTY);
+		return getLevel().map(w -> getCompactingResult(item, w, width, height)).orElse(CompactingResult.EMPTY);
 	}
 
-	private static CompactingResult getCompactingResult(Item item, Level w, int width, int height) {
+	private static CompactingResult getCompactingResult(Item item, Level level, int width, int height) {
 		CompactedItem compactedItem = new CompactedItem(item, width, height);
 		if (COMPACTING_RESULTS.containsKey(compactedItem)) {
 			return COMPACTING_RESULTS.get(compactedItem);
 		}
 
 		CraftingContainer craftingInventory = getFilledCraftingInventory(item, width, height);
-		List<CraftingRecipe> compactingRecipes = safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, w);
+		List<CraftingRecipe> compactingRecipes = safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, level);
 
 		if (compactingRecipes.isEmpty()) {
 			COMPACTING_RESULTS.put(compactedItem, CompactingResult.EMPTY);
@@ -214,8 +230,8 @@ public class RecipeHelper {
 		}
 
 		for (CraftingRecipe recipe : compactingRecipes) {
-			ItemStack result = recipe.assemble(craftingInventory, w.registryAccess());
-			if (uncompactMatchesItem(result, w, item, width * height)) {
+			ItemStack result = recipe.assemble(craftingInventory, level.registryAccess());
+			if (uncompactMatchesItem(result, level, item, width * height)) {
 				return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, result);
 			}
 		}
@@ -224,12 +240,9 @@ public class RecipeHelper {
 	}
 
 	private static CompactingResult cacheAndGetCompactingResult(CompactedItem compactedItem, CraftingRecipe recipe, CraftingContainer craftingInventory) {
-		Level level = world.get();
-		if (level == null) {
-			return CompactingResult.EMPTY;
-		}
-
-		return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory, level.registryAccess()));
+		return getLevel().map(level ->
+				cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory, level.registryAccess()))
+		).orElse(CompactingResult.EMPTY);
 	}
 
 	private static CompactingResult cacheAndGetCompactingResult(CompactedItem compactedItem, CraftingRecipe recipe, CraftingContainer craftingInventory, ItemStack result) {
@@ -266,36 +279,30 @@ public class RecipeHelper {
 	}
 
 	public static <T extends AbstractCookingRecipe> Optional<T> getCookingRecipe(ItemStack stack, RecipeType<T> recipeType) {
-		return getWorld().flatMap(w -> safeGetRecipeFor(recipeType, new SimpleContainer(stack), w));
+		return getLevel().flatMap(w -> safeGetRecipeFor(recipeType, new SimpleContainer(stack), w));
 	}
 
 	public static Set<CompactingShape> getItemCompactingShapes(Item item) {
 		return ITEM_COMPACTING_SHAPES.getUnchecked(item);
 	}
 
-	public static List<StonecutterRecipe> getStonecuttingRecipes(Container inventory) {
-		return getRecipesOfType(RecipeType.STONECUTTING, inventory);
-	}
-
 	public static <T extends Recipe<Container>> List<T> getRecipesOfType(RecipeType<T> recipeType, Container inventory) {
-		return getWorld().map(w -> w.getRecipeManager().getRecipesFor(recipeType, inventory, w)).orElse(Collections.emptyList());
+		return getLevel().map(w -> w.getRecipeManager().getRecipesFor(recipeType, inventory, w)).orElse(Collections.emptyList());
 	}
 
 	public static <C extends Container, T extends Recipe<C>> Optional<T> safeGetRecipeFor(RecipeType<T> recipeType, C inventory, Level level) {
 		try {
 			return level.getRecipeManager().getRecipeFor(recipeType, inventory, level);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Optional.empty();
 		}
 	}
 
-	private static <C extends Container, T extends Recipe<C>> List<T> safeGetRecipesFor(RecipeType<T> recipeType, C inventory, Level level) {
+	public static <C extends Container, T extends Recipe<C>> List<T> safeGetRecipesFor(RecipeType<T> recipeType, C inventory, Level level) {
 		try {
 			return level.getRecipeManager().getRecipesFor(recipeType, inventory, level);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Collections.emptyList();
 		}
@@ -395,6 +402,25 @@ public class RecipeHelper {
 		@Override
 		public int hashCode() {
 			return Objects.hash(item, width, height);
+		}
+	}
+
+	private static class RecipeChangeListenerList {
+		private final List<WeakReference<Runnable>> list = Collections.synchronizedList(new ArrayList<>());
+
+		public void add(Runnable runnable) {
+			list.add(new WeakReference<>(runnable));
+		}
+
+		public void notifyAllListeners() {
+			list.removeIf(ref -> {
+				Runnable runnable = ref.get();
+				if (runnable != null) {
+					runnable.run();
+					return false;
+				}
+				return true;
+			});
 		}
 	}
 }

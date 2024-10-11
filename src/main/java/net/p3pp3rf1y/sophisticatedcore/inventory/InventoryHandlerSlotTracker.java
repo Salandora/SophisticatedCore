@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -241,14 +242,12 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 			return maxAmount;
 		}
 
-		long remaining = maxAmount;
-
 		ItemStackKey stackKey = ItemStackKey.of(resource.toStack());
+		long remaining = maxAmount;
 		remaining -= handleOverflow(overflowHandler, stackKey, resource, remaining);
 		if (remaining <= 0) {
 			return 0;
 		}
-
 		remaining -= insertIntoSlotsThatMatchStack(inserter, resource, remaining, ctx, stackKey);
 		if (remaining > 0) {
 			remaining -= insertIntoEmptySlots(inserter, resource, remaining, ctx);
@@ -256,7 +255,6 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (remaining > 0) {
 			remaining -= handleOverflow(overflowHandler, stackKey, resource, remaining);
 		}
-
 		return remaining;
 	}
 
@@ -307,7 +305,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		// in case updating cache fails to prevent infinite loop
 		while (partiallyFilledStackSlots.get(stackKey) != null && !partiallyFilledStackSlots.get(stackKey).isEmpty() && i++ < sizeBefore) {
 			int matchingSlot = partiallyFilledStackSlots.get(stackKey).iterator().next();
-			remaining -= inserter.insertItem(matchingSlot, resource, remaining, ctx);
+			try (Transaction nested = Transaction.openNested(ctx)) {
+				remaining -= inserter.insertItem(matchingSlot, resource, remaining, nested);
+				nested.commit();
+			}
 			if (remaining <= 0) {
 				break;
 			}
@@ -330,12 +331,15 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 				int slot = it.next();
 				while (memorySettings.isSlotSelected(slot)) {
 					if (!it.hasNext()) {
-						return remaining;
+						return (int)maxAmount - remaining;
 					}
 					slot = it.next();
 				}
 
-				remaining -= inserter.insertItem(slot, resource, remaining, ctx);
+				try (Transaction nested = Transaction.openNested(ctx)) {
+					remaining -= inserter.insertItem(slot, resource, remaining, nested);
+					nested.commit();
+				}
 				if (remaining <= 0) {
 					break;
 				}
@@ -351,14 +355,16 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (filterItemSlots.containsKey(item)) {
 			for (int filterSlot : filterItemSlots.get(item)) {
 				if (emptySlots.contains(filterSlot)) {
-					remaining -= inserter.insertItem(filterSlot, resource, remaining, ctx);
+					try (Transaction nested = Transaction.openNested(ctx)) {
+						remaining -= inserter.insertItem(filterSlot, resource, remaining, nested);
+						nested.commit();
+					}
 					if (remaining <= 0) {
 						break;
 					}
 				}
 			}
 		}
-
 		return (int)maxAmount - remaining;
 	}
 
@@ -369,7 +375,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		if (memoryFilterItemSlots.containsKey(item)) {
 			for (int memorySlot : memoryFilterItemSlots.get(item)) {
 				if (emptySlots.contains(memorySlot)) {
-					remaining -= inserter.insertItem(memorySlot, resource, remaining, ctx);
+					try (Transaction nested = Transaction.openNested(ctx)) {
+						remaining -= inserter.insertItem(memorySlot, resource, remaining, nested);
+						nested.commit();
+					}
 					if (remaining <= 0) {
 						break;
 					}
@@ -383,7 +392,10 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 			if (memoryFilterStackSlots.containsKey(stackHash)) {
 				for (int memorySlot : memoryFilterStackSlots.get(stackHash)) {
 					if (emptySlots.contains(memorySlot)) {
-						remaining -= inserter.insertItem(memorySlot, resource, remaining, ctx);
+						try (Transaction nested = Transaction.openNested(ctx)) {
+							remaining -= inserter.insertItem(memorySlot, resource, remaining, nested);
+							nested.commit();
+						}
 						if (remaining <= 0) {
 							break;
 						}

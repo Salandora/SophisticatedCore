@@ -26,5 +26,20 @@ public class SCItemTagProvider extends FabricTagProvider.ItemTagProvider {
 
 		getOrCreateTagBuilder(Tags.Items.WOODEN_CHESTS)
 				.add(Items.CHEST, Items.TRAPPED_CHEST);
+
+		getOrCreateTagBuilder(Tags.Items.STORAGE_BLOCKS_COPPER)
+				.add(Items.COPPER_BLOCK);
+
+		getOrCreateTagBuilder(Tags.Items.STORAGE_BLOCKS_IRON)
+				.add(Items.IRON_BLOCK);
+
+		getOrCreateTagBuilder(Tags.Items.STORAGE_BLOCKS_GOLD)
+				.add(Items.GOLD_BLOCK);
+
+		getOrCreateTagBuilder(Tags.Items.STORAGE_BLOCKS_DIAMOND)
+				.add(Items.DIAMOND_BLOCK);
+
+		getOrCreateTagBuilder(Tags.Items.STORAGE_BLOCKS_NETHERITE)
+				.add(Items.NETHERITE_BLOCK);
 	}
 }

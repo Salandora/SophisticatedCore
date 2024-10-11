@@ -66,6 +66,7 @@ public class ButtonDefinitions {
 	public static final ButtonDefinition.Toggle<SortBy> SORT_BY = createSmallToggleButtonDefinition(
 			Map.of(
 					SortBy.NAME, getButtonStateData(new UV(24, 144), TranslationHelper.INSTANCE.translButton("sort_by_name"), Dimension.SQUARE_12),
+					SortBy.MOD, getButtonStateData(new UV(0, 156), TranslationHelper.INSTANCE.translButton("sort_by_mod"), Dimension.SQUARE_12),
 					SortBy.COUNT, getButtonStateData(new UV(36, 144), TranslationHelper.INSTANCE.translButton("sort_by_count"), Dimension.SQUARE_12),
 					SortBy.TAGS, getButtonStateData(new UV(12, 144), TranslationHelper.INSTANCE.translButton("sort_by_tags"), Dimension.SQUARE_12)
 			));

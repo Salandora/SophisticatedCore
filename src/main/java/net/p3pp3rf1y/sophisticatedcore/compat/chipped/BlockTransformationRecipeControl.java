@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -112,7 +113,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		//noop - everything is rendered in background or after screen render is done
 	}
 

@@ -14,13 +14,13 @@ public class SoundStopNotificationMessage extends SimplePacketBase {
 		this.storageUuid = storageUuid;
 	}
 
-	public SoundStopNotificationMessage(FriendlyByteBuf buffer) {
-		this(buffer.readUUID());
+	public SoundStopNotificationMessage(FriendlyByteBuf packetBuffer) {
+		this(packetBuffer.readUUID());
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeUUID(this.storageUuid);
+	public void write(FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeUUID(this.storageUuid);
 	}
 
 	@Override
@@ -34,5 +34,4 @@ public class SoundStopNotificationMessage extends SimplePacketBase {
 		});
 		return true;
 	}
-
 }

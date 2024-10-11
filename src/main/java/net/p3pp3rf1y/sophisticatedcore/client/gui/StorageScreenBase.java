@@ -93,9 +93,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private final Map<Integer, UpgradeInventoryPartBase<?>> inventoryParts = new LinkedHashMap<>();
 
 	private static ICraftingUIPart craftingUIPart = ICraftingUIPart.NOOP;
-	private static ISlotDecorationRenderer slotDecorationRenderer = (guiGraphics, slot) -> {};
+	private static ISlotDecorationRenderer slotDecorationRenderer = (guiGraphics, slot) -> {
+	};
 
-	private StorageBackgroundProperties storageBackgroundProperties;
+	protected StorageBackgroundProperties storageBackgroundProperties;
 
 	public static void setCraftingUIPart(ICraftingUIPart part) {
 		craftingUIPart = part;
@@ -154,7 +155,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return getMenu().getSlot(slotIndex);
 	}
 
-	private void updateUpgradeSlotsPositions() {
+	protected void updateUpgradeSlotsPositions() {
 		int yPosition = 6;
 		for (int slotIndex = 0; slotIndex < numberOfUpgradeSlots; slotIndex++) {
 			Slot slot = getMenu().getSlot(getMenu().getFirstUpgradeSlot() + slotIndex);
@@ -325,7 +326,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return switch (sortButtonsPosition) {
 			case BELOW_UPGRADES ->
 					new Position(leftPos - UPGRADE_INVENTORY_OFFSET - 2, topPos + getUpgradeHeightWithoutBottom() + UPGRADE_BOTTOM_HEIGHT + 2);
-			case BELOW_UPGRADE_TABS -> new Position(settingsTabControl.getX() + 2, settingsTabControl.getY() + Math.max(0, settingsTabControl.getHeight() + 2));
+			case BELOW_UPGRADE_TABS ->
+					new Position(settingsTabControl.getX() + 2, settingsTabControl.getY() + Math.max(0, settingsTabControl.getHeight() + 2));
 			default -> new Position(leftPos + imageWidth - 34, topPos + 4);
 		};
 	}
@@ -431,11 +433,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int j = slot.y;
 		ItemStack stackToRender = slot.getItem();
 		boolean flag = false;
-
 		boolean slotsEqual = (slot == ((AbstractContainerScreenAccessor) this).getClickedSlot());
 		boolean draggingItemEmpty = ((AbstractContainerScreenAccessor) this).getDraggingItem().isEmpty();
 		boolean isSplittingStack = ((AbstractContainerScreenAccessor) this).getIsSplittingStack();
-
 		boolean rightClickDragging = slotsEqual && !draggingItemEmpty && !isSplittingStack;
 		ItemStack carriedStack = getMenu().getCarried();
 		String stackCountText = null;
@@ -582,7 +582,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		inventoryParts.values().forEach(part -> part.renderTooltip(this, guiGraphics, x, y));
 		if (getMenu().getCarried().isEmpty() && hoveredSlot != null) {
 			if (hoveredSlot.hasItem()) {
-				guiGraphics.renderTooltip(font, hoveredSlot.getItem(), x, y);
+				super.renderTooltip(guiGraphics, x, y);
 			} else if (hoveredSlot instanceof INameableEmptySlot emptySlot && emptySlot.hasEmptyTooltip()) {
 				guiGraphics.renderComponentTooltip(font, Collections.singletonList(emptySlot.getEmptyTooltip()), x, y);
 			}
@@ -596,11 +596,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
-		List<Component> ret = super.getTooltipFromContainerItem(itemStack);
-		if (itemStack.getCount() > 999) {
+	protected List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
+		List<Component> ret = getTooltipFromItem(minecraft, itemStack);
+		if (hoveredSlot != null && hoveredSlot.getMaxStackSize() > 64) {
 			ret.add(Component.translatable("gui.sophisticatedcore.tooltip.stack_count",
-					Component.literal(NumberFormat.getNumberInstance().format(itemStack.getCount())).withStyle(ChatFormatting.DARK_AQUA))
+							Component.literal(NumberFormat.getNumberInstance().format(itemStack.getCount())).withStyle(ChatFormatting.DARK_AQUA)
+									.append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
+									.append(Component.literal(NumberFormat.getNumberInstance().format(hoveredSlot.getMaxStackSize(itemStack))).withStyle(ChatFormatting.DARK_AQUA)))
 					.withStyle(ChatFormatting.GRAY)
 			);
 		}
@@ -667,6 +669,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			return super.findSlot(mouseX, mouseY);
 		}
 	}
+
+
 
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -775,8 +779,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		GuiEventListener focused = getFocused();
 		if (focused != null && !focused.isMouseOver(mouseX, mouseY) && (focused instanceof WidgetBase widgetBase)) {
-				widgetBase.setFocused(false);
-
+			widgetBase.setFocused(false);
 		}
 
 		return super.mouseClicked(mouseX, mouseY, button);
@@ -912,7 +915,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			for (FormattedText line : wrappedLine) {
 				int lineWidth = font.width(line);
-				if (lineWidth > wrappedTooltipWidth) {wrappedTooltipWidth = lineWidth;}
+				if (lineWidth > wrappedTooltipWidth) {
+					wrappedTooltipWidth = lineWidth;
+				}
 				wrappedTextLines.add(line);
 			}
 			tooltipWidth = wrappedTooltipWidth;
@@ -944,6 +949,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	public boolean isMouseOverSlot(Slot pSlot, double pMouseX, double pMouseY) {
 		return ((AbstractContainerScreenAccessor) this).callIsHovering(pSlot, pMouseX, pMouseY);
+	}
+
+	@Override
+	public boolean isHovering(Slot slot, double mouseX, double mouseY) {
+		return super.isHovering(slot, mouseX, mouseY) && getUpgradeSettingsControl().slotIsNotCoveredAt(slot, mouseX, mouseY);
 	}
 
 	@Override

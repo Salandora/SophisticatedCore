@@ -17,6 +17,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class TransferMessage {
@@ -130,7 +131,7 @@ public class TransferMessage {
 				if (!stackAt.isEmpty()) {
 					boolean itemEqual = stack.getItem() == stackAt.getItem();
 					boolean damageEqual = stack.getDamageValue() == stackAt.getDamageValue();
-					boolean nbtEqual = ItemStack.tagMatches(stackAt, stack);
+					boolean nbtEqual = Objects.equals(stackAt.getTag(), stack.getTag());
 					if (itemEqual && damageEqual && nbtEqual) {
 						return true;
 					}

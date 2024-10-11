@@ -1,23 +1,24 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeCountLimitConfig;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,22 +27,29 @@ import javax.annotation.Nullable;
 public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapper> {
 	public static final UpgradeType<Wrapper> TYPE = new UpgradeType<>(Wrapper::new);
 
-	public JukeboxUpgradeItem() {super();}
+	public JukeboxUpgradeItem(IUpgradeCountLimitConfig upgradeTypeLimitConfig) {
+        super(upgradeTypeLimitConfig);
+    }
 
 	@Override
 	public UpgradeType<Wrapper> getType() {
 		return TYPE;
 	}
 
+	@Override
+	public List<UpgradeConflictDefinition> getUpgradeConflicts() {
+		return List.of();
+	}
+
 	public static class Wrapper extends UpgradeWrapperBase<Wrapper, JukeboxUpgradeItem> implements ITickableUpgrade {
 		private static final int KEEP_ALIVE_SEND_INTERVAL = 5;
-		private final SCItemStackHandler discInventory;
+		private final ItemStackHandler discInventory;
 		private long lastKeepAliveSendTime = 0;
 		private boolean isPlaying;
 
 		protected Wrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 			super(storageWrapper, upgrade, upgradeSaveHandler);
-			discInventory = new SCItemStackHandler(1) {
+			discInventory = new ItemStackHandler(1) {
 				@Override
 				protected void onContentsChanged(int slot) {
 					super.onContentsChanged(slot);
@@ -68,13 +76,12 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 
 		public void play(Level world, BlockPos pos) {
 			play(world, (serverWorld, storageUuid) ->
-					ServerStorageSoundHandler.startPlayingDisc(serverWorld, pos, storageUuid, Item.getId(getDisc().getItem()), () -> setIsPlaying(false)));
+					ServerStorageSoundHandler.startPlayingDisc(serverWorld, pos, storageUuid, getDisc(), () -> setIsPlaying(false)));
 		}
 
 		public void play(LivingEntity entity) {
 			play(entity.level(), (world, storageUuid) ->
-					ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(),
-							Item.getId(getDisc().getItem()), () -> setIsPlaying(false)));
+					ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(), getDisc(), () -> setIsPlaying(false)));
 		}
 
 		private void play(Level world, BiConsumer<ServerLevel, UUID> play) {

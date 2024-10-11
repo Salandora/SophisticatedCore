@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 public class ShapeBasedRecipeBuilder {
 	private static final RecipeCategory RECIPE_CATEGORY = RecipeCategory.MISC;
 	private final Item itemResult;
+	private final int count;
 	private final List<ConditionJsonProvider> conditions = new ArrayList<>();
 	private final List<String> pattern = new ArrayList<>();
 	private final Map<Character, Ingredient> keyIngredients = Maps.newLinkedHashMap();
@@ -42,26 +43,35 @@ public class ShapeBasedRecipeBuilder {
 	@Nullable
 	private final CompoundTag nbt;
 
-	public ShapeBasedRecipeBuilder(ItemLike itemResult, @Nullable CompoundTag nbt, RecipeSerializer<?> serializer) {
+	public ShapeBasedRecipeBuilder(ItemLike itemResult, @Nullable CompoundTag nbt, RecipeSerializer<?> serializer, int count) {
 		this.itemResult = itemResult.asItem();
 		this.serializer = serializer;
 		this.nbt = nbt;
+		this.count = count;
 	}
 
 	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult) {
 		return shaped(itemResult, RecipeSerializer.SHAPED_RECIPE);
 	}
 
-	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult, RecipeSerializer<?> serializer) {
-		return shaped(itemResult, null, serializer);
+	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult, int count) {
+		return shaped(itemResult, RecipeSerializer.SHAPED_RECIPE, count);
 	}
 
-	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult, @Nullable CompoundTag nbt, RecipeSerializer<?> serializer) {
-		return new ShapeBasedRecipeBuilder(itemResult, nbt, serializer);
+	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult, RecipeSerializer<?> serializer) {
+		return shaped(itemResult, serializer, 1);
+	}
+
+	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult, RecipeSerializer<?> serializer, int count) {
+		return shaped(itemResult, null, serializer, count);
+	}
+
+	public static ShapeBasedRecipeBuilder shaped(ItemLike itemResult, @Nullable CompoundTag nbt, RecipeSerializer<?> serializer, int count) {
+		return new ShapeBasedRecipeBuilder(itemResult, nbt, serializer, count);
 	}
 
 	public static ShapeBasedRecipeBuilder shaped(ItemStack stack) {
-		return shaped(stack.getItem(), stack.getTag(), RecipeSerializer.SHAPED_RECIPE);
+		return shaped(stack.getItem(), stack.getTag(), RecipeSerializer.SHAPED_RECIPE, stack.getCount());
 	}
 
 	public ShapeBasedRecipeBuilder define(Character symbol, TagKey<Item> tagIn) {
@@ -109,7 +119,7 @@ public class ShapeBasedRecipeBuilder {
 	public void save(Consumer<FinishedRecipe> consumerIn, ResourceLocation id) {
 		ensureValid(id);
 		advancementBuilder.parent(new ResourceLocation("recipes/root")).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-		consumerIn.accept(new Result(id, conditions, itemResult, nbt, pattern, keyIngredients, advancementBuilder, new ResourceLocation(id.getNamespace(), "recipes/" + RECIPE_CATEGORY.getFolderName() + "/" + id.getPath()), serializer));
+		consumerIn.accept(new Result(id, conditions, itemResult, count, nbt, pattern, keyIngredients, advancementBuilder, new ResourceLocation(id.getNamespace(), "recipes/" + RECIPE_CATEGORY.getFolderName() + "/" + id.getPath()), serializer));
 	}
 
 	private void ensureValid(ResourceLocation id) {
@@ -142,6 +152,7 @@ public class ShapeBasedRecipeBuilder {
 		private final ResourceLocation id;
 		private final List<ConditionJsonProvider> conditions;
 		private final Item itemResult;
+		private final int count;
 		@Nullable
 		private final CompoundTag nbt;
 		private final List<String> pattern;
@@ -151,11 +162,12 @@ public class ShapeBasedRecipeBuilder {
 		private final Advancement.Builder advancementBuilder;
 
 		@SuppressWarnings("java:S107") //the only way of reducing number of parameters here means adding pretty much unnecessary object parameter
-		public Result(ResourceLocation id, List<ConditionJsonProvider> conditions, Item itemResult, @Nullable
+		public Result(ResourceLocation id, List<ConditionJsonProvider> conditions, Item itemResult, int count, @Nullable
 		CompoundTag nbt, List<String> pattern, Map<Character, Ingredient> keyIngredients, Advancement.Builder advancementBuilder, ResourceLocation advancementId, RecipeSerializer<?> serializer) {
 			this.id = id;
 			this.conditions = conditions;
 			this.itemResult = itemResult;
+			this.count = count;
 			this.nbt = nbt;
 			this.pattern = pattern;
 			key = keyIngredients;
@@ -186,6 +198,9 @@ public class ShapeBasedRecipeBuilder {
 			json.add("key", jsonobject);
 			JsonObject jsonobject1 = new JsonObject();
 			jsonobject1.addProperty("item", RegistryHelper.getItemKey(itemResult).toString());
+			if (this.count > 1) {
+				jsonobject1.addProperty("count", this.count);
+			}
 			if (nbt != null) {
 				jsonobject1.addProperty("nbt", nbt.toString());
 			}

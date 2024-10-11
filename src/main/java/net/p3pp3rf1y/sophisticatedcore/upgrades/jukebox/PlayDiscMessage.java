@@ -30,26 +30,26 @@ public class PlayDiscMessage extends SimplePacketBase {
 		this.entityId = entityId;
 	}
 
-	public PlayDiscMessage(FriendlyByteBuf buffer) {
-		this.blockStorage = buffer.readBoolean();
-		this.storageUuid = buffer.readUUID();
-		this.musicDiscItemId = buffer.readInt();
-		if (blockStorage) {
-			this.pos = buffer.readBlockPos();
+	@Override
+	public void write(FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeBoolean(this.blockStorage);
+		packetBuffer.writeUUID(this.storageUuid);
+		packetBuffer.writeInt(this.musicDiscItemId);
+		if (this.blockStorage) {
+			packetBuffer.writeBlockPos(this.pos);
 		} else {
-			this.entityId = buffer.readInt();
+			packetBuffer.writeInt(this.entityId);
 		}
 	}
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeBoolean(this.blockStorage);
-		buffer.writeUUID(this.storageUuid);
-		buffer.writeInt(this.musicDiscItemId);
-		if (this.blockStorage) {
-			buffer.writeBlockPos(this.pos);
+	public PlayDiscMessage(FriendlyByteBuf packetBuffer) {
+		this.blockStorage = packetBuffer.readBoolean();
+		this.storageUuid = packetBuffer.readUUID();
+		this.musicDiscItemId = packetBuffer.readInt();
+		if (blockStorage) {
+			this.pos = packetBuffer.readBlockPos();
 		} else {
-			buffer.writeInt(this.entityId);
+			this.entityId = packetBuffer.readInt();
 		}
 	}
 
@@ -75,5 +75,4 @@ public class PlayDiscMessage extends SimplePacketBase {
 		});
 		return true;
 	}
-
 }

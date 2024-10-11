@@ -28,6 +28,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
 import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -154,10 +155,12 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	}
 
 	private void addMultiplierTooltip(IStorageWrapper wrapper) {
-		int multiplier = wrapper.getInventoryHandler().getStackSizeMultiplier();
+		double multiplier = wrapper.getInventoryHandler().getStackSizeMultiplier();
 		if (multiplier > 1) {
+			DecimalFormat df = new DecimalFormat("0.###");
+
 			tooltipLines.add(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".stack_multiplier",
-					Component.literal(Integer.toString(multiplier)).withStyle(ChatFormatting.WHITE)
+					Component.literal(df.format(multiplier)).withStyle(ChatFormatting.WHITE)
 			).withStyle(ChatFormatting.GREEN));
 		}
 	}
@@ -181,6 +184,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 					tooltipLines.add(Component.translatable(getFluidTooltipTranslation(),
 							Component.literal(CountAbbreviator.abbreviate(FluidHelper.toBuckets(view.getAmount()))).withStyle(ChatFormatting.WHITE),
 							((MutableComponent)FluidVariantAttributes.getName(view.getResource())).withStyle(ChatFormatting.BLUE)
+
 					));
 				}
 			}

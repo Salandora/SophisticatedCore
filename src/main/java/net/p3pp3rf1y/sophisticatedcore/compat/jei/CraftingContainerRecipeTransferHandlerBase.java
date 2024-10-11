@@ -117,6 +117,7 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
 			}
 			TransferRecipeMessage message = new TransferRecipeMessage(
+					recipe.getId(),
 					toMap(transferOperations.results),
 					craftingSlotIndexes,
 					inventorySlotIndexes,
@@ -129,7 +130,7 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 
 	private Map<Integer, Integer> toMap(List<TransferOperation> transferOperations) {
 		Map<Integer, Integer> ret = new HashMap<>();
-		transferOperations.forEach(to -> ret.put(to.craftingSlot().index, to.inventorySlot().index));
+		transferOperations.forEach(to -> ret.put(to.craftingSlotId(), to.inventorySlotId()));
 		return ret;
 	}
 

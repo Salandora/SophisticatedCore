@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 public class SettingsTemplateStorage extends SavedData {
-	private static final String SAVED_DATA_NAME = SophisticatedCore.ID + "_settings_templates";
+	private static final String SAVED_DATA_NAME = SophisticatedCore.MOD_ID + "_settings_templates";
 	private Map<UUID, Map<Integer, CompoundTag>> playerTemplates = new HashMap<>();
 	private Map<UUID, Map<String, CompoundTag>> playerNamedTemplates = new HashMap<>();
 	private static final SettingsTemplateStorage clientStorageCopy = new SettingsTemplateStorage();

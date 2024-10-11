@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.block;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -24,10 +26,12 @@ public interface SophisticatedBlockState {
         return self().getBlock().addRunningEffects(self(), level, pos, entity);
     }
 
+	@Environment(EnvType.CLIENT)
     default boolean addHitEffects(Level level, HitResult target, ParticleEngine manager) {
         return self().getBlock().addHitEffects(self(), level, target, manager);
     }
 
+	@Environment(EnvType.CLIENT)
     default boolean addDestroyEffects(Level level, BlockPos pos, ParticleEngine manager) {
         return self().getBlock().addDestroyEffects(self(), level, pos, manager);
     }
