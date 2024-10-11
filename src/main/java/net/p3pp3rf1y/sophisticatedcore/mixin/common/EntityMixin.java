@@ -22,6 +22,9 @@ import java.util.Collection;
 
 @Mixin(Entity.class)
 public class EntityMixin implements SophisticatedEntity {
+	@Unique
+	private static final String SOPHISTICATEDCOREDATA_NBT_KEY = "SophisticatedCoreData";
+
     @Shadow
 	private Level level;
 
@@ -78,14 +81,14 @@ public class EntityMixin implements SophisticatedEntity {
 	@Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
 	public void sophisticatedCore$saveAdditionalData(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
 		if (this.sophisticatedCore$customData != null && !this.sophisticatedCore$customData.isEmpty()) {
-			compound.put("ForgeData", this.sophisticatedCore$customData);
+			compound.put(SOPHISTICATEDCOREDATA_NBT_KEY, this.sophisticatedCore$customData);
 		}
 	}
 
 	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
 	public void sophisticatedCore$readAdditionalData(CompoundTag compound, CallbackInfo ci) {
-		if (compound.contains("ForgeData")) {
-			this.sophisticatedCore$customData = compound.getCompound("ForgeData");
+		if (compound.contains(SOPHISTICATEDCOREDATA_NBT_KEY)) {
+			this.sophisticatedCore$customData = compound.getCompound(SOPHISTICATEDCOREDATA_NBT_KEY);
 		}
 	}
 }
