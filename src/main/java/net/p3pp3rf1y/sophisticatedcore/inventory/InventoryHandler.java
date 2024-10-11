@@ -1,18 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.mojang.datafixers.util.Pair;
-
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandlerSlot;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IInsertResponseUpgrade;
@@ -22,21 +21,16 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeConfig;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public abstract class InventoryHandler extends SCItemStackHandler implements ITrackedContentsItemHandler {
+// TODO: Feasible to rewrite to a snapshot system?
+public abstract class InventoryHandler extends ItemStackHandler implements ITrackedContentsItemHandler {
 	public static final String INVENTORY_TAG = "inventory";
 	private static final String PARTITIONER_TAG = "partitioner";
 	private static final String REAL_COUNT_TAG = "realCount";
@@ -51,7 +45,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 
 	private int baseSlotLimit;
 	private int slotLimit;
-	private int maxStackSizeMultiplier;
+	private double maxStackSizeMultiplier;
 	private boolean isInitializing;
 	private final StackUpgradeConfig stackUpgradeConfig;
 	private final InventoryPartitioner inventoryPartitioner;
@@ -86,8 +80,9 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	private void initStackNbts() {
+		stackNbts.clear();
 		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack slotStack = this.getStackInSlot(slot);
+			ItemStack slotStack = this.getSlotStack(slot);
 			if (!slotStack.isEmpty()) {
 				stackNbts.put(slot, getSlotsStackNbt(slot, slotStack));
 			}
@@ -143,14 +138,13 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
 		for (int i = 0; i < tagList.size(); i++) {
 			CompoundTag itemTags = tagList.getCompound(i);
-			int slotIndex = itemTags.getInt("Slot");
+			int slot = itemTags.getInt("Slot");
 
-			if (slotIndex >= 0 && slotIndex < getSlotCount()) {
-				ItemStack slotStack = ItemStack.of(itemTags);
-				if (itemTags.contains(REAL_COUNT_TAG)) {
-					slotStack.setCount(itemTags.getInt(REAL_COUNT_TAG));
-				}
-				this.getSlot(slotIndex).load(slotStack);
+			if (slot >= 0 && slot < getSlotCount()) {
+				this.getSlot(slot).load(itemTags);
+				/*if (itemTags.contains(REAL_COUNT_TAG)) {
+					super.getStackInSlot(slot).setCount(itemTags.getInt(REAL_COUNT_TAG));
+				}*/
 			}
 		}
 		slotTracker.refreshSlotIndexesFrom(this);
@@ -206,7 +200,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public void setBaseSlotLimit(int baseSlotLimit) {
 		slotLimitInitialized = false; // not the most ideal of places to do this, but base slot limit is set when upgrades change and that's when slot limit needs to be reinitialized as well
 		this.baseSlotLimit = baseSlotLimit;
-		maxStackSizeMultiplier = baseSlotLimit / 64;
+		maxStackSizeMultiplier = baseSlotLimit / 64f;
 
 		if (inventoryPartitioner != null) {
 			inventoryPartitioner.onSlotLimitChange();
@@ -242,11 +236,11 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	public ItemStack getSlotStack(int slot) {
-		return this.getSlot(slot).getStack();
+		return ((InventoryHandlerSlot) this.getSlot(slot)).getInternalStack();
 	}
 
 	public void setSlotStack(int slot, ItemStack stack) {
-		this.getSlot(slot).setNewStack(stack);
+		((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 		onContentsChanged(slot);
 	}
@@ -260,7 +254,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameTags(getStackInSlot(slot), resource.toStack())) {
-			return triggerOverflowUpgrades(resource.toStack((int) insertItemInternal(slot, resource, maxAmount, ctx))).getCount();
+			return maxAmount - triggerOverflowUpgrades(resource.toStack((int)(maxAmount - insertItemInternal(slot, resource, maxAmount, ctx)))).getCount();
 		}
 
 		return insertItemInternal(slot, resource, maxAmount, ctx);
@@ -288,6 +282,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		}
 
 		runOnAfterInsert(slot, ctx, this, storageWrapper);
+
 		return maxAmount - remaining;
 	}
 
@@ -302,6 +297,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	private void runOnAfterInsert(int slot, TransactionContext ctx, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+		// TODO: should this be simulated at all?
 		storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(IInsertResponseUpgrade.class).forEach(u -> u.onAfterInsert(handler, slot, ctx));
 	}
 
@@ -318,7 +314,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	}
 
 	@Override
-	public void setStackInSlot(int slot, ItemStack stack) {
+	public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
 		inventoryPartitioner.getPartBySlot(slot).setStackInSlot(slot, stack, super::setStackInSlot);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 	}
@@ -383,7 +379,7 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 		return nbt;
 	}
 
-	public int getStackSizeMultiplier() {
+	public double getStackSizeMultiplier() {
 		return maxStackSizeMultiplier;
 	}
 
@@ -411,9 +407,11 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
+			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
+			if (tag != null) {
+				getSlot(i).load(tag);
+			}
 		}
-
 		initStackNbts();
 		saveInventory();
 		slotTracker.refreshSlotIndexesFrom(this);
@@ -496,5 +494,86 @@ public abstract class InventoryHandler extends SCItemStackHandler implements ITr
 	public void setShouldInsertIntoEmpty(BooleanSupplier shouldInsertIntoEmpty) {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
+	}
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new InventoryHandlerSlot(index, this, stack);
+	}
+
+	// Make the "get stack" functions return a copy of the item due to how the insertion and extraction is handled in the part inventory handler implementations.
+	private class InventoryHandlerSlot extends ItemStackHandlerSlot {
+		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+			super.setStack(initial);
+		}
+
+		protected ItemStack getInternalStack() {
+			return super.getStack().copy();
+		}
+
+		protected void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
+			this.onFinalCommit();
+		}
+
+		@Override
+		public ItemStack getStack() {
+			if (inventoryPartitioner == null) {
+				return super.getStack().copy();
+			}
+
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack()).copy();
+		}
+
+		@Override
+		protected void setStack(ItemStack stack) {
+			if (inventoryPartitioner == null) {
+				super.setStack(stack);
+				return;
+			}
+
+			inventoryPartitioner.getPartBySlot(getIndex()).setStackInSlot(getIndex(), stack, (slot, stck) -> super.setStack(stack));
+		}
+
+		@Override
+		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
+			long inserted = super.insert(insertedVariant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
+				this.onFinalCommit();
+			});
+			return inserted;
+		}
+
+		@Override
+		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			long extracted = super.extract(variant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
+				this.onFinalCommit();
+			});
+			return extracted;
+		}
+
+		@Nullable
+		@Override
+		public CompoundTag save() {
+			CompoundTag itemTag = super.save();
+			if (itemTag != null) {
+				itemTag.putInt(REAL_COUNT_TAG, getStack().getCount());
+			}
+			return itemTag;
+		}
+
+		@Override
+		public void load(CompoundTag tag) {
+			ItemStack stack = ItemStack.of(tag);
+			if (tag.contains(REAL_COUNT_TAG)) {
+				stack.setCount(tag.getInt(REAL_COUNT_TAG));
+			}
+			super.setStack(stack);
+			onStackChange();
+		}
 	}
 }

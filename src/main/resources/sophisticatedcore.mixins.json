@@ -5,6 +5,7 @@
     "package": "net.p3pp3rf1y.sophisticatedcore.mixin",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
+        "common.BlockEntityMixin",
         "common.BlockMixin",
         "common.BlockStateMixin",
         "common.EntityMixin",
@@ -15,14 +16,18 @@
         "common.MobMixin",
         "common.PersistentEntitySectionManagerMixin",
         "common.ServerLevelMixin",
+        "common.ServerPlayerMixin",
         "common.ShapedRecipeMixin",
         "common.SlotMixin",
         "common.accessor.AbstractContainerMenuAccessor",
+        "common.accessor.ShapedRecipeAccessor",
+        "common.accessor.ShapelessRecipeAccessor",
         "common.accessor.SlotAccessor"
     ],
     "client": [
         "client.AbstractContainerScreenMixin",
         "client.ClientLevelMixin",
+        "client.ClientPacketListenerMixin",
         "client.KeyboardHandlerMixin",
         "client.MinecraftMixin",
         "client.MouseHandlerMixin",

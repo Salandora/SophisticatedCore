@@ -1,34 +1,35 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.common.ClientRecipeHelper;
+import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeNextTierRecipe;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiCraftingRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.ClientRecipeHelper;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeNextTierRecipe;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-
 public class EmiCompat implements EmiPlugin, ICompat {
     @Override
     public void register(EmiRegistry registry) {
-        ClientRecipeHelper.getAndTransformAvailableRecipes(UpgradeNextTierRecipe.REGISTERED_RECIPES, ShapedRecipe.class, ClientRecipeHelper::copyShapedRecipe).forEach(r ->
+		Minecraft mc = Minecraft.getInstance();
+        ClientRecipeHelper.transformAllRecipesOfType(RecipeType.CRAFTING, UpgradeNextTierRecipe.class, ClientRecipeHelper::copyShapedRecipe).forEach(r ->
             registry.addRecipe(new EmiCraftingRecipe(
-                r.getIngredients().stream().map(EmiIngredient::of).toList(),
-                EmiStack.of(r.getResultItem(null)),
-                r.getId()
+                r.value().getIngredients().stream().map(EmiIngredient::of).toList(),
+                EmiStack.of(r.value().getResultItem(mc.level.registryAccess())),
+                r.id()
         )));
     }
 
     @Override
     public void setup() {
-        PacketHandler.registerC2SMessage(EmiFillRecipeC2SPacket.class, EmiFillRecipeC2SPacket::new);
-        PacketHandler.registerC2SMessage(SetGhostSlotMessage.class, SetGhostSlotMessage::new);
-        PacketHandler.registerC2SMessage(SetMemorySlotMessage.class, SetMemorySlotMessage::new);
+		ServerPlayNetworking.registerGlobalReceiver(EmiFillRecipePacket.TYPE, EmiFillRecipePacket::handle);
+		ServerPlayNetworking.registerGlobalReceiver(SetGhostSlotMessage.TYPE, SetGhostSlotMessage::handle);
+		ServerPlayNetworking.registerGlobalReceiver(SetMemorySlotMessage.TYPE, SetMemorySlotMessage::handle);
     }
 }

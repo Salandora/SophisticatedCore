@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,7 +20,7 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 	private int height;
 	private int width;
 	protected boolean isHovered;
-	private boolean visible = true;
+	protected boolean visible = true;
 	private boolean focused = false;
 
 	protected WidgetBase(Position position, Dimension dimension) {
@@ -51,7 +50,7 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 
 	@Override
 	public NarrationPriority narrationPriority() {
-		return isHovered ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
+		return isHovered ? NarrationPriority.HOVERED : NarrationPriority.NONE;
 	}
 
 	protected abstract void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY);

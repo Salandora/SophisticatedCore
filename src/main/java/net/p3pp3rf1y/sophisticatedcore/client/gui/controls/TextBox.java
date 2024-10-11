@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.lwjgl.glfw.GLFW;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -11,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.EditBoxAccessor;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 
@@ -43,15 +42,15 @@ public class TextBox extends WidgetBase {
 		super.setFocused(focused);
 	}
 	@Override
-	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (!editBox.isFocused()) {
 			return false;
 		}
-		editBox.keyPressed(pKeyCode, pScanCode, pModifiers);
-		if (pKeyCode == GLFW.GLFW_KEY_ENTER) {
+		editBox.keyPressed(keyCode, scanCode, modifiers);
+		if (keyCode == GLFW.GLFW_KEY_ENTER) {
 			onEnterPressed();
 		}
-		return pKeyCode != GLFW.GLFW_KEY_ESCAPE;
+		return keyCode != GLFW.GLFW_KEY_ESCAPE;
 	}
 
 	protected void onEnterPressed() {
@@ -63,13 +62,13 @@ public class TextBox extends WidgetBase {
 	}
 
 	@Override
-	public boolean charTyped(char pCodePoint, int pModifiers) {
-		return editBox.charTyped(pCodePoint, pModifiers);
+	public boolean charTyped(char codePoint, int modifiers) {
+		return editBox.charTyped(codePoint, modifiers);
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
-		editBox.updateNarration(pNarrationElementOutput);
+	public void updateNarration(NarrationElementOutput narrationElementOutput) {
+		editBox.updateNarration(narrationElementOutput);
 	}
 
 	public void setValue(String value) {

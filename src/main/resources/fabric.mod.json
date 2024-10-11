@@ -1,19 +1,16 @@
 {
     "schemaVersion": 1,
-    "id": "sophisticatedcore",
+    "id": "${mod_id}",
     "version": "${mod_version}",
-    "name": "Sophisticated Core",
-    "description": "Base mod of Sophisticated mods.",
-    "license": "GNU General Public License v3.0",
-    "icon": "SophisticatedCoreFabric.png",
-    "authors": [
-        "P3pp3rF1y",
-        "Salandora"
-    ],
+    "name": "${mod_name}",
+    "description": "${mod_description}",
+    "license": "${mod_license}",
+    "icon": "${mod_logo_file}",
+    "authors": ["mod_authors"],
     "contact": {
-        "homepage": "https://www.curseforge.com/minecraft/mc-mods/sophisticated-core-unofficial-fabric-port",
-        "issues": "https://github.com/Salandora/SophisticatedCore/issues",
-        "sources": "https://github.com/Salandora/SophisticatedCore/"
+        "homepage": "${mod_display_url}",
+        "issues": "${mod_issue_tracker_url}",
+        "sources": "${mod_sources_url}"
     },
     "environment": "*",
     "entrypoints": {
@@ -24,13 +21,13 @@
             "net.p3pp3rf1y.sophisticatedcore.client.ClientEventHandler"
         ],
         "fabric-datagen": [
-            "net.p3pp3rf1y.sophisticatedcore.data.SophisticatedCoreData"
+            "net.p3pp3rf1y.sophisticatedcore.data.DataGenerators"
         ],
         "emi": [
             "net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat"
         ],
         "jei_mod_plugin": [
-            "net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat"
+            "net.p3pp3rf1y.sophisticatedcore.compat.jei.CorePlugin"
         ],
         "rei_client": [
             "net.p3pp3rf1y.sophisticatedcore.compat.rei.REIClientCompat"
@@ -48,7 +45,6 @@
         "fabric-api": ">=${fabric_version}",
         "porting_lib_extensions": ">=${port_lib_version}",
         "porting_lib_fluids": ">=${port_lib_version}",
-        "porting_lib_networking": ">=${port_lib_version}",
         "porting_lib_transfer": ">=${port_lib_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
         "team_reborn_energy": ">=${energy_version}"
@@ -65,7 +61,8 @@
             "net/minecraft/class_1792": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItem"],
             "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack"],
             "net/minecraft/class_2248": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlock"],
-            "net/minecraft/class_2680": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"]
+            "net/minecraft/class_2680": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"],
+            "net/minecraft/class_2586": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/entity/CapabilityHelper"]
         },
         "modmenu": {
             "badges": ["library"],

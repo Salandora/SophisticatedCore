@@ -1,16 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IServerUpdater;
+import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 
 import java.util.function.Supplier;
 
@@ -44,7 +42,7 @@ public class FluidFilterContainer {
 		return ret;
 	}
 
-	public boolean handleMessage(CompoundTag data) {
+	public boolean handlePacket(CompoundTag data) {
 		if (data.contains(DATA_FLUID)) {
 			CompoundTag fluidData = data.getCompound(DATA_FLUID);
 			FluidStack fluid = FluidStack.loadFluidStackFromNBT(data.getCompound("fluid"));
@@ -67,12 +65,11 @@ public class FluidFilterContainer {
 			return;
 		}
 
-        Storage<FluidVariant> storage = ContainerItemContext.withConstant(carried).find(FluidStorage.ITEM);
-		if (storage != null) {
-			FluidStack containedFluid = TransferUtil.simulateExtractAnyFluid(storage, FluidConstants.BUCKET);
+		CapabilityHelper.runOnCapability(carried, FluidStorage.ITEM, null, itemFluidHandler -> {
+			FluidStack containedFluid = TransferUtil.simulateExtractAnyFluid(itemFluidHandler, FluidConstants.BUCKET);
 			if (!containedFluid.isEmpty()) {
 				setFluid(index, containedFluid);
 			}
-		}
+		});
 	}
 }

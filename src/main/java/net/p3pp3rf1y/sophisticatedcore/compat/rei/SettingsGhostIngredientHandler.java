@@ -1,12 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
-import me.shedaniel.math.Point;
-import me.shedaniel.math.Rectangle;
-import me.shedaniel.rei.api.client.gui.drag.DraggableStack;
-import me.shedaniel.rei.api.client.gui.drag.DraggableStackVisitor;
-import me.shedaniel.rei.api.client.gui.drag.DraggedAcceptorResult;
-import me.shedaniel.rei.api.client.gui.drag.DraggingContext;
-
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -15,8 +8,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
+import me.shedaniel.math.Point;
+import me.shedaniel.math.Rectangle;
+import me.shedaniel.rei.api.client.gui.drag.DraggableStack;
+import me.shedaniel.rei.api.client.gui.drag.DraggableStackVisitor;
+import me.shedaniel.rei.api.client.gui.drag.DraggedAcceptorResult;
+import me.shedaniel.rei.api.client.gui.drag.DraggingContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,7 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 		}
 
 		public void accept(I ingredient) {
-			PacketHandler.sendToServer(new SetMemorySlotMessage(stack, slot.index));
+			PacketHelper.sendToServer(new SetMemorySlotMessage(stack, slot.index));
 		}
 
 		@Override

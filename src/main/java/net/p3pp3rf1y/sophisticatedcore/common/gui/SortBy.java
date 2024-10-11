@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Map;
 
 public enum SortBy implements StringRepresentable {
 	NAME("name"),
+	MOD("mod"),
 	COUNT("count"),
 	TAGS("tags");
 

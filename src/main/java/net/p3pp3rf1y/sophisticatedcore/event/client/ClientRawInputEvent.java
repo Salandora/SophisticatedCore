@@ -1,11 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.event.client;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.InteractionResult;
 
 
 @Environment(EnvType.CLIENT)
@@ -20,9 +20,9 @@ public interface ClientRawInputEvent {
         return InteractionResult.PASS;
     });
 
-    Event<MouseScrolled> MOUSE_SCROLLED = EventFactory.createArrayBacked(MouseScrolled.class, callbacks -> (client, delta) -> {
+    Event<MouseScrolled> MOUSE_SCROLLED = EventFactory.createArrayBacked(MouseScrolled.class, callbacks -> (client, deltaX, deltaY) -> {
         for (var event : callbacks) {
-            var result = event.keyPressed(client, delta);
+            var result = event.mouseScrolled(client, deltaX, deltaY);
             if (result != InteractionResult.PASS) {
                 return result;
             }
@@ -37,6 +37,6 @@ public interface ClientRawInputEvent {
 
     @FunctionalInterface
     interface MouseScrolled {
-        InteractionResult keyPressed(Minecraft client, double delta);
+        InteractionResult mouseScrolled(Minecraft client, double deltaX, double deltaY);
     }
 }

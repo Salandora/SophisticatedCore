@@ -1,31 +1,24 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.voiding;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IFilteredUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IInsertResponseUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.IOverflowResponseUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.ISlotLimitUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.PrimaryMatch;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, VoidUpgradeItem>
 		implements IInsertResponseUpgrade, IFilteredUpgrade, ISlotChangeResponseUpgrade, ITickableUpgrade, IOverflowResponseUpgrade, ISlotLimitUpgrade {
@@ -102,13 +95,13 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		}
 
 		ItemStack slotStack = inventoryHandler.getStackInSlot(slot);
-		if (filterLogic.matchesFilter(slotStack)) {
+		if (!slotStack.isEmpty() && filterLogic.matchesFilter(slotStack)) {
 			slotsToVoid.add(slot);
 		}
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
 		if (slotsToVoid.isEmpty()) {
 			return;
 		}
@@ -116,6 +109,10 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		InventoryHandler storageInventory = storageWrapper.getInventoryHandler();
 		for (int slot : slotsToVoid) {
 			ItemStack stack = storageInventory.getStackInSlot(slot);
+			if (stack.isEmpty()) {
+				continue;
+			}
+
 			try (Transaction outer = Transaction.openOuter()) {
 				storageInventory.extractSlot(slot, ItemVariant.of(stack), stack.getCount(), outer);
 				outer.commit();

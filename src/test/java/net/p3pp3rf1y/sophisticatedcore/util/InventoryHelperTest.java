@@ -1,26 +1,25 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.BiPredicate;
-import javax.annotation.Nonnull;
 
 import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
 
@@ -37,7 +36,7 @@ class InventoryHelperTest {
 	}
 
 	private SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier, BiPredicate<Integer, ItemStack> isStackValidForSlot) {
-		return new SCItemStackHandler(stacks.toArray(new ItemStack[0])) {
+		return new ItemStackHandler(stacks.toArray(new ItemStack[0])) {
 			@Override
 			public int getSlotLimit(int slot) {
 				return super.getSlotLimit(slot) * stackLimitMultiplier;
@@ -48,7 +47,6 @@ class InventoryHelperTest {
 				return super.getStackLimit(slot, resource) * stackLimitMultiplier;
 			}
 
-
             @Override
             public boolean isItemValid(int slot, ItemVariant resource, int count) {
 				return isStackValidForSlot.test(slot, resource.toStack(count));
@@ -57,19 +55,19 @@ class InventoryHelperTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource
+	@MethodSource("transferMovesOnlyStacksThatCanGoIntoInventory")
 	void transferMovesOnlyStacksThatCanGoIntoInventory(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB,
 			BiPredicate<Integer, ItemStack> isStackValidInHandlerB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {
 		SlottedStackStorage handlerA = getItemHandler(stacksHandlerA, limitMultiplierA);
 		SlottedStackStorage handlerB = getItemHandler(stacksHandlerB, limitMultiplierB, isStackValidInHandlerB);
 
-		InventoryHelper.transfer(handlerA, handlerB, s -> {}, null);
+		InventoryHelper.transfer(handlerA, handlerB, s -> {});
 
 		assertHandlerState(handlerA, stacksAfterTransferA);
 		assertHandlerState(handlerB, stacksAfterTransferB);
 	}
 
-	static Object[][] transferMovesOnlyStacksThatCanGoIntoInventory() {
+	private static Object[][] transferMovesOnlyStacksThatCanGoIntoInventory() {
 		return new Object[][] {
 				{
 						stacks(new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.IRON_INGOT, 64), new ItemStack(Items.GOLD_INGOT, 64)),
@@ -176,12 +174,12 @@ class InventoryHelperTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource
+	@MethodSource("transferMovesStacksCorrectly")
 	void transferMovesStacksCorrectly(NonNullList<ItemStack> stacksHandlerA, int limitMultiplierA, NonNullList<ItemStack> stacksHandlerB, int limitMultiplierB, Map<Integer, ItemStack> stacksAfterTransferA, Map<Integer, ItemStack> stacksAfterTransferB) {
 		SlottedStackStorage handlerA = getItemHandler(stacksHandlerA, limitMultiplierA);
 		SlottedStackStorage handlerB = getItemHandler(stacksHandlerB, limitMultiplierB);
 
-		InventoryHelper.transfer(handlerA, handlerB, s -> {}, null);
+		InventoryHelper.transfer(handlerA, handlerB, s -> {});
 
 		assertHandlerState(handlerA, stacksAfterTransferA);
 		assertHandlerState(handlerB, stacksAfterTransferB);
@@ -207,7 +205,7 @@ class InventoryHelperTest {
 		}
 	}
 
-	static Object[][] transferMovesStacksCorrectly() {
+	private static Object[][] transferMovesStacksCorrectly() {
 		return new Object[][] {
 				{
 						stacks(new ItemStack(Items.IRON_INGOT)),

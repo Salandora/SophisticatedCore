@@ -8,6 +8,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 public interface SophisticatedBlock {
     default boolean addLandingEffects(BlockState state1, ServerLevel level, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles)
@@ -20,7 +22,11 @@ public interface SophisticatedBlock {
         return false;
     }
 
+	@Environment(EnvType.CLIENT)
     default boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) { return false; }
 
-    default boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) { return !state.shouldSpawnParticlesOnBreak(); }
+	@Environment(EnvType.CLIENT)
+    default boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) {
+		return !state.shouldSpawnTerrainParticles();
+	}
 }

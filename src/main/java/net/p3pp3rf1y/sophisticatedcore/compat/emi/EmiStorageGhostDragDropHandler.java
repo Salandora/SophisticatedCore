@@ -1,14 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import dev.emi.emi.api.EmiDragDropHandler;
-import dev.emi.emi.api.stack.EmiStack;
-
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import dev.emi.emi.api.EmiDragDropHandler;
+import dev.emi.emi.api.stack.EmiStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class EmiStorageGhostDragDropHandler<T extends StorageScreenBase<?>> exte
 
                 ItemStack stack = stacks.get(0).getItemStack();
                 if (slot.mayPlace(stack)) {
-                    PacketHandler.sendToServer(new SetGhostSlotMessage(stack, slot.index));
+                    PacketHelper.sendToServer(new SetGhostSlotMessage(stack, slot.index));
                 }
             }
         );

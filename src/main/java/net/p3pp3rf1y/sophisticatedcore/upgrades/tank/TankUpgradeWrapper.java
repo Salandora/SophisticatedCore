@@ -1,12 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -15,22 +14,23 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedTankUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, TankUpgradeItem>
 		implements IRenderedTankUpgrade, ITickableUpgrade, IStackableContentsUpgrade, SingleSlotStorage<FluidVariant> {
@@ -38,14 +38,14 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	public static final int OUTPUT_SLOT = 1;
 	private static final String CONTENTS_TAG = "contents";
 	private Consumer<TankRenderInfo> updateTankRenderInfoCallback;
-	private final SCItemStackHandler inventory;
+	private final ItemStackHandler inventory;
 	private FluidStack contents;
 	private long cooldownTime = 0;
-	private boolean allowEmptyInputResource = false;
+	private boolean allowEmptyInputResource = false; // Added due to how ContainerItemContext works
 
 	protected TankUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
-		inventory = new SCItemStackHandler(2) {
+		inventory = new ItemStackHandler(2) {
 			@Override
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
@@ -84,23 +84,15 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private boolean isValidFluidItem(ItemStack stack, boolean isOutput) {
-		if (!stack.isEmpty()) {
-			Storage<FluidVariant> storage = ContainerItemContext.withConstant(stack).find(FluidStorage.ITEM);
-			if (storage == null) {
-				return false;
-			}
-			return isValidFluidHandler(storage, isOutput);
-		}
-		return false;
+		return CapabilityHelper.getFromFluidHandler(stack, fluidHandler -> isValidFluidHandler(fluidHandler, isOutput), false);
 	}
 
 	private boolean isValidFluidHandler(Storage<FluidVariant> storage, boolean isOutput) {
 		boolean tankEmpty = contents.isEmpty();
 		for (StorageView<FluidVariant> view : storage) {
-			if (
-					(isOutput  && (view.isResourceBlank() || (!tankEmpty && view.getResource().isOf(contents.getFluid()))))
-				 || (!isOutput && (!view.isResourceBlank() && (tankEmpty  || view.getResource().isOf(contents.getFluid())))
-							|| (view.isResourceBlank() && allowEmptyInputResource))
+			if ((isOutput && (view.isResourceBlank() || (!tankEmpty && view.getResource().isOf(contents.getFluid()))))
+				|| (!isOutput && (!view.isResourceBlank() && (tankEmpty || view.getResource().isOf(contents.getFluid())))
+				|| (view.isResourceBlank() && allowEmptyInputResource))
 			) {
 				return true;
 			}
@@ -191,26 +183,21 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if (world.getGameTime() < cooldownTime) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if (level.getGameTime() < cooldownTime) {
 			return;
 		}
 
-		boolean didSomething = false;
-		ContainerItemContext cic = ContainerItemContext.ofSingleSlot(inventory.getSlot(INPUT_SLOT));
-		Storage<FluidVariant> storage = cic.find(FluidStorage.ITEM);
-		if (storage != null) {
-			didSomething = drainHandler(storage);
-		}
+		AtomicBoolean didSomething = new AtomicBoolean(false);
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(INPUT_SLOT), fluidHandler ->
+				didSomething.set(drainHandler(fluidHandler/*, stack -> inventory.setStackInSlot(INPUT_SLOT, stack)*/))
+		);
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(OUTPUT_SLOT), fluidHandler ->
+				didSomething.set(fillHandler(fluidHandler/*, stack -> inventory.setStackInSlot(OUTPUT_SLOT, stack)*/))
+		);
 
-		cic = ContainerItemContext.ofSingleSlot(inventory.getSlot(OUTPUT_SLOT));
-		storage = cic.find(FluidStorage.ITEM);
-		if (storage != null) {
-			didSomething |= fillHandler(storage);
-		}
-
-		if (didSomething) {
-			cooldownTime = world.getGameTime() + upgradeItem.getTankUpgradeConfig().autoFillDrainContainerCooldown.get();
+		if (didSomething.get()) {
+			cooldownTime = level.getGameTime() + upgradeItem.getTankUpgradeConfig().autoFillDrainContainerCooldown.get();
 		}
 	}
 

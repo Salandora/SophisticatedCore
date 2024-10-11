@@ -1,17 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
+import java.util.*;
 
 public class CraftingContainerRecipeTransferHandlerServer {
 	private CraftingContainerRecipeTransferHandlerServer() {}
@@ -19,7 +16,7 @@ public class CraftingContainerRecipeTransferHandlerServer {
 	/**
 	 * Called server-side to actually put the items in place.
 	 */
-	public static void setItems(Player player, Map<Integer, Integer> slotIdMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer) {
+	public static void setItems(Player player, ResourceLocation recipeId, Map<Integer, Integer> slotIdMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer) {
 		if (!(player.containerMenu instanceof StorageContainerMenuBase<?> container)) {
 			return;
 		}
@@ -44,11 +41,10 @@ public class CraftingContainerRecipeTransferHandlerServer {
 		}
 
 		// clear the crafting grid
-		List<ItemStack> clearedCraftingItems = clearAndPutItemsIntoGrid(player, craftingSlots, container, toTransfer);
+		List<ItemStack> clearedCraftingItems = clearAndPutItemsIntoGrid(player, recipeId, craftingSlots, container, toTransfer);
 
 		putIntoInventory(player, inventorySlots, container, clearedCraftingItems);
 
-		container.sendSlotUpdates();
 		container.broadcastChanges();
 	}
 
@@ -61,7 +57,7 @@ public class CraftingContainerRecipeTransferHandlerServer {
 		}
 	}
 
-	private static List<ItemStack> clearAndPutItemsIntoGrid(Player player, List<Integer> craftingSlots, AbstractContainerMenu container, Map<Integer, ItemStack> toTransfer) {
+	private static List<ItemStack> clearAndPutItemsIntoGrid(Player player, ResourceLocation recipeId, List<Integer> craftingSlots, AbstractContainerMenu container, Map<Integer, ItemStack> toTransfer) {
 		List<ItemStack> clearedCraftingItems = new ArrayList<>();
 		int minSlotStackLimit = Integer.MAX_VALUE;
 		for (int craftingSlotNumberIndex = 0; craftingSlotNumberIndex < craftingSlots.size(); craftingSlotNumberIndex++) {
@@ -83,6 +79,9 @@ public class CraftingContainerRecipeTransferHandlerServer {
 
 		// put items into the crafting grid
 		putItemIntoGrid(container, toTransfer, clearedCraftingItems, minSlotStackLimit);
+		if (container instanceof StorageContainerMenuBase<?> storageContainerMenu) {
+			storageContainerMenu.getOpenOrFirstCraftingContainer().ifPresent(c -> c.setRecipeUsed(recipeId));
+		}
 		return clearedCraftingItems;
 	}
 
@@ -213,7 +212,6 @@ public class CraftingContainerRecipeTransferHandlerServer {
 				if (!inventoryStack.isEmpty() &&
 						inventoryStack.isStackable() &&
 						ItemStack.isSameItemSameTags(inventoryStack, stack)) {
-
 					final int remain = stack.getCount() - added;
 					final int maxStackSize = slot.getMaxStackSize(inventoryStack);
 					final int space = maxStackSize - inventoryStack.getCount();

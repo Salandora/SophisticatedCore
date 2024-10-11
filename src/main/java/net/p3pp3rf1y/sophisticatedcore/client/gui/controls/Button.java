@@ -11,10 +11,10 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.IntConsumer;
-import javax.annotation.Nullable;
 
 public class Button extends ButtonBase {
 	private final TextureBlitData backgroundTexture;
@@ -62,9 +62,9 @@ public class Button extends ButtonBase {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
-		pNarrationElementOutput.add(NarratedElementType.TITLE, Component.translatable("gui.narrate.button", getTooltip()));
-		pNarrationElementOutput.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
+	public void updateNarration(NarrationElementOutput narrationElementOutput) {
+		narrationElementOutput.add(NarratedElementType.TITLE, Component.translatable("gui.narrate.button", getTooltip()));
+		narrationElementOutput.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
 	}
 
 	public void setTooltip(List<Component> tooltip) {
@@ -74,7 +74,7 @@ public class Button extends ButtonBase {
 	@Override
 	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
-		if (isMouseOver(mouseX, mouseY)) {
+		if (visible && isMouseOver(mouseX, mouseY)) {
 			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), getTooltip(), Optional.empty(), mouseX, mouseY);
 		}
 	}

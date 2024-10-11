@@ -1,22 +1,21 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import org.apache.commons.lang3.NotImplementedException;
-
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.NotNull;
 
 public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends FilteringStorage<ItemVariant> implements SlottedStorage<ItemVariant> {
+
 	protected final List<FilterLogic> inputFilters;
 	private final List<FilterLogic> outputFilters;
 
@@ -39,7 +38,6 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -76,20 +74,19 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 
 		@Override
 		public ItemStack getStackInSlot(int slot) {
-			throw new NotImplementedException();
+			return ((ITrackedContentsItemHandler) backingStorage.get()).getStackInSlot(slot);
 		}
 
 		@Override
-		public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-			throw new NotImplementedException();
+		public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+			((ITrackedContentsItemHandler) backingStorage.get()).setStackInSlot(slot, stack);
 		}
-
 
 		@Override
 		public Set<ItemStackKey> getTrackedStacks() {
 			Set<ItemStackKey> ret = new HashSet<>();
 
-			((ITrackedContentsItemHandler) backingStorage).getTrackedStacks().forEach(ts -> {
+			((ITrackedContentsItemHandler) backingStorage.get()).getTrackedStacks().forEach(ts -> {
 				if (inputFiltersMatchStack(ts.stack())) {
 					ret.add(ts);
 				}

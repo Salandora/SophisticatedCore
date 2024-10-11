@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica.mixin;
 
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaHelper;
 import fi.dy.masa.litematica.gui.GuiMaterialList;
 import fi.dy.masa.litematica.gui.widgets.WidgetListMaterialList;
 import fi.dy.masa.litematica.gui.widgets.WidgetMaterialListEntry;
@@ -10,8 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaHelper;
 
 @Mixin(GuiMaterialList.class)
 public abstract class GuiMaterialListMixin extends GuiListBase<MaterialListEntry, WidgetMaterialListEntry, WidgetListMaterialList> {

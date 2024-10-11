@@ -11,16 +11,10 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.cooking.CookingUpgradeRenderData
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.JukeboxUpgradeRenderData;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 public abstract class RenderInfo {
 	private static final String TANKS_TAG = "tanks";
@@ -49,7 +43,8 @@ public abstract class RenderInfo {
 	@Nullable
 	private IRenderedBatteryUpgrade.BatteryRenderInfo batteryRenderInfo = null;
 
-	private Consumer<RenderInfo> changeListener = ri -> {};
+	private Consumer<RenderInfo> changeListener = ri -> {
+	};
 
 	protected RenderInfo(Supplier<Runnable> getSaveHandler) {
 		this.getSaveHandler = getSaveHandler;
@@ -316,25 +311,29 @@ public abstract class RenderInfo {
 		private static final String ITEM_TAG = "item";
 		private static final String ROTATION_TAG = "rotation";
 		private static final String SLOT_INDEX_TAG = "slotIndex";
-		private ItemStack item;
-		private int rotation;
-		private int slotIndex;
+		private static final String DISPLAY_SIDE_TAG = "displaySide";
+		private final ItemStack item;
+		private final int rotation;
+		private final int slotIndex;
+		private final DisplaySide displaySide;
 
-		public DisplayItem(ItemStack item, int rotation, int slotIndex) {
+		public DisplayItem(ItemStack item, int rotation, int slotIndex, DisplaySide displaySide) {
 			this.item = item;
 			this.rotation = rotation;
 			this.slotIndex = slotIndex;
+			this.displaySide = displaySide;
 		}
 
 		private CompoundTag serialize(CompoundTag tag) {
 			tag.put(ITEM_TAG, item.save(new CompoundTag()));
 			tag.putInt(ROTATION_TAG, rotation);
 			tag.putInt(SLOT_INDEX_TAG, slotIndex);
+			tag.putString(DISPLAY_SIDE_TAG, displaySide.getSerializedName());
 			return tag;
 		}
 
 		private static DisplayItem deserialize(CompoundTag tag) {
-			return new DisplayItem(ItemStack.of(tag.getCompound(ITEM_TAG)), tag.getInt(ROTATION_TAG), tag.getInt(SLOT_INDEX_TAG));
+			return new DisplayItem(ItemStack.of(tag.getCompound(ITEM_TAG)), tag.getInt(ROTATION_TAG), tag.getInt(SLOT_INDEX_TAG), DisplaySide.fromName(tag.getString(DISPLAY_SIDE_TAG)));
 		}
 
 		public ItemStack getItem() {
@@ -347,6 +346,10 @@ public abstract class RenderInfo {
 
 		public int getSlotIndex() {
 			return slotIndex;
+		}
+
+		public DisplaySide getDisplaySide() {
+			return displaySide;
 		}
 	}
 }

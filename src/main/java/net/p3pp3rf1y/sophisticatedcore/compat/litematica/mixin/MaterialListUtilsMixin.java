@@ -1,5 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica.mixin;
 
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
+import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import fi.dy.masa.litematica.materials.MaterialListUtils;
 import fi.dy.masa.malilib.util.ItemType;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -9,12 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 
 @Mixin(MaterialListUtils.class)
 public class MaterialListUtilsMixin {

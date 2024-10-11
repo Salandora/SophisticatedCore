@@ -1,12 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ItemStackKey {
+	// private static final Field ATTACHMENTS = ObfuscationReflectionHelper.findField(AttachmentHolder.class, "attachments");
 	private final ItemStack stack;
 
 	private static final Map<ItemStack, ItemStackKey> CACHE = new ConcurrentHashMap<>();
@@ -33,10 +35,24 @@ public final class ItemStackKey {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) {return true;}
-		if (o == null || getClass() != o.getClass()) {return false;}
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		ItemStackKey that = (ItemStackKey) o;
-		return ItemStack.isSameItemSameTags(stack, that.stack);
+		return canItemStacksStack(stack, that.stack);
+	}
+
+	public static boolean canItemStacksStack(ItemStack a, ItemStack b) {
+		if (a.isEmpty() || a.getItem() != b.getItem() || a.hasTag() != b.hasTag()) {
+			return false;
+		}
+
+		//noinspection DataFlowIssue
+		return (!a.hasTag() || a.getTag().equals(b.getTag()));
+		// TODO: Add this if fabric adds ItemStack attachments /* && a.areAttachmentsCompatible(b);*/
 	}
 
 	public boolean hashCodeNotEquals(ItemStack otherStack) {
@@ -58,8 +74,26 @@ public final class ItemStackKey {
 			//noinspection ConstantConditions - hasTag call makes sure getTag doesn't return null
 			hash = hash * 31 + stack.getTag().hashCode();
 		}
+
+		// TODO: Add this if fabric adds ItemStack attachments
+		/*if (stack.fabric_getAttachments() != null) {
+			Map<AttachmentType<?>, ?> attachments = stack.fabric_getAttachments();
+			if (attachments != null) {
+				hash = hash * 31 + attachments.hashCode();
+			}
+		}*/
 		return hash;
 	}
+
+/*	@Nullable
+	private static Map<AttachmentType<?>, Object> getAttachments(ItemStack stack) {
+		try {
+			return (Map<AttachmentType<?>, ?>) stack.fabric_getAttachments();
+		} catch (IllegalAccessException e) {
+			SophisticatedCore.LOGGER.error("Error getting attachments of stack ", e);
+			return null;
+		}
+	}*/
 
 	public static int getHashCode(ItemVariant resource) {
 		return getHashCode(resource.toStack());
@@ -73,7 +107,9 @@ public final class ItemStackKey {
 		return hashCode() == getHashCode(stack);
 	}
 
-	public ItemStack stack() {return stack;}
+	public ItemStack stack() {
+		return stack;
+	}
 
 	@Override
 	public String toString() {

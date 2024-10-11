@@ -1,12 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import dev.emi.emi.api.recipe.EmiRecipe;
-import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
-import dev.emi.emi.api.recipe.handler.EmiCraftContext;
-import dev.emi.emi.api.recipe.handler.StandardRecipeHandler;
-import dev.emi.emi.platform.EmiClient;
-import dev.emi.emi.registry.EmiRecipeFiller;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -14,18 +7,24 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import dev.emi.emi.api.recipe.EmiRecipe;
+import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
+import dev.emi.emi.api.recipe.handler.EmiCraftContext;
+import dev.emi.emi.api.recipe.handler.StandardRecipeHandler;
+import dev.emi.emi.platform.EmiClient;
+import dev.emi.emi.registry.EmiRecipeFiller;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements StandardRecipeHandler<T> {
 
     @Override
     public List<Slot> getInputSources(T handler) {
-        List<Slot> slots = new ArrayList<>(handler.slots);
+        List<Slot> slots = new ArrayList<>(handler.realInventorySlots);
         handler.getOpenOrFirstCraftingContainer().ifPresent(c -> slots.addAll(c.getRecipeSlots()));
         return slots;
     }
@@ -91,6 +90,6 @@ public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements S
         T screenHandler = screen.getMenu();
         List<Slot> crafting = handler.getCraftingSlots(recipe, screenHandler);
         Slot output = handler.getOutputSlot(screenHandler);
-        PacketHandler.sendToServer(new EmiFillRecipeC2SPacket(screenHandler, action, handler.getInputSources(screenHandler), crafting, output, stacks));
+        PacketHelper.sendToServer(new EmiFillRecipePacket(screenHandler, action, handler.getInputSources(screenHandler), crafting, output, stacks));
     }
 }

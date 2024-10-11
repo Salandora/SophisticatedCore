@@ -2,23 +2,13 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.PrimaryMatch;
 
 import java.util.Map;
 
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_BACKGROUND;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_HOVERED_BACKGROUND;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.ICONS;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.SMALL_BUTTON_BACKGROUND;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.SMALL_BUTTON_HOVERED_BACKGROUND;
-import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.getButtonStateData;
+import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.*;
 
 public class ButtonDefinitions {
 	private ButtonDefinitions() {}
@@ -66,6 +56,7 @@ public class ButtonDefinitions {
 	public static final ButtonDefinition.Toggle<SortBy> SORT_BY = createSmallToggleButtonDefinition(
 			Map.of(
 					SortBy.NAME, getButtonStateData(new UV(24, 144), TranslationHelper.INSTANCE.translButton("sort_by_name"), Dimension.SQUARE_12),
+					SortBy.MOD, getButtonStateData(new UV(0, 156), TranslationHelper.INSTANCE.translButton("sort_by_mod"), Dimension.SQUARE_12),
 					SortBy.COUNT, getButtonStateData(new UV(36, 144), TranslationHelper.INSTANCE.translButton("sort_by_count"), Dimension.SQUARE_12),
 					SortBy.TAGS, getButtonStateData(new UV(12, 144), TranslationHelper.INSTANCE.translButton("sort_by_tags"), Dimension.SQUARE_12)
 			));

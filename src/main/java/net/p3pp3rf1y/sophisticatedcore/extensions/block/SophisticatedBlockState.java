@@ -8,6 +8,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 public interface SophisticatedBlockState {
     // Helpers for accessing Item data
@@ -24,10 +26,12 @@ public interface SophisticatedBlockState {
         return self().getBlock().addRunningEffects(self(), level, pos, entity);
     }
 
+	@Environment(EnvType.CLIENT)
     default boolean addHitEffects(Level level, HitResult target, ParticleEngine manager) {
         return self().getBlock().addHitEffects(self(), level, target, manager);
     }
 
+	@Environment(EnvType.CLIENT)
     default boolean addDestroyEffects(Level level, BlockPos pos, ParticleEngine manager) {
         return self().getBlock().addDestroyEffects(self(), level, pos, manager);
     }

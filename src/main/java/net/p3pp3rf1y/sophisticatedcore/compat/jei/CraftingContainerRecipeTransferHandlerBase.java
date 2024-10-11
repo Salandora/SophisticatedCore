@@ -1,5 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -14,30 +26,11 @@ import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.common.transfer.TransferOperation;
 import mezz.jei.common.util.StringUtil;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public abstract class CraftingContainerRecipeTransferHandlerBase<C extends StorageContainerMenuBase<?>> implements IRecipeTransferHandler<C, CraftingRecipe> {
+public abstract class CraftingContainerRecipeTransferHandlerBase<C extends StorageContainerMenuBase<?>> implements IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> {
 	private final IRecipeTransferHandlerHelper handlerHelper;
 	private final IStackHelper stackHelper;
 
@@ -52,13 +45,13 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 	}
 
 	@Override
-	public RecipeType<CraftingRecipe> getRecipeType() {
+	public RecipeType<RecipeHolder<CraftingRecipe>> getRecipeType() {
 		return RecipeTypes.CRAFTING;
 	}
 
 	@Nullable
 	@Override
-	public IRecipeTransferError transferRecipe(C container, CraftingRecipe recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
+	public IRecipeTransferError transferRecipe(C container, RecipeHolder<CraftingRecipe> recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
 		Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = container.getOpenOrFirstCraftingContainer();
 		if (potentialCraftingContainer.isEmpty()) {
 			return handlerHelper.createInternalError();
@@ -116,20 +109,21 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 				openOrFirstCraftingContainer.setIsOpen(true);
 				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
 			}
-			TransferRecipeMessage message = new TransferRecipeMessage(
-					toMap(transferOperations.results),
+			TransferRecipeMessage packet = new TransferRecipeMessage(
+					recipe.id(),
+					toMap(transferOperations.results, container),
 					craftingSlotIndexes,
 					inventorySlotIndexes,
 					maxTransfer);
-			PacketHandler.sendToServer(message);
+			PacketHelper.sendToServer(packet);
 		}
 
 		return null;
 	}
 
-	private Map<Integer, Integer> toMap(List<TransferOperation> transferOperations) {
+	private Map<Integer, Integer> toMap(List<TransferOperation> transferOperations, C container) {
 		Map<Integer, Integer> ret = new HashMap<>();
-		transferOperations.forEach(to -> ret.put(to.craftingSlot().index, to.inventorySlot().index));
+		transferOperations.forEach(to -> ret.put(to.craftingSlot(container).index, to.inventorySlot(container).index));
 		return ret;
 	}
 
@@ -230,19 +224,6 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 		return slots.stream()
 				.map(s -> s.index)
 				.collect(Collectors.toSet());
-	}
-
-	private int getEmptySlotCount(Map<Integer, Slot> inventorySlots, Map<Integer, ItemStack> availableItemStacks) {
-		int emptySlotCount = 0;
-		for (Slot slot : inventorySlots.values()) {
-			ItemStack stack = slot.getItem();
-			if (!stack.isEmpty()) {
-				availableItemStacks.put(slot.index, stack.copy());
-			} else {
-				++emptySlotCount;
-			}
-		}
-		return emptySlotCount;
 	}
 
 	public record InventoryState(

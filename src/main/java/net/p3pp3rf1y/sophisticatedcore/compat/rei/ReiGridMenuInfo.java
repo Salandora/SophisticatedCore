@@ -1,16 +1,15 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
-import me.shedaniel.rei.api.common.display.SimpleGridMenuDisplay;
-import me.shedaniel.rei.api.common.transfer.info.MenuInfoContext;
-import me.shedaniel.rei.api.common.transfer.info.MenuSerializationContext;
-import me.shedaniel.rei.api.common.transfer.info.simple.SimpleGridMenuInfo;
-import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessor;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import me.shedaniel.rei.api.common.display.SimpleGridMenuDisplay;
+import me.shedaniel.rei.api.common.transfer.info.MenuInfoContext;
+import me.shedaniel.rei.api.common.transfer.info.MenuSerializationContext;
+import me.shedaniel.rei.api.common.transfer.info.simple.SimpleGridMenuInfo;
+import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessor;
 
 import java.util.stream.IntStream;
 
@@ -58,7 +57,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public Iterable<SlotAccessor> getInventorySlots(MenuInfoContext<T, ?, D> context) {
-        return context.getMenu().slots.stream().map(SlotAccessor::fromSlot).toList();
+        return context.getMenu().realInventorySlots.stream().map(SlotAccessor::fromSlot).toList();
     }
 
     @Override
@@ -84,7 +83,6 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
     @Override
     public void markDirty(MenuInfoContext<T, ? extends ServerPlayer, D> context) {
         SimpleGridMenuInfo.super.markDirty(context);
-        context.getMenu().sendSlotUpdates();
         context.getMenu().broadcastChanges();
     }
 

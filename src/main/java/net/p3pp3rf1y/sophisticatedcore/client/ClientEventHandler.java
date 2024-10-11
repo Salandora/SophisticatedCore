@@ -1,13 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,32 +12,45 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPackets;
+import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
+import net.p3pp3rf1y.sophisticatedcore.init.ModPackets;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
-import java.util.Collections;
-import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-@SuppressWarnings("unused")
 public class ClientEventHandler implements ClientModInitializer {
+	public ClientEventHandler() {}
+
     @Override
     public void onInitializeClient() {
         ModParticles.registerFactories();
         ModFluids.registerFluids();
+		ModPackets.registerClientPackets();
+		LitematicaPackets.registerClientPackets();
 
         ServerWorldEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
 		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> RecipeHelper.setWorld(client.level));
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> RecipeHelper.setLevel(client.level));
+		ClientRecipesUpdated.EVENT.register(RecipeHelper::onRecipesUpdated);
 
         ScreenEvents.BEFORE_INIT.register((client, screen, windowWidth, windowHeight) -> {
             if (!(screen instanceof AbstractContainerScreen<?> containerGui) || screen instanceof CreativeModeInventoryScreen || client.player == null) {
@@ -53,9 +59,6 @@ public class ClientEventHandler implements ClientModInitializer {
 
             ScreenEvents.afterRender(screen).register(ClientEventHandler::onDrawScreen);
         });
-
-        PacketHandler.getChannel().initClientListener();
-		LitematicaPacketHandler.getChannel().initClientListener();
     }
 
     private static void onDrawScreen(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
@@ -67,11 +70,13 @@ public class ClientEventHandler implements ClientModInitializer {
         if (!held.isEmpty()) {
             Slot under = ((AbstractContainerScreenAccessor) containerGui).getHoveredSlot();
 
-            for (Slot s : menu.slots) {
-                ItemStack stack = s.getItem();
-                if (!s.mayPickup(mc.player) || stack.isEmpty()) {
-                    continue;
-                }
+			List<Slot> slots = menu instanceof StorageContainerMenuBase<?> storageMenu ? storageMenu.realInventorySlots : menu.slots;
+
+			for (Slot s : slots) {
+				ItemStack stack = s.getItem();
+				if (!s.isActive() || !s.mayPickup(mc.player) || stack.isEmpty()) {
+					continue;
+				}
 				Optional<StashResultAndTooltip> stashResultAndTooltip = getStashResultAndTooltip(stack, held);
 				if (stashResultAndTooltip.isEmpty()) {
 					continue;
@@ -92,7 +97,9 @@ public class ClientEventHandler implements ClientModInitializer {
 
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
-		poseStack.translate(0, 0, 300);
+		// Because of trinkets we need to increase this from the original 300
+		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
+		poseStack.translate(0, 0, 330);
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
         if (stack.getItem() instanceof IStashStorageItem) {

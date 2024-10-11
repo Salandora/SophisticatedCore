@@ -1,21 +1,27 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TransferRecipeMessage extends SimplePacketBase {
+public class TransferRecipeMessage implements FabricPacket {
+	public static final PacketType<TransferRecipeMessage> TYPE = PacketType.create(new ResourceLocation(SophisticatedCore.MOD_ID, "transfer_recipe"), TransferRecipeMessage::new);
 	private final Map<Integer, Integer> matchingItems;
 	private final List<Integer> craftingSlotIndexes;
 	private final List<Integer> inventorySlotIndexes;
 	private final boolean maxTransfer;
+	private final ResourceLocation recipeId;
 
-	public TransferRecipeMessage(Map<Integer, Integer> matchingItems, List<Integer> craftingSlotIndexes, List<Integer> inventorySlotIndexes, boolean maxTransfer) {
+	public TransferRecipeMessage(ResourceLocation recipeId, Map<Integer, Integer> matchingItems, List<Integer> craftingSlotIndexes, List<Integer> inventorySlotIndexes, boolean maxTransfer) {
+		this.recipeId = recipeId;
 		this.matchingItems = matchingItems;
 		this.craftingSlotIndexes = craftingSlotIndexes;
 		this.inventorySlotIndexes = inventorySlotIndexes;
@@ -23,58 +29,26 @@ public class TransferRecipeMessage extends SimplePacketBase {
 	}
 
 	public TransferRecipeMessage(FriendlyByteBuf buffer) {
-		this(readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
+		this(buffer.readResourceLocation(), buffer.readMap(FriendlyByteBuf::readInt, FriendlyByteBuf::readInt),
+				buffer.readCollection(ArrayList::new, FriendlyByteBuf::readInt), buffer.readCollection(ArrayList::new, FriendlyByteBuf::readInt),
+				buffer.readBoolean());
+	}
+
+	public void handle(ServerPlayer player, PacketSender responseSender) {
+		CraftingContainerRecipeTransferHandlerServer.setItems(player, this.recipeId, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buffer) {
-		writeMap(buffer, matchingItems);
-		writeList(buffer, craftingSlotIndexes);
-		writeList(buffer, inventorySlotIndexes);
+		buffer.writeResourceLocation(recipeId);
+		buffer.writeMap(matchingItems, FriendlyByteBuf::writeInt, FriendlyByteBuf::writeInt);
+		buffer.writeCollection(craftingSlotIndexes, FriendlyByteBuf::writeInt);
+		buffer.writeCollection(inventorySlotIndexes, FriendlyByteBuf::writeInt);
 		buffer.writeBoolean(maxTransfer);
 	}
 
-	private static void writeMap(FriendlyByteBuf buffer, Map<Integer, Integer> map) {
-		buffer.writeInt(map.size());
-		map.forEach((key, value) -> {
-			buffer.writeInt(key);
-			buffer.writeInt(value);
-		});
-	}
-
-	private static void writeList(FriendlyByteBuf buffer, List<Integer> list) {
-		buffer.writeInt(list.size());
-		list.forEach(buffer::writeInt);
-	}
-
-	private static Map<Integer, Integer> readMap(FriendlyByteBuf buffer) {
-		Map<Integer, Integer> ret = new HashMap<>();
-		int size = buffer.readInt();
-		for (int i = 0; i < size; i++) {
-			ret.put(buffer.readInt(), buffer.readInt());
-		}
-		return ret;
-	}
-
-	private static List<Integer> readList(FriendlyByteBuf buffer) {
-		List<Integer> ret = new ArrayList<>();
-		int size = buffer.readInt();
-		for (int i = 0; i < size; i++) {
-			ret.add(buffer.readInt());
-		}
-		return ret;
-	}
-
 	@Override
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			ServerPlayer sender = context.getSender();
-			if (sender == null) {
-				return;
-			}
-			CraftingContainerRecipeTransferHandlerServer.setItems(sender, matchingItems, craftingSlotIndexes, inventorySlotIndexes, maxTransfer);
-		});
-		return true;
+	public PacketType<?> getType() {
+		return TYPE;
 	}
-
 }

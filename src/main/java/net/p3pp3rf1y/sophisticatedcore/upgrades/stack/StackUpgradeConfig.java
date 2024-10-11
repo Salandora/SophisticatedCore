@@ -4,27 +4,26 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.p3pp3rf1y.sophisticatedcore.Config;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 public class StackUpgradeConfig {
 	private static final String REGISTRY_NAME_MATCHER = "([a-z0-9_.-]+:[a-z0-9_/.-]+)";
-	private final ForgeConfigSpec.ConfigValue<List<String>> nonStackableItemsList;
+	private final ModConfigSpec.ConfigValue<List<String>> nonStackableItemsList;
 	@Nullable
 	private Set<Item> nonStackableItems = null;
 
-	public StackUpgradeConfig(ForgeConfigSpec.Builder builder) {
+	public StackUpgradeConfig(ModConfigSpec.Builder builder) {
 		builder.comment("Stack Upgrade Settings").push("stackUpgrade");
 		nonStackableItemsList = builder.comment("List of items that are not supposed to stack in storage even when stack upgrade is inserted. Item registry names are expected here.").define("nonStackableItems", this::getDefaultNonStackableList, itemNames -> {
-			//noinspection unchecked
 			List<String> registryNames = (List<String>) itemNames;
 			return registryNames != null && registryNames.stream().allMatch(itemName -> itemName.matches(REGISTRY_NAME_MATCHER));
 		});
@@ -57,7 +56,7 @@ public class StackUpgradeConfig {
 	}
 
 	public boolean canStackItem(Item item) {
-		if (!Config.COMMON.specification.isLoaded()) {
+		if (!Config.COMMON_SPEC.isLoaded()) {
 			return true;
 		}
 		if (nonStackableItems == null) {

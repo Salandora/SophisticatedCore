@@ -2,8 +2,8 @@ package net.p3pp3rf1y.sophisticatedcore.settings;
 
 import net.minecraft.nbt.CompoundTag;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataMessage;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataPacket;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
 import java.util.function.Supplier;
@@ -53,12 +53,12 @@ public abstract class SettingsContainerBase<C extends ISettingsCategory<?>> {
 		}
 		CompoundTag data = supplyData.get();
 		data.putString("categoryName", categoryName);
-		PacketHandler.sendToServer(new SyncContainerClientDataMessage(data));
+		PacketHelper.sendToServer(new SyncContainerClientDataPacket(data));
 	}
 
 	protected boolean isServer() {
 		return !settingsContainer.getPlayer().level().isClientSide;
 	}
 
-	public abstract void handleMessage(CompoundTag data);
+	public abstract void handlePacket(CompoundTag data);
 }

@@ -5,21 +5,14 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class WorldHelper {
 	private WorldHelper() {}
 
 	public static Optional<BlockEntity> getBlockEntity(@Nullable BlockGetter level, BlockPos pos) {
 		return getBlockEntity(level, pos, BlockEntity.class);
-	}
-
-	public static Optional<BlockEntity> getLoadedBlockEntity(@Nullable Level level, BlockPos pos) {
-		if (level != null && level.isLoaded(pos)) {
-			return Optional.ofNullable(level.getBlockEntity(pos));
-		}
-		return Optional.empty();
 	}
 
 	public static <T> Optional<T> getLoadedBlockEntity(@Nullable Level level, BlockPos pos, Class<T> teClass) {
@@ -34,20 +27,20 @@ public class WorldHelper {
 			return Optional.empty();
 		}
 
-		BlockEntity te = level.getBlockEntity(pos);
+		BlockEntity be = level.getBlockEntity(pos);
 
-		if (teClass.isInstance(te)) {
-			return Optional.of(teClass.cast(te));
+		if (teClass.isInstance(be)) {
+			return Optional.of(teClass.cast(be));
 		}
 
 		return Optional.empty();
 	}
 
 	public static void notifyBlockUpdate(BlockEntity tile) {
-		Level world = tile.getLevel();
-		if (world == null) {
+		Level level = tile.getLevel();
+		if (level == null) {
 			return;
 		}
-		world.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), 3);
+		level.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), 3);
 	}
 }

@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.event.common;
 
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 
 public interface MobSpawnEvents {
     Event<After> AFTER_FINALIZE_SPAWN = EventFactory.createArrayBacked(After.class, callbacks -> (finalizeEvent) -> {

@@ -1,9 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import com.google.common.base.Suppliers;
-import earth.terrarium.chipped.common.recipes.ChippedRecipe;
-
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,19 +13,22 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IServerUpdater;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SlotSuppliedHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.CraftingItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
+import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 public class BlockTransformationRecipeContainer {
 	private static final String DATA_SELECTED_RECIPE_INDEX = "selectedRecipeIndex";
@@ -38,7 +38,7 @@ public class BlockTransformationRecipeContainer {
 	private final Slot outputSlot;
 	private final ResultContainer resultInventory = new ResultContainer();
 	@Nullable
-	private ChippedRecipe recipe = null;
+	private RecipeHolder<ChippedRecipe> recipe = null;
 	private Supplier<List<ItemStack>> results = Collections::emptyList;
 	private final DataSlot selectedRecipe = DataSlot.standalone();
 	private Item inputItem = Items.AIR;
@@ -94,7 +94,7 @@ public class BlockTransformationRecipeContainer {
 		if (!stack.isEmpty()) {
 			RecipeHelper.getRecipesOfType(recipeType, inventory).stream().findFirst().ifPresent(r -> {
 				recipe = r;
-				results = Suppliers.memoize(() -> recipe.getResults(inventory.getItem(0)).toList());
+				results = Suppliers.memoize(() -> recipe.value().getResults(inventory.getItem(0)).toList());
 				getLastSelectedResult.get().ifPresent(lastSelectedResult -> {
 					int i = 0;
 					for (ItemStack result : results.get()) {
@@ -147,19 +147,19 @@ public class BlockTransformationRecipeContainer {
 	}
 
 	private boolean isIndexInRecipeBounds(int index) {
-		return recipe != null && index >= 0 && index < recipe.getResults(inputInventory.getItem(0)).count();
+		return recipe != null && index >= 0 && index < recipe.value().getResults(inputInventory.getItem(0)).count();
 	}
 
 	private void updateRecipeResultSlot() {
 		if (recipe != null && isIndexInRecipeBounds(selectedRecipe.get())) {
-			recipe.getResults(inputInventory.getItem(0)).skip(selectedRecipe.get()).findFirst().ifPresent(outputSlot::set);
+			recipe.value().getResults(inputInventory.getItem(0)).skip(selectedRecipe.get()).findFirst().ifPresent(outputSlot::set);
 			resultInventory.setRecipeUsed(recipe);
 		} else {
 			outputSlot.set(ItemStack.EMPTY);
 		}
 	}
 
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		if (data.contains(DATA_SELECTED_RECIPE_INDEX)) {
 			selectRecipeIndex(data.getInt(DATA_SELECTED_RECIPE_INDEX));
 		}

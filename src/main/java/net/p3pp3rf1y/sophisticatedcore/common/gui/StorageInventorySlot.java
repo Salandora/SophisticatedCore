@@ -1,24 +1,20 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 
-public class StorageInventorySlot extends SCSlotItemHandler {
+public class StorageInventorySlot extends SlotSuppliedHandler {
 	private final boolean isClientSide;
 	private final IStorageWrapper storageWrapper;
-	private final InventoryHandler inventoryHandler;
 	private final int slotIndex;
 
-	public StorageInventorySlot(boolean isClientSide, IStorageWrapper storageWrapper, InventoryHandler inventoryHandler, int slotIndex) {
-		super(inventoryHandler, slotIndex, 0, 0);
+	public StorageInventorySlot(boolean isClientSide, IStorageWrapper storageWrapper, int slotIndex) {
+		super(storageWrapper::getInventoryHandler, slotIndex, 0, 0);
 		this.isClientSide = isClientSide;
 		this.storageWrapper = storageWrapper;
-		this.inventoryHandler = inventoryHandler;
 		this.slotIndex = slotIndex;
 	}
 
@@ -39,7 +35,7 @@ public class StorageInventorySlot extends SCSlotItemHandler {
 
 	@Override
 	public int getMaxStackSize(ItemStack stack) {
-		return inventoryHandler.getStackLimit(slotIndex, ItemVariant.of(stack));
+		return storageWrapper.getInventoryHandler().getStackLimit(slotIndex, ItemVariant.of(stack));
 	}
 
 	@Override

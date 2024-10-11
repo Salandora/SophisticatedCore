@@ -1,35 +1,36 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 
 public class CookingLogic<T extends AbstractCookingRecipe> {
 	private final ItemStack upgrade;
 	private final Consumer<ItemStack> saveHandler;
 
-	private SCItemStackHandler cookingInventory = null;
+	private ItemStackHandler cookingInventory = null;
 	public static final int COOK_INPUT_SLOT = 0;
 	public static final int COOK_OUTPUT_SLOT = 2;
 	public static final int FUEL_SLOT = 1;
 	@Nullable
-	private T cookingRecipe = null;
+	private RecipeHolder<T> cookingRecipe = null;
 	private boolean cookingRecipeInitialized = false;
 
 	private final float burnTimeModifier;
@@ -90,38 +91,38 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		return didSomething.get();
 	}
 
-	private void updateTimes(Level world) {
+	private void updateTimes(Level level) {
 		if (paused) {
-			unpause(world);
+			unpause(level);
 			return;
 		}
 
-		if (isBurning(world)) {
-			remainingBurnTime = getBurnTimeFinish() - world.getGameTime();
+		if (isBurning(level)) {
+			remainingBurnTime = getBurnTimeFinish() - level.getGameTime();
 		} else {
 			remainingBurnTime = 0;
 		}
 		if (isCooking()) {
-			remainingCookTime = getCookTimeFinish() - world.getGameTime();
+			remainingCookTime = getCookTimeFinish() - level.getGameTime();
 		} else {
 			remainingCookTime = 0;
 		}
 	}
 
-	private void unpause(Level world) {
+	private void unpause(Level level) {
 		paused = false;
 
 		if (remainingBurnTime > 0) {
-			setBurnTimeFinish(world.getGameTime() + remainingBurnTime);
+			setBurnTimeFinish(level.getGameTime() + remainingBurnTime);
 		}
 		if (remainingCookTime > 0) {
-			setCookTimeFinish(world.getGameTime() + remainingCookTime);
+			setCookTimeFinish(level.getGameTime() + remainingCookTime);
 			setIsCooking(true);
 		}
 	}
 
-	public boolean isBurning(Level world) {
-		return getBurnTimeFinish() >= world.getGameTime();
+	public boolean isBurning(Level level) {
+		return getBurnTimeFinish() >= level.getGameTime();
 	}
 
 	private Optional<T> getCookingRecipe() {
@@ -129,14 +130,14 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			cookingRecipe = RecipeHelper.getCookingRecipe(getCookInput(), recipeType).orElse(null);
 			cookingRecipeInitialized = true;
 		}
-		return Optional.ofNullable(cookingRecipe);
+		return cookingRecipe != null ? Optional.of(cookingRecipe.value()) : Optional.empty();
 	}
 
-	private void updateCookingCooldown(Level world) {
-		if (getRemainingCookTime(world) + 2 > getCookTimeTotal()) {
+	private void updateCookingCooldown(Level level) {
+		if (getRemainingCookTime(level) + 2 > getCookTimeTotal()) {
 			setIsCooking(false);
 		} else {
-			setCookTimeFinish(world.getGameTime() + Math.min(getRemainingCookTime(world) + 2, getCookTimeTotal()));
+			setCookTimeFinish(level.getGameTime() + Math.min(getRemainingCookTime(level) + 2, getCookTimeTotal()));
 		}
 	}
 
@@ -154,8 +155,8 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		}
 	}
 
-	private boolean finishedCooking(Level world) {
-		return getCookTimeFinish() <= world.getGameTime();
+	private boolean finishedCooking(Level level) {
+		return getCookTimeFinish() <= level.getGameTime();
 	}
 
 	private boolean readyToStartCooking() {
@@ -193,12 +194,12 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		getCookingInventory().setStackInSlot(COOK_OUTPUT_SLOT, stack);
 	}
 
-	private int getRemainingCookTime(Level world) {
-		return (int) (getCookTimeFinish() - world.getGameTime());
+	private int getRemainingCookTime(Level level) {
+		return (int) (getCookTimeFinish() - level.getGameTime());
 	}
 
-	private void setCookTime(Level world, int cookTime) {
-		setCookTimeFinish(world.getGameTime() + cookTime);
+	private void setCookTime(Level level, int cookTime) {
+		setCookTimeFinish(level.getGameTime() + cookTime);
 		setCookTimeTotal(cookTime);
 	}
 
@@ -217,9 +218,8 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			}
 			setBurnTime(level, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
 			if (isBurning(level)) {
-				ItemStack remainder = fuel.getRecipeRemainder();
-				if (!remainder.isEmpty()) {
-					setFuel(remainder);
+				if (fuel.getRecipeRemainder().isEmpty()) {
+					setFuel(fuel.getRecipeRemainder());
 				} else if (!fuel.isEmpty()) {
 					fuel.shrink(1);
 					setFuel(fuel);
@@ -231,8 +231,8 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		}
 	}
 
-	private void setBurnTime(Level world, int burnTime) {
-		setBurnTimeFinish(world.getGameTime() + burnTime);
+	private void setBurnTime(Level level, int burnTime) {
+		setBurnTimeFinish(level.getGameTime() + burnTime);
 		setBurnTimeTotal(burnTime);
 	}
 
@@ -247,7 +247,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			ItemStack output = getCookOutput();
 			if (output.isEmpty()) {
 				return true;
-			} else if (!ItemStack.isSameItem(output, recipeOutput)) {
+			} else if (output.getItem() != recipeOutput.getItem()) {
 				return false;
 			} else if (output.getCount() + recipeOutput.getCount() <= 64 && output.getCount() + recipeOutput.getCount() <= output.getMaxStackSize()) {
 				return true;
@@ -277,9 +277,9 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		getCookingInventory().setStackInSlot(FUEL_SLOT, fuel);
 	}
 
-	public SCItemStackHandler getCookingInventory() {
+	public ItemStackHandler getCookingInventory() {
 		if (cookingInventory == null) {
-			cookingInventory = new SCItemStackHandler(3) {
+			cookingInventory = new ItemStackHandler(3) {
 				@Override
 				protected void onContentsChanged(int slot) {
 					super.onContentsChanged(slot);

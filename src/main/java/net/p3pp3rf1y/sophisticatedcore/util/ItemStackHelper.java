@@ -3,10 +3,12 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Objects;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class ItemStackHelper {
+	private ItemStackHelper() {}
+
 	public static boolean areItemStackTagsEqualIgnoreDurability(ItemStack stackA, ItemStack stackB) {
 		if (stackA.isEmpty() && stackB.isEmpty()) {
 			return true;
@@ -15,6 +17,7 @@ public class ItemStackHelper {
 				return false;
 			} else {
 				return (stackA.getTag() == null || areTagsEqualIgnoreDurability(stackA.getTag(), stackB.getTag()));
+				// TODO: Add this if fabric adds ItemStack attachments /* && stackA.areAttachmentsCompatible(stackB);*/
 			}
 		} else {
 			return false;

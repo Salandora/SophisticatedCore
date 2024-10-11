@@ -6,9 +6,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class TranslationHelper {
 	public static final String TOOLTIP_SUFFIX = ".tooltip";
@@ -16,7 +16,7 @@ public class TranslationHelper {
 	private static final String MESSAGE_SUFFIX = "message.";
 	private static final String CONTROLS_SUFFIX = "controls.";
 
-	public static final TranslationHelper INSTANCE = new TranslationHelper(SophisticatedCore.ID);
+	public static final TranslationHelper INSTANCE = new TranslationHelper(SophisticatedCore.MOD_ID);
 
 	private final String guiPrefix;
 	private final String guiUpgradePrefix;
@@ -25,6 +25,7 @@ public class TranslationHelper {
 	private final String buttonsPrefix;
 	private final String itemUpgradePrefix;
 	private final String blockPrefix;
+	private final String upgradeGroupPrefix;
 	private final String upgradeButtonsPrefix;
 	private final String upgradeControlsPrefix;
 	private final String keybindPrefix;
@@ -34,6 +35,7 @@ public class TranslationHelper {
 		keybindPrefix = "keybind." + modId + ".";
 		itemUpgradePrefix = "item." + modId + ".";
 		blockPrefix = "block." + modId + ".";
+		upgradeGroupPrefix = "upgrade_group." + modId + ".";
 		guiUpgradePrefix = guiPrefix + "upgrades.";
 		guiSettingsPrefix = guiPrefix + "settings.";
 		guiStatusPrefix = guiPrefix + "status.";
@@ -91,6 +93,10 @@ public class TranslationHelper {
 
 	public Component translError(String key, Object... params) {
 		return Component.translatable(guiPrefix + "error." + key, params);
+	}
+
+	public String translUpgradeGroup(String groupName) {
+		return upgradeGroupPrefix + groupName;
 	}
 
 	public String translUpgradeButton(String buttonName) {

@@ -16,7 +16,7 @@ public class MainSettingsContainer extends SettingsContainerBase<MainSettingsCat
 	}
 
 	@Override
-	public void handleMessage(CompoundTag data) {
+	public void handlePacket(CompoundTag data) {
 		if (data.contains(CONTEXT_TAG)) {
 			context = Context.fromId(data.getInt(CONTEXT_TAG));
 		} else {

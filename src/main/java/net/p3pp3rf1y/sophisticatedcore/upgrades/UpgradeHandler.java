@@ -1,31 +1,25 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandler;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCItemStackHandlerSlot;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.TankPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
-public class UpgradeHandler extends SCItemStackHandler {
+public class UpgradeHandler extends ItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
 	private final IStorageWrapper storageWrapper;
 	private final Runnable contentsSaveHandler;
@@ -78,10 +72,7 @@ public class UpgradeHandler extends SCItemStackHandler {
 
 	public void setRenderUpgradeItems() {
 		List<ItemStack> upgradeItems = new ArrayList<>();
-		for (int slot = 0; slot < this.getSlotCount(); slot++) {
-			ItemStack upgrade = this.getStackInSlot(slot);
-			upgradeItems.add(upgrade.copyWithCount(1));
-		}
+		InventoryHelper.iterate(this, (upgradeSlot, upgrade) -> upgradeItems.add(upgrade.copyWithCount(1)));
 		storageWrapper.getRenderInfo().setUpgradeItems(upgradeItems);
 	}
 
@@ -117,14 +108,9 @@ public class UpgradeHandler extends SCItemStackHandler {
 			wrapperAccessor.clearCache();
 		}
 
-		for (var view : this.nonEmptyViews()) {
-			SCItemStackHandlerSlot viewSlot = (SCItemStackHandlerSlot) view;
-
-			int slot = viewSlot.getIndex();
-			ItemStack upgrade = viewSlot.getStack();
-
-			if (!(upgrade.getItem() instanceof IUpgradeItem<?>)) {
-				continue;
+		InventoryHelper.iterate(this, (slot, upgrade) -> {
+			if (upgrade.isEmpty() || !(upgrade.getItem() instanceof IUpgradeItem<?>)) {
+				return;
 			}
 			UpgradeType<?> type = ((IUpgradeItem<?>) upgrade.getItem()).getType();
 			IUpgradeWrapper wrapper = type.create(storageWrapper, upgrade, upgradeStack -> {
@@ -134,26 +120,25 @@ public class UpgradeHandler extends SCItemStackHandler {
 			});
 			setUpgradeDefaults(wrapper);
 			slotWrappers.put(slot, wrapper);
-		}
+		});
 
 		initRenderInfoCallbacks(false);
 	}
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long inserted;
-		try (Transaction insert = Transaction.openNested(ctx)) {
-			inserted = super.insertSlot(slot, resource, maxAmount, insert);
-			insert.commit();
-		}
+		// TODO: Why was this moved again?
+		// Moved to UpgradeHandlerSlot
+		/*TransactionCallback.onSuccess(ctx, () -> {
+			// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
+			this.onContentsChanged(slot);
 
-		TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
 				onUpgradeAdded(slot);
 			}
-		});
+		});*/
 
-		return inserted;
+		return super.insertSlot(slot, resource, maxAmount, ctx);
 	}
 
 	private void onUpgradeAdded(int slot) {
@@ -190,7 +175,9 @@ public class UpgradeHandler extends SCItemStackHandler {
 
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		TransactionCallback.onSuccess(ctx, () -> {
+		// TODO: Why was this moved again?
+		// Moved to UpgradeHandlerSlot
+		/*TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
 				ItemStack slotStack = getStackInSlot(slot);
 				if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
@@ -200,7 +187,7 @@ public class UpgradeHandler extends SCItemStackHandler {
 					}
 				}
 			}
-		});
+		});*/
 		return super.extractSlot(slot, resource, maxAmount, ctx);
 	}
 
@@ -355,9 +342,11 @@ public class UpgradeHandler extends SCItemStackHandler {
 
 		super.setSize(previousSlots.size() + diff);
 		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			getSlot(i).load(((SCItemStackHandlerSlot) previousSlots.get(i)).getStack());
+			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
+			if (tag != null) {
+				getSlot(i).load(tag);
+			}
 		}
-
 		saveInventory();
 		setRenderUpgradeItems();
 	}
@@ -391,6 +380,53 @@ public class UpgradeHandler extends SCItemStackHandler {
 		@Override
 		public void clearCache() {
 			interfaceWrappers.clear();
+		}
+	}
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		return new UpgradeHandlerSlot(index, this, stack);
+	}
+
+	private static class UpgradeHandlerSlot extends ItemStackHandlerSlot {
+		private final UpgradeHandler handler;
+
+		public UpgradeHandlerSlot(int index, UpgradeHandler handler, ItemStack initial) {
+			super(index, handler, initial);
+
+			this.handler = handler;
+		}
+
+		@Override
+		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
+			long inserted = super.insert(insertedVariant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				this.onFinalCommit();
+
+				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
+					this.handler.onUpgradeAdded(this.getIndex());
+				}
+			});
+			return inserted;
+		}
+
+		@Override
+		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			ItemStack slotStack = getStack();
+			long extracted = super.extract(variant, maxAmount, transaction);
+			TransactionCallback.onSuccess(transaction, () -> {
+				this.onFinalCommit();
+
+				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
+					if (this.handler.persistent && !slotStack.isEmpty() && maxAmount == 1) {
+						Map<Integer, IUpgradeWrapper> wrappers = this.handler.getSlotWrappers();
+						if (wrappers.containsKey(this.getIndex())) {
+							wrappers.get(this.getIndex()).onBeforeRemoved();
+						}
+					}
+				}
+			});
+			return extracted;
 		}
 	}
 }

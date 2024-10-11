@@ -2,16 +2,9 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.utils;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
-import org.joml.Matrix4f;
-
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -41,17 +34,13 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.GuiGraphicsAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
+import org.joml.Matrix4f;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
 public class GuiHelper {
 	public static final ResourceLocation GUI_CONTROLS = SophisticatedCore.getRL("textures/gui/gui_controls.png");
@@ -228,10 +217,9 @@ public class GuiHelper {
 		BufferBuilder builder = Tesselator.getInstance().getBuilder();
 		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-		float u1 = sprite.getU0();
-		float v1 = sprite.getV0();
+		float u0 = sprite.getU0();
+		float v0 = sprite.getV0();
 		int spriteHeight = sprite.contents().height();
-		int spriteWidth = sprite.contents().width();
 		int startY = y;
 		float red = (color >> 16 & 255) / 255.0F;
 		float green = (color >> 8 & 255) / 255.0F;
@@ -239,15 +227,15 @@ public class GuiHelper {
 		do {
 			int renderHeight = Math.min(spriteHeight, height);
 			height -= renderHeight;
-			float v2 = sprite.getV((16f * renderHeight) / spriteHeight);
+			float v1 = sprite.getV((float)renderHeight / spriteHeight);
 
 			// we need to draw the quads per width too
 			Matrix4f matrix = guiGraphics.pose().last().pose();
-			float u2 = sprite.getU((16f * 16) / spriteWidth);
-			builder.vertex(matrix, x, (float) startY + renderHeight, 100).uv(u1, v2).color(red, green, blue, 1).endVertex();
-			builder.vertex(matrix, (float) x + 16, (float) startY + renderHeight, 100).uv(u2, v2).color(red, green, blue, 1).endVertex();
-			builder.vertex(matrix, (float) x + 16, startY, 100).uv(u2, v1).color(red, green, blue, 1).endVertex();
-			builder.vertex(matrix, x, startY, 100).uv(u1, v1).color(red, green, blue, 1).endVertex();
+			float u1 = sprite.getU1();
+			builder.vertex(matrix, x, (float) startY + renderHeight, 100).uv(u0, v1).color(red, green, blue, 1).endVertex();
+			builder.vertex(matrix, (float) x + 16, (float) startY + renderHeight, 100).uv(u1, v1).color(red, green, blue, 1).endVertex();
+			builder.vertex(matrix, (float) x + 16, startY, 100).uv(u1, v0).color(red, green, blue, 1).endVertex();
+			builder.vertex(matrix, x, startY, 100).uv(u0, v0).color(red, green, blue, 1).endVertex();
 
 			startY += renderHeight;
 		} while (height > 0);

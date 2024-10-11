@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 
@@ -20,13 +19,16 @@ public interface SophisticatedItemStack {
         return (ItemStack)this;
     }
 
-    /**
-     * Called to tick armor in the armor slot. Override to do something
-     */
-    default void onArmorTick(Level level, Player player)
-    {
-        self().getItem().onArmorTick(self(), level, player);
-    }
+	/**
+	 * Called when a player drops the item into the world, returning false from this
+	 * will prevent the item from being removed from the players inventory and
+	 * spawning in the world
+	 *
+	 * @param player The player that dropped the item
+	 */
+	default boolean onDroppedByPlayer(Player player) {
+		return self().getItem().onDroppedByPlayer(self(), player);
+	}
 
     default InteractionResult onItemUseFirst(UseOnContext context) {
         Player player = context.getPlayer();
