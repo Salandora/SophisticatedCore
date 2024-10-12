@@ -8,7 +8,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.EditBoxAccessor;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
@@ -100,6 +99,6 @@ public class TextBox extends WidgetBase {
 	}
 
 	public boolean isEditable() {
-		return ((EditBoxAccessor) editBox).getIsEditable();
+		return editBox.isEditable();
 	}
 }

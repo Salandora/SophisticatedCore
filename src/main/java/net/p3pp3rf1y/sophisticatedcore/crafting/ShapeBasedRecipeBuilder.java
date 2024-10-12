@@ -1,36 +1,33 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import com.google.common.base.Preconditions;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
+import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.ItemLike;
-import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
-import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
-import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.ShapedRecipeAccessor;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Function;
 
-public class ShapeBasedRecipeBuilder extends ShapedRecipeBuilder {
+public class ShapeBasedRecipeBuilder extends SCShapedRecipeBuilder {
 
 	private final Function<ShapedRecipe, ? extends ShapedRecipe> factory;
 
 	private ShapeBasedRecipeBuilder(ItemStack result, Function<ShapedRecipe, ? extends ShapedRecipe> factory) {
-		super(RecipeCategory.MISC, result.getItem(), result.getCount());
+		super(RecipeCategory.MISC, result);
 		this.factory = factory;
 	}
 
 	public static ShapeBasedRecipeBuilder shaped(ItemStack result) {
-		// Fabric does not have a NBT storing recipe so we make our own
-		return new ShapeBasedRecipeBuilder(result, r -> new SCShapedRecipe(r.getGroup(), r.category(), ((ShapedRecipeAccessor) r).getPattern(), result, r.showNotification()));
+		return new ShapeBasedRecipeBuilder(result, r -> r);
 	}
 
 	public static ShapeBasedRecipeBuilder shaped(ItemLike result) {
@@ -58,12 +55,13 @@ public class ShapeBasedRecipeBuilder extends ShapedRecipeBuilder {
 		withConditions(recipeOutput, new ItemEnabledCondition(getResult())).accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
 	}
 
-	protected RecipeOutput withConditions(final RecipeOutput exporter, final ConditionJsonProvider... conditions) {
+	protected RecipeOutput withConditions(final RecipeOutput exporter, final ResourceCondition... conditions) {
 		Preconditions.checkArgument(conditions.length > 0, "Must add at least one condition.");
 		return new RecipeOutput() {
-			public void accept(ResourceLocation identifier, Recipe<?> recipe, @Nullable AdvancementHolder advancementEntry) {
+			@Override
+			public void accept(ResourceLocation location, Recipe<?> recipe, @Nullable AdvancementHolder advancement) {
 				FabricDataGenHelper.addConditions(recipe, conditions);
-				exporter.accept(identifier, recipe, advancementEntry);
+				exporter.accept(location, recipe, advancement);
 			}
 
 			public Advancement.Builder advancement() {

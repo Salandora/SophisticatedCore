@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 
@@ -383,7 +383,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 
 		Map<Integer, Set<Integer>> memoryFilterStackSlots = memorySettings.getFilterStackSlots();
 		if (!memoryFilterStackSlots.isEmpty()) {
-			int stackHash = ItemStackKey.getHashCode(resource);
+			int stackHash = ItemStack.hashItemAndComponents(resource.toStack((int) remaining));
 			if (memoryFilterStackSlots.containsKey(stackHash)) {
 				for (int memorySlot : memoryFilterStackSlots.get(stackHash)) {
 					if (emptySlots.contains(memorySlot)) {

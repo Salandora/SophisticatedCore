@@ -1,5 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
+import me.shedaniel.math.Point;
+import me.shedaniel.math.Rectangle;
+import me.shedaniel.rei.api.client.gui.drag.DraggableStack;
+import me.shedaniel.rei.api.client.gui.drag.DraggableStackVisitor;
+import me.shedaniel.rei.api.client.gui.drag.DraggedAcceptorResult;
+import me.shedaniel.rei.api.client.gui.drag.DraggingContext;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -7,15 +13,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
-import me.shedaniel.math.Point;
-import me.shedaniel.math.Rectangle;
-import me.shedaniel.rei.api.client.gui.drag.DraggableStack;
-import me.shedaniel.rei.api.client.gui.drag.DraggableStackVisitor;
-import me.shedaniel.rei.api.client.gui.drag.DraggedAcceptorResult;
-import me.shedaniel.rei.api.client.gui.drag.DraggingContext;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetGhostSlotPayload;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,11 +74,11 @@ public abstract class StorageGhostIngredientHandler<S extends StorageScreenBase<
 		public GhostTarget(S screen, ItemStack stack, Slot slot) {
 			this.slot = slot;
 			this.stack = stack;
-			this.area = new Rectangle(((AbstractContainerScreenAccessor) screen).getGuiLeft() + slot.x, ((AbstractContainerScreenAccessor) screen).getGuiTop() + slot.y, 16, 16);
+			this.area = new Rectangle(screen.getGuiLeft() + slot.x, screen.getGuiTop() + slot.y, 16, 16);
 		}
 
 		public void accept(I ingredient) {
-			PacketHelper.sendToServer(new SetGhostSlotMessage(stack, slot.index));
+			PacketDistributor.sendToServer(new SetGhostSlotPayload(stack, slot.index));
 		}
 
 		@Override

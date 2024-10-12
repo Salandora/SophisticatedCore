@@ -1,11 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.audioplayer;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.ServerStorageSoundHandler;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundHandler;
 import de.maxhenkel.audioplayer.AudioPlayer;
 import de.maxhenkel.audioplayer.CustomSound;
 import de.maxhenkel.audioplayer.PlayerType;
@@ -13,6 +7,15 @@ import de.maxhenkel.audioplayer.Plugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import de.maxhenkel.voicechat.plugins.impl.PositionImpl;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.JukeboxSong;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.ServerStorageSoundHandler;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundHandler;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -26,7 +29,11 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 	private static final Map<UUID, UUID> storageUUIDToChannelUUID = new HashMap<>();
 
 	@Nullable
-	public static UUID play(ServerLevel level, Vec3 pos, PlayerType type, CustomSound sound) {
+	public static UUID play(Level level, Vec3 pos, PlayerType type, CustomSound sound) {
+		if (!(level instanceof ServerLevel serverLevel)) {
+			return null;
+		}
+
 		float range = sound.getRange(type);
 
 		VoicechatServerApi api = Plugin.voicechatServerApi;
@@ -38,7 +45,7 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 		if (sound.isStaticSound() && AudioPlayer.SERVER_CONFIG.allowStaticAudio.get()) {
 			channelID = SCPlayerManager.instance().playStatic(
 					api,
-					level,
+					serverLevel,
 					pos,
 					sound.getSoundId(),
 					null,
@@ -49,7 +56,7 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 		} else {
 			channelID = SCPlayerManager.instance().playLocational(
 					api,
-					level,
+					serverLevel,
 					pos,
 					sound.getSoundId(),
 					null,
@@ -63,7 +70,7 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 	}
 
 	@Override
-	public boolean play(ServerLevel level, BlockPos position, UUID storageUuid, ItemStack discItemStack) {
+	public boolean play(Level level, BlockPos position, UUID storageUuid, ItemStack discItemStack, Holder<JukeboxSong> song) {
 		CustomSound customSound = CustomSound.of(discItemStack);
 		if (customSound != null) {
 			Vec3 pos = Vec3.atCenterOf(position);
@@ -77,7 +84,7 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 	}
 
 	@Override
-	public boolean play(ServerLevel level, Vec3 position, UUID storageUuid, int entityId, ItemStack discItemStack) {
+	public boolean play(Level level, Vec3 position, UUID storageUuid, int entityId, ItemStack discItemStack, Holder<JukeboxSong> song) {
 		CustomSound customSound = CustomSound.of(discItemStack);
 		if (customSound != null) {
 			UUID channel = play(level, position, PlayerType.MUSIC_DISC, customSound);
@@ -90,7 +97,7 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 	}
 
 	@Override
-	public void stop(ServerLevel level, Vec3 position, UUID storageUuid) {
+	public void stop(Level level, Vec3 position, UUID storageUuid) {
 		if (!storageUUIDToChannelUUID.containsKey(storageUuid)) {
 			return;
 		}

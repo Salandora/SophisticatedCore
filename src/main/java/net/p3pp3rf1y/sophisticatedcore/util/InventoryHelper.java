@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
@@ -15,6 +16,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
@@ -22,6 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
@@ -172,10 +176,10 @@ public class InventoryHelper {
 	// TODO:
 	/*public static ItemStack extractFromInventory(Item item, int count, IItemHandler inventory, boolean simulate) {
 		ItemStack ret = ItemStack.EMPTY;
-		int slots = inventory.getSlots();
+		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
-			if (slotStack.getItem() == item && (ret.isEmpty() || ItemHandlerHelper.canItemStacksStack(ret, slotStack))) {
+			if (slotStack.getItem() == item && (ret.isEmpty() || ItemStack.isSameItemSameComponents(ret, slotStack))) {
 				int toExtract = Math.min(slotStack.getCount(), count - ret.getCount());
 				ItemStack extractedStack = inventory.extractItem(slot, toExtract, simulate);
 				if (ret.isEmpty()) {
@@ -188,12 +192,13 @@ public class InventoryHelper {
 		return ret;
 	}
 
-	public static ItemStack extractFromInventory(ItemStack stack, IItemHandler inventory, boolean simulate) {
+	// TODO:
+	/*public static ItemStack extractFromInventory(ItemStack stack, IItemHandler inventory, boolean simulate) {
 		int extractedCount = 0;
 		int slots = inventory.getSlots();
 		for (int slot = 0; slot < slots && extractedCount < stack.getCount(); slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
-			if (ItemHandlerHelper.canItemStacksStack(stack, slotStack)) {
+			if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
 				int toExtract = Math.min(slotStack.getCount(), stack.getCount() - extractedCount);
 				extractedCount += inventory.extractItem(slot, toExtract, simulate).getCount();
 			}
@@ -219,12 +224,14 @@ public class InventoryHelper {
 		for (IPickupResponseUpgrade pickupUpgrade : pickupUpgrades) {
 			int countBeforePickup = remainingStack.getCount();
 			try (Transaction inner = Transaction.openNested(ctx)) {
+				Item item = remainingStack.getItem();
 				remainingStack = pickupUpgrade.pickup(level, remainingStack, inner);
 
 				ItemStack finalRemainingStack = remainingStack;
 				TransactionCallback.onSuccess(inner, () -> {
 					if (player != null && finalRemainingStack.getCount() != countBeforePickup) {
 						playPickupSound(level, player);
+						player.awardStat(Stats.ITEM_PICKED_UP.get(item), countBeforePickup - finalRemainingStack.getCount());
 					}
 				});
 
@@ -280,11 +287,10 @@ public class InventoryHelper {
 		}
 	}
 
-	// TODO: IItemHandler itemHandler
-	public static int getCountMissingInHandler(SlottedStorage<ItemVariant> itemHandler, ItemStack filter, int expectedCount) {
+	public static int getCountMissingInHandler(IInventoryHandlerHelper itemHandler, ItemStack filter, int expectedCount) {
 		MutableInt missingCount = new MutableInt(expectedCount);
 		iterate(itemHandler, (slot, stack) -> {
-			if (ItemStack.isSameItemSameTags(stack, filter)) {
+			if (ItemStack.isSameItemSameComponents(stack, filter)) {
 				missingCount.subtract(Math.min(stack.getCount(), missingCount.getValue()));
 			}
 		}, () -> missingCount.getValue() == 0);

@@ -103,10 +103,7 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 
 	@Override
 	public void fillStackedContents(StackedContents helper) {
-		for (var view : supplyInventory.get().nonEmptyViews()) {
-			ItemStack stack = view.getResource().toStack((int) view.getAmount());
-			helper.accountSimpleStack(stack);
-		}
+		InventoryHelper.iterate(supplyInventory.get(), (slot, stack) -> helper.accountSimpleStack(stack));
 	}
 
 }

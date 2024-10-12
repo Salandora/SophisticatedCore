@@ -7,6 +7,6 @@ public class ModParticles {
 	private ModParticles() {}
 
 	public static void registerFactories() {
-		ParticleFactoryRegistry.getInstance().register(net.p3pp3rf1y.sophisticatedcore.init.ModParticles.JUKEBOX_NOTE, JukeboxUpgradeNoteParticle.Factory::new);
+		ParticleFactoryRegistry.getInstance().register(net.p3pp3rf1y.sophisticatedcore.init.ModParticles.JUKEBOX_NOTE.get(), JukeboxUpgradeNoteParticle.Factory::new);
 	}
 }

@@ -52,10 +52,10 @@ public class BatteryUpgradeItem extends UpgradeItemBase<BatteryUpgradeWrapper> {
 		if (multiplierRequired > 1) {
 			DecimalFormat multiplierFormat = new DecimalFormat("0.#");
 			String formattedMultiplierRequired = multiplierFormat.format(Math.ceil(10 * multiplierRequired) / 10);
-			return new UpgradeSlotChangeResult.Fail(TranslationHelper.INSTANCE.translError("add.battery_energy_high", formattedMultiplierRequired), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
+			return UpgradeSlotChangeResult.fail(TranslationHelper.INSTANCE.translError("add.battery_energy_high", formattedMultiplierRequired), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 		}
 
-		return new UpgradeSlotChangeResult.Success();
+		return UpgradeSlotChangeResult.success();
 	}
 
 	public int getMaxEnergyStored(IStorageWrapper storageWrapper) {

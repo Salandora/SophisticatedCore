@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.client.render;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.resources.model.BakedModel;
 
 public interface CustomParticleIcon {
-    TextureAtlasSprite getParticleIcon(BlockState state, BlockAndTintGetter blockView, BlockPos pos);
+    default TextureAtlasSprite getParticleIcon(Object modelData) {
+        return ((BakedModel) this).getParticleIcon();
+    }
 }

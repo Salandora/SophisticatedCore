@@ -1,17 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
+import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
+import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	private final ItemStack upgrade;
 	private final Consumer<ItemStack> saveHandler;
 
-	private ItemStackHandler cookingInventory = null;
+	private CookingComponentItemHandler cookingInventory = null;
 	public static final int COOK_INPUT_SLOT = 0;
 	public static final int COOK_OUTPUT_SLOT = 2;
 	public static final int FUEL_SLOT = 1;
@@ -219,7 +219,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			setBurnTime(level, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
 			if (isBurning(level)) {
 				if (fuel.getRecipeRemainder().isEmpty()) {
-					setFuel(fuel.getRecipeRemainder());
+					setFuelWithoutValidation(fuel.getRecipeRemainder());
 				} else if (!fuel.isEmpty()) {
 					fuel.shrink(1);
 					setFuel(fuel);
@@ -277,78 +277,100 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		getCookingInventory().setStackInSlot(FUEL_SLOT, fuel);
 	}
 
-	public ItemStackHandler getCookingInventory() {
+	private void setFuelWithoutValidation(ItemStack fuel) {
+		getCookingInventory().setStackInSlotWithoutValidation(FUEL_SLOT, fuel);
+	}
+
+	public CookingComponentItemHandler getCookingInventory() {
 		if (cookingInventory == null) {
-			cookingInventory = new ItemStackHandler(3) {
-				@Override
-				protected void onContentsChanged(int slot) {
-					super.onContentsChanged(slot);
-					upgrade.addTagElement("cookingInventory", serializeNBT());
-					save();
-					if (slot == COOK_INPUT_SLOT) {
-						cookingRecipeInitialized = false;
-					}
-				}
-
-				@Override
-				public boolean isItemValid(int slot, ItemVariant resource, int count) {
-					return switch (slot) {
-						case COOK_INPUT_SLOT -> isInput.test(resource.toStack(count));
-						case FUEL_SLOT -> isFuel.test(resource.toStack(count));
-						default -> true;
-					};
-				}
-			};
-
-			//TODO in the future remove use of this legacy smeltingInventory load as it should no longer be required
-			NBTHelper.getCompound(upgrade, "smeltingInventory").ifPresentOrElse(cookingInventory::deserializeNBT,
-					() -> NBTHelper.getCompound(upgrade, "cookingInventory").ifPresent(cookingInventory::deserializeNBT));
+			cookingInventory = new CookingComponentItemHandler();
 		}
 		return cookingInventory;
 	}
 
 	public long getBurnTimeFinish() {
-		return NBTHelper.getLong(upgrade, "burnTimeFinish").orElse(0L);
+		return upgrade.getOrDefault(ModCoreDataComponents.BURN_TIME_FINISH, 0L);
 	}
 
 	private void setBurnTimeFinish(long burnTimeFinish) {
-		NBTHelper.setLong(upgrade, "burnTimeFinish", burnTimeFinish);
+		upgrade.set(ModCoreDataComponents.BURN_TIME_FINISH, burnTimeFinish);
 		save();
 	}
 
 	public int getBurnTimeTotal() {
-		return NBTHelper.getInt(upgrade, "burnTimeTotal").orElse(0);
+		return upgrade.getOrDefault(ModCoreDataComponents.BURN_TIME_TOTAL, 0);
 	}
 
 	private void setBurnTimeTotal(int burnTimeTotal) {
-		NBTHelper.setInteger(upgrade, "burnTimeTotal", burnTimeTotal);
+		upgrade.set(ModCoreDataComponents.BURN_TIME_TOTAL, burnTimeTotal);
 		save();
 	}
 
 	public long getCookTimeFinish() {
-		return NBTHelper.getLong(upgrade, "cookTimeFinish").orElse(-1L);
+		return upgrade.getOrDefault(ModCoreDataComponents.COOK_TIME_FINISH, -1L);
 	}
 
 	private void setCookTimeFinish(long cookTimeFinish) {
-		NBTHelper.setLong(upgrade, "cookTimeFinish", cookTimeFinish);
+		upgrade.set(ModCoreDataComponents.COOK_TIME_FINISH, cookTimeFinish);
 		save();
 	}
 
 	public int getCookTimeTotal() {
-		return NBTHelper.getInt(upgrade, "cookTimeTotal").orElse(0);
+		return upgrade.getOrDefault(ModCoreDataComponents.COOK_TIME_TOTAL, 0);
 	}
 
 	private void setCookTimeTotal(int cookTimeTotal) {
-		NBTHelper.setInteger(upgrade, "cookTimeTotal", cookTimeTotal);
+		upgrade.set(ModCoreDataComponents.COOK_TIME_TOTAL, cookTimeTotal);
 		save();
 	}
 
 	public boolean isCooking() {
-		return NBTHelper.getBoolean(upgrade, "isCooking").orElse(false);
+		return upgrade.getOrDefault(ModCoreDataComponents.IS_COOKING, false);
 	}
 
 	private void setIsCooking(boolean isCooking) {
-		NBTHelper.setBoolean(upgrade, "isCooking", isCooking);
+		upgrade.set(ModCoreDataComponents.IS_COOKING, isCooking);
 		save();
+	}
+
+	public class CookingComponentItemHandler extends ComponentItemHandler {
+		public CookingComponentItemHandler() {
+			super(CookingLogic.this.upgrade, ModCoreDataComponents.COOKING_INVENTORY.get(), 3);
+		}
+
+		@Override
+		protected void onContentsChanged(int slot, ItemStack oldStack, ItemStack newStack) {
+			super.onContentsChanged(slot, oldStack, newStack);
+			save();
+			if (slot == COOK_INPUT_SLOT) {
+				cookingRecipeInitialized = false;
+			}
+		}
+
+		@Override
+		public boolean isItemValid(int slot, ItemStack stack) {
+			if (stack.isEmpty() || ItemStack.isSameItemSameComponents(getStackInSlot(slot), stack)) {
+				return true;
+			}
+
+			return switch (slot) {
+				case COOK_INPUT_SLOT -> isInput.test(stack);
+				case FUEL_SLOT -> isFuel.test(stack);
+				default -> true;
+			};
+		}
+
+		@Override
+		public int getSlotLimit(int slot) {
+			return 64;
+		}
+
+		public void setStackInSlotWithoutValidation(int slot, ItemStack stack) {
+			ItemContainerContents contents = getContents();
+			ItemStack existing = getStackFromContents(contents, slot);
+			if (!ItemStack.matches(stack, existing)) {
+				updateContents(contents, stack, slot);
+			}
+		}
 	}
 }

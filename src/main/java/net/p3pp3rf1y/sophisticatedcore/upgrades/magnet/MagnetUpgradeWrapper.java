@@ -1,5 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.magnet;
 
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -14,16 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
-import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
 import javax.annotation.Nonnull;
@@ -50,7 +50,9 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 
 	public MagnetUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
-		filterLogic = new ContentsFilterLogic(upgrade, upgradeSaveHandler, upgradeItem.getFilterSlotCount(), storageWrapper::getInventoryHandler, storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class));
+		filterLogic = new ContentsFilterLogic(upgrade, upgradeSaveHandler, upgradeItem.getFilterSlotCount(),
+				storageWrapper::getInventoryHandler, storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class),
+				ModCoreDataComponents.FILTER_ATTRIBUTES);
 	}
 
 	@Override
@@ -85,7 +87,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	private boolean canFillStorageWithXp() {
-		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.simulateInsert(ModFluids.EXPERIENCE_TAG, FluidConstants.BUCKET, ModFluids.XP_STILL, null) > 0).orElse(false);
+		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.simulateInsert(ModFluids.EXPERIENCE_TAG, FluidConstants.BUCKET, ModFluids.XP_STILL.get(), null) > 0).orElse(false);
 	}
 
 	private int pickupXpOrbs(@Nullable LivingEntity entity, Level level, BlockPos pos) {
@@ -111,7 +113,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		return storageWrapper.getFluidHandler().map(fluidHandler -> {
 			long amountAdded;
 			try (Transaction outer = Transaction.openOuter()) {
-				amountAdded = fluidHandler.insert(ModFluids.EXPERIENCE_TAG, amountToTransfer, ModFluids.XP_STILL, outer);
+				amountAdded = fluidHandler.insert(ModFluids.EXPERIENCE_TAG, amountToTransfer, ModFluids.XP_STILL.get(), outer);
 				outer.commit();
 			}
 			if (amountAdded > 0) {
@@ -149,7 +151,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			if (!itemEntity.isAlive() || !filterLogic.matchesFilter(itemEntity.getItem()) || canNotPickup(itemEntity, entity)) {
 				continue;
 			}
-			if (tryToInsertItem(itemEntity)) {
+			if (tryToInsertItem(player, itemEntity)) {
 				if (player != null) {
 					playItemPickupSound(level, player);
 				}
@@ -188,7 +190,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		return player != null ? data.contains(PREVENT_REMOTE_MOVEMENT) : data.contains(PREVENT_REMOTE_MOVEMENT) && !data.contains(ALLOW_MACHINE_MOVEMENT);
 	}
 
-	private boolean tryToInsertItem(ItemEntity itemEntity) {
+	private boolean tryToInsertItem(@Nullable Player player, ItemEntity itemEntity) {
 		ItemStack stack = itemEntity.getItem();
 		ItemVariant resource = ItemVariant.of(stack);
 		IItemHandlerSimpleInserter inventory = storageWrapper.getInventoryForUpgradeProcessing();
@@ -201,23 +203,37 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			}
 		}
 		return false;
+
+		// TODO:
+		/*ItemStack remaining = inventory.insertItem(stack, true);
+		boolean insertedSomething = false;
+		if (remaining.getCount() != stack.getCount()) {
+			insertedSomething = true;
+			int originalCount = stack.getCount();
+			Item item = stack.getItem();
+			remaining = inventory.insertItem(stack, false);
+			itemEntity.setItem(remaining);
+			if (player != null) {
+				player.awardStat(Stats.ITEM_PICKED_UP.get(item), originalCount - remaining.getCount());
+			}
+		}*/
 	}
 
 	public void setPickupItems(boolean pickupItems) {
-		NBTHelper.setBoolean(upgrade, "pickupItems", pickupItems);
+		upgrade.set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
 		save();
 	}
 
 	public boolean shouldPickupItems() {
-		return NBTHelper.getBoolean(upgrade, "pickupItems").orElse(true);
+		return upgrade.getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
 	}
 
 	public void setPickupXp(boolean pickupXp) {
-		NBTHelper.setBoolean(upgrade, "pickupXp", pickupXp);
+		upgrade.set(ModCoreDataComponents.PICKUP_XP, pickupXp);
 		save();
 	}
 
 	public boolean shouldPickupXp() {
-		return NBTHelper.getBoolean(upgrade, "pickupXp").orElse(true);
+		return upgrade.getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
 	}
 }

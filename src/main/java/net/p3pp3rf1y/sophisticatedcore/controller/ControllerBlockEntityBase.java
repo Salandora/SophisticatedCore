@@ -1,7 +1,16 @@
 package net.p3pp3rf1y.sophisticatedcore.controller;
 
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.LongTag;
@@ -12,19 +21,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import net.p3pp3rf1y.sophisticatedcore.util.EmptyItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
@@ -33,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public abstract class ControllerBlockEntityBase extends BlockEntity implements SlottedStackStorage {
+public abstract class ControllerBlockEntityBase extends BlockEntity implements IItemHandlerSimpleInserter {
 	public static final int SEARCH_RANGE = 15;
 	private List<BlockPos> storagePositions = new ArrayList<>();
 	private List<Integer> baseIndexes = new ArrayList<>();
@@ -53,27 +56,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	private Set<BlockPos> linkedBlocks = new TreeSet<>(distanceComparator);
 	private Set<BlockPos> connectingBlocks = new TreeSet<>(distanceComparator);
 	private Set<BlockPos> nonConnectingBlocks = new TreeSet<>(distanceComparator);
-
-	private boolean unloaded = false;
-
-	protected ControllerBlockEntityBase(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
-		super(blockEntityType, pos, state);
-
-		ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> {
-			if (chunk.getBlockEntities().containsValue(this)) {
-				unloaded = false;
-			}
-		});
-		ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> {
-			if (unloaded) {
-				return;
-			}
-
-			if (chunk.getBlockEntities().containsValue(this)) {
-				onChunkUnloaded();
-			}
-		});
-	}
 
 	public boolean addLinkedBlock(BlockPos linkedPos) {
 		if (level != null && !level.isClientSide() && isWithinRange(linkedPos) && !linkedBlocks.contains(linkedPos) && !storagePositions.contains(linkedPos)) {
@@ -233,7 +215,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 
 	private void addStorageData(BlockPos storagePos) {
 		storagePositions.add(storagePos);
-		totalSlots += getInventoryHandlerValueFromHolder(storagePos, SlottedStackStorage::getSlotCount).orElse(0);
+		totalSlots += getInventoryHandlerValueFromHolder(storagePos, IItemHandlerSimpleInserter::getSlotCount).orElse(0);
 		baseIndexes.add(totalSlots);
 		addStorageStacksAndRegisterListeners(storagePos);
 
@@ -357,7 +339,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	protected boolean isMemorizedItem(ItemStack stack) {
-		return memorizedItemStorages.containsKey(stack.getItem()) || memorizedStackStorages.containsKey(ItemStackKey.getHashCode(stack));
+		return memorizedItemStorages.containsKey(stack.getItem()) || memorizedStackStorages.containsKey(ItemStack.hashItemAndComponents(stack));
 	}
 
 	protected boolean isFilterItem(Item item) {
@@ -523,6 +505,10 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		}
 	}
 
+	protected ControllerBlockEntityBase(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
+		super(blockEntityType, pos, state);
+	}
+
 	@Override
 	public int getSlotCount() {
 		return totalSlots;
@@ -541,12 +527,11 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		return -1;
 	}
 
-	@Nullable
-	protected SlottedStackStorage getHandlerFromIndex(int index) {
+	protected IItemHandlerSimpleInserter getHandlerFromIndex(int index) {
 		if (index < 0 || index >= storagePositions.size()) {
-			return null;
+			return (IItemHandlerSimpleInserter) EmptyItemHandler.INSTANCE;
 		}
-		return getWrapperValueFromHolder(storagePositions.get(index), wrapper -> (SlottedStackStorage) wrapper.getInventoryForInputOutput()).orElse(null);
+		return getWrapperValueFromHolder(storagePositions.get(index), wrapper -> (IItemHandlerSimpleInserter) wrapper.getInventoryForInputOutput()).orElse((IItemHandlerSimpleInserter) EmptyItemHandler.INSTANCE);
 	}
 
 	protected int getSlotFromIndex(int slot, int index) {
@@ -564,11 +549,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		}
 
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			throw new IndexOutOfBoundsException("HandlerIndex out of range: " + handlerIndex);
-		}
-
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
 			throw new IndexOutOfBoundsException("Slot in handler out of range: " + slot);
@@ -584,11 +565,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return ItemStack.EMPTY;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			return ItemStack.EMPTY;
-		}
-
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
 			return handler.getStackInSlot(slot);
@@ -600,7 +577,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		return slot < 0 || slot >= totalSlots;
 	}
 
-	private boolean validateHandlerSlotIndex(SlottedStackStorage handler, int handlerIndex, int slot, String methodName) {
+	private boolean validateHandlerSlotIndex(IItemHandlerSimpleInserter handler, int handlerIndex, int slot, String methodName) {
 		if (slot >= 0 && slot < handler.getSlotCount()) {
 			return true;
 		}
@@ -620,6 +597,18 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		}
 
 		return 0;
+	}
+
+	@Override
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		long inserted;
+		try (Transaction ctx = Transaction.openOuter()) {
+			inserted = insertSlot(slot, ItemVariant.of(stack), stack.getCount(), ctx);
+			if (!simulate) {
+				ctx.commit();
+			}
+		}
+		return stack.copyWithCount(stack.getCount() - (int) inserted);
 	}
 
 	@Override
@@ -714,6 +703,23 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		return getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insert(resource, maxAmount, ctx)).orElse(0L);
 	}
 
+	@Nonnull
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		if (isSlotIndexInvalid(slot)) {
+			return ItemStack.EMPTY;
+		}
+
+		int handlerIndex = getIndexForSlot(slot);
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
+		slot = getSlotFromIndex(slot, handlerIndex);
+		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "extractItem(int slot, int amount, boolean simulate)")) {
+			return handler.extractItem(slot, amount, simulate);
+		}
+
+		return ItemStack.EMPTY;
+	}
+
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		if (isSlotIndexInvalid(slot)) {
@@ -721,11 +727,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		}
 
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			return 0;
-		}
-
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "extractItem(int slot, int amount, boolean simulate)")) {
 			return handler.extractSlot(slot, resource, maxAmount, ctx);
@@ -738,11 +740,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	public long extract(ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		long remaining = maxAmount;
 		for (int i = 0; i < storagePositions.size(); i++) {
-			SlottedStackStorage handler = getHandlerFromIndex(i);
-			if (handler == null) {
-				continue;
-			}
-
+			IItemHandlerSimpleInserter handler = getHandlerFromIndex(i);
 			remaining -= handler.extract(resource, remaining, ctx);
 			if (remaining == 0) {
 				return maxAmount;
@@ -757,10 +755,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return 0;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			return 0;
-		}
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		int localSlot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, localSlot, "getSlotLimit(int slot)")) {
 			return handler.getSlotLimit(localSlot);
@@ -774,10 +769,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return false;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			return false;
-		}
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		int localSlot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, localSlot, "isItemValid(int slot, ItemStack stack)")) {
 			return handler.isItemValid(localSlot, resource, count);
@@ -791,19 +783,17 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			return;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			return;
-		}
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "setStackInSlot(int slot, ItemStack stack)")) {
 			handler.setStackInSlot(slot, stack);
 		}
 	}
 
+	@Override
 	public void onChunkUnloaded() {
+		super.onChunkUnloaded();
 		detachFromStoragesAndUnlinkBlocks();
-		unloaded = true;
 	}
 
 	public void detachFromStoragesAndUnlinkBlocks() {
@@ -814,8 +804,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag) {
-		super.saveAdditional(tag);
+	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
 
 		saveData(tag);
 	}
@@ -832,8 +822,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	@Override
-	public void load(CompoundTag tag) {
-		super.load(tag);
+	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
 
 		storagePositions = NBTHelper.getCollection(tag, "storagePositions", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).getAsLong())), ArrayList::new).orElseGet(ArrayList::new);
 		connectingBlocks = NBTHelper.getCollection(tag, "connectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).getAsLong())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
@@ -844,8 +834,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 	}
 
 	@Override
-	public CompoundTag getUpdateTag() {
-		return saveData(super.getUpdateTag());
+	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+		return saveData(super.getUpdateTag(registries));
 	}
 
 	@Nullable

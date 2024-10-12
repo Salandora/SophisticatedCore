@@ -12,8 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.List;
 
@@ -46,11 +44,11 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 
 	public void moveSlotsToView() {
 		Slot inputSlot = container.getInputSlot();
-		((SlotAccessor) inputSlot).setX(x + getCenteredX(16) - ((AbstractContainerScreenAccessor) screen).getGuiLeft());
-		((SlotAccessor) inputSlot).setY(y - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 1);
+		inputSlot.x = x + getCenteredX(16) - screen.getGuiLeft();
+		inputSlot.y = y - screen.getGuiTop() + 1;
 		Slot outputSlot = container.getOutputSlot();
-		((SlotAccessor) outputSlot).setX(x + getCenteredX(16) - ((AbstractContainerScreenAccessor) screen).getGuiLeft());
-		((SlotAccessor) outputSlot).setY(inputSlot.y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING + 4);
+		outputSlot.x = x + getCenteredX(16) - screen.getGuiLeft();
+		outputSlot.y = inputSlot.y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING + 4;
 	}
 
 	@Override

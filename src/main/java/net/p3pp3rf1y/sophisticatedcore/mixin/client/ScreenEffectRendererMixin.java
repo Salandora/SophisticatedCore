@@ -24,7 +24,8 @@ public class ScreenEffectRendererMixin {
     private static TextureAtlasSprite sophisticatedcore$renderEffectScreen$getParticleIcon(BlockModelShaper instance, BlockState state, @Share("pos") LocalRef<BlockPos> pos) {
         if (instance.getBlockModel(state) instanceof CustomParticleIcon model && pos.get() != null) {
             Minecraft mc = Minecraft.getInstance();
-			return model.getParticleIcon(state, mc.level, pos.get());
+            Object attachment = mc.level.getBlockEntityRenderData(pos.get());
+			return model.getParticleIcon(attachment);
         }
         return instance.getParticleIcon(state);
     }

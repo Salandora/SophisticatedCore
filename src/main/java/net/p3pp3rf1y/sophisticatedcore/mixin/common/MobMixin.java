@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Mob.class)
 public class MobMixin {
     @Inject(method = "finalizeSpawn", at = @At("RETURN"))
-    private void sophosticatedcore$afterFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, SpawnGroupData spawnData, CompoundTag dataTag, CallbackInfoReturnable<SpawnGroupData> cir) {
-        MobSpawnEvents.AFTER_FINALIZE_SPAWN.invoker().onAfterFinalizeSpawn(new MobSpawnEvents.FinalizeSpawn(MixinHelper.cast(this), level, difficulty, reason, spawnData, dataTag));
+    private void sophosticatedcore$afterFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir) {
+        MobSpawnEvents.AFTER_FINALIZE_SPAWN.invoker().onAfterFinalizeSpawn(new MobSpawnEvents.FinalizeSpawn(MixinHelper.cast(this), level, difficulty, spawnType, spawnGroupData));
     }
 }

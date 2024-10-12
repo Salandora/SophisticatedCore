@@ -1,37 +1,34 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
-import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
 import net.p3pp3rf1y.sophisticatedcore.Config;
-import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.p3pp3rf1y.sophisticatedcore.init.ModRecipes;
 
-public class ItemEnabledCondition implements ConditionJsonProvider {
-	public static final ResourceLocation NAME = SophisticatedCore.getRL("item_enabled");
-	private final ResourceLocation itemRegistryName;
+public record ItemEnabledCondition(ResourceLocation itemRegistryName) implements ResourceCondition {
+	public static final MapCodec<ItemEnabledCondition> CODEC = RecordCodecBuilder.mapCodec(
+			builder -> builder
+					.group(
+							ResourceLocation.CODEC.fieldOf("itemRegistryName").forGetter(ItemEnabledCondition::itemRegistryName))
+					.apply(builder, ItemEnabledCondition::new));
 
 	public ItemEnabledCondition(Item item) {
 		this(BuiltInRegistries.ITEM.getKey(item));
 	}
 
-	public ItemEnabledCondition(ResourceLocation itemRegistryName) {
-		this.itemRegistryName = itemRegistryName;
+	@Override
+	public boolean test(HolderLookup.Provider registryLookup) {
+		return Config.COMMON.enabledItems.isItemEnabled(itemRegistryName);
 	}
 
 	@Override
-	public ResourceLocation getConditionId() {
-		return NAME;
-	}
-
-	public static boolean test(JsonObject json) {
-		return Config.COMMON.enabledItems.isItemEnabled(new ResourceLocation(GsonHelper.getAsString(json, "itemRegistryName")));
-	}
-
-	@Override
-	public void writeParameters(JsonObject json) {
-		json.addProperty("itemRegistryName", itemRegistryName.toString());
+	public ResourceConditionType<?> getType() {
+		return ModRecipes.ITEM_ENABLED_CONDITION;
 	}
 }

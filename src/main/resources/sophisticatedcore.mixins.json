@@ -2,27 +2,26 @@
     "required": true,
     "priority": 1100,
     "minVersion": "0.8",
+    "minMixinExtrasVersion": "0.5.0-beta.3",
     "package": "net.p3pp3rf1y.sophisticatedcore.mixin",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
         "common.BlockEntityMixin",
         "common.BlockMixin",
         "common.BlockStateMixin",
+        "common.DataComponentHolderMixin",
         "common.EntityMixin",
+        "common.ItemContainerContentsMixin",
         "common.ItemEntityMixin",
         "common.ItemMixin",
         "common.ItemStackMixin",
+        "common.LevelChunkMixin",
         "common.LivingEntityMixin",
         "common.MobMixin",
         "common.PersistentEntitySectionManagerMixin",
         "common.ServerLevelMixin",
         "common.ServerPlayerMixin",
-        "common.ShapedRecipeMixin",
-        "common.SlotMixin",
-        "common.accessor.AbstractContainerMenuAccessor",
-        "common.accessor.ShapedRecipeAccessor",
-        "common.accessor.ShapelessRecipeAccessor",
-        "common.accessor.SlotAccessor"
+        "common.SlotMixin"
     ],
     "client": [
         "client.AbstractContainerScreenMixin",
@@ -33,11 +32,7 @@
         "client.MouseHandlerMixin",
         "client.ParticleEngineMixin",
         "client.ScreenEffectRendererMixin",
-        "client.TerrainParticleMixin",
-        "client.accessor.AbstractContainerScreenAccessor",
-        "client.accessor.EditBoxAccessor",
-        "client.accessor.GuiGraphicsAccessor",
-        "client.accessor.ScreenAccessor"
+        "client.TerrainParticleMixin"
     ],
     "injectors": {
         "defaultRequire": 1

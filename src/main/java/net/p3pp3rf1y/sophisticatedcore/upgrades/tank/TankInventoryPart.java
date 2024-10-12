@@ -1,22 +1,20 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
-import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeInventoryPartBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
+import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
 import java.util.ArrayList;
@@ -61,17 +59,18 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 	@Override
 	public boolean handleMouseReleased(double mouseX, double mouseY, int button) {
-		if (mouseX < ((AbstractContainerScreenAccessor) screen).getGuiLeft() + getTankLeft() || mouseX >= ((AbstractContainerScreenAccessor) screen).getGuiLeft() + getTankLeft() + 18 ||
-				mouseY < ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() || mouseY >= ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() + height) {
+		if (mouseX < screen.getGuiLeft() + getTankLeft() || mouseX >= screen.getGuiLeft() + getTankLeft() + 18 ||
+				mouseY < screen.getGuiTop() + pos.y() || mouseY >= screen.getGuiTop() + pos.y() + height) {
 			return false;
 		}
 
 		ItemStack cursorStack = screen.getMenu().getCarried();
-		if (cursorStack.getCount() > 1 || !FluidHelper.isFluidStorage(cursorStack)) {
+		if (cursorStack.getCount() > 1 || !FluidUtil.isFluidStorage(cursorStack)) {
 			return false;
 		}
 
-		PacketHelper.sendToServer(new TankClickPacket(upgradeSlot));
+		PacketDistributor.sendToServer(new TankClickPayload(upgradeSlot));
+
 		return true;
 	}
 
@@ -88,26 +87,27 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 			contents = FluidStack.EMPTY;
 		}
 
-		int screenX = ((AbstractContainerScreenAccessor) screen).getGuiLeft() + pos.x() + 10;
-		int screenY = ((AbstractContainerScreenAccessor) screen).getGuiTop() + pos.y() + 1;
+		int screenX = screen.getGuiLeft() + pos.x() + 10;
+		int screenY = screen.getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {
-				tooltip.add(contents.getDisplayName());
+				tooltip.add(contents.getHoverName());
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
-			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 
 	private MutableComponent getContentsTooltip(FluidStack contents, long capacity) {
-		if (contents.getFluid().defaultFluidState().is(ModFluids.EXPERIENCE_TAG)) {
+		//noinspection deprecation
+		if (contents.getFluid().is(ModFluids.EXPERIENCE_TAG)) {
 			double contentsLevels = XpHelper.getLevelsForExperience((int) XpHelper.liquidToExperience(contents.getAmount()));
 			double tankCapacityLevels = XpHelper.getLevelsForExperience((int) XpHelper.liquidToExperience(capacity));
 
 			return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.xp_contents_tooltip"), String.format("%.1f", contentsLevels), String.format("%.1f", tankCapacityLevels));
 		}
-		return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.contents_tooltip"), String.format("%,d", FluidHelper.toBuckets(contents.getAmount())), String.format("%,d", FluidHelper.toBuckets(capacity)));
+		return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.contents_tooltip"), String.format("%,d", FluidUtil.toBuckets(contents.getAmount())), String.format("%,d", FluidUtil.toBuckets(capacity)));
 	}
 
 	private void renderFluid(GuiGraphics guiGraphics) {

@@ -2,14 +2,12 @@ package net.p3pp3rf1y.sophisticatedcore.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +18,7 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeWrapper;
 import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
+import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
 import javax.annotation.Nullable;
@@ -177,7 +175,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 					tooltipLines.add(Component.translatable(getEmptyFluidTooltipTranslation()).withStyle(ChatFormatting.BLUE));
 				} else {
 					tooltipLines.add(Component.translatable(getFluidTooltipTranslation(),
-							Component.literal(CountAbbreviator.abbreviate(FluidHelper.toBuckets(view.getAmount()))).withStyle(ChatFormatting.WHITE),
+							Component.literal(CountAbbreviator.abbreviate(FluidUtil.toBuckets(view.getAmount()))).withStyle(ChatFormatting.WHITE),
 							((MutableComponent)FluidVariantAttributes.getName(view.getResource())).withStyle(ChatFormatting.BLUE)
 
 					));
@@ -250,9 +248,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0.0D, 0.0D, 200.0F);
-		MultiBufferSource.BufferSource renderTypeBuffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-		font.drawInBatch(tooltip, leftX, topY, 16777215, true, poseStack.last().pose(), renderTypeBuffer, Font.DisplayMode.NORMAL, 0, 15728880);
-		renderTypeBuffer.endBatch();
+		guiGraphics.drawString(font, tooltip, leftX, topY, 16777215);
 		poseStack.translate(0.0D, 0.0D, -200.0F);
 		poseStack.popPose();
 		return topY + 10;

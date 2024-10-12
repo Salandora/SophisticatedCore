@@ -1,93 +1,50 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
 import com.google.common.collect.Lists;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import dev.emi.emi.runtime.EmiLog;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import dev.emi.emi.runtime.EmiLog;
+import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-public class EmiFillRecipePacket implements FabricPacket {
-	public static final PacketType<EmiFillRecipePacket> TYPE = PacketType.create(new ResourceLocation(SophisticatedCore.MOD_ID, "emi_fill_recipe"), EmiFillRecipePacket::new);
-    private final int syncId;
-    private final int action;
-    private final List<Integer> slots, crafting;
-    private final int output;
-    private final List<ItemStack> stacks;
+public record EmiFillRecipePacket(int syncId, int action, List<Integer> slots, List<Integer> crafting, int output, List<ItemStack> stacks) implements CustomPacketPayload {
+	public static final Type<EmiFillRecipePacket> TYPE = new Type<>(SophisticatedCore.getRL("emi_fill_recipe"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, EmiFillRecipePacket> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.INT, EmiFillRecipePacket::syncId,
+			ByteBufCodecs.INT, EmiFillRecipePacket::action,
+			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, ArrayList::new), EmiFillRecipePacket::slots,
+			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, ArrayList::new), EmiFillRecipePacket::crafting,
+			ByteBufCodecs.INT, EmiFillRecipePacket::output,
+			ItemStack.LIST_STREAM_CODEC, EmiFillRecipePacket::stacks,
+			EmiFillRecipePacket::new);
 
-    public EmiFillRecipePacket(AbstractContainerMenu handler, int action, List<Slot> slots, List<Slot> crafting, @Nullable Slot output, List<ItemStack> stacks) {
-        this.syncId = handler.containerId;
-        this.action = action;
-        this.slots = slots.stream().map(s -> s == null ? -1 : s.index).toList();
-        this.crafting = crafting.stream().map(s -> s == null ? -1 : s.index).toList();
-        this.output = output == null ? -1 : output.index;
-        this.stacks = stacks;
-    }
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
 
-    public EmiFillRecipePacket(FriendlyByteBuf buf) {
-        syncId = buf.readInt();
-        action = buf.readByte();
-        slots = parseCompressedSlots(buf);
-        crafting = Lists.newArrayList();
-        int craftingSize = buf.readVarInt();
-        for (int i = 0; i < craftingSize; i++) {
-            int s = buf.readVarInt();
-            crafting.add(s);
-        }
-        if (buf.readBoolean()) {
-            output = buf.readVarInt();
-        } else {
-            output = -1;
-        }
-        int size = buf.readVarInt();
-        stacks = Lists.newArrayList();
-        for (int i = 0; i < size; i++) {
-            stacks.add(buf.readItem());
-        }
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeInt(syncId);
-        buf.writeByte(action);
-        writeCompressedSlots(slots, buf);
-        buf.writeVarInt(crafting.size());
-        for (Integer s : crafting) {
-            buf.writeVarInt(s);
-        }
-        if (output != -1) {
-            buf.writeBoolean(true);
-            buf.writeVarInt(output);
-        } else {
-            buf.writeBoolean(false);
-        }
-        buf.writeVarInt(stacks.size());
-        for (ItemStack stack : stacks) {
-            buf.writeItem(stack);
-        }
-    }
-
-	public void handle(ServerPlayer player, PacketSender responseSender) {
-		if (slots == null || crafting == null) {
+	public static void handlePayload(EmiFillRecipePacket payload, ServerPlayNetworking.Context context) {
+		if (payload.slots == null || payload.crafting == null) {
 			EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
 			return;
 		}
 
+		ServerPlayer player = context.player();
 		AbstractContainerMenu handler = player.containerMenu;
-		if (handler == null || handler.containerId != syncId || !(handler instanceof StorageContainerMenuBase<?> container)) {
+		if (handler == null || handler.containerId != payload.syncId || !(handler instanceof StorageContainerMenuBase<?> container)) {
 			EmiLog.warn("Client requested fill but screen handler has changed, aborting");
 			return;
 		}
@@ -95,7 +52,7 @@ public class EmiFillRecipePacket implements FabricPacket {
 		List<Slot> slots = Lists.newArrayList();
 		List<Slot> crafting = Lists.newArrayList();
 		Slot output = null;
-		for (int i : this.slots) {
+		for (int i : payload.slots) {
 			if (i < 0 || i >= container.getTotalSlotsNumber()) {
 				EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
 				return;
@@ -103,20 +60,20 @@ public class EmiFillRecipePacket implements FabricPacket {
 			slots.add(container.getSlot(i));
 		}
 
-		for (int i : this.crafting) {
+		for (int i : payload.crafting) {
 			if (i >= 0 && i < container.getTotalSlotsNumber()) {
 				crafting.add(container.getSlot(i));
 			} else {
 				crafting.add(null);
 			}
 		}
-		if (this.output != -1) {
-			if (this.output >= 0 && this.output < container.getTotalSlotsNumber()) {
-				output = container.getSlot(this.output);
+		if (payload.output != -1) {
+			if (payload.output >= 0 && payload.output < container.getTotalSlotsNumber()) {
+				output = container.getSlot(payload.output);
 			}
 		}
 
-		if (crafting.size() >= stacks.size()) {
+		if (crafting.size() >= payload.stacks.size()) {
 			List<ItemStack> rubble = Lists.newArrayList();
 			for (Slot s : crafting) {
 				if (s != null && s.mayPickup(player) && !s.getItem().isEmpty()) {
@@ -125,8 +82,8 @@ public class EmiFillRecipePacket implements FabricPacket {
 				}
 			}
 			try {
-				for (int i = 0; i < stacks.size(); i++) {
-					ItemStack stack = stacks.get(i);
+				for (int i = 0; i < payload.stacks.size(); i++) {
+					ItemStack stack = payload.stacks.get(i);
 					if (stack.isEmpty()) {
 						continue;
 					}
@@ -147,9 +104,9 @@ public class EmiFillRecipePacket implements FabricPacket {
 					}
 				}
 				if (output != null) {
-					if (action == 1) {
+					if (payload.action == 1) {
 						handler.clicked(output.getContainerSlot(), 0, ClickType.PICKUP, player);
-					} else if (action == 2) {
+					} else if (payload.action == 2) {
 						handler.clicked(output.getContainerSlot(), 0, ClickType.QUICK_MOVE, player);
 					}
 				}
@@ -161,45 +118,6 @@ public class EmiFillRecipePacket implements FabricPacket {
 		}
     }
 
-    private static List<Integer> parseCompressedSlots(FriendlyByteBuf buf) {
-        List<Integer> list = Lists.newArrayList();
-        int amount = buf.readVarInt();
-        for (int i = 0; i < amount; i++) {
-            int low = buf.readVarInt();
-            int high = buf.readVarInt();
-            if (low < 0) {
-                return null;
-            }
-            for (int j = low; j <= high; j++) {
-                list.add(j);
-            }
-        }
-        return list;
-    }
-
-    private static void writeCompressedSlots(List<Integer> list, FriendlyByteBuf buf) {
-        List<Consumer<FriendlyByteBuf>> postWrite = Lists.newArrayList();
-        int groups = 0;
-        int i = 0;
-        while (i < list.size()) {
-            groups++;
-            int start = i;
-            int startValue = list.get(start);
-            while (i < list.size() && i - start == list.get(i) - startValue) {
-                i++;
-            }
-            int end = i - 1;
-            postWrite.add(b -> {
-                b.writeVarInt(startValue);
-                b.writeVarInt(list.get(end));
-            });
-        }
-        buf.writeVarInt(groups);
-        for (Consumer<FriendlyByteBuf> consumer : postWrite) {
-            consumer.accept(buf);
-        }
-    }
-
     private static int grabMatching(Player player, List<Slot> slots, List<ItemStack> rubble, List<Slot> crafting, ItemStack stack) {
         int amount = stack.getCount();
         int grabbed = 0;
@@ -208,7 +126,7 @@ public class EmiFillRecipePacket implements FabricPacket {
                 return grabbed;
             }
             ItemStack r = rubble.get(i);
-            if (ItemStack.isSameItemSameTags(stack, r)) {
+            if (ItemStack.isSameItemSameComponents(stack, r)) {
                 int wanted = amount - grabbed;
                 if (r.getCount() <= wanted) {
                     grabbed += r.getCount();
@@ -228,7 +146,7 @@ public class EmiFillRecipePacket implements FabricPacket {
                 continue;
             }
             ItemStack st = s.getItem();
-            if (ItemStack.isSameItemSameTags(stack, st)) {
+            if (ItemStack.isSameItemSameComponents(stack, st)) {
                 int wanted = amount - grabbed;
                 if (st.getCount() <= wanted) {
                     grabbed += st.getCount();
@@ -242,8 +160,4 @@ public class EmiFillRecipePacket implements FabricPacket {
         }
         return grabbed;
     }
-	@Override
-	public PacketType<?> getType() {
-		return TYPE;
-	}
 }

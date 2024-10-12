@@ -4,8 +4,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetGhostSlotPayload;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import dev.emi.emi.api.EmiDragDropHandler;
 import dev.emi.emi.api.stack.EmiStack;
 
@@ -31,7 +31,7 @@ public class EmiStorageGhostDragDropHandler<T extends StorageScreenBase<?>> exte
 
                 ItemStack stack = stacks.get(0).getItemStack();
                 if (slot.mayPlace(stack)) {
-                    PacketHelper.sendToServer(new SetGhostSlotMessage(stack, slot.index));
+                    PacketDistributor.sendToServer(new SetGhostSlotPayload(stack, slot.index));
                 }
             }
         );

@@ -1,7 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Codec;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
 import java.util.Map;
 
@@ -11,6 +15,9 @@ public enum PrimaryMatch implements StringRepresentable {
 	TAGS("tags");
 
 	private final String name;
+
+	public static final Codec<PrimaryMatch> CODEC = StringRepresentable.fromEnum(PrimaryMatch::values);
+	public static final StreamCodec<FriendlyByteBuf, PrimaryMatch> STREAM_CODEC = StreamCodecHelper.enumCodec(PrimaryMatch.class);
 
 	PrimaryMatch(String name) {
 		this.name = name;

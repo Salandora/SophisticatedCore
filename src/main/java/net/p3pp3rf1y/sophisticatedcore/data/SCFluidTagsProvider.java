@@ -14,6 +14,6 @@ public class SCFluidTagsProvider extends FabricTagProvider.FluidTagProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider arg) {
-		getOrCreateTagBuilder(ModFluids.EXPERIENCE_TAG).add(ModFluids.XP_STILL);
+		getOrCreateTagBuilder(ModFluids.EXPERIENCE_TAG).add(ModFluids.XP_STILL.get());
 	}
 }

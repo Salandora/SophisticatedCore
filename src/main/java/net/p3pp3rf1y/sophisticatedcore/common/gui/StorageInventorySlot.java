@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 
 public class StorageInventorySlot extends SlotSuppliedHandler {
 	private final boolean isClientSide;
@@ -27,7 +27,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 		processSlotChangeResponse(slotIndex, storageWrapper.getInventoryHandler(), storageWrapper);
 	}
 
-	private void processSlotChangeResponse(int slot, SlottedStackStorage handler, IStorageWrapper storageWrapper) {
+	private void processSlotChangeResponse(int slot, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
 		if (!isClientSide) {
 			storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(ISlotChangeResponseUpgrade.class).forEach(u -> u.onSlotChange(handler, slot));
 		}
@@ -45,7 +45,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 			int i = Math.min(Math.min(maxCount, stack.getCount()), getMaxStackSize(stack) - itemstack.getCount());
 			if (itemstack.isEmpty()) {
 				set(stack.split(i));
-			} else if (ItemStack.isSameItemSameTags(itemstack, stack)) {
+			} else if (ItemStack.isSameItemSameComponents(itemstack, stack)) {
 				stack.shrink(i);
 				ItemStack copy = itemstack.copy();
 				copy.grow(i);

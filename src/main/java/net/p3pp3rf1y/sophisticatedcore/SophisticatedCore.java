@@ -1,26 +1,26 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.world.level.Level;
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.world.level.Level;
+import net.neoforged.fml.config.ModConfig;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPackets;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
-import net.p3pp3rf1y.sophisticatedcore.init.ModPackets;
+import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
+import net.p3pp3rf1y.sophisticatedcore.inventory.StorageWrapperRepository;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
-import fuzs.forgeconfigapiport.api.config.v3.ForgeConfigRegistry;
-import net.neoforged.fml.config.ModConfig;
-
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 public class SophisticatedCore implements ModInitializer {
 	public static final String MOD_ID = "sophisticatedcore";
@@ -34,28 +34,44 @@ public class SophisticatedCore implements ModInitializer {
 		return currentServer;
 	}
 
+	public static boolean isLogicalServerThread() {
+		String name = Thread.currentThread().getName();
+		return name.startsWith("Server") || name.startsWith("Netty");
+	}
+
 	@Override
 	public void onInitialize() {
-		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
-		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, Config.COMMON_SPEC);
+		NeoForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+		NeoForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, Config.COMMON_SPEC);
 		commonEventHandler.registerHandlers();
 		ModCompat.register();
-		CompatRegistry.initCompats();
+		CompatRegistry.getRegistry(MOD_ID).initCompats();
 		Config.COMMON.initListeners();
+		ModCoreDataComponents.register();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setLevel(server.getLevel(Level.OVERWORLD)));
-
-		ModPackets.registerPackets();
-		LitematicaPackets.registerPackets();
+		ServerLifecycleEvents.SERVER_STARTED.register(SophisticatedCore::serverStarted);
+		ServerLifecycleEvents.SERVER_STOPPED.register(SophisticatedCore::serverStopped);
 
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
 
-		CompatRegistry.setupCompats();
+		CompatRegistry.getRegistry(MOD_ID).setupCompats();
+	}
+
+	private static void serverStarted(MinecraftServer server) {
+		ServerLevel world = server.getLevel(Level.OVERWORLD);
+		if (world != null) {
+			RecipeHelper.setLevel(world);
+			StorageWrapperRepository.clearCache();
+		}
+	}
+
+	private static void serverStopped(MinecraftServer server) {
+		StorageWrapperRepository.clearCache();
 	}
 
 	public static ResourceLocation getRL(String regName) {
-		return new ResourceLocation(getRegistryName(regName));
+		return ResourceLocation.parse(getRegistryName(regName));
 	}
 
 	public static String getRegistryName(String regName) {

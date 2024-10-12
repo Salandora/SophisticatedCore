@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 
 public class XpHelper {
 	private XpHelper() {}
 
-	private static final long RATIO = 20 * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS;
+	private static final long RATIO = 20 * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS;
 
 	public static float liquidToExperience(long liquid) {
 		return (float) liquid / RATIO;
@@ -58,16 +58,5 @@ public class XpHelper {
 		int currentLevelPoints = getExperienceForLevel(player.experienceLevel);
 		int partialLevelPoints = (int) (player.experienceProgress * player.getXpNeededForNextLevel());
 		return currentLevelPoints + partialLevelPoints;
-	}
-
-	public static float getXpRepairRatio(ItemStack stack) {
-		// TODO: What todo here? Is there an equivalent in Fabric?
-		//  For now just return the default of 2f
-		/*Item item = stack.getItem();
-		if (item instanceof XpRepairItem xp) {
-			return xp.getXpRepairRatio(stack);
-		}*/
-
-		return 2f;
 	}
 }
