@@ -1,10 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
@@ -22,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
-@Mixin(AbstractContainerScreen.class)
+@Mixin(value = AbstractContainerScreen.class, priority = 900)
 public abstract class AbstractContainerScreenMixin implements SophisticatedAbstractContainerScreen {
 	@Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY);
 
@@ -44,18 +43,18 @@ public abstract class AbstractContainerScreenMixin implements SophisticatedAbstr
 		}
 	}
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;size()I"))
-    private int sophisticatedcore$MenuSlotSize(NonNullList<Slot> instance) {
-		return ifStorageScreenBase(() -> StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS, instance::size);
-    }
+	@ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;size()I"))
+	private int sophisticatedcore$MenuSlotSize(int original) {
+		return ifStorageScreenBase(() -> StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS, () -> original);
+	}
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;"))
-    private Object sophisticatedcore$MenuSlotGet(NonNullList<Slot> instance, int i) {
-			return ifStorageScreenBase(() -> {
-				StorageContainerMenuBase<?> menu = ((StorageScreenBase<? extends StorageContainerMenuBase<?>>) getSelf()).getMenu();
-				return menu.getSlot(menu.getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + i);
-			}, () -> instance.get(i));
-    }
+	@ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;"))
+	private Object sophisticatedcore$MenuSlotGet(Object original, @Local(ordinal = 4) int i) {
+		return ifStorageScreenBase(() -> {
+			StorageContainerMenuBase<?> menu = ((StorageScreenBase<? extends StorageContainerMenuBase<?>>) getSelf()).getMenu();
+			return menu.getSlot(menu.getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + i);
+		}, () -> original);
+	}
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", shift = At.Shift.BEFORE))
 	private void sophisticatedcore$resetHoveredSlot(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
