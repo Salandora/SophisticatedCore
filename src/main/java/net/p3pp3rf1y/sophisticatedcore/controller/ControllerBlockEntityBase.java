@@ -747,7 +747,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 				}
 			}
 		}
-		return remaining;
+		return maxAmount - remaining;
 	}
 
 	private long insertIntoStorages(Set<BlockPos> positions, ItemVariant resource, long maxAmount, TransactionContext ctx, boolean checkHasEmptySlotFirst) {
