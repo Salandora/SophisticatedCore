@@ -520,10 +520,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		@Override
 		public ItemStack getStack() {
 			if (inventoryPartitioner == null) {
-				return super.getStack().copy();
+				return super.getStack();
 			}
 
-			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack()).copy();
+			return inventoryPartitioner.getPartBySlot(getIndex()).getStackInSlot(getIndex(), (s) -> super.getStack());
 		}
 
 		@Override
@@ -537,8 +537,21 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		}
 
 		@Override
-		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(insertedVariant, maxAmount, transaction);
+		public ItemVariant getResource() {
+			if (inventoryPartitioner == null) {
+				return super.getResource();
+			}
+
+			return inventoryPartitioner.getPartBySlot(getIndex()).getVariantInSlot(getIndex(), (slot) -> super.getResource());
+		}
+
+		@Override
+		public long insert(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			if (variant.isBlank() || maxAmount < 0) {
+				return 0;
+			}
+
+			long inserted = super.insert(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
 				this.onFinalCommit();
@@ -548,6 +561,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		@Override
 		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			if (variant.isBlank() || maxAmount < 0) {
+				return 0;
+			}
+
 			long extracted = super.extract(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
