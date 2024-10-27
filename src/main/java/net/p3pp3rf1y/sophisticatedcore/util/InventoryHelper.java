@@ -53,47 +53,7 @@ public class InventoryHelper {
 		return Optional.empty();
 	}
 
-	public static <T> Iterator<StorageView<T>> filterViews(Iterator<StorageView<T>> iterator, Predicate<ResourceAmount<T>> filter) {
-		return new Iterator<>() {
-			StorageView<T> next;
-
-			{
-				findNext();
-			}
-
-			private void findNext() {
-				while (iterator.hasNext()) {
-					next = iterator.next();
-
-					if (filter.test(new ResourceAmount<>(next.getResource(), next.getAmount()))) {
-						return;
-					}
-				}
-
-				next = null;
-			}
-
-			@Override
-			public boolean hasNext() {
-				return next != null;
-			}
-
-			@Override
-			public StorageView<T> next() {
-				if (!hasNext()) {
-					throw new NoSuchElementException();
-				}
-
-				StorageView<T> ret = next;
-				findNext();
-				return ret;
-			}
-		};
-	}
 	public static boolean hasItem(SlottedStorage<ItemVariant> inventory, Predicate<ItemStack> matches) {
-		return filterViews(inventory.nonEmptyIterator(), resource -> matches.test(resource.resource().toStack((int) resource.amount()))).hasNext();
-	}
-	/*public static boolean hasItem(IItemHandler inventory, Predicate<ItemStack> matches) {
 		AtomicBoolean result = new AtomicBoolean(false);
 		iterate(inventory, (slot, stack) -> {
 			if (!stack.isEmpty() && matches.test(stack)) {
@@ -101,7 +61,7 @@ public class InventoryHelper {
 			}
 		}, result::get);
 		return result.get();
-	}*/
+	}
 
 	public static Set<Integer> getItemSlots(SlottedStackStorage inventory, Predicate<ItemStack> matches) {
 		Set<Integer> slots = new HashSet<>();
@@ -155,26 +115,8 @@ public class InventoryHelper {
 		}
 	}
 
-	public static ItemStack extractFromInventory(ItemVariant resource, long maxAmount, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
-		long extractedCount;
-		try (Transaction inner = Transaction.openNested(ctx)) {
-			extractedCount = inventory.extract(resource, maxAmount, inner);
-			inner.commit();
-		}
-
-		if (extractedCount == 0) {
-			return ItemStack.EMPTY;
-		}
-
-		return resource.toStack((int) extractedCount);
-	}
-
-	public static ItemStack extractFromInventory(ItemStack stack, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
-		return extractFromInventory(ItemVariant.of(stack), stack.getCount(), inventory, ctx);
-	}
-
-	// TODO:
-	/*public static ItemStack extractFromInventory(Item item, int count, IItemHandler inventory, boolean simulate) {
+	/// Do not call from an open transaction
+	public static ItemStack extractFromInventory(Item item, int count, IItemHandlerSimpleInserter inventory, boolean simulate) {
 		ItemStack ret = ItemStack.EMPTY;
 		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
@@ -192,10 +134,10 @@ public class InventoryHelper {
 		return ret;
 	}
 
-	// TODO:
-	/*public static ItemStack extractFromInventory(ItemStack stack, IItemHandler inventory, boolean simulate) {
+	/// Do not call from an open transaction
+	public static ItemStack extractFromInventory(ItemStack stack, IItemHandlerSimpleInserter inventory, boolean simulate) {
 		int extractedCount = 0;
-		int slots = inventory.getSlots();
+		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && extractedCount < stack.getCount(); slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
 			if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
@@ -212,7 +154,29 @@ public class InventoryHelper {
 		result.setCount(extractedCount);
 
 		return result;
-	}*/
+	}
+
+	public static ItemStack extractFromInventory(Item item, int count, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		return extractFromInventory(ItemVariant.of(item), count, inventory, ctx);
+	}
+
+	public static ItemStack extractFromInventory(ItemStack stack, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		return extractFromInventory(ItemVariant.of(stack), stack.getCount(), inventory, ctx);
+	}
+
+	public static ItemStack extractFromInventory(ItemVariant resource, long maxAmount, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		long extractedCount;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			extractedCount = inventory.extract(resource, maxAmount, inner);
+			inner.commit();
+		}
+
+		if (extractedCount == 0) {
+			return ItemStack.EMPTY;
+		}
+
+		return resource.toStack((int) extractedCount);
+	}
 
 	public static ItemStack runPickupOnPickupResponseUpgrades(Level level, UpgradeHandler upgradeHandler, ItemStack remainingStack, @Nullable TransactionContext ctx) {
 		return runPickupOnPickupResponseUpgrades(level, null, upgradeHandler, remainingStack, ctx);

@@ -134,7 +134,6 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		// TODO: Why was this moved again?
 		// Moved to UpgradeHandlerSlot
 		/*TransactionCallback.onSuccess(ctx, () -> {
 			// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
@@ -183,7 +182,6 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		// TODO: Why was this moved again?
 		// Moved to UpgradeHandlerSlot
 		/*TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.isLogicalServerThread()) {

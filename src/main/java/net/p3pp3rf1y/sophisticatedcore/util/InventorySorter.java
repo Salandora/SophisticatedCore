@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -134,13 +133,13 @@ public class InventorySorter {
 		}
 	}
 
-	private static void emptySlot(SlottedStackStorage handler, int slot) {
+	private static void emptySlot(IItemHandlerSimpleInserter handler, int slot) {
 		if (!handler.getStackInSlot(slot).isEmpty()) {
 			handler.setStackInSlot(slot, ItemStack.EMPTY);
 		}
 	}
 
-	private static int placeStack(SlottedStackStorage handler, ItemStackKey current, int count, int slot, boolean countWithCurrentStack) {
+	private static int placeStack(IItemHandlerSimpleInserter handler, ItemStackKey current, int count, int slot, boolean countWithCurrentStack) {
 		ItemStack copy = current.getStack().copy();
 		int slotLimit = handler instanceof InventoryHandler inventoryHandler ? inventoryHandler.getStackLimit(slot, ItemVariant.of(copy)) : handler.getSlotLimit(slot);
 		int existingCount = handler.getStackInSlot(slot).getCount();

@@ -8,12 +8,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -69,6 +71,9 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		ItemVariant resource = ItemVariant.of(stack);
 		long inserted = storageWrapper.getInventoryForUpgradeProcessing().insert(resource, stack.getCount(), ctx);
 		return resource.toStack(stack.getCount() - (int) inserted);
+
+		// TODO: Rewrite 
+		// return storageWrapper.getInventoryForUpgradeProcessing().insertItem(stack, simulate);
 	}
 
 	@Override
@@ -192,20 +197,8 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 
 	private boolean tryToInsertItem(@Nullable Player player, ItemEntity itemEntity) {
 		ItemStack stack = itemEntity.getItem();
-		ItemVariant resource = ItemVariant.of(stack);
 		IItemHandlerSimpleInserter inventory = storageWrapper.getInventoryForUpgradeProcessing();
-		try (Transaction ctx = Transaction.openOuter()) {
-			long inserted = inventory.insert(resource, stack.getCount(), ctx);
-			if (inserted > 0) {
-				itemEntity.setItem(resource.toStack(stack.getCount() - (int) inserted));
-				ctx.commit();
-				return true;
-			}
-		}
-		return false;
-
-		// TODO:
-		/*ItemStack remaining = inventory.insertItem(stack, true);
+		ItemStack remaining = inventory.insertItem(stack, true);
 		boolean insertedSomething = false;
 		if (remaining.getCount() != stack.getCount()) {
 			insertedSomething = true;
@@ -216,7 +209,8 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			if (player != null) {
 				player.awardStat(Stats.ITEM_PICKED_UP.get(item), originalCount - remaining.getCount());
 			}
-		}*/
+		}
+		return insertedSomething;
 	}
 
 	public void setPickupItems(boolean pickupItems) {

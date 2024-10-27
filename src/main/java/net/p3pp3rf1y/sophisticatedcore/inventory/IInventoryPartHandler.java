@@ -35,10 +35,18 @@ public interface IInventoryPartHandler {
 	default long extractItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		return 0;
 	}
+	// TODO:
+	/*default ItemStack extractItem(int slot, int amount, boolean simulate) {
+		return ItemStack.EMPTY;
+	}*/
 
 	default long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
 		return maxAmount;
 	}
+	// TODO:
+	/*default ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
+		return stack;
+	}*/
 
 	default void setStackInSlot(int slot, ItemStack stack, BiConsumer<Integer, ItemStack> setStackInSlotSuper) {
 		//noop

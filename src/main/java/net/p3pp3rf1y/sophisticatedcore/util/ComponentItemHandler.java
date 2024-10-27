@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.p3pp3rf1y.sophisticatedcore.extensions.component.SophisticatedMutableDataComponentHolder;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter {
 	protected final SophisticatedMutableDataComponentHolder parent;
@@ -68,7 +69,8 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 		return insertItem(slot, resource.toStack((int) maxAmount), ctx).getCount();
 	}
 
-	public ItemStack insertItem(int slot, ItemStack toInsert, boolean simulate) {
+	@NotNull
+	public ItemStack insertItem(int slot, @NotNull ItemStack toInsert, boolean simulate) {
 		ItemStack result;
 		try (Transaction ctx = Transaction.openOuter()) {
 			result = insertItem(slot, toInsert, ctx);
@@ -124,6 +126,7 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 		return extractItem(slot, (int) maxAmount, ctx).getCount();
 	}
 
+	@NotNull
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		ItemStack result;
 		try (Transaction ctx = Transaction.openOuter()) {

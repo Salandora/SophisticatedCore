@@ -261,6 +261,20 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return maxAmount - slotTracker.insertItemIntoHandler(this, this::insertItemInternal, this::triggerOverflowUpgrades, slot, resource, maxAmount, ctx);
 	}
 
+	/// Do not call from an open transaction
+	@Nonnull
+	public ItemStack insertItemOnlyToSlot(int slot, ItemStack stack, boolean simulate) {
+		long inserted;
+		try (Transaction ctx = Transaction.openOuter()) {
+			inserted = insertItemOnlyToSlot(slot, ItemVariant.of(stack), stack.getCount(), ctx);
+			if (!simulate) {
+				ctx.commit();
+			}
+		}
+
+		return inserted < stack.getCount() ? stack.copyWithCount(stack.getCount() - (int) inserted) : ItemStack.EMPTY;
+	}
+
 	public long insertItemOnlyToSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameComponents(getStackInSlot(slot), resource.toStack())) {
