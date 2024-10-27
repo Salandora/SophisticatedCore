@@ -141,7 +141,7 @@ public class InventorySorter {
 
 	private static int placeStack(IItemHandlerSimpleInserter handler, ItemStackKey current, int count, int slot, boolean countWithCurrentStack) {
 		ItemStack copy = current.getStack().copy();
-		int slotLimit = handler instanceof InventoryHandler inventoryHandler ? inventoryHandler.getStackLimit(slot, ItemVariant.of(copy)) : handler.getSlotLimit(slot);
+		int slotLimit = handler instanceof InventoryHandler inventoryHandler ? inventoryHandler.getStackLimit(slot, copy) : handler.getSlotLimit(slot);
 		int existingCount = handler.getStackInSlot(slot).getCount();
 		if (countWithCurrentStack) {
 			count += existingCount;

@@ -66,7 +66,7 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		return insertItem(slot, resource.toStack((int) maxAmount), ctx).getCount();
+		return maxAmount - insertItem(slot, resource.toStack((int) maxAmount), ctx).getCount();
 	}
 
 	@NotNull

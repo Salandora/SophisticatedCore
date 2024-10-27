@@ -858,8 +858,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				inaccessibleSlots.add(slot);
 			}
 			ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
-			int stackLimit = inventoryHandler.getStackLimit(slot, ItemVariant.of(stackInSlot));
-			if (stackLimit != inventoryHandler.getBaseStackLimit(ItemVariant.of(stackInSlot))) {
+			int stackLimit = inventoryHandler.getStackLimit(slot, stackInSlot);
+			if (stackLimit != inventoryHandler.getBaseStackLimit(stackInSlot)) {
 				slotLimitOverrides.put(slot, stackLimit);
 			}
 			if (inventoryHandler.getFilterItem(slot) != Items.AIR) {

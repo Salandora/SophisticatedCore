@@ -28,7 +28,7 @@ public interface IInventoryPartHandler {
 		return false;
 	}
 
-	default int getStackLimit(int slot, ItemVariant resource) {
+	default int getStackLimit(int slot, ItemStack stack) {
 		return 0;
 	}
 
@@ -53,18 +53,22 @@ public interface IInventoryPartHandler {
 	}
 
 	@Deprecated
+	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
 	default boolean isItemValid(int slot, ItemVariant resource) {
-		return isItemValid(slot, resource, 1);
+		return isItemValid(slot, resource.toStack());
 	}
 
+	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
 	default boolean isItemValid(int slot, ItemVariant resource, int count) {
+		return isItemValid(slot, resource.toStack(count));
+	}
+	default boolean isItemValid(int slot, ItemStack stack) {
 		return false;
 	}
 
 	default ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
 		return ItemVariant.blank();
 	}
-
 	default ItemStack getStackInSlot(int slot, IntFunction<ItemStack> getStackInSlotSuper) {
 		return ItemStack.EMPTY;
 	}
@@ -126,19 +130,29 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public int getStackLimit(int slot, ItemVariant resource) {
-			return parent.getBaseStackLimit(resource);
+		public int getStackLimit(int slot, ItemStack stack) {
+			return parent.getBaseStackLimit(stack);
 		}
 
 		@Override
 		public long extractItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 			return parent.extractItemInternal(slot, resource, maxAmount, ctx);
 		}
+		// TODO:
+		/*@Override
+		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+			return parent.extractItemInternal(slot, amount, simulate);
+		}*/
 
 		@Override
 		public long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
 			return insertSuper.apply(slot, resource, maxAmount, ctx);
 		}
+		// TODO:
+		/*@Override
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
+			return insertSuper.apply(slot, stack, simulate);
+		}*/
 
 		@Override
 		public void setStackInSlot(int slot, ItemStack stack, BiConsumer<Integer, ItemStack> setStackInSlotSuper) {
@@ -146,7 +160,7 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant resource, int count) {
+		public boolean isItemValid(int slot, ItemStack stack) {
 			return true;
 		}
 

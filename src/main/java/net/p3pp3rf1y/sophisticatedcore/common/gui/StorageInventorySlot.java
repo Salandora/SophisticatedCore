@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -35,7 +34,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 
 	@Override
 	public int getMaxStackSize(ItemStack stack) {
-		return storageWrapper.getInventoryHandler().getStackLimit(slotIndex, ItemVariant.of(stack));
+		return storageWrapper.getInventoryHandler().getStackLimit(slotIndex, stack);
 	}
 
 	@Override

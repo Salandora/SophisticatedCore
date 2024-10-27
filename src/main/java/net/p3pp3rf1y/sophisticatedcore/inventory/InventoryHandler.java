@@ -181,11 +181,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return slotLimit > baseSlotLimit ? slotLimit : inventoryPartitioner.getPartBySlot(slot).getSlotLimit(slot);
 	}
 
-	public int getBaseStackLimit(ItemVariant resource) {
-		if (!stackUpgradeConfig.canStackItem(resource.getItem())) {
-			return resource.toStack().getMaxStackSize();
+	public int getBaseStackLimit(ItemStack stack) {
+		if (!stackUpgradeConfig.canStackItem(stack.getItem())) {
+			return stack.getMaxStackSize();
 		}
-		int maxStackSize = resource.isBlank() ? getBaseSlotLimit() : resource.toStack().getMaxStackSize();
+		int maxStackSize = stack.isEmpty() ? getBaseSlotLimit() : stack.getMaxStackSize();
 		int limit = MathHelper.intMaxCappedMultiply(maxStackSize, (baseSlotLimit / 64));
 		int remainder = baseSlotLimit % 64;
 		if (remainder > 0) {
@@ -195,8 +195,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	@Override
-	public int getStackLimit(int slot, ItemVariant resource) {
-		return inventoryPartitioner.getPartBySlot(slot).getStackLimit(slot, resource);
+	protected int getStackLimit(int slot, ItemVariant resource) {
+		return getStackLimit(slot, resource.toStack());
+	}
+
+	public int getStackLimit(int slot, ItemStack stack) {
+		return inventoryPartitioner.getPartBySlot(slot).getStackLimit(slot, stack);
 	}
 
 	public Item getFilterItem(int slot) {
