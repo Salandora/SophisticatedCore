@@ -610,12 +610,24 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return stack.copyWithCount(stack.getCount() - (int) inserted);
 	}
 
+	/// Do not call from an open transaction
+	protected ItemStack insertItem(ItemStack stack, boolean simulate, boolean insertIntoAnyEmpty) {
+		long inserted;
+		try (Transaction ctx = Transaction.openOuter()) {
+			inserted = insert(ItemVariant.of(stack), stack.getCount(), ctx, insertIntoAnyEmpty);
+			if (!simulate) {
+				ctx.commit();
+			}
+		}
+		return inserted < stack.getCount() ? stack.copyWithCount(stack.getCount() - (int) inserted) : ItemStack.EMPTY;
+	}
+
 	@Override
-	public long insert(ItemVariant resource, long maxAmount, TransactionContext ctx) {
+	public long insert(ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		return insert(resource, maxAmount, ctx, true);
 	}
 
-	public long insert(ItemVariant resource, long maxAmount, TransactionContext ctx, boolean insertIntoAnyEmpty) {
+	public long insert(ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx, boolean insertIntoAnyEmpty) {
 		ItemStackKey stackKey = ItemStackKey.of(resource.toStack());
 		long remaining = maxAmount;
 
@@ -653,7 +665,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return (insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : maxAmount - remaining);
 	}
 
-	private long insertIntoStoragesThatMatchStack(ItemVariant resource, long maxAmount, ItemStackKey stackKey, TransactionContext ctx) {
+	private long insertIntoStoragesThatMatchStack(ItemVariant resource, long maxAmount, ItemStackKey stackKey, @Nullable TransactionContext ctx) {
 		long remaining = maxAmount;
 		if (stackStorages.containsKey(stackKey)) {
 			Set<BlockPos> positions = stackStorages.get(stackKey);
@@ -662,7 +674,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return maxAmount - remaining;
 	}
 
-	private long insertIntoStoragesThatMatchItem(ItemVariant resource, long maxAmount, TransactionContext ctx) {
+	private long insertIntoStoragesThatMatchItem(ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		long remaining = maxAmount;
 		if (!emptySlotsStorages.isEmpty() && itemStackKeys.containsKey(resource.getItem())) {
 			Set<ItemStackKey> matchingStackKeys = itemStackKeys.get(resource.getItem());
@@ -683,7 +695,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return remaining;
 	}
 
-	private long insertIntoStorages(Set<BlockPos> positions, ItemVariant resource, long maxAmount, TransactionContext ctx, boolean checkHasEmptySlotFirst) {
+	private long insertIntoStorages(Set<BlockPos> positions, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx, boolean checkHasEmptySlotFirst) {
 		long remaining = maxAmount;
 		Set<BlockPos> positionsCopy = new LinkedHashSet<>(positions); //to prevent CME if stack insertion actually causes set of positions to change
 		for (BlockPos storagePos : positionsCopy) {
@@ -698,8 +710,13 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return maxAmount - remaining;
 	}
 
-	private long insertIntoStorage(BlockPos storagePos, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		return getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insert(resource, maxAmount, ctx)).orElse(0L);
+	private long insertIntoStorage(BlockPos storagePos, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
+		long inserted;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			inserted = getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insert(resource, maxAmount, ctx)).orElse(0L);
+			inner.commit();
+		}
+		return inserted;
 	}
 
 	@Nonnull

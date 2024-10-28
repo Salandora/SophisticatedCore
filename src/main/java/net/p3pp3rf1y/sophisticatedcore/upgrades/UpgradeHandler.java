@@ -56,7 +56,8 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource, int count) {
+	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
+	public final boolean isItemValid(int slot, ItemVariant resource, int count) {
 		return isItemValid(slot, resource.toStack(count));
 	}
 

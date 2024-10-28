@@ -103,11 +103,11 @@ public class InventoryHelper {
 	}
 
 	/// Do not call from an open transaction
-	public static ItemStack insertIntoInventory(ItemStack remaining, PlayerInventoryStorageWrapper playerInvHandler, boolean simulate) {
+	public static ItemStack insertIntoInventory(ItemStack remaining, SlottedStorage<ItemVariant> inventory, boolean simulate) {
 		if (simulate) {
-			return simulateInsertIntoInventory(playerInvHandler, ItemVariant.of(remaining), remaining.getCount(), null);
+			return simulateInsertIntoInventory(inventory, ItemVariant.of(remaining), remaining.getCount(), null);
 		} else {
-			return insertIntoInventory(playerInvHandler, ItemVariant.of(remaining), remaining.getCount(), null);
+			return insertIntoInventory(inventory, ItemVariant.of(remaining), remaining.getCount(), null);
 		}
 	}
 
