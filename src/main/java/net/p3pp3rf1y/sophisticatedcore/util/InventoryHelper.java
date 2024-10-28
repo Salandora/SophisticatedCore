@@ -28,6 +28,7 @@ import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
+import net.p3pp3rf1y.sophisticatedcore.inventory.PlayerInventoryStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -101,13 +102,22 @@ public class InventoryHelper {
 		return remainingStacks;
 	}
 
-	public static ItemStack simulateInsertIntoInventory(SlottedStackStorage inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
+	/// Do not call from an open transaction
+	public static ItemStack insertIntoInventory(ItemStack remaining, PlayerInventoryStorageWrapper playerInvHandler, boolean simulate) {
+		if (simulate) {
+			return simulateInsertIntoInventory(playerInvHandler, ItemVariant.of(remaining), remaining.getCount(), null);
+		} else {
+			return insertIntoInventory(playerInvHandler, ItemVariant.of(remaining), remaining.getCount(), null);
+		}
+	}
+
+	public static ItemStack simulateInsertIntoInventory(SlottedStorage<ItemVariant> inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		try (Transaction simulate = Transaction.openNested(ctx)) {
 			return insertIntoInventory(inventory, resource, maxAmount, simulate);
 		}
 	}
 
-	public static ItemStack insertIntoInventory(SlottedStackStorage inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
+	public static ItemStack insertIntoInventory(SlottedStorage<ItemVariant> inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		try (Transaction inner = Transaction.openNested(ctx)) {
 			long inserted = inventory.insert(resource, maxAmount, inner);
 			inner.commit();
@@ -156,7 +166,7 @@ public class InventoryHelper {
 		return result;
 	}
 
-	public static ItemStack extractFromInventory(Item item, int count, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+	/*public static ItemStack extractFromInventory(Item item, int count, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
 		return extractFromInventory(ItemVariant.of(item), count, inventory, ctx);
 	}
 
@@ -176,7 +186,7 @@ public class InventoryHelper {
 		}
 
 		return resource.toStack((int) extractedCount);
-	}
+	}*/
 
 	public static ItemStack runPickupOnPickupResponseUpgrades(Level level, UpgradeHandler upgradeHandler, ItemStack remainingStack, @Nullable TransactionContext ctx) {
 		return runPickupOnPickupResponseUpgrades(level, null, upgradeHandler, remainingStack, ctx);

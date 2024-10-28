@@ -367,7 +367,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return inventoryPartitioner.getPartBySlot(slot).getStackInSlot(slot, super::getStackInSlot);
 	}
 
-	protected abstract boolean isAllowed(ItemVariant resource);
+	protected final boolean isAllowed(ItemVariant resource) {
+		return isAllowed(resource.toStack());
+	}
+
+	protected abstract boolean isAllowed(ItemStack stack);
 
 	public void saveInventory() {
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> contentsNbt.put(INVENTORY_TAG, serializeNBT(registryAccess)));
