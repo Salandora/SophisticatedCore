@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.client.render.CustomParticleIcon;
+import net.p3pp3rf1y.sophisticatedcore.util.model.ModelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,10 +23,8 @@ public class ScreenEffectRendererMixin {
 
     @Redirect(method = "renderScreenEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/BlockModelShaper;getParticleIcon(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"))
     private static TextureAtlasSprite sophisticatedcore$renderEffectScreen$getParticleIcon(BlockModelShaper instance, BlockState state, @Share("pos") LocalRef<BlockPos> pos) {
-        if (instance.getBlockModel(state) instanceof CustomParticleIcon model && pos.get() != null) {
-            Minecraft mc = Minecraft.getInstance();
-            Object attachment = mc.level.getBlockEntityRenderData(pos.get());
-			return model.getParticleIcon(attachment);
+        if (pos.get() != null && instance.getBlockModel(state) instanceof CustomParticleIcon model && Minecraft.getInstance().level.getBlockEntityRenderData(pos.get()) instanceof ModelData data) {
+            return model.getParticleIcon(data);
         }
         return instance.getParticleIcon(state);
     }
