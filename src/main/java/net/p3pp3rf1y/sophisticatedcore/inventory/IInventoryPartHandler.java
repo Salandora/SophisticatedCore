@@ -165,11 +165,6 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
-			return getVariantInSlotSuper.apply(slot);
-		}
-
-		@Override
 		public ItemStack getStackInSlot(int slot, IntFunction<ItemStack> getStackInSlotSuper) {
 			return getStackInSlotSuper.apply(slot);
 		}

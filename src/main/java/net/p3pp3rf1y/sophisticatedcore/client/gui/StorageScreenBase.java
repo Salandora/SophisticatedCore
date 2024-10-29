@@ -457,7 +457,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, sophisticatedCore$getSlotColor(slotId));
+				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore$getSlotColor(slotId));
 			}
 		}
 	}
@@ -474,7 +474,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, sophisticatedCore$getSlotColor(slotId));
+				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore$getSlotColor(slotId));
 			}
 		}
 	}
@@ -922,13 +922,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			poseStack.translate(getGuiLeft(), getGuiTop(), 0.0F);
 			upgradeSlotChangeResult.errorUpgradeSlots().forEach(slotIndex -> {
 				Slot upgradeSlot = menu.getSlot(menu.getFirstUpgradeSlot() + slotIndex);
-				renderSlotOverlay(guiGraphics, upgradeSlot, ERROR_SLOT_COLOR);
+				GuiHelper.renderSlotHighlight(guiGraphics, upgradeSlot.x, upgradeSlot.y, 0, ERROR_SLOT_COLOR);
 			});
 			upgradeSlotChangeResult.errorInventorySlots().forEach(slotIndex -> {
 				Slot slot = menu.getSlot(slotIndex);
 				//noinspection ConstantConditions
 				if (slot != null) {
-					renderSlotOverlay(guiGraphics, slot, ERROR_SLOT_COLOR);
+					GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, ERROR_SLOT_COLOR);
 				}
 			});
 			upgradeSlotChangeResult.errorInventoryParts().forEach(partIndex -> {

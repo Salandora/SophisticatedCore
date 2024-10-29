@@ -14,9 +14,9 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
+import net.p3pp3rf1y.porting_lib.transfer.items.SlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoPayload;
@@ -283,8 +283,8 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		templatePersistanceContainer.refreshTemplateSlots();
 	}
 
-	private class ViewOnlyStorageInventorySlot extends SCSlotItemHandler {
-		public ViewOnlyStorageInventorySlot(SlottedStackStorage inventoryHandler, int slotIndex) {
+	private class ViewOnlyStorageInventorySlot extends SlotItemHandler {
+		public ViewOnlyStorageInventorySlot(IItemHandlerSimpleInserter inventoryHandler, int slotIndex) {
 			super(inventoryHandler, slotIndex, 0, 0);
 		}
 

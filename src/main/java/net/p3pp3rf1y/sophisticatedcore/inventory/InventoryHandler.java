@@ -28,6 +28,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.CodecHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -236,12 +237,50 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	public long extractItemInternal(int slot, ItemVariant resource, long amount, TransactionContext ctx) {
-		long extracted = super.extractSlot(slot, resource, amount, ctx);
+		/*long extracted = super.extractSlot(slot, resource, amount, ctx);
 		TransactionCallback.onSuccess(ctx, () -> {
 			slotTracker.removeAndSetSlotIndexes(this, slot, getSlotStack(slot));
 			onContentsChanged(slot);
 		});
-		return extracted;
+		return extracted;*/
+
+		if (amount == 0) {
+			return 0;
+		}
+
+		//validateSlotIndex(slot);
+		ItemStack existing = getSlotStack(slot);
+
+		if (existing.isEmpty()) {
+			return 0;
+		}
+
+		int toExtract = Math.min((int) amount, existing.getMaxStackSize());
+
+		if (existing.getCount() <= toExtract) {
+			TransactionCallback.onSuccess(ctx, () -> setSlotStack(slot, ItemStack.EMPTY));
+
+			//return existing.copy();
+			return existing.getCount();
+		} else {
+			TransactionCallback.onSuccess(ctx, () -> setSlotStack(slot, existing.copyWithCount(existing.getCount() - toExtract)));
+
+			//return existing.copyWithCount(toExtract);
+			return toExtract;
+		}
+	}
+
+	@Override
+	public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+		long extracted;
+		ItemVariant resource = getVariantInSlot(slot);
+		try (Transaction ctx = Transaction.openOuter()) {
+			extracted = extractSlot(slot, resource, amount, ctx);
+			if (!simulate) {
+				ctx.commit();
+			}
+		}
+		return resource.toStack((int) extracted);
 	}
 
 	@Override
@@ -257,6 +296,18 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 		onContentsChanged(slot);
+	}
+
+	@Override
+	public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+		long inserted;
+		try (Transaction ctx = Transaction.openOuter()) {
+			inserted = insertSlot(slot, ItemVariant.of(stack), stack.getCount(), ctx);
+			if (!simulate) {
+				ctx.commit();
+			}
+		}
+		return stack.copyWithCount(stack.getCount() - (int) inserted);
 	}
 
 	@Override
@@ -296,14 +347,17 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		}
 	}
 
-	private long insertItemInternal(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
+	private long insertItemInternal(int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
 		long remaining = runOnBeforeInsert(slot, resource, maxAmount, ctx, this, storageWrapper);
 		if (remaining <= 0) {
 			return maxAmount;
 		}
 
-		remaining -= inventoryPartitioner.getPartBySlot(slot).insertItem(slot, resource, maxAmount, ctx, super::insertSlot);
-		TransactionCallback.onSuccess(ctx, () -> slotTracker.removeAndSetSlotIndexes(this, slot, getStackInSlot(slot)));
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			remaining -= inventoryPartitioner.getPartBySlot(slot).insertItem(slot, resource, maxAmount, inner, super::insertSlot);
+			TransactionCallback.onSuccess(inner, () -> slotTracker.removeAndSetSlotIndexes(this, slot, getStackInSlot(slot)));
+			inner.commit();
+		}
 
 		if (remaining == maxAmount) {
 			return 0;
@@ -324,11 +378,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return ret;
 	}
 
-	private void runOnAfterInsert(int slot, TransactionContext ctx, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+	private void runOnAfterInsert(int slot, @Nullable TransactionContext ctx, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
 		storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(IInsertResponseUpgrade.class).forEach(u -> u.onAfterInsert(handler, slot, ctx));
 	}
 
-	private long runOnBeforeInsert(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+	private long runOnBeforeInsert(int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
 		List<IInsertResponseUpgrade> wrappers = storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(IInsertResponseUpgrade.class);
 		long toInsert = maxAmount;
 		for (IInsertResponseUpgrade upgrade : wrappers) {
@@ -355,10 +409,9 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource, count) && isAllowed(resource) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, resource);
 	}
 
-	@Nonnull
 	@Override
 	public ItemVariant getVariantInSlot(int slot) {
-		return inventoryPartitioner.getPartBySlot(slot).getVariantInSlot(slot, super::getVariantInSlot);
+		return ItemVariant.of(getStackInSlot(slot));
 	}
 
 	@Nonnull
@@ -545,8 +598,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		}
 
 		@Override
-		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(insertedVariant, maxAmount, transaction);
+		public long insert(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			if (variant.isBlank() || maxAmount < 0) {
+				return 0;
+			}
+
+			long inserted = super.insert(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
 				this.onFinalCommit();
@@ -556,6 +613,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		@Override
 		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
+			if (variant.isBlank() || maxAmount < 0) {
+				return 0;
+			}
+
 			long extracted = super.extract(variant, maxAmount, transaction);
 			TransactionCallback.onSuccess(transaction, () -> {
 				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());

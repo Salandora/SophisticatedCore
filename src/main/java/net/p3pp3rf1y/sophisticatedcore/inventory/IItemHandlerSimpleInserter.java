@@ -10,6 +10,7 @@ public interface IItemHandlerSimpleInserter extends SlottedStackStorage, IInvent
 	}
 
 	@Override
+	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
 	default boolean isItemValid(int slot, ItemVariant resource, int count) {
 		return isItemValid(slot, resource.toStack(count));
 	}

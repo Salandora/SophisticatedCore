@@ -10,12 +10,12 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackSto
 
 import org.jetbrains.annotations.NotNull;
 
-public class SCSlotItemHandler extends Slot {
+public class SlotItemHandler extends Slot {
 	private static final Container emptyInventory = new SimpleContainer(0);
 	private final SlottedStackStorage itemHandler;
 	private final int index;
 
-	public SCSlotItemHandler(SlottedStackStorage itemHandler, int index, int xPosition, int yPosition) {
+	public SlotItemHandler(SlottedStackStorage itemHandler, int index, int xPosition, int yPosition) {
 		super(emptyInventory, index, xPosition, yPosition);
 		this.itemHandler = itemHandler;
 		this.index = index;

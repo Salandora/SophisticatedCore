@@ -28,10 +28,10 @@ public interface ISlotTracker {
 
 	void refreshSlotIndexesFrom(InventoryHandler itemHandler);
 
-	long insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, ItemVariant resource, long maxAmount, TransactionContext ctx);
+	long insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx);
 	//ItemStack insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, ItemStack stack, boolean simulate);
 
-	long insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, int slot, ItemVariant resource, long maxAmount, TransactionContext ctx);
+	long insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx);
 	//ItemStack insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, int slot, ItemStack stack, boolean simulate);
 
 	void registerListeners(Consumer<ItemStackKey> onAddStackKey, Consumer<ItemStackKey> onRemoveStackKey, Runnable onAddFirstEmptySlot, Runnable onRemoveLastEmptySlot);
@@ -41,7 +41,7 @@ public interface ISlotTracker {
 	boolean hasEmptySlots();
 
 	interface IItemHandlerInserter {
-		long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction);
+		long insertItem(int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext transaction);
 		//ItemStack insertItem(int slot, ItemStack stack, boolean simulate);
 	}
 

@@ -18,7 +18,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
+import net.p3pp3rf1y.porting_lib.transfer.items.SlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
@@ -1586,7 +1586,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		}
 	}
 
-	public class StorageUpgradeSlot extends SCSlotItemHandler {
+	public class StorageUpgradeSlot extends SlotItemHandler {
 		private boolean wasEmpty = true;
 		private final int slotIndex;
 

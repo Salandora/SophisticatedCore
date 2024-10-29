@@ -174,7 +174,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot.x, slot.y, 0, sophisticatedCore$getSlotColor(slotId));
+				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore$getSlotColor(slotId));
 			}
 
 			settingsTabControl.renderSlotExtra(guiGraphics, slot);

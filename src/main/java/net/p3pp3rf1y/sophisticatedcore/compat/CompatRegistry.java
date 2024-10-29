@@ -29,16 +29,6 @@ public class CompatRegistry {
 		compatFactories.computeIfAbsent(info, k -> new ArrayList<>()).add(factory);
 	}
 
-	@Nullable
-	public static VersionPredicate fromSpec(String spec) {
-		try {
-			return VersionPredicate.parse(spec);
-		}
-		catch (VersionParsingException e) {
-			return null;
-		}
-	}
-
 	public void setupCompats() {
 		loadedCompats.values().forEach(compats -> compats.forEach(ICompat::setup));
 	}
@@ -56,5 +46,15 @@ public class CompatRegistry {
 			}
 		});
 		loadedCompats.values().forEach(compats -> compats.forEach(ICompat::init));
+	}
+
+	@Nullable
+	public static VersionPredicate fromSpec(String spec) {
+		try {
+			return VersionPredicate.parse(spec);
+		}
+		catch (VersionParsingException e) {
+			return null;
+		}
 	}
 }

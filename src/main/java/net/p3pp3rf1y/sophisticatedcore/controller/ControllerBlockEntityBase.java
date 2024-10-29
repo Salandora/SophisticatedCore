@@ -542,23 +542,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 	@Nonnull
 	@Override
-	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-		if (isSlotIndexInvalid(slot)) {
-			throw new IndexOutOfBoundsException(slot);
-		}
-
-		int handlerIndex = getIndexForSlot(slot);
-		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
-		slot = getSlotFromIndex(slot, handlerIndex);
-		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
-			throw new IndexOutOfBoundsException("Slot in handler out of range: " + slot);
-		}
-
-		return handler.getSlot(slot);
-	}
-
-	@Nonnull
-	@Override
 	public ItemStack getStackInSlot(int slot) {
 		if (isSlotIndexInvalid(slot)) {
 			return ItemStack.EMPTY;
@@ -711,12 +694,13 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	private long insertIntoStorage(BlockPos storagePos, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		long inserted;
-		try (Transaction inner = Transaction.openNested(ctx)) {
-			inserted = getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insert(resource, maxAmount, ctx)).orElse(0L);
-			inner.commit();
-		}
-		return inserted;
+		return getInventoryHandlerValueFromHolder(storagePos, ins -> {
+			try (Transaction inner = Transaction.openNested(ctx)) {
+				long inserted = ins.insert(resource, maxAmount, ctx);
+				inner.commit();
+				return inserted;
+			}
+		}).orElse(0L);
 	}
 
 	@Nonnull
@@ -780,7 +764,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource, int count) {
+	public boolean isItemValid(int slot, ItemStack stack) {
 		if (isSlotIndexInvalid(slot)) {
 			return false;
 		}
@@ -788,7 +772,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
 		int localSlot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, localSlot, "isItemValid(int slot, ItemStack stack)")) {
-			return handler.isItemValid(localSlot, resource, count);
+			return handler.isItemValid(localSlot, stack);
 		}
 		return false;
 	}
@@ -886,6 +870,23 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			filterItemStorages.computeIfAbsent(item, stackKey -> new LinkedHashSet<>()).add(storagePos);
 		}
 		storageFilterItems.put(storagePos, new LinkedHashSet<>(filterItems));
+	}
+
+	@Nonnull
+	@Override
+	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
+		if (isSlotIndexInvalid(slot)) {
+			throw new IndexOutOfBoundsException(slot);
+		}
+
+		int handlerIndex = getIndexForSlot(slot);
+		IItemHandlerSimpleInserter handler = getHandlerFromIndex(handlerIndex);
+		slot = getSlotFromIndex(slot, handlerIndex);
+		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
+			throw new IndexOutOfBoundsException("Slot in handler out of range: " + slot);
+		}
+
+		return handler.getSlot(slot);
 	}
 
 	@Override
