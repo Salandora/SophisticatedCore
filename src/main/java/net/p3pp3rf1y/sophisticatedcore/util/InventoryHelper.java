@@ -188,50 +188,21 @@ public class InventoryHelper {
 		return result;
 	}
 
-	/*public static ItemStack extractFromInventory(Item item, int count, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
-		return extractFromInventory(ItemVariant.of(item), count, inventory, ctx);
+	public static ItemStack runPickupOnPickupResponseUpgrades(Level level, UpgradeHandler upgradeHandler, ItemStack remainingStack, boolean simulate) {
+		return runPickupOnPickupResponseUpgrades(level, null, upgradeHandler, remainingStack, simulate);
 	}
 
-	public static ItemStack extractFromInventory(ItemStack stack, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
-		return extractFromInventory(ItemVariant.of(stack), stack.getCount(), inventory, ctx);
-	}
-
-	public static ItemStack extractFromInventory(ItemVariant resource, long maxAmount, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
-		long extractedCount;
-		try (Transaction inner = Transaction.openNested(ctx)) {
-			extractedCount = inventory.extract(resource, maxAmount, inner);
-			inner.commit();
-		}
-
-		if (extractedCount == 0) {
-			return ItemStack.EMPTY;
-		}
-
-		return resource.toStack((int) extractedCount);
-	}*/
-
-	public static ItemStack runPickupOnPickupResponseUpgrades(Level level, UpgradeHandler upgradeHandler, ItemStack remainingStack, @Nullable TransactionContext ctx) {
-		return runPickupOnPickupResponseUpgrades(level, null, upgradeHandler, remainingStack, ctx);
-	}
-
-	public static ItemStack runPickupOnPickupResponseUpgrades(Level level, @Nullable Player player, UpgradeHandler upgradeHandler, ItemStack remainingStack, @Nullable TransactionContext ctx) {
+	public static ItemStack runPickupOnPickupResponseUpgrades(Level level,
+			@Nullable Player player, UpgradeHandler upgradeHandler, ItemStack remainingStack, boolean simulate) {
 		List<IPickupResponseUpgrade> pickupUpgrades = upgradeHandler.getWrappersThatImplement(IPickupResponseUpgrade.class);
 
 		for (IPickupResponseUpgrade pickupUpgrade : pickupUpgrades) {
 			int countBeforePickup = remainingStack.getCount();
-			try (Transaction inner = Transaction.openNested(ctx)) {
-				Item item = remainingStack.getItem();
-				remainingStack = pickupUpgrade.pickup(level, remainingStack, inner);
-
-				ItemStack finalRemainingStack = remainingStack;
-				TransactionCallback.onSuccess(inner, () -> {
-					if (player != null && finalRemainingStack.getCount() != countBeforePickup) {
-						playPickupSound(level, player);
-						player.awardStat(Stats.ITEM_PICKED_UP.get(item), countBeforePickup - finalRemainingStack.getCount());
-					}
-				});
-
-				inner.commit();
+			Item item = remainingStack.getItem();
+			remainingStack = pickupUpgrade.pickup(level, remainingStack, simulate);
+			if (!simulate && player != null && remainingStack.getCount() != countBeforePickup) {
+				playPickupSound(level, player);
+				player.awardStat(Stats.ITEM_PICKED_UP.get(item), countBeforePickup - remainingStack.getCount());
 			}
 
 			if (remainingStack.isEmpty()) {

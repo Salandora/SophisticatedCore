@@ -63,17 +63,12 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	@Override
-	public ItemStack pickup(Level level, ItemStack stack, TransactionContext ctx) {
+	public ItemStack pickup(Level level, ItemStack stack, boolean simulate) {
 		if (!shouldPickupItems() || !filterLogic.matchesFilter(stack)) {
 			return stack;
 		}
 
-		ItemVariant resource = ItemVariant.of(stack);
-		long inserted = storageWrapper.getInventoryForUpgradeProcessing().insert(resource, stack.getCount(), ctx);
-		return resource.toStack(stack.getCount() - (int) inserted);
-
-		// TODO: Rewrite 
-		// return storageWrapper.getInventoryForUpgradeProcessing().insertItem(stack, simulate);
+		return storageWrapper.getInventoryForUpgradeProcessing().insertItem(stack, simulate);
 	}
 
 	@Override
