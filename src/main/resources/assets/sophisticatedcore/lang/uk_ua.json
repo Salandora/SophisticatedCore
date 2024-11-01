@@ -174,6 +174,6 @@
     "gui.sophisticatedcore.narrate.tab_button": "Кнопка відкриття/закриття вкладки покращення",
     "gui.sophisticatedcore.narrate.context_button": "Перемикач контексту встановлено на: %s",
     "gui.sophisticatedcore.narrate.context_button.usage": "Натисніть, щоб перемкнути контекст",
-    "fluid.sophisticatedcore.xp_still": "Досвід",
+    "fluid_type.sophisticatedcore.experience": "Досвід",
     "gui.sophisticatedcore.tooltip.stack_count": "Кільк.: %s"
 }

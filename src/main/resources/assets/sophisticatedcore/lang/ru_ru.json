@@ -216,6 +216,6 @@
     "gui.sophisticatedcore.narrate.tab_button": "Кнопка для открытия или закрытия вкладки улучшений",
     "gui.sophisticatedcore.narrate.context_button": "Приоритет установлен на: %s",
     "gui.sophisticatedcore.narrate.context_button.usage": "Нажмите для смены приоритета",
-    "fluid.sophisticatedcore.xp_still": "Опыт",
+    "fluid_type.sophisticatedcore.experience": "Опыт",
     "gui.sophisticatedcore.tooltip.stack_count": "Кол-во предметов: %s"
 }
