@@ -236,19 +236,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		slotLimit = slotLimitOverride.get();
 	}
 
-	public long extractItemInternal(int slot, ItemVariant resource, long amount, TransactionContext ctx) {
-		/*long extracted = super.extractSlot(slot, resource, amount, ctx);
-		TransactionCallback.onSuccess(ctx, () -> {
-			slotTracker.removeAndSetSlotIndexes(this, slot, getSlotStack(slot));
-			onContentsChanged(slot);
-		});
-		return extracted;*/
-
+	/*public long extractItemInternal(int slot, ItemVariant resource, long amount, TransactionContext ctx) {
 		if (amount == 0) {
 			return 0;
 		}
 
-		//validateSlotIndex(slot);
+		validateSlotIndex(slot);
 		ItemStack existing = getSlotStack(slot);
 
 		if (existing.isEmpty()) {
@@ -259,33 +252,51 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		if (existing.getCount() <= toExtract) {
 			TransactionCallback.onSuccess(ctx, () -> setSlotStack(slot, ItemStack.EMPTY));
-
-			//return existing.copy();
 			return existing.getCount();
 		} else {
 			TransactionCallback.onSuccess(ctx, () -> setSlotStack(slot, existing.copyWithCount(existing.getCount() - toExtract)));
-
-			//return existing.copyWithCount(toExtract);
 			return toExtract;
+		}
+	}*/
+
+	public ItemStack extractItemInternal(int slot, int amount, boolean simulate) {
+		if (amount == 0) {
+			return ItemStack.EMPTY;
+		}
+
+		ItemStack existing = getSlotStack(slot);
+
+		if (existing.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+
+		int toExtract = Math.min(amount, existing.getMaxStackSize());
+
+		if (existing.getCount() <= toExtract) {
+			if (!simulate) {
+				setSlotStack(slot, ItemStack.EMPTY);
+				return existing;
+			} else {
+				return existing.copy();
+			}
+		} else {
+			if (!simulate) {
+				setSlotStack(slot, existing.copyWithCount(existing.getCount() - toExtract));
+			}
+
+			return existing.copyWithCount(toExtract);
 		}
 	}
 
 	@Override
 	public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-		long extracted;
-		ItemVariant resource = getVariantInSlot(slot);
-		try (Transaction ctx = Transaction.openOuter()) {
-			extracted = extractSlot(slot, resource, amount, ctx);
-			if (!simulate) {
-				ctx.commit();
-			}
-		}
-		return resource.toStack((int) extracted);
+		return inventoryPartitioner.getPartBySlot(slot).extractItem(slot, amount, simulate);
 	}
 
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		return inventoryPartitioner.getPartBySlot(slot).extractItem(slot, resource, maxAmount, ctx);
+		TransactionCallback.onSuccess(ctx, () -> inventoryPartitioner.getPartBySlot(slot).extractItem(slot, (int) maxAmount, false));
+		return inventoryPartitioner.getPartBySlot(slot).extractItem(slot, (int) maxAmount, true).getCount();
 	}
 
 	public ItemStack getSlotStack(int slot) {
@@ -594,7 +605,6 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		protected void setInternalNewStack(ItemStack stack) {
 			super.setStack(stack);
-			//this.onFinalCommit();
 		}
 
 		@Override
@@ -603,12 +613,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 				return 0;
 			}
 
-			long inserted = super.insert(variant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, () -> {
-				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
-				this.onFinalCommit();
-			});
-			return inserted;
+			return InventoryHandler.this.insertSlot(getIndex(), variant, maxAmount, transaction);
 		}
 
 		@Override
@@ -617,12 +622,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 				return 0;
 			}
 
-			long extracted = super.extract(variant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, () -> {
-				slotTracker.removeAndSetSlotIndexes(InventoryHandler.this, getIndex(), getStack());
-				this.onFinalCommit();
-			});
-			return extracted;
+			return InventoryHandler.this.extractSlot(getIndex(), variant, maxAmount, transaction);
 		}
 	}
 }

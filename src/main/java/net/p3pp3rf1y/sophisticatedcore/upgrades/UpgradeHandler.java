@@ -135,17 +135,14 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		// Moved to UpgradeHandlerSlot
-		/*TransactionCallback.onSuccess(ctx, () -> {
-			// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
-			this.onContentsChanged(slot);
-
+		long inserted = super.insertSlot(slot, resource, maxAmount, ctx);
+		TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.isLogicalServerThread() && inserted > 0 && maxAmount > 0) {
 				onUpgradeAdded(slot);
 			}
-		});*/
+		});
 
-		return super.insertSlot(slot, resource, maxAmount, ctx);
+		return inserted;
 	}
 
 	private void onUpgradeAdded(int slot) {
@@ -183,8 +180,8 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		// Moved to UpgradeHandlerSlot
-		/*TransactionCallback.onSuccess(ctx, () -> {
+		long extracted = super.extractSlot(slot, resource, maxAmount, ctx);
+		TransactionCallback.onSuccess(ctx, () -> {
 			if (SophisticatedCore.isLogicalServerThread()) {
 				ItemStack slotStack = getStackInSlot(slot);
 				if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
@@ -194,8 +191,8 @@ public class UpgradeHandler extends ItemStackHandler {
 					}
 				}
 			}
-		});*/
-		return super.extractSlot(slot, resource, maxAmount, ctx);
+		});
+		return extracted;
 	}
 
 	private void initializeTypeWrappers() {
@@ -391,45 +388,22 @@ public class UpgradeHandler extends ItemStackHandler {
 		return new UpgradeHandlerSlot(index, this, stack);
 	}
 
-	private static class UpgradeHandlerSlot extends ItemStackHandlerSlot {
-		private final UpgradeHandler handler;
-
+	private class UpgradeHandlerSlot extends ItemStackHandlerSlot {
 		public UpgradeHandlerSlot(int index, UpgradeHandler handler, ItemStack initial) {
 			super(index, handler, initial);
-
-			this.handler = handler;
 		}
 
 		@Override
 		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
 			long inserted = super.insert(insertedVariant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, () -> {
-				this.onFinalCommit();
-
-				if (SophisticatedCore.isLogicalServerThread() && inserted > 0 && maxAmount > 0) {
-					this.handler.onUpgradeAdded(this.getIndex());
-				}
-			});
+			TransactionCallback.onSuccess(transaction, this::onFinalCommit);
 			return inserted;
 		}
 
 		@Override
 		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
-			ItemStack slotStack = getStack();
-			long extracted = super.extract(variant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, () -> {
-				this.onFinalCommit();
-
-				if (SophisticatedCore.isLogicalServerThread()) {
-					if (this.handler.persistent && !slotStack.isEmpty() && maxAmount == 1) {
-						Map<Integer, IUpgradeWrapper> wrappers = this.handler.getSlotWrappers();
-						if (wrappers.containsKey(this.getIndex())) {
-							wrappers.get(this.getIndex()).onBeforeRemoved();
-						}
-					}
-				}
-			});
-			return extracted;
+			TransactionCallback.onSuccess(transaction, this::onFinalCommit);
+			return UpgradeHandler.this.extractSlot(getIndex(), variant, maxAmount, transaction);
 		}
 
 		public void setInternalNewStack(ItemStack stack) {

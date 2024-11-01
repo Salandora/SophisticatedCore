@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -32,13 +33,9 @@ public interface IInventoryPartHandler {
 		return 0;
 	}
 
-	default long extractItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		return 0;
-	}
-	// TODO:
-	/*default ItemStack extractItem(int slot, int amount, boolean simulate) {
+	default ItemStack extractItem(int slot, int amount, boolean simulate) {
 		return ItemStack.EMPTY;
-	}*/
+	}
 
 	default long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
 		return maxAmount;
@@ -52,12 +49,6 @@ public interface IInventoryPartHandler {
 		//noop
 	}
 
-	@Deprecated
-	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
-	default boolean isItemValid(int slot, ItemVariant resource) {
-		return isItemValid(slot, resource.toStack());
-	}
-
 	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
 	default boolean isItemValid(int slot, ItemVariant resource, int count) {
 		return isItemValid(slot, resource.toStack(count));
@@ -66,9 +57,6 @@ public interface IInventoryPartHandler {
 		return false;
 	}
 
-	default ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
-		return ItemVariant.blank();
-	}
 	default ItemStack getStackInSlot(int slot, IntFunction<ItemStack> getStackInSlotSuper) {
 		return ItemStack.EMPTY;
 	}
@@ -135,14 +123,9 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public long extractItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-			return parent.extractItemInternal(slot, resource, maxAmount, ctx);
-		}
-		// TODO:
-		/*@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			return parent.extractItemInternal(slot, amount, simulate);
-		}*/
+		}
 
 		@Override
 		public long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
