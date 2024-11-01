@@ -316,12 +316,4 @@ public class FluidUtil {
 
 		return FluidActionResult.FAILURE;
 	}
-
-	public static Optional<FluidVariant> getFluidContained(ItemStack stack) {
-		if (!stack.isEmpty()) {
-			Storage<FluidVariant> fluidHandler = ContainerItemContext.withConstant(stack).find(FluidStorage.ITEM);
-			return Optional.ofNullable(StorageUtil.findStoredResource(fluidHandler));
-		}
-		return Optional.empty();
-	}
 }
