@@ -1,8 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -228,34 +225,33 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 	}
 
 	private boolean isPartiallyFilled(InventoryHandler itemHandler, int slot, ItemStack stack) {
-		return stack.getCount() < itemHandler.getStackLimit(slot, ItemVariant.of(stack));
+		return stack.getCount() < itemHandler.getStackLimit(slot, stack);
 	}
 
 	@Override
-	public long insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		if (emptySlots.isEmpty() && !itemStackKeys.containsKey(resource.getItem())) {
-			return maxAmount;
+	public ItemStack insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, ItemStack stack, boolean simulate) {
+		if (emptySlots.isEmpty() && !itemStackKeys.containsKey(stack.getItem())) {
+			return stack;
 		}
 
-		ItemStackKey stackKey = ItemStackKey.of(resource.toStack());
-		long remaining = maxAmount;
-		remaining -= handleOverflow(overflowHandler, stackKey, resource, remaining);
-		if (remaining <= 0) {
-			return 0;
+		ItemStackKey stackKey = ItemStackKey.of(stack);
+		ItemStack remainingStack = handleOverflow(overflowHandler, stackKey, stack);
+		if (remainingStack.isEmpty()) {
+			return remainingStack;
 		}
-		remaining -= insertIntoSlotsThatMatchStack(inserter, resource, remaining, ctx, stackKey);
-		if (remaining > 0) {
-			remaining -= insertIntoEmptySlots(inserter, resource, remaining, ctx);
+		remainingStack = insertIntoSlotsThatMatchStack(inserter, remainingStack, simulate, stackKey);
+		if (!remainingStack.isEmpty()) {
+			remainingStack = insertIntoEmptySlots(inserter, remainingStack, simulate);
 		}
-		if (remaining > 0) {
-			remaining -= handleOverflow(overflowHandler, stackKey, resource, remaining);
+		if (!remainingStack.isEmpty()) {
+			remainingStack = handleOverflow(overflowHandler, stackKey, remainingStack);
 		}
-		return remaining;
+		return remainingStack;
 	}
 
 	@Override
-	public long insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		return insertItemIntoHandler(itemHandler, inserter, overflowHandler, resource, maxAmount, ctx);
+	public ItemStack insertItemIntoHandler(InventoryHandler itemHandler, IItemHandlerInserter inserter, UnaryOperator<ItemStack> overflowHandler, int slot, ItemStack stack, boolean simulate) {
+		return insertItemIntoHandler(itemHandler, inserter, overflowHandler, stack, simulate);
 	}
 
 	@Override
@@ -277,20 +273,19 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		return shouldInsertIntoEmpty.getAsBoolean() && !emptySlots.isEmpty();
 	}
 
-	private long handleOverflow(UnaryOperator<ItemStack> overflowHandler, ItemStackKey stackKey, ItemVariant resource, long maxAmount) {
-		ItemStack remainingStack = resource.toStack((int) maxAmount);
+	private ItemStack handleOverflow(UnaryOperator<ItemStack> overflowHandler, ItemStackKey stackKey, ItemStack remainingStack) {
 		if (fullStackSlots.containsKey(stackKey) && !fullStackSlots.get(stackKey).isEmpty()) {
 			remainingStack = overflowHandler.apply(remainingStack);
 		}
-		return (int)maxAmount - remainingStack.getCount();
+		return remainingStack;
 	}
 
-	private long insertIntoSlotsThatMatchStack(IItemHandlerInserter inserter, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx, ItemStackKey stackKey) {
-		long remaining = maxAmount;
+	private ItemStack insertIntoSlotsThatMatchStack(IItemHandlerInserter inserter, ItemStack stack, boolean simulate, ItemStackKey stackKey) {
+		ItemStack remainingStack = stack;
 
 		Set<Integer> slots = partiallyFilledStackSlots.get(stackKey);
 		if (slots == null || slots.isEmpty()) {
-			return 0;
+			return remainingStack;
 		}
 
 		int sizeBefore = slots.size();
@@ -300,22 +295,19 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		// in case updating cache fails to prevent infinite loop
 		while (partiallyFilledStackSlots.get(stackKey) != null && !partiallyFilledStackSlots.get(stackKey).isEmpty() && i++ < sizeBefore) {
 			int matchingSlot = partiallyFilledStackSlots.get(stackKey).iterator().next();
-			try (Transaction nested = Transaction.openNested(ctx)) {
-				remaining -= inserter.insertItem(matchingSlot, resource, remaining, nested);
-				nested.commit();
-			}
-			if (remaining <= 0) {
+			remainingStack = inserter.insertItem(matchingSlot, remainingStack, simulate);
+			if (remainingStack.isEmpty()) {
 				break;
 			}
 		}
-		return (int)maxAmount - remaining;
+		return remainingStack;
 	}
 
-	private long insertIntoEmptySlots(IItemHandlerInserter inserter, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		long remaining = maxAmount;
-		remaining -= insertIntoEmptyMemorySlots(inserter, resource, remaining, ctx);
-		remaining -= insertIntoEmptyFilterSlots(inserter, resource, remaining, ctx);
-		if (shouldInsertIntoEmpty.getAsBoolean() && remaining > 0) {
+	private ItemStack insertIntoEmptySlots(IItemHandlerInserter inserter, ItemStack stack, boolean simulate) {
+		ItemStack remainingStack = stack;
+		remainingStack = insertIntoEmptyMemorySlots(inserter, simulate, remainingStack);
+		remainingStack = insertIntoEmptyFilterSlots(inserter, simulate, remainingStack);
+		if (shouldInsertIntoEmpty.getAsBoolean() && !remainingStack.isEmpty()) {
 			int sizeBefore = emptySlots.size();
 			int i = 0;
 			// Always taking first element here and iterating while not empty as iterating using iterator would produce CME due to void/compacting reacting to inserts
@@ -326,55 +318,45 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 				int slot = it.next();
 				while (memorySettings.isSlotSelected(slot)) {
 					if (!it.hasNext()) {
-						return (int)maxAmount - remaining;
+						return remainingStack;
 					}
 					slot = it.next();
 				}
 
-				try (Transaction nested = Transaction.openNested(ctx)) {
-					remaining -= inserter.insertItem(slot, resource, remaining, nested);
-					nested.commit();
-				}
-				if (remaining <= 0) {
+				remainingStack = inserter.insertItem(slot, remainingStack, simulate);
+				if (remainingStack.isEmpty()) {
 					break;
 				}
 			}
 		}
 
-		return (int)maxAmount - remaining;
+		return remainingStack;
 	}
 
-	private long insertIntoEmptyFilterSlots(IItemHandlerInserter inserter, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		Item item = resource.getItem();
-		long remaining = maxAmount;
+	private ItemStack insertIntoEmptyFilterSlots(IItemHandlerInserter inserter, boolean simulate, ItemStack remainingStack) {
+		Item item = remainingStack.getItem();
 		if (filterItemSlots.containsKey(item)) {
 			for (int filterSlot : filterItemSlots.get(item)) {
 				if (emptySlots.contains(filterSlot)) {
-					try (Transaction nested = Transaction.openNested(ctx)) {
-						remaining -= inserter.insertItem(filterSlot, resource, remaining, nested);
-						nested.commit();
-					}
-					if (remaining <= 0) {
+					remainingStack = inserter.insertItem(filterSlot, remainingStack, simulate);
+					if (remainingStack.isEmpty()) {
 						break;
 					}
 				}
 			}
 		}
-		return (int)maxAmount - remaining;
+		return remainingStack;
 	}
 
-	private long insertIntoEmptyMemorySlots(IItemHandlerInserter inserter, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
+	private ItemStack insertIntoEmptyMemorySlots(IItemHandlerInserter inserter, boolean simulate, ItemStack stack) {
+		ItemStack remainingStack = stack;
 		Map<Item, Set<Integer>> memoryFilterItemSlots = memorySettings.getFilterItemSlots();
-		Item item = resource.getItem();
-		long remaining = maxAmount;
+		Item item = remainingStack.getItem();
 		if (memoryFilterItemSlots.containsKey(item)) {
 			for (int memorySlot : memoryFilterItemSlots.get(item)) {
 				if (emptySlots.contains(memorySlot)) {
-					try (Transaction nested = Transaction.openNested(ctx)) {
-						remaining -= inserter.insertItem(memorySlot, resource, remaining, nested);
-						nested.commit();
-					}
-					if (remaining <= 0) {
+					remainingStack = inserter.insertItem(memorySlot, remainingStack, simulate);
+					if (remainingStack.isEmpty()) {
 						break;
 					}
 				}
@@ -383,21 +365,18 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 
 		Map<Integer, Set<Integer>> memoryFilterStackSlots = memorySettings.getFilterStackSlots();
 		if (!memoryFilterStackSlots.isEmpty()) {
-			int stackHash = ItemStack.hashItemAndComponents(resource.toStack((int) remaining));
+			int stackHash = ItemStack.hashItemAndComponents(remainingStack);
 			if (memoryFilterStackSlots.containsKey(stackHash)) {
 				for (int memorySlot : memoryFilterStackSlots.get(stackHash)) {
 					if (emptySlots.contains(memorySlot)) {
-						try (Transaction nested = Transaction.openNested(ctx)) {
-							remaining -= inserter.insertItem(memorySlot, resource, remaining, nested);
-							nested.commit();
-						}
-						if (remaining <= 0) {
+						remainingStack = inserter.insertItem(memorySlot, remainingStack, simulate);
+						if (remainingStack.isEmpty()) {
 							break;
 						}
 					}
 				}
 			}
 		}
-		return (int)maxAmount - remaining;
+		return remainingStack;
 	}
 }

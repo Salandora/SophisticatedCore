@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import com.mojang.datafixers.util.Function4;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,13 +35,9 @@ public interface IInventoryPartHandler {
 		return ItemStack.EMPTY;
 	}
 
-	default long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
-		return maxAmount;
-	}
-	// TODO:
-	/*default ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
+	default ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
 		return stack;
-	}*/
+	}
 
 	default void setStackInSlot(int slot, ItemStack stack, BiConsumer<Integer, ItemStack> setStackInSlotSuper) {
 		//noop
@@ -128,14 +122,9 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
-			return insertSuper.apply(slot, resource, maxAmount, ctx);
-		}
-		// TODO:
-		/*@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
 			return insertSuper.apply(slot, stack, simulate);
-		}*/
+		}
 
 		@Override
 		public void setStackInSlot(int slot, ItemStack stack, BiConsumer<Integer, ItemStack> setStackInSlotSuper) {

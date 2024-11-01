@@ -4,9 +4,12 @@ import io.github.fabricators_of_create.porting_lib.transfer.callbacks.Transactio
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -134,13 +137,30 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
+	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+		long inserted = 0;
+		for (int slot = 0; slot < getSlotCount(); slot++) {
+			inserted += insertSlot(slot, resource, maxAmount - inserted, transaction);
+			if (inserted >= maxAmount)
+				return inserted;
+		}
+		return inserted;
+	}
+
+	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long inserted = super.insertSlot(slot, resource, maxAmount, ctx);
-		TransactionCallback.onSuccess(ctx, () -> {
-			if (SophisticatedCore.isLogicalServerThread() && inserted > 0 && maxAmount > 0) {
-				onUpgradeAdded(slot);
-			}
-		});
+		long inserted;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			inserted = super.insertSlot(slot, resource, maxAmount, inner);
+			// ctx is on purpose here, we want the inner callbacks to be called first so we need to add them AFTER this callback
+			TransactionCallback.onSuccess(ctx, () -> {
+				if (SophisticatedCore.isLogicalServerThread() && inserted > 0 && maxAmount > 0) {
+					onUpgradeAdded(slot);
+				}
+			});
+			inner.commit();
+		}
 
 		return inserted;
 	}
@@ -179,19 +199,40 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
+	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+		Item item = resource.getItem();
+		SortedSet<ItemStackHandlerSlot> slots = getSlotsContaining(item);
+		if (slots.isEmpty())
+			return 0; // no slots hold this item
+		long extracted = 0;
+		for (ItemStackHandlerSlot slot : slots) {
+			extracted += extractSlot(slot.getIndex(), resource, maxAmount - extracted, transaction);
+			if (extracted >= maxAmount)
+				return extracted;
+		}
+		return extracted;
+	}
+
+	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long extracted = super.extractSlot(slot, resource, maxAmount, ctx);
-		TransactionCallback.onSuccess(ctx, () -> {
-			if (SophisticatedCore.isLogicalServerThread()) {
-				ItemStack slotStack = getStackInSlot(slot);
-				if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
-					Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
-					if (wrappers.containsKey(slot)) {
-						wrappers.get(slot).onBeforeRemoved();
+		long extracted;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			extracted = super.extractSlot(slot, resource, maxAmount, inner);
+			// ctx is on purpose here, we want the inner callbacks to be called first so we need to add them AFTER this callback
+			TransactionCallback.onSuccess(ctx, () -> {
+				if (SophisticatedCore.isLogicalServerThread()) {
+					ItemStack slotStack = getStackInSlot(slot);
+					if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
+						Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
+						if (wrappers.containsKey(slot)) {
+							wrappers.get(slot).onBeforeRemoved();
+						}
 					}
 				}
-			}
-		});
+			});
+			inner.commit();
+		}
 		return extracted;
 	}
 
@@ -388,22 +429,22 @@ public class UpgradeHandler extends ItemStackHandler {
 		return new UpgradeHandlerSlot(index, this, stack);
 	}
 
-	private class UpgradeHandlerSlot extends ItemStackHandlerSlot {
+	private static class UpgradeHandlerSlot extends ItemStackHandlerSlot {
 		public UpgradeHandlerSlot(int index, UpgradeHandler handler, ItemStack initial) {
 			super(index, handler, initial);
 		}
 
 		@Override
-		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(insertedVariant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, this::onFinalCommit);
-			return inserted;
+		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext ctx) {
+			TransactionCallback.onSuccess(ctx, () -> this.onFinalCommit());
+			return super.insert(insertedVariant, maxAmount, ctx);
 		}
 
 		@Override
-		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
-			TransactionCallback.onSuccess(transaction, this::onFinalCommit);
-			return UpgradeHandler.this.extractSlot(getIndex(), variant, maxAmount, transaction);
+		public long extract(ItemVariant variant, long maxAmount, TransactionContext ctx) {
+			long extracted = super.extract(variant, maxAmount, ctx);
+			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
+			return extracted;
 		}
 
 		public void setInternalNewStack(ItemStack stack) {

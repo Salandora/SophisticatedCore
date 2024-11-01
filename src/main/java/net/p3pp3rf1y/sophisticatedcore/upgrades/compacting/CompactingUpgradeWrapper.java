@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.compacting;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -39,16 +38,16 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	@Override
-	public long onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		return maxAmount;
+	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
+		return stack;
 	}
 
 	@Override
-	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, @Nullable TransactionContext ctx) {
-		compactSlot(inventoryHandler, slot, ctx);
+	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot) {
+		compactSlot(inventoryHandler, slot);
 	}
 
-	private void compactSlot(IItemHandlerSimpleInserter inventoryHandler, int slot, @Nullable TransactionContext ctx) {
+	private void compactSlot(IItemHandlerSimpleInserter inventoryHandler, int slot) {
 		ItemStack slotStack = inventoryHandler.getStackInSlot(slot);
 
 		if (slotStack.isEmpty() || !slotStack.getComponentsPatch().isEmpty() || !filterLogic.matchesFilter(slotStack)) {
@@ -60,50 +59,54 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		Set<CompactingShape> shapes = RecipeHelper.getItemCompactingShapes(item);
 
 		if (upgradeItem.shouldCompactThreeByThree() && (shapes.contains(CompactingShape.THREE_BY_THREE_UNCRAFTABLE) || (shouldCompactNonUncraftable() && shapes.contains(CompactingShape.THREE_BY_THREE)))) {
-			tryCompacting(inventoryHandler, item, 3, 3, ctx);
+			tryCompacting(inventoryHandler, item, 3, 3);
 		} else if (shapes.contains(CompactingShape.TWO_BY_TWO_UNCRAFTABLE) || (shouldCompactNonUncraftable() && shapes.contains(CompactingShape.TWO_BY_TWO))) {
-			tryCompacting(inventoryHandler, item, 2, 2, ctx);
+			tryCompacting(inventoryHandler, item, 2, 2);
 		}
 	}
 
-	private void tryCompacting(IItemHandlerSimpleInserter inventoryHandler, Item item, int width, int height, @Nullable TransactionContext ctx) {
+	private void tryCompacting(IItemHandlerSimpleInserter inventoryHandler, Item item, int width, int height) {
 		int totalCount = width * height;
 		RecipeHelper.CompactingResult compactingResult = RecipeHelper.getCompactingResult(item, width, height);
 		if (!compactingResult.getResult().isEmpty()) {
-			ItemVariant resource = ItemVariant.of(item);
-			long extracted = StorageUtil.simulateExtract(inventoryHandler, resource, totalCount, ctx);
-			if (extracted != totalCount) {
+			ItemStack extractedStack = InventoryHelper.extractFromInventory(item, totalCount, inventoryHandler, true);
+			if (extractedStack.getCount() != totalCount) {
 				return;
 			}
 
-			ItemVariant resultVariant = ItemVariant.of(compactingResult.getResult());
-			while (extracted == totalCount) {
+			while (extractedStack.getCount() == totalCount) {
+				ItemStack resultCopy = compactingResult.getResult().copy();
 				List<ItemStack> remainingItemsCopy = compactingResult.getRemainingItems().isEmpty() ? Collections.emptyList() : compactingResult.getRemainingItems().stream().map(ItemStack::copy).toList();
 
-				if (!fitsResultAndRemainingItems(inventoryHandler, remainingItemsCopy, compactingResult.getResult().copy(), ctx)) {
+				if (!fitsResultAndRemainingItems(inventoryHandler, remainingItemsCopy, compactingResult.getResult().copy())) {
 					break;
 				}
 
-				try (Transaction insertContext = Transaction.openNested(ctx)) {
-					inventoryHandler.extract(resource, totalCount, insertContext);
-					inventoryHandler.insert(resultVariant, compactingResult.getResult().getCount(), insertContext);
-					InventoryHelper.insertIntoInventory(remainingItemsCopy, inventoryHandler, insertContext);
-					insertContext.commit();
-				}
-
-				extracted = StorageUtil.simulateExtract(inventoryHandler, resource, totalCount, ctx);
+				InventoryHelper.extractFromInventory(item, totalCount, inventoryHandler, false);
+				inventoryHandler.insertItem(resultCopy, false);
+				InventoryHelper.insertIntoInventory(remainingItemsCopy, inventoryHandler, false);
+				extractedStack = InventoryHelper.extractFromInventory(item, totalCount, inventoryHandler, true);
 			}
 		}
 	}
 
-	private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result, @Nullable TransactionContext ctx) {
+	// TODO:
+	/*private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
 		if (!remainingItems.isEmpty()) {
-			try (Transaction insertSimulation = Transaction.openNested(ctx)) {
+			IItemHandlerSimpleInserter clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
+			return InventoryHelper.insertIntoInventory(result, clonedHandler, false).isEmpty()
+					&& InventoryHelper.insertIntoInventory(remainingItems, clonedHandler, false).isEmpty();
+		}
+		return InventoryHelper.insertIntoInventory(result, inventoryHandler, true).isEmpty();
+	}*/
+	private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
+		if (!remainingItems.isEmpty()) {
+			try (Transaction insertSimulation = Transaction.openOuter()) {
 				return InventoryHelper.insertIntoInventory(inventoryHandler, ItemVariant.of(result), result.getCount(), insertSimulation).isEmpty()
 						&& InventoryHelper.insertIntoInventory(remainingItems, inventoryHandler, insertSimulation).isEmpty();
 			}
 		}
-		return InventoryHelper.simulateInsertIntoInventory(inventoryHandler, ItemVariant.of(result), result.getCount(), ctx).isEmpty();
+		return InventoryHelper.simulateInsertIntoInventory(inventoryHandler, ItemVariant.of(result), result.getCount(), null).isEmpty();
 	}
 
 	@Override
@@ -143,10 +146,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		}
 
 		for (int slot : slotsToCompact) {
-			try (Transaction ctx = Transaction.openOuter()) {
-				compactSlot(storageWrapper.getInventoryHandler(), slot, ctx);
-				ctx.commit();
-			}
+			compactSlot(storageWrapper.getInventoryHandler(), slot);
 		}
 
 		slotsToCompact.clear();

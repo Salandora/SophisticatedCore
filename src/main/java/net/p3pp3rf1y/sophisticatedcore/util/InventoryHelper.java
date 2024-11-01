@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -28,7 +27,6 @@ import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
-import net.p3pp3rf1y.sophisticatedcore.inventory.PlayerInventoryStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -100,6 +98,30 @@ public class InventoryHelper {
 			}
 		}
 		return remainingStacks;
+	}
+
+	/// Do not call from an open transaction
+	public static List<ItemStack> insertIntoInventory(List<ItemStack> stacks, Storage<ItemVariant> inventory, boolean simulate) {
+		if (stacks.isEmpty()) {
+			return stacks;
+		}
+
+		List<ItemStack> remaining = new ArrayList<>();
+		try (Transaction ctx = Transaction.openOuter()) {
+			for (ItemStack stack : stacks) {
+				ItemVariant resource = ItemVariant.of(stack);
+
+				long remainingCount = stack.getCount() - inventory.insert(resource, stack.getCount(), ctx);
+				if (remainingCount > 0) {
+					remaining.add(resource.toStack((int) remainingCount));
+				}
+			}
+
+			if (!simulate) {
+				ctx.commit();
+			}
+		}
+		return remaining;
 	}
 
 	/// Do not call from an open transaction
@@ -493,7 +515,6 @@ public class InventoryHelper {
 				ctx.commit();
 			}
 		}
-
 		inventoryHandler.setStackInSlot(slot, ItemStack.EMPTY);
 	}
 	/*public static void dropItem(ItemStackHandler inventoryHandler, Level level, double x, double y, double z, Integer slot, ItemStack stack) {
