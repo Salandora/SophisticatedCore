@@ -6,14 +6,13 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public class CompatRegistry {
-	private static final Map<String, CompatRegistry> compatRegistries = new HashMap<>();
+	private static final Map<String, CompatRegistry> compatRegistries = new ConcurrentHashMap<>();
 
 	public static CompatRegistry getRegistry(String identifier) {
 		return compatRegistries.computeIfAbsent(identifier, (key) -> new CompatRegistry());

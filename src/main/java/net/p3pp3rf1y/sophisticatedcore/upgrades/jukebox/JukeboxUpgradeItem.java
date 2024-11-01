@@ -56,11 +56,6 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 				public boolean isItemValid(int slot, ItemStack stack) {
 					return stack.isEmpty() || stack.has(DataComponents.JUKEBOX_PLAYABLE);
 				}
-
-				@Override
-				public int getSlotLimit(int slot) {
-					return 64;
-				}
 			};
 			isPlaying = upgrade.getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
 		}

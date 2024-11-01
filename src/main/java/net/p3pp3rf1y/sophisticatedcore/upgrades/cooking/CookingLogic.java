@@ -249,7 +249,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 				return true;
 			} else if (output.getItem() != recipeOutput.getItem()) {
 				return false;
-			} else if (output.getCount() + recipeOutput.getCount() <= 64 && output.getCount() + recipeOutput.getCount() <= output.getMaxStackSize()) {
+			} else if (output.getCount() + recipeOutput.getCount() <= 99 && output.getCount() + recipeOutput.getCount() <= output.getMaxStackSize()) {
 				return true;
 			} else {
 				return output.getCount() + recipeOutput.getCount() <= recipeOutput.getMaxStackSize();
@@ -358,11 +358,6 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 				case FUEL_SLOT -> isFuel.test(stack);
 				default -> true;
 			};
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			return 64;
 		}
 
 		public void setStackInSlotWithoutValidation(int slot, ItemStack stack) {
