@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.compacting;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -90,23 +88,13 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		}
 	}
 
-	// TODO:
-	/*private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
+	private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
 		if (!remainingItems.isEmpty()) {
-			IItemHandlerSimpleInserter clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
+			ItemStackHandler clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
 			return InventoryHelper.insertIntoInventory(result, clonedHandler, false).isEmpty()
 					&& InventoryHelper.insertIntoInventory(remainingItems, clonedHandler, false).isEmpty();
 		}
 		return InventoryHelper.insertIntoInventory(result, inventoryHandler, true).isEmpty();
-	}*/
-	private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
-		if (!remainingItems.isEmpty()) {
-			try (Transaction insertSimulation = Transaction.openOuter()) {
-				return InventoryHelper.insertIntoInventory(inventoryHandler, ItemVariant.of(result), result.getCount(), insertSimulation).isEmpty()
-						&& InventoryHelper.insertIntoInventory(remainingItems, inventoryHandler, insertSimulation).isEmpty();
-			}
-		}
-		return InventoryHelper.simulateInsertIntoInventory(inventoryHandler, ItemVariant.of(result), result.getCount(), null).isEmpty();
 	}
 
 	@Override

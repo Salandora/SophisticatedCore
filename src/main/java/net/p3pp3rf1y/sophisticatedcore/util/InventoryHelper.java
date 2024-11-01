@@ -83,23 +83,6 @@ public class InventoryHelper {
 		}
 	}
 
-	public static List<ItemStack> insertIntoInventory(List<ItemStack> stacks, Storage<ItemVariant> inventory, TransactionContext ctx) {
-		if (stacks.isEmpty()) {
-			return stacks;
-		}
-
-		List<ItemStack> remainingStacks = new ArrayList<>();
-		for (ItemStack stack : stacks) {
-			ItemVariant resource = ItemVariant.of(stack);
-
-			long remaining = stack.getCount() - inventory.insert(resource, stack.getCount(), ctx);
-			if (remaining > 0) {
-				remainingStacks.add(resource.toStack((int) remaining));
-			}
-		}
-		return remainingStacks;
-	}
-
 	/// Do not call from an open transaction
 	public static List<ItemStack> insertIntoInventory(List<ItemStack> stacks, Storage<ItemVariant> inventory, boolean simulate) {
 		if (stacks.isEmpty()) {
@@ -124,27 +107,28 @@ public class InventoryHelper {
 		return remaining;
 	}
 
+	public static ItemStackHandler cloneInventory(SlottedStackStorage inventory) {
+		ItemStackHandler cloned = new ItemStackHandler(inventory.getSlotCount());
+		for (int slot = 0; slot < inventory.getSlotCount(); slot++) {
+			cloned.setStackInSlot(slot, inventory.getStackInSlot(slot).copy());
+		}
+		return cloned;
+	}
+
 	/// Do not call from an open transaction
-	public static ItemStack insertIntoInventory(ItemStack remaining, SlottedStorage<ItemVariant> inventory, boolean simulate) {
-		if (simulate) {
-			return simulateInsertIntoInventory(inventory, ItemVariant.of(remaining), remaining.getCount(), null);
-		} else {
-			return insertIntoInventory(inventory, ItemVariant.of(remaining), remaining.getCount(), null);
+	public static ItemStack insertIntoInventory(ItemStack stack, SlottedStorage<ItemVariant> inventory, boolean simulate) {
+		if (inventory instanceof IItemHandlerSimpleInserter itemHandlerSimpleInserter) {
+			return itemHandlerSimpleInserter.insertItem(stack, simulate);
 		}
-	}
 
-	public static ItemStack simulateInsertIntoInventory(SlottedStorage<ItemVariant> inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		try (Transaction simulate = Transaction.openNested(ctx)) {
-			return insertIntoInventory(inventory, resource, maxAmount, simulate);
+		ItemStack remainingStack;
+		try (Transaction ctx = Transaction.openOuter()) {
+			remainingStack = stack.copyWithCount((int)(stack.getCount() - inventory.insert(ItemVariant.of(stack), stack.getCount(), ctx)));
+			if (!simulate) {
+				ctx.commit();
+			}
 		}
-	}
-
-	public static ItemStack insertIntoInventory(SlottedStorage<ItemVariant> inventory, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		try (Transaction inner = Transaction.openNested(ctx)) {
-			long inserted = inventory.insert(resource, maxAmount, inner);
-			inner.commit();
-			return resource.toStack((int)(maxAmount - inserted));
-		}
+		return remainingStack;
 	}
 
 	/// Do not call from an open transaction

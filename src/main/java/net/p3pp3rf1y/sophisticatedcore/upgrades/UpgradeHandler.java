@@ -436,7 +436,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 		@Override
 		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext ctx) {
-			TransactionCallback.onSuccess(ctx, () -> this.onFinalCommit());
+			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
 			return super.insert(insertedVariant, maxAmount, ctx);
 		}
 
