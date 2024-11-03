@@ -1,0 +1,54 @@
+package net.p3pp3rf1y.sophisticatedcore.mixin.common;
+
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.p3pp3rf1y.sophisticatedcore.extensions.entity.SophisticatedPlayer;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.OptionalInt;
+import java.util.function.Consumer;
+
+@Mixin(Player.class)
+public abstract class PlayerMixin implements SophisticatedPlayer {
+
+	@Shadow public abstract OptionalInt openMenu(@Nullable MenuProvider menu);
+
+	@Override
+	public OptionalInt openMenu(MenuProvider menuProvider, BlockPos pos) {
+		return this.openMenu(menuProvider, (buf) -> buf.writeBlockPos(pos));
+	}
+
+	@Override
+	public OptionalInt openMenu(MenuProvider menu, Consumer<RegistryFriendlyByteBuf> context) {
+		var screenHandlerFactory = new ExtendedScreenHandlerFactory<>() {
+			@Override
+			public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+				return menu.createMenu(i, inventory, player);
+			}
+
+			@Override
+			public Component getDisplayName() {
+				return menu.getDisplayName();
+			}
+
+			@Override
+			public byte[] getScreenOpeningData(ServerPlayer player) {
+				final RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), player.registryAccess());
+				context.accept(buf);
+				return buf.array();
+			}
+		};
+
+		return this.openMenu(screenHandlerFactory);
+	}
+}

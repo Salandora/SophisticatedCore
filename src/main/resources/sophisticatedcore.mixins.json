@@ -19,6 +19,7 @@
         "common.LivingEntityMixin",
         "common.MobMixin",
         "common.PersistentEntitySectionManagerMixin",
+        "common.PlayerMixin",
         "common.ServerLevelMixin",
         "common.ServerPlayerMixin",
         "common.SlotMixin"
