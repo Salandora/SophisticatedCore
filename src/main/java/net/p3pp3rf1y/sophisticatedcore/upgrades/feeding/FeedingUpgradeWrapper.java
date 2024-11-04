@@ -1,8 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.feeding;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import io.github.fabricators_of_create.porting_lib.core.PortingLib;
+import net.blay09.mods.balm.api.event.UseItemEvent;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IFilteredUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
@@ -38,68 +42,82 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level world, BlockPos pos) {
-		if (isInCooldown(world) || (entity != null && !(entity instanceof Player))) {
+	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		if (isInCooldown(level) || (entity != null && !(entity instanceof Player))) {
 			return;
 		}
 
 		boolean hungryPlayer = false;
 		if (entity == null) {
 			AtomicBoolean stillHungryPlayer = new AtomicBoolean(false);
-			world.getEntities(EntityType.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, world)));
+			level.getEntities(EntityType.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, level)));
 			hungryPlayer = stillHungryPlayer.get();
 		} else {
-			if (feedPlayerAndGetHungry((Player) entity, world)) {
+			if (feedPlayerAndGetHungry((Player) entity, level)) {
 				hungryPlayer = true;
 			}
 		}
 		if (hungryPlayer) {
-			setCooldown(world, STILL_HUNGRY_COOLDOWN);
+			setCooldown(level, STILL_HUNGRY_COOLDOWN);
 			return;
 		}
 
-		setCooldown(world, COOLDOWN);
+		setCooldown(level, COOLDOWN);
 	}
 
-	private boolean feedPlayerAndGetHungry(Player player, Level world) {
+	private boolean feedPlayerAndGetHungry(Player player, Level level) {
 		int hungerLevel = 20 - player.getFoodData().getFoodLevel();
 		if (hungerLevel == 0) {
 			return false;
 		}
-		return tryFeedingFoodFromStorage(world, hungerLevel, player) && player.getFoodData().getFoodLevel() < 20;
+		return tryFeedingFoodFromStorage(level, hungerLevel, player) && player.getFoodData().getFoodLevel() < 20;
 	}
 
-	private boolean tryFeedingFoodFromStorage(Level world, int hungerLevel, Player player) {
-		boolean isHurt = player.getHealth() < player.getMaxHealth() - 0.1F;
-		SlottedStackStorage inventory = storageWrapper.getInventoryForUpgradeProcessing();
-		AtomicBoolean fedPlayer = new AtomicBoolean(false);
-		InventoryHelper.iterate(inventory, (slot, stack) -> {
-			if (isEdible(stack) && filterLogic.matchesFilter(stack) && (isHungryEnoughForFood(hungerLevel, stack) || shouldFeedImmediatelyWhenHurt() && hungerLevel > 0 && isHurt)) {
-				ItemStack mainHandItem = player.getMainHandItem();
-				// Changed for compatibility with rpg inventory
-				player.setItemInHand(InteractionHand.MAIN_HAND, stack); // player.getInventory().items.set(player.getInventory().selected, stack);
-				if (stack.use(world, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
-					InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, world, InteractionHand.MAIN_HAND);
-					ItemStack containerItem = result.getObject();
-					if (result.getResult() == InteractionResult.PASS) {
-						containerItem = stack.getItem().finishUsingItem(stack, world, player);
-					}
+	private boolean tryFeedingFoodFromStorage(Level level, int hungerLevel, Player player) {
+		ITrackedContentsItemHandler inventory = storageWrapper.getInventoryForUpgradeProcessing();
+		return InventoryHelper.iterate(inventory, (slot, stack) -> tryFeedingStack(level, hungerLevel, player, slot, stack, inventory), () -> false, ret -> ret);
+	}
 
-					// Changed for compatibility with rpg inventory
-					player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem); //player.getInventory().items.set(player.getInventory().selected, mainHandItem);
-					inventory.setStackInSlot(slot, stack);
-					if (!ItemStack.matches(containerItem, stack)) {
-						InventoryHelper.insertOrDropItem(player, containerItem, inventory, PlayerInventoryStorage.of(player));
-					}
-					fedPlayer.set(true);
-					return true;
-				}
+	private boolean tryFeedingStack(Level level, int hungerLevel, Player player, Integer slot, ItemStack stack, ITrackedContentsItemHandler inventory) {
+		boolean isHurt = player.getHealth() < player.getMaxHealth() - 0.1F;
+		if (isEdible(stack) && filterLogic.matchesFilter(stack) && (isHungryEnoughForFood(hungerLevel, stack) || shouldFeedImmediatelyWhenHurt() && hungerLevel > 0 && isHurt)) {
+			ItemStack mainHandItem = player.getMainHandItem();
+			// Changed for compatibility with rpg inventory
+			player.setItemInHand(InteractionHand.MAIN_HAND, stack); //player.getInventory().items.set(player.getInventory().selected, stack);
+
+			ItemStack singleItemCopy = stack.copy();
+			singleItemCopy.setCount(1);
+
+			if (singleItemCopy.use(level, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
 				// Changed for compatibility with rpg inventory
 				player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem); //player.getInventory().items.set(player.getInventory().selected, mainHandItem);
+
+				stack.shrink(1);
+				inventory.setStackInSlot(slot, stack);
+
+				InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND);
+				ItemStack resultItem = result.getObject();
+				if (result.getResult() == InteractionResult.PASS) {
+					resultItem = singleItemCopy.getItem().finishUsingItem(singleItemCopy, level, player);
+				}
+
+				if (!resultItem.isEmpty()) {
+					long inserted;
+					try (Transaction ctx = Transaction.openOuter()) {
+						inserted = inventory.insert(ItemVariant.of(resultItem), resultItem.getCount(), ctx);
+						ctx.commit();
+					}
+					ItemStack insertResult = resultItem.copyWithCount(resultItem.getCount() - (int) inserted);
+					if (!insertResult.isEmpty()) {
+						InventoryHelper.insertOrDropItem(player, insertResult, inventory, PlayerInventoryStorage.of(player));
+					}
+				}
+				return true;
 			}
-			return false;
-		}, () -> false, ret -> ret);
-		return fedPlayer.get();
+			// Changed for compatibility with rpg inventory
+			player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem); //player.getInventory().items.set(player.getInventory().selected, mainHandItem);
+		}
+		return false;
 	}
 
 	private static boolean isEdible(ItemStack stack) {
