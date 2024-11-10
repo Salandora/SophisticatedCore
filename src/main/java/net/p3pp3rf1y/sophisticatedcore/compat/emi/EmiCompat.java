@@ -17,13 +17,6 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModPayloads;
 public class EmiCompat implements EmiPlugin, ICompat {
     @Override
     public void register(EmiRegistry registry) {
-		Minecraft mc = Minecraft.getInstance();
-        ClientRecipeHelper.transformAllRecipesOfType(RecipeType.CRAFTING, UpgradeNextTierRecipe.class, ClientRecipeHelper::copyShapedRecipe).forEach(r ->
-            registry.addRecipe(new EmiCraftingRecipe(
-                r.value().getIngredients().stream().map(EmiIngredient::of).toList(),
-                EmiStack.of(r.value().getResultItem(mc.level.registryAccess())),
-                r.id()
-        )));
     }
 
     @Override
