@@ -26,8 +26,8 @@ public abstract class TerrainParticleMixin extends TextureSheetParticle implemen
 		if (pos != null) {
 			BlockModelShaper shaper = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
 			BakedModel model = shaper.getBlockModel(state);
-			if (model instanceof CustomParticleIcon sophModel) {
-				this.setSprite(sophModel.getParticleIcon(state, level, pos));
+			if (model instanceof CustomParticleIcon) {
+				this.setSprite(shaper.getParticleIcon(state));
 			}
 		}
 

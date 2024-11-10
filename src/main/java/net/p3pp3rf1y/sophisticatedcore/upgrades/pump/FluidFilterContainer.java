@@ -28,7 +28,7 @@ public class FluidFilterContainer {
 		return fluidFilterLogic.get().getFluid(index);
 	}
 
-	private void setFluid(int index, FluidStack fluid) {
+	public void setFluid(int index, FluidStack fluid) {
 		fluidFilterLogic.get().setFluid(index, fluid);
 		serverUpdater.sendDataToServer(() -> serializeSetFluidData(index, fluid));
 	}
@@ -37,7 +37,7 @@ public class FluidFilterContainer {
 		CompoundTag ret = new CompoundTag();
 		CompoundTag fluidNbt = new CompoundTag();
 		fluidNbt.putInt("index", index);
-		fluidNbt.put("fluid", fluid.writeToNBT(new CompoundTag()));
+		fluidNbt.put("fluid", fluid.saveOptional(player.level().registryAccess()));
 		ret.put(DATA_FLUID, fluidNbt);
 		return ret;
 	}
@@ -45,7 +45,7 @@ public class FluidFilterContainer {
 	public boolean handlePacket(CompoundTag data) {
 		if (data.contains(DATA_FLUID)) {
 			CompoundTag fluidData = data.getCompound(DATA_FLUID);
-			FluidStack fluid = FluidStack.loadFluidStackFromNBT(data.getCompound("fluid"));
+			FluidStack fluid = FluidStack.parseOptional(player.level().registryAccess(), fluidData.getCompound("fluid"));
 			if (!fluid.isEmpty()) {
 				setFluid(fluidData.getInt("index"), fluid);
 			}

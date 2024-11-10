@@ -1,24 +1,25 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import fi.dy.masa.litematica.materials.MaterialListUtils;
+import fi.dy.masa.malilib.util.ItemType;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
-import fi.dy.masa.litematica.materials.MaterialListUtils;
-import fi.dy.masa.malilib.util.ItemType;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(MaterialListUtils.class)
 public class MaterialListUtilsMixin {
-	@Inject(method = "getInventoryItemCounts", at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Object2IntOpenHashMap;addTo(Ljava/lang/Object;I)I", ordinal = 0, shift = At.Shift.AFTER, remap = false), locals = LocalCapture.CAPTURE_FAILHARD)
-	private static void sophisticatedCore$injectStorageBlockBase(Container inv, CallbackInfoReturnable<Object2IntOpenHashMap<ItemType>> cir, Object2IntOpenHashMap<ItemType> map, int slots, int slot, ItemStack stack) {
+	@Inject(method = "getInventoryItemCounts", at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/Object2IntOpenHashMap;addTo(Ljava/lang/Object;I)I", ordinal = 0, shift = At.Shift.AFTER, remap = false))
+	private static void sophisticatedCore$injectStorageBlockBase(Container inv, CallbackInfoReturnable<Object2IntOpenHashMap<ItemType>> cir,
+			@Local(ordinal = 0) Object2IntOpenHashMap<ItemType> map, @Local ItemStack stack) {
 		LitematicaCompat.getWrapper(stack).ifPresent(litematicaWrapper -> sophisticatedCore$processItemStack(map, litematicaWrapper.wrapper()));
 	}
 

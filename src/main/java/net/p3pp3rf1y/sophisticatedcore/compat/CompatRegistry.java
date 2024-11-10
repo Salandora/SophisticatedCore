@@ -6,39 +6,33 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public class CompatRegistry {
-	private static final Map<CompatInfo, List<Supplier<ICompat>>> compatFactories = new HashMap<>();
-	private static final Map<CompatInfo, List<ICompat>> loadedCompats = new HashMap<>();
+	private static final Map<String, CompatRegistry> compatRegistries = new ConcurrentHashMap<>();
 
+	public static CompatRegistry getRegistry(String identifier) {
+		return compatRegistries.computeIfAbsent(identifier, (key) -> new CompatRegistry());
+	}
 
-	public static void registerCompat(CompatInfo info, Supplier<ICompat> factory) {
+	private final Map<CompatInfo, List<Supplier<ICompat>>> compatFactories = new ConcurrentHashMap<>();
+	private final Map<CompatInfo, List<ICompat>> loadedCompats = new ConcurrentHashMap<>();
+
+	protected CompatRegistry() {
+	}
+
+	public void registerCompat(CompatInfo info, Supplier<ICompat> factory) {
 		compatFactories.computeIfAbsent(info, k -> new ArrayList<>()).add(factory);
 	}
 
-	@Nullable
-	public static VersionPredicate fromSpec(String spec) {
-		try {
-			return VersionPredicate.parse(spec);
-		}
-		catch (VersionParsingException e) {
-			return null;
-		}
+	public void setupCompats() {
+		loadedCompats.values().forEach(compats -> compats.forEach(ICompat::setup));
 	}
 
-	public static void setupCompats() {
-		for (List<ICompat> compats : loadedCompats.values()) {
-			for (ICompat compat : compats) {
-				compat.setup();
-			}
-		}
-	}
-
-	public static void initCompats() {
+	public void initCompats() {
 		compatFactories.forEach((compatInfo, factories) -> {
 			if (compatInfo.isLoaded()) {
 				factories.forEach(factory -> {
@@ -51,5 +45,15 @@ public class CompatRegistry {
 			}
 		});
 		loadedCompats.values().forEach(compats -> compats.forEach(ICompat::init));
+	}
+
+	@Nullable
+	public static VersionPredicate fromSpec(String spec) {
+		try {
+			return VersionPredicate.parse(spec);
+		}
+		catch (VersionParsingException e) {
+			return null;
+		}
 	}
 }

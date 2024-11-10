@@ -1,11 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 
 import javax.annotation.Nonnull;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends FilteringStorage<ItemVariant> implements SlottedStorage<ItemVariant> {
+public class FilteredItemHandler<T extends Storage<ItemVariant>> extends FilteringStorage<ItemVariant> {
 
 	protected final List<FilterLogic> inputFilters;
 	private final List<FilterLogic> outputFilters;
@@ -57,7 +57,7 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		return false;
 	}
 
-	@Override
+	/*@Override
 	public int getSlotCount() {
 		return ((SlottedStorage<ItemVariant>) backingStorage.get()).getSlotCount();
 	}
@@ -65,7 +65,7 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 	@Override
 	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
 		return new FilteredSingleSlotStorage(((SlottedStorage<ItemVariant>) backingStorage.get()).getSlot(slot));
-	}
+	}*/
 
 	public static class Modifiable extends FilteredItemHandler<ITrackedContentsItemHandler> implements ITrackedContentsItemHandler {
 		public Modifiable(ITrackedContentsItemHandler inventoryHandler, List<FilterLogic> inputFilters, List<FilterLogic> outputFilters) {
@@ -140,6 +140,16 @@ public class FilteredItemHandler<T extends SlottedStorage<ItemVariant>> extends 
 		@Override
 		public int getSlotLimit(int slot) {
 			return ((ITrackedContentsItemHandler) backingStorage.get()).getSlotLimit(slot);
+		}
+
+		@Override
+		public int getSlotCount() {
+			return ((ITrackedContentsItemHandler) backingStorage.get()).getSlotCount();
+		}
+
+		@Override
+		public SingleSlotStorage<ItemVariant> getSlot(int slot) {
+			return new FilteredSingleSlotStorage(((ITrackedContentsItemHandler) backingStorage.get()).getSlot(slot));
 		}
 	}
 

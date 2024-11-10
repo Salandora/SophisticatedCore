@@ -1,33 +1,35 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.SimpleFluidContent;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedTankUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
+import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -36,51 +38,19 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		implements IRenderedTankUpgrade, ITickableUpgrade, IStackableContentsUpgrade, SingleSlotStorage<FluidVariant> {
 	public static final int INPUT_SLOT = 0;
 	public static final int OUTPUT_SLOT = 1;
-	private static final String CONTENTS_TAG = "contents";
 	private Consumer<TankRenderInfo> updateTankRenderInfoCallback;
-	private final ItemStackHandler inventory;
+	private final TankComponentItemHandler inventory;
 	private FluidStack contents;
 	private long cooldownTime = 0;
-	private boolean allowEmptyInputResource = false; // Added due to how ContainerItemContext works
 
 	protected TankUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
-		inventory = new ItemStackHandler(2) {
-			@Override
-			protected void onContentsChanged(int slot) {
-				super.onContentsChanged(slot);
-				upgrade.addTagElement("inventory", serializeNBT());
-				save();
-			}
-
-			@Override
-			public boolean isItemValid(int slot, ItemVariant resource, int count) {
-				return switch (slot) {
-					case INPUT_SLOT -> isValidInputItem(resource.toStack(count));
-					case OUTPUT_SLOT -> isValidOutputItem(resource.toStack(count));
-					default -> false;
-				};
-			}
-
-			private boolean isValidInputItem(ItemStack stack) {
-				return isValidFluidItem(stack, false);
-			}
-
-			private boolean isValidOutputItem(ItemStack stack) {
-				return isValidFluidItem(stack, true);
-			}
-
-			@Override
-			public int getSlotLimit(int slot) {
-				return 1;
-			}
-		};
-		NBTHelper.getCompound(upgrade, "inventory").ifPresent(inventory::deserializeNBT);
-		contents = getContents(upgrade);
+		inventory = new TankComponentItemHandler(upgrade);
+		contents = getContents(upgrade).copy();
 	}
 
-	public static FluidStack getContents(ItemStack upgrade) {
-		return NBTHelper.getCompound(upgrade, CONTENTS_TAG).map(FluidStack::loadFluidStackFromNBT).orElse(FluidStack.EMPTY);
+	public static SimpleFluidContent getContents(ItemStack upgrade) {
+		return upgrade.getOrDefault(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.EMPTY);
 	}
 
 	private boolean isValidFluidItem(ItemStack stack, boolean isOutput) {
@@ -90,9 +60,9 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	private boolean isValidFluidHandler(Storage<FluidVariant> storage, boolean isOutput) {
 		boolean tankEmpty = contents.isEmpty();
 		for (StorageView<FluidVariant> view : storage) {
-			if ((isOutput && (view.isResourceBlank() || (!tankEmpty && view.getResource().isOf(contents.getFluid()))))
-				|| (!isOutput && (!view.isResourceBlank() && (tankEmpty || view.getResource().isOf(contents.getFluid())))
-				|| (view.isResourceBlank() && allowEmptyInputResource))
+			FluidStack fluidInTank = new FluidStack(view);
+			if ((isOutput && (view.isResourceBlank() || (!tankEmpty && FluidStack.isSameFluidSameComponents(fluidInTank, contents))))
+				|| (!isOutput && (!view.isResourceBlank() && (tankEmpty || FluidStack.isSameFluidSameComponents(contents, fluidInTank))))
 			) {
 				return true;
 			}
@@ -126,8 +96,32 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private long getMaxInOut() {
-		return Math.max(FluidConstants.BUCKET, upgradeItem.getTankUpgradeConfig().maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * upgradeItem.getAdjustedStackMultiplier(storageWrapper) * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS);
+		return (int) Math.max(FluidConstants.BUCKET, upgradeItem.getTankUpgradeConfig().maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * upgradeItem.getAdjustedStackMultiplier(storageWrapper) * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS);
 	}
+
+	/*public int fill(FluidStack resource, IFluidHandler.FluidAction action, boolean ignoreInOutLimit) {
+		int capacity = getTankCapacity();
+
+		if (contents.getAmount() >= capacity || (!contents.isEmpty() && !FluidStack.isSameFluidSameComponents(resource, contents))) {
+			return 0;
+		}
+
+		int toFill = Math.min(capacity - contents.getAmount(), resource.getAmount());
+		if (!ignoreInOutLimit) {
+			toFill = Math.min(getMaxInOut(), toFill);
+		}
+
+		if (action == IFluidHandler.FluidAction.EXECUTE) {
+			if (contents.isEmpty()) {
+				contents = new FluidStack(resource.getFluid(), toFill);
+			} else {
+				contents.setAmount(contents.getAmount() + toFill);
+			}
+			serializeContents();
+		}
+
+		return toFill;
+	}*/
 
 	public long fill(FluidVariant resource, long maxFill, TransactionContext ctx, boolean ignoreInOutLimit) {
 		long capacity = getTankCapacity();
@@ -154,10 +148,33 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private void serializeContents() {
-		upgrade.addTagElement(CONTENTS_TAG, contents.writeToNBT(new CompoundTag()));
+		upgrade.set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
 		save();
 		forceUpdateTankRenderInfo();
 	}
+
+	/*public FluidStack drain(int maxDrain, IFluidHandler.FluidAction action, boolean ignoreInOutLimit) {
+		if (contents.isEmpty()) {
+			return FluidStack.EMPTY;
+		}
+
+		long toDrain = Math.min(maxDrain, contents.getAmount());
+		if (!ignoreInOutLimit) {
+			toDrain = Math.min(getMaxInOut(), toDrain);
+		}
+
+		FluidStack ret = new FluidStack(contents.getFluid(), toDrain);
+		if (action == IFluidHandler.FluidAction.EXECUTE) {
+			if (toDrain == contents.getAmount()) {
+				contents = FluidStack.EMPTY;
+			} else {
+				contents.setAmount(contents.getAmount() - toDrain);
+			}
+			serializeContents();
+		}
+
+		return ret;
+	}*/
 
 	public long drain(long maxDrain, TransactionContext ctx, boolean ignoreInOutLimit) {
 		if (contents.isEmpty()) {
@@ -189,11 +206,11 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		AtomicBoolean didSomething = new AtomicBoolean(false);
-		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(INPUT_SLOT), fluidHandler ->
-				didSomething.set(drainHandler(fluidHandler/*, stack -> inventory.setStackInSlot(INPUT_SLOT, stack)*/))
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(INPUT_SLOT), (cic, fluidHandler) ->
+				didSomething.set(drainHandler(cic, fluidHandler, stack -> inventory.setStackInSlotWithoutValidation(INPUT_SLOT, stack)))
 		);
-		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(OUTPUT_SLOT), fluidHandler ->
-				didSomething.set(fillHandler(fluidHandler/*, stack -> inventory.setStackInSlot(OUTPUT_SLOT, stack)*/))
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(OUTPUT_SLOT), (cic, fluidHandler) ->
+				didSomething.set(fillHandler(cic, fluidHandler, stack -> inventory.setStackInSlotWithoutValidation(OUTPUT_SLOT, stack)))
 		);
 
 		if (didSomething.get()) {
@@ -201,42 +218,38 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 	}
 
-	public boolean fillHandler(Storage<FluidVariant> storage) {
-		if (!contents.isEmpty() && isValidFluidHandler(storage, true)) {
-			long filled = StorageUtil.simulateInsert(storage, contents.getType(), Math.min(FluidConstants.BUCKET, contents.getAmount()), null);
+	public boolean fillHandler(ContainerItemContext cic, Storage<FluidVariant> fluidHandler, Consumer<ItemStack> updateContainerStack) {
+		if (!contents.isEmpty() && isValidFluidHandler(fluidHandler, true)) {
+			long filled = StorageUtil.simulateInsert(fluidHandler, contents.getVariant(), Math.min(FluidConstants.BUCKET, contents.getAmount()), null);
 			if (filled <= 0) { //checking for less than as well because some mods have incorrect fill logic
 				return false;
 			}
 			try (Transaction ctx = Transaction.openOuter()) {
 				long drained = drain(filled, ctx, false);
-				storage.insert(contents.getType(), drained, ctx);
+				fluidHandler.insert(contents.getVariant(), drained, ctx);
 				ctx.commit();
 			}
+			updateContainerStack.accept(cic.getItemVariant().toStack((int) cic.getAmount()));
 			return true;
 		}
 		return false;
 	}
 
-	public boolean drainHandler(Storage<FluidVariant> storage) {
-		if (isValidFluidHandler(storage, false)) {
-			// We have confirmed that the inital item is a valid fluid handler, now it's necessary to allow empty resources due to how the ContainerItemContext
-			// works, it takes care of the exchange of the item in the slot, which then will trigger the isValidItem check again.
-			allowEmptyInputResource = true;
-
-			FluidVariant resource = contents.isEmpty() ? TransferUtil.getFirstFluid(storage).getType() : contents.getType();
+	public boolean drainHandler(ContainerItemContext cic, Storage<FluidVariant> fluidHandler, Consumer<ItemStack> updateContainerStack) {
+		if (isValidFluidHandler(fluidHandler, false)) {
+			FluidVariant resource = contents.isEmpty() ? TransferUtil.getFirstFluid(fluidHandler).getVariant() : contents.getVariant();
 			long extracted = contents.isEmpty() ?
-					StorageUtil.simulateExtract(storage, resource, FluidConstants.BUCKET, null) :
-					StorageUtil.simulateExtract(storage, resource, Math.min(FluidConstants.BUCKET, getTankCapacity() - contents.getAmount()), null);
+					StorageUtil.simulateExtract(fluidHandler, resource, FluidConstants.BUCKET, null) :
+					StorageUtil.simulateExtract(fluidHandler, resource, Math.min(FluidConstants.BUCKET, getTankCapacity() - contents.getAmount()), null);
 			if (extracted <= 0) {
-				allowEmptyInputResource = false; // set back to false
 				return false;
 			}
 			try (Transaction ctx = Transaction.openOuter()) {
 				long filled = fill(resource, extracted, ctx, false);
-				storage.extract(resource, filled, ctx);
-				allowEmptyInputResource = false; // set back to false
+				fluidHandler.extract(resource, filled, ctx);
 				ctx.commit();
 			}
+			updateContainerStack.accept(cic.getItemVariant().toStack((int) cic.getAmount()));
 			return true;
 		}
 		return false;
@@ -273,7 +286,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 
 	@Override
 	public FluidVariant getResource() {
-		return contents.getType();
+		return contents.getVariant();
 	}
 
 	@Override
@@ -284,5 +297,44 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	@Override
 	public long getCapacity() {
 		return getMaxInOut();
+	}
+
+	private class TankComponentItemHandler extends ComponentItemHandler {
+		public TankComponentItemHandler(ItemStack upgrade) {
+			super(upgrade, DataComponents.CONTAINER, 2);
+		}
+
+		@Override
+		protected void onContentsChanged(int slot, ItemStack oldStack, ItemStack newStack) {
+			super.onContentsChanged(slot, oldStack, newStack);
+			save();
+		}
+
+		@Override
+		public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+			if (slot == INPUT_SLOT) {
+				return stack.isEmpty() ||  isValidInputItem(stack);
+			} else if (slot == OUTPUT_SLOT) {
+				return stack.isEmpty() ||  isValidOutputItem(stack);
+			}
+			return false;
+		}
+
+		private boolean isValidInputItem(ItemStack stack) {
+			return isValidFluidItem(stack, false);
+		}
+
+		private boolean isValidOutputItem(ItemStack stack) {
+			return isValidFluidItem(stack, true);
+		}
+
+		@Override
+		public int getSlotLimit(int slot) {
+			return 1;
+		}
+
+		public void setStackInSlotWithoutValidation(int slot, ItemStack stack) {
+			super.updateContents(getContents(), stack, slot);
+		}
 	}
 }

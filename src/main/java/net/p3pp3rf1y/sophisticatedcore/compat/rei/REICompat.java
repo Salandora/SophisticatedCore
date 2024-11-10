@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetGhostSlotMessage;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetGhostSlotPayload;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetMemorySlotPayload;
+import net.p3pp3rf1y.sophisticatedcore.init.ModPayloads;
 
 public class REICompat implements ICompat {
 	public REICompat() {
@@ -11,7 +11,7 @@ public class REICompat implements ICompat {
 
 	@Override
 	public void setup() {
-		ServerPlayNetworking.registerGlobalReceiver(SetGhostSlotMessage.TYPE, SetGhostSlotMessage::handle);
-		ServerPlayNetworking.registerGlobalReceiver(SetMemorySlotMessage.TYPE, SetMemorySlotMessage::handle);
+		ModPayloads.registerC2S(SetGhostSlotPayload.TYPE, SetGhostSlotPayload.STREAM_CODEC, SetGhostSlotPayload::handlePayload);
+		ModPayloads.registerC2S(SetMemorySlotPayload.TYPE, SetMemorySlotPayload.STREAM_CODEC, SetMemorySlotPayload::handlePayload);
 	}
 }

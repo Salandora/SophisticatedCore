@@ -21,11 +21,11 @@ import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
+import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
 import javax.annotation.Nullable;
@@ -99,7 +99,6 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 
 	private Optional<Integer> interactWithAttachedFluidHandlers(Level level, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
 		for (Direction dir : Direction.values()) {
-
 			boolean successful = WorldHelper.getBlockEntity(level, pos.offset(dir.getNormal())).map(be ->
 					CapabilityHelper.<Boolean>getFromFluidHandler(be, dir.getOpposite(), fluidHandler -> {
 						if (isInput()) {
@@ -108,16 +107,6 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 							return fillFluidHandler(fluidHandler, storageFluidHandler, getMaxInOut());
 						}
 					}, false)).orElse(false);
-
-            /*boolean successful = false;
-			Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos.offset(dir.getNormal()), dir.getOpposite());
-			if (storage != null) {
-				if (isInput()) {
-					successful = fillFromFluidHandler(storage, storageFluidHandler, getMaxInOut());
-				} else {
-					successful = fillFluidHandler(storage, storageFluidHandler, getMaxInOut());
-				}
-			}*/
 
 			if (successful) {
 				return Optional.of(FLUID_HANDLER_INTERACTION_COOLDOWN_TIME);
@@ -128,7 +117,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	private long getMaxInOut() {
-		return Math.max(FluidConstants.BUCKET, pumpUpgradeConfig.maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * getAdjustedStackMultiplier(storageWrapper) * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS);
+		return Math.max(FluidConstants.BUCKET, pumpUpgradeConfig.maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * getAdjustedStackMultiplier(storageWrapper) * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS);
 	}
 
 	public int getAdjustedStackMultiplier(IStorageWrapper storageWrapper) {
@@ -154,7 +143,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
             for (StorageView<FluidVariant> view : storageFluidHandler.nonEmptyViews()) {
 				FluidStack tankFluid = new FluidStack(view);
 				if (!tankFluid.isEmpty() && fluidFilterLogic.fluidMatches(tankFluid)
-						&& isValidForFluidPlacement(level, offsetPos) && FluidHelper.placeFluid(null, level, offsetPos, storageFluidHandler, view.getResource(), view.getAmount())) {
+						&& isValidForFluidPlacement(level, offsetPos) && FluidUtil.placeFluid(null, level, offsetPos, storageFluidHandler, view.getResource(), view.getAmount())) {
 					return true;
 				}
 			}
@@ -200,6 +189,12 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 			if (block instanceof BucketPickup bucketPickup) {
 				targetFluidHandler = new BucketPickupHandlerWrapper(/*player, */bucketPickup, level, pos);
 			} else {
+				// TODO: Implement?
+				/*Optional<IFluidHandler> fluidHandler = FluidUtil.getFluidHandler(level, pos, null);
+				if (fluidHandler.isEmpty()) {
+					return false;
+				}
+				targetFluidHandler = fluidHandler.get();*/
 				return false;
 			}
 			return fillFromFluidHandler(targetFluidHandler, storageFluidHandler);
@@ -226,17 +221,14 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		if (itemInHand.getCount() != 1 || itemInHand == storageWrapper.getWrappedStorageStack()) {
 			return false;
 		}
-
 		return CapabilityHelper.getFromFluidHandler(itemInHand, itemFluidHandler -> {
-			return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
+			return FluidUtil.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
 			/*if (isInput()) {
 				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);
 			} else {
 				return fillContainerInHand(player, hand, itemFluidHandler, storageFluidHandler);
 			}*/
 		}, false);
-
-		//return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
 	}
 
 	/*private boolean fillContainerInHand(Player player, InteractionHand hand, IFluidHandlerItem itemFluidHandler, IFluidHandler storageFluidHandler) {
@@ -281,12 +273,12 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setIsInput(boolean input) {
-		NBTHelper.setBoolean(upgrade, "input", input);
+		upgrade.set(ModCoreDataComponents.IS_INPUT, input);
 		save();
 	}
 
 	public boolean isInput() {
-		return NBTHelper.getBoolean(upgrade, "input").orElse(true);
+		return upgrade.getOrDefault(ModCoreDataComponents.IS_INPUT, true);
 	}
 
 	public FluidFilterLogic getFluidFilterLogic() {
@@ -294,20 +286,20 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setInteractWithHand(boolean interactWithHand) {
-		NBTHelper.setBoolean(upgrade, "interactWithHand", interactWithHand);
+		upgrade.set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
 		save();
 	}
 
 	public boolean shouldInteractWithHand() {
-		return NBTHelper.getBoolean(upgrade, "interactWithHand").orElse(upgradeItem.getInteractWithHandDefault());
+		return upgrade.getOrDefault(ModCoreDataComponents.INTERACT_WITH_HAND, upgradeItem.getInteractWithHandDefault());
 	}
 
 	public void setInteractWithWorld(boolean interactWithWorld) {
-		NBTHelper.setBoolean(upgrade, "interactWithWorld", interactWithWorld);
+		upgrade.set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
 		save();
 	}
 
 	public boolean shouldInteractWithWorld() {
-		return NBTHelper.getBoolean(upgrade, "interactWithWorld").orElse(upgradeItem.getInteractWithWorldDefault());
+		return upgrade.getOrDefault(ModCoreDataComponents.INTERACT_WITH_WORLD, upgradeItem.getInteractWithWorldDefault());
 	}
 }

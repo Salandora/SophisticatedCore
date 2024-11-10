@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.event.common;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -8,6 +7,8 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+
+import javax.annotation.Nullable;
 
 public interface MobSpawnEvents {
     Event<After> AFTER_FINALIZE_SPAWN = EventFactory.createArrayBacked(After.class, callbacks -> (finalizeEvent) -> {
@@ -25,17 +26,15 @@ public interface MobSpawnEvents {
         private final Entity entity;
         private final ServerLevelAccessor level;
         private final DifficultyInstance difficulty;
-        private final MobSpawnType reason;
-        private final SpawnGroupData spawnData;
-        private final CompoundTag dataTag;
+        private final MobSpawnType spawnType;
+        private final SpawnGroupData spawnGroupData;
 
-        public FinalizeSpawn(Entity entity, ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, SpawnGroupData spawnData, CompoundTag dataTag) {
+        public FinalizeSpawn(Entity entity, ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
             this.entity = entity;
             this.level = level;
             this.difficulty = difficulty;
-            this.reason = reason;
-            this.spawnData = spawnData;
-            this.dataTag = dataTag;
+            this.spawnType = spawnType;
+            this.spawnGroupData = spawnGroupData;
         }
 
         public Entity getEntity() {
@@ -50,16 +49,13 @@ public interface MobSpawnEvents {
             return difficulty;
         }
 
-        public MobSpawnType getReason() {
-            return reason;
+        public MobSpawnType getMobSpawnType() {
+            return spawnType;
         }
 
-        public SpawnGroupData getSpawnData() {
-            return spawnData;
-        }
-
-        public CompoundTag getDataTag() {
-            return dataTag;
+        @Nullable
+        public SpawnGroupData getSpawnGroupData() {
+            return spawnGroupData;
         }
     }
 }

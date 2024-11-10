@@ -1,17 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -25,6 +13,18 @@ import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.common.transfer.TransferOperation;
 import mezz.jei.common.util.StringUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -109,13 +109,13 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 				openOrFirstCraftingContainer.setIsOpen(true);
 				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
 			}
-			TransferRecipeMessage packet = new TransferRecipeMessage(
+			TransferRecipePayload packet = new TransferRecipePayload(
 					recipe.id(),
 					toMap(transferOperations.results, container),
 					craftingSlotIndexes,
 					inventorySlotIndexes,
 					maxTransfer);
-			PacketHelper.sendToServer(packet);
+			PacketDistributor.sendToServer(packet);
 		}
 
 		return null;

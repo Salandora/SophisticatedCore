@@ -6,10 +6,7 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -18,7 +15,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import org.joml.Matrix4f;
 
 import java.util.Collections;
 import java.util.List;
@@ -152,22 +148,8 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	/**
 	 * Draws the background of the scroll panel. This runs AFTER Scissors are enabled.
 	 */
-	protected void drawBackground(GuiGraphics graphics, Tesselator tess, float partialTick) {
-		BufferBuilder worldr = tess.getBuilder();
-
-		if (this.client.level != null) {
-			this.drawGradientRect(graphics, this.left, this.top, this.right, this.bottom, bgColorFrom, bgColorTo);
-		} else {// Draw dark dirt background
-			RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-			RenderSystem.setShaderTexture(0, Screen.BACKGROUND_LOCATION);
-			final float texScale = 32.0F;
-			worldr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-			worldr.vertex(this.left,  this.bottom, 0.0D).uv(this.left  / texScale, (this.bottom + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-			worldr.vertex(this.right, this.bottom, 0.0D).uv(this.right / texScale, (this.bottom + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-			worldr.vertex(this.right, this.top,    0.0D).uv(this.right / texScale, (this.top    + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-			worldr.vertex(this.left,  this.top,    0.0D).uv(this.left  / texScale, (this.top    + (int)this.scrollDistance) / texScale).color(0x20, 0x20, 0x20, 0xFF).endVertex();
-			tess.end();
-		}
+	protected void drawBackground(GuiGraphics guiGraphics, Tesselator tess, float partialTick) {
+		Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0f, 0f, this.width, this.height);
 	}
 
 	/**
@@ -270,7 +252,6 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder worldr = tess.getBuilder();
 
 		double scale = client.getWindow().getGuiScale();
 		RenderSystem.enableScissor((int)(left  * scale), (int)(client.getWindow().getHeight() - (bottom * scale)),
@@ -298,68 +279,44 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 			int barBgBlue  = this.barBgColor       & 0xff;
 
 			RenderSystem.setShader(GameRenderer::getPositionColorShader);
-			worldr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-			worldr.vertex(barLeft,            this.bottom, 0.0D).color(barBgRed, barBgGreen, barBgBlue, barBgAlpha).endVertex();
-			worldr.vertex(barLeft + barWidth, this.bottom, 0.0D).color(barBgRed, barBgGreen, barBgBlue, barBgAlpha).endVertex();
-			worldr.vertex(barLeft + barWidth, this.top,    0.0D).color(barBgRed, barBgGreen, barBgBlue, barBgAlpha).endVertex();
-			worldr.vertex(barLeft,            this.top,    0.0D).color(barBgRed, barBgGreen, barBgBlue, barBgAlpha).endVertex();
-			tess.end();
+			BufferBuilder worldr = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+			worldr.addVertex(barLeft, this.bottom, 0.0F).setColor(barBgRed, barBgGreen, barBgBlue, barBgAlpha);
+			worldr.addVertex(barLeft + barWidth, this.bottom, 0.0F).setColor(barBgRed, barBgGreen, barBgBlue, barBgAlpha);
+			worldr.addVertex(barLeft + barWidth, this.top, 0.0F).setColor(barBgRed, barBgGreen, barBgBlue, barBgAlpha);
+			worldr.addVertex(barLeft, this.top, 0.0F).setColor(barBgRed, barBgGreen, barBgBlue, barBgAlpha);
+			BufferUploader.drawWithShader(worldr.buildOrThrow());
 
 			int barAlpha = this.barColor >> 24 & 0xff;
 			int barRed   = this.barColor >> 16 & 0xff;
 			int barGreen = this.barColor >>  8 & 0xff;
 			int barBlue  = this.barColor       & 0xff;
 
-			worldr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-			worldr.vertex(barLeft,            barTop + barHeight, 0.0D).color(barRed, barGreen, barBlue, barAlpha).endVertex();
-			worldr.vertex(barLeft + barWidth, barTop + barHeight, 0.0D).color(barRed, barGreen, barBlue, barAlpha).endVertex();
-			worldr.vertex(barLeft + barWidth, barTop,             0.0D).color(barRed, barGreen, barBlue, barAlpha).endVertex();
-			worldr.vertex(barLeft,            barTop,             0.0D).color(barRed, barGreen, barBlue, barAlpha).endVertex();
-			tess.end();
+			worldr = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+			worldr.addVertex(barLeft, barTop + barHeight, 0.0F).setColor(barRed, barGreen, barBlue, barAlpha);
+			worldr.addVertex(barLeft + barWidth, barTop + barHeight, 0.0F).setColor(barRed, barGreen, barBlue, barAlpha);
+			worldr.addVertex(barLeft + barWidth, barTop, 0.0F).setColor(barRed, barGreen, barBlue, barAlpha);
+			worldr.addVertex(barLeft, barTop, 0.0F).setColor(barRed, barGreen, barBlue, barAlpha);
+			BufferUploader.drawWithShader(worldr.buildOrThrow());
 
 			int barBorderAlpha = this.barBorderColor >> 24 & 0xff;
 			int barBorderRed   = this.barBorderColor >> 16 & 0xff;
 			int barBorderGreen = this.barBorderColor >>  8 & 0xff;
 			int barBorderBlue  = this.barBorderColor       & 0xff;
 
-			worldr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-			worldr.vertex(barLeft,                barTop + barHeight - 1, 0.0D).color(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha).endVertex();
-			worldr.vertex(barLeft + barWidth - 1, barTop + barHeight - 1, 0.0D).color(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha).endVertex();
-			worldr.vertex(barLeft + barWidth - 1, barTop,                 0.0D).color(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha).endVertex();
-			worldr.vertex(barLeft,                barTop,                 0.0D).color(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha).endVertex();
-			tess.end();
+			worldr = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+			worldr.addVertex(barLeft, barTop + barHeight - 1, 0.0F).setColor(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha);
+			worldr.addVertex(barLeft + barWidth - 1, barTop + barHeight - 1, 0.0F).setColor(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha);
+			worldr.addVertex(barLeft + barWidth - 1, barTop, 0.0F).setColor(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha);
+			worldr.addVertex(barLeft, barTop, 0.0F).setColor(barBorderRed, barBorderGreen, barBorderBlue, barBorderAlpha);
+			BufferUploader.drawWithShader(worldr.buildOrThrow());
 		}
 
 		RenderSystem.disableBlend();
 		RenderSystem.disableScissor();
 	}
 
-	protected void drawGradientRect(GuiGraphics graphics, int left, int top, int right, int bottom, int startColor, int endColor) {
-		float startAlpha = (float)(startColor >> 24 & 255) / 255.0F;
-		float startRed   = (float)(startColor >> 16 & 255) / 255.0F;
-		float startGreen = (float)(startColor >>  8 & 255) / 255.0F;
-		float startBlue  = (float)(startColor       & 255) / 255.0F;
-		float endAlpha   = (float)(endColor   >> 24 & 255) / 255.0F;
-		float endRed     = (float)(endColor   >> 16 & 255) / 255.0F;
-		float endGreen   = (float)(endColor   >>  8 & 255) / 255.0F;
-		float endBlue    = (float)(endColor         & 255) / 255.0F;
-
-		RenderSystem.enableDepthTest();
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-
-		Matrix4f matrix = graphics.pose().last().pose();
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder buffer = tessellator.getBuilder();
-		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		buffer.vertex(matrix, right,    top, 0).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-		buffer.vertex(matrix,  left,    top, 0).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-		buffer.vertex(matrix,  left, bottom, 0).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
-		buffer.vertex(matrix, right, bottom, 0).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
-		tessellator.end();
-
-		RenderSystem.disableBlend();
+	protected void drawGradientRect(GuiGraphics guiGraphics, int left, int top, int right, int bottom, int startColor, int endColor) {
+		guiGraphics.fillGradient(left, top, right, bottom, startColor, endColor);
 	}
 
 	@Override

@@ -34,23 +34,14 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
-    private void sophisticatedcore$captureDrops(DamageSource damageSource, CallbackInfo ci) {
+    private void sophisticatedcore$captureDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
         sophisticatedCaptureDrops(new ArrayList<>());
     }
 
     @Inject(method = "dropAllDeathLoot", at = @At(value = "RETURN"))
-    private void sophisticatedcore$dropCapturedDrops(DamageSource damageSource, CallbackInfo ci) {
+    private void sophisticatedcore$dropCapturedDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
         Collection<ItemEntity> drops = this.sophisticatedCaptureDrops(null);
-
-		Entity entity = damageSource.getEntity();
-		int lootingLevel = 0;
-		if (entity instanceof Player) {
-			lootingLevel = EnchantmentHelper.getMobLooting((LivingEntity)entity);
-		}
-
-        boolean cancelled = LivingEntityEvents.DROPS.invoker()
-				.onLivingEntityDrops(MixinHelper.cast(this), damageSource, drops, lootingLevel, lastHurtByPlayerTime > 0);
-        if (!cancelled)
+        if (!LivingEntityEvents.DROPS.invoker().onLivingEntityDrops(MixinHelper.cast(this), damageSource, drops,lastHurtByPlayerTime > 0))
             drops.forEach(e -> level().addFreshEntity(e));
     }
 

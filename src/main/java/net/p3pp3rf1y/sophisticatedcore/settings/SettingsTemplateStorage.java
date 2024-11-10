@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -44,23 +46,26 @@ public class SettingsTemplateStorage extends SavedData {
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
 		NBTHelper.putMap(tag, "playerTemplates", playerTemplates, UUID::toString, slotTemplates -> NBTHelper.putMap(new CompoundTag(), "slotTemplates", slotTemplates, String::valueOf, settingsTag -> settingsTag));
 		NBTHelper.putMap(tag, "playerNamedTemplates", playerNamedTemplates, UUID::toString, namedTemplates -> NBTHelper.putMap(new CompoundTag(), "namedTemplates", namedTemplates, v -> v, settingsTag -> settingsTag));
 		return tag;
 	}
 
 	public static SettingsTemplateStorage get() {
-		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
-			ServerLevel overworld = SophisticatedCore.getCurrentServer().getLevel(Level.OVERWORLD);
-			//noinspection ConstantConditions - by this time overworld is loaded
-			DimensionDataStorage storage = overworld.getDataStorage();
-			return storage.computeIfAbsent(new Factory<>(SettingsTemplateStorage::new, SettingsTemplateStorage::load, null), SAVED_DATA_NAME);
+		if (SophisticatedCore.isLogicalServerThread()) {
+			MinecraftServer server = SophisticatedCore.getCurrentServer();
+			if (server != null) {
+				ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+				//noinspection ConstantConditions - by this time overworld is loaded
+				DimensionDataStorage storage = overworld.getDataStorage();
+				return storage.computeIfAbsent(new Factory<>(SettingsTemplateStorage::new, SettingsTemplateStorage::load, null), SAVED_DATA_NAME);
+			}
 		}
 		return clientStorageCopy;
 	}
 
-	private static SettingsTemplateStorage load(CompoundTag tag) {
+	private static SettingsTemplateStorage load(CompoundTag tag, HolderLookup.Provider registries) {
 		return new SettingsTemplateStorage(
 				NBTHelper.getMap(tag, "playerTemplates", UUID::fromString,
 						(key, playerTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerTemplatesTag, "slotTemplates", Integer::valueOf, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag))

@@ -14,7 +14,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ButtonDefinition;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 
 import java.util.List;
 import java.util.Map;
@@ -142,7 +141,7 @@ public class XpPumpUpgradeTab extends UpgradeSettingsTab<XpPumpUpgradeContainer>
 		public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 			super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 			if (isMouseOver(mouseX, mouseY)) {
-				guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), TOOLTIP, Optional.empty(), mouseX, mouseY);
+				guiGraphics.renderTooltip(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
 			}
 		}
 

@@ -1,14 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks;
 
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.world.inventory.Slot;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 import net.blay09.mods.craftingtweaks.CraftingTweaksProviderManager;
 import net.blay09.mods.craftingtweaks.api.CraftingTweaksClientAPI;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.world.inventory.Slot;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
     @Environment(EnvType.CLIENT)
 	private void addButton(Button button) {
 		buttons.add(button);
-		((ScreenAccessor) storageScreen).callAddRenderableWidget(button);
+		storageScreen.addRenderableWidget(button);
 	}
 
 	@Override
@@ -54,7 +53,7 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
 
 	@Override
 	public void onCraftingSlotsDisplayed(List<Slot> slots) {
-		if (slots.isEmpty() || storageScreen == null) {
+		if (slots.isEmpty()) {
 			return;
 		}
 		Slot firstSlot = slots.get(0);

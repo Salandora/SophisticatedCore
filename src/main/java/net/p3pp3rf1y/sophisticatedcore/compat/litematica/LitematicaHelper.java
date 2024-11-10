@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica;
 
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.RequestContentsPacket;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketHelper;
+import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.RequestContentsPayload;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import fi.dy.masa.litematica.materials.MaterialListBase;
 import fi.dy.masa.litematica.scheduler.TaskScheduler;
 
@@ -10,7 +10,7 @@ public class LitematicaHelper {
 
 	public static void requestContents(MaterialListBase materialList) {
 		task = new TaskCountReceivedContents(materialList);
-		PacketHelper.sendToServer(new RequestContentsPacket());
+		PacketDistributor.sendToServer(new RequestContentsPayload());
 	}
 
 	public static void setRequested(int requested) {

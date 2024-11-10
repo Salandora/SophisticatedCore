@@ -9,9 +9,9 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import java.util.Collection;
 
 public interface LivingEntityEvents {
-    Event<Drops> DROPS = EventFactory.createArrayBacked(Drops.class, callbacks -> (target, source, drops, lootingLevel, recentlyHit) -> {
+    Event<Drops> DROPS = EventFactory.createArrayBacked(Drops.class, callbacks -> (target, source, drops, recentlyHit) -> {
         for (Drops callback : callbacks) {
-            if (callback.onLivingEntityDrops(target, source, drops, lootingLevel, recentlyHit)) {
+            if (callback.onLivingEntityDrops(target, source, drops, recentlyHit)) {
                 return true;
             }
         }
@@ -27,7 +27,7 @@ public interface LivingEntityEvents {
 
     @FunctionalInterface
     interface Drops {
-        boolean onLivingEntityDrops(LivingEntity target, DamageSource source, Collection<ItemEntity> drops, int lootingLevel, boolean recentlyHit);
+        boolean onLivingEntityDrops(LivingEntity target, DamageSource source, Collection<ItemEntity> drops, boolean recentlyHit);
     }
 
     @FunctionalInterface

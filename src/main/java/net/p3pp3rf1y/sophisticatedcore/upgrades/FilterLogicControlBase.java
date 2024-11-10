@@ -14,9 +14,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -28,7 +25,7 @@ import java.util.function.IntConsumer;
 
 import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.MatchButton.*;
 
-public abstract class FilterLogicControlBase<F extends FilterLogicBase, S extends Slot, C extends FilterLogicContainerBase<F, S>>
+public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Slot, C extends FilterLogicContainerBase<F, S>>
 		extends CompositeWidgetBase<WidgetBase> {
 	public static final int TAG_FONT_COLOR = 16383998;
 	public static final int MORE_TAGS_FONT_COLOR = 13882323;
@@ -70,7 +67,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogicBase, S extend
 					button -> {
 						PrimaryMatch next = container.getPrimaryMatch().next();
 						if (next == PrimaryMatch.TAGS) {
-							container.getFilterSlots().forEach(slot -> ((SlotAccessor) slot).setX(StorageScreenBase.DISABLED_SLOT_X_POS));
+							container.getFilterSlots().forEach(slot -> slot.x = StorageScreenBase.DISABLED_SLOT_X_POS);
 							onTagsMatchSelected();
 						}
 						container.setPrimaryMatch(next);
@@ -257,17 +254,17 @@ public abstract class FilterLogicControlBase<F extends FilterLogicBase, S extend
 	public void moveSlotsToView() {
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
 			Slot slot = container.getTagSelectionSlot();
-			((SlotAccessor) slot).setX(x - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 1);
-			((SlotAccessor) slot).setY(y - ((AbstractContainerScreenAccessor) screen).getGuiTop() + tagButtonsYOffset + 1);
-			container.getFilterSlots().forEach(s -> ((SlotAccessor) s).setY(StorageScreenBase.DISABLED_SLOT_X_POS));
+			slot.x = x - screen.getGuiLeft() + 1;
+			slot.y = y - screen.getGuiTop() + tagButtonsYOffset + 1;
+			container.getFilterSlots().forEach(s -> s.x = StorageScreenBase.DISABLED_SLOT_X_POS);
 		} else {
 			int upgradeSlotNumber = 0;
 			for (S slot : container.getFilterSlots()) {
-				((SlotAccessor) slot).setX(x - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 1 + (upgradeSlotNumber % slotsPerRow) * 18);
-				((SlotAccessor) slot).setY(y - ((AbstractContainerScreenAccessor) screen).getGuiTop() + slotsTopYOffset + 1 + (upgradeSlotNumber / slotsPerRow) * 18);
+				slot.x = x - screen.getGuiLeft() + 1 + (upgradeSlotNumber % slotsPerRow) * 18;
+				slot.y = y - screen.getGuiTop() + slotsTopYOffset + 1 + (upgradeSlotNumber / slotsPerRow) * 18;
 				upgradeSlotNumber++;
 			}
-			((SlotAccessor) container.getTagSelectionSlot()).setX(StorageScreenBase.DISABLED_SLOT_X_POS);
+			container.getTagSelectionSlot().x = StorageScreenBase.DISABLED_SLOT_X_POS;
 		}
 	}
 
@@ -306,7 +303,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogicBase, S extend
 	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS && isMouseOverTagList(mouseX, mouseY)) {
-			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), tagListTooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.renderTooltip(screen.font, tagListTooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 

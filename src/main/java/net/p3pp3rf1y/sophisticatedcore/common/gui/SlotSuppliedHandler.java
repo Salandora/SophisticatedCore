@@ -3,15 +3,15 @@ package net.p3pp3rf1y.sophisticatedcore.common.gui;
 import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
+import net.p3pp3rf1y.porting_lib.transfer.items.SlotItemHandler;
 
 import java.util.function.Supplier;
 
-public class SlotSuppliedHandler extends SCSlotItemHandler {
-	private final Supplier<SlottedStackStorage> itemHandlerSupplier;
+public class SlotSuppliedHandler extends SlotItemHandler {
+	private final Supplier<? extends SlottedStackStorage> itemHandlerSupplier;
 	private final int slot;
 
-	public SlotSuppliedHandler(Supplier<SlottedStackStorage> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
+	public SlotSuppliedHandler(Supplier<? extends SlottedStackStorage> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
 		super(itemHandlerSupplier.get(), slot, xPosition, yPosition);
 
 		this.itemHandlerSupplier = itemHandlerSupplier;

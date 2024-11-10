@@ -1,17 +1,22 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.TankPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,14 +41,15 @@ public class UpgradeHandler extends ItemStackHandler {
 	private IUpgradeWrapperAccessor wrapperAccessor = null;
 	private boolean persistent = true;
 	private final Map<Class<? extends IUpgradeWrapper>, Consumer<? extends IUpgradeWrapper>> upgradeDefaultsHandlers = new HashMap<>();
+
 	public UpgradeHandler(int numberOfUpgradeSlots, IStorageWrapper storageWrapper, CompoundTag contentsNbt, Runnable contentsSaveHandler, Runnable onInvalidateUpgradeCaches) {
 		super(numberOfUpgradeSlots);
 		this.contentsNbt = contentsNbt;
 		this.storageWrapper = storageWrapper;
 		this.contentsSaveHandler = contentsSaveHandler;
 		this.onInvalidateUpgradeCaches = onInvalidateUpgradeCaches;
-		deserializeNBT(contentsNbt.getCompound(UPGRADE_INVENTORY_TAG));
-		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && storageWrapper.getRenderInfo().getUpgradeItems().size() != this.getSlotCount()) {
+		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> deserializeNBT(registryAccess, contentsNbt.getCompound(UPGRADE_INVENTORY_TAG)));
+		if (SophisticatedCore.isLogicalServerThread() && storageWrapper.getRenderInfo().getUpgradeItems().size() != this.getSlotCount()) {
 			setRenderUpgradeItems();
 		}
 	}
@@ -53,8 +59,13 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource, int count) {
-		return resource.getItem() instanceof IUpgradeItem;
+	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
+	public final boolean isItemValid(int slot, ItemVariant resource, int count) {
+		return isItemValid(slot, resource.toStack(count));
+	}
+
+	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+		return stack.isEmpty() || stack.getItem() instanceof IUpgradeItem;
 	}
 
 	@Override
@@ -82,7 +93,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	public void saveInventory() {
-		contentsNbt.put(UPGRADE_INVENTORY_TAG, serializeNBT());
+		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> contentsNbt.put(UPGRADE_INVENTORY_TAG, serializeNBT(registryAccess)));
 	}
 
 	public void setPersistent(boolean persistent) {
@@ -126,19 +137,32 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
+	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+		long inserted = 0;
+		for (int slot = 0; slot < getSlotCount(); slot++) {
+			inserted += insertSlot(slot, resource, maxAmount - inserted, transaction);
+			if (inserted >= maxAmount)
+				return inserted;
+		}
+		return inserted;
+	}
+
+	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		// TODO: Why was this moved again?
-		// Moved to UpgradeHandlerSlot
-		/*TransactionCallback.onSuccess(ctx, () -> {
-			// Because the porting-lib ItemStackHandler implementation does not call the onContentsChanged function we need to do this here
-			this.onContentsChanged(slot);
+		long inserted;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			inserted = super.insertSlot(slot, resource, maxAmount, inner);
+			// ctx is on purpose here, we want the inner callbacks to be called first so we need to add them AFTER this callback
+			TransactionCallback.onSuccess(ctx, () -> {
+				if (SophisticatedCore.isLogicalServerThread() && inserted > 0 && maxAmount > 0) {
+					onUpgradeAdded(slot);
+				}
+			});
+			inner.commit();
+		}
 
-			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
-				onUpgradeAdded(slot);
-			}
-		});*/
-
-		return super.insertSlot(slot, resource, maxAmount, ctx);
+		return inserted;
 	}
 
 	private void onUpgradeAdded(int slot) {
@@ -154,41 +178,62 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	private <T extends IUpgradeWrapper> Consumer<T> getUpgradeDefaultsHandler(T wrapper) {
 		//noinspection unchecked
-		return (Consumer<T>) upgradeDefaultsHandlers.getOrDefault(wrapper.getClass(), w -> {});
+		return (Consumer<T>) upgradeDefaultsHandlers.getOrDefault(wrapper.getClass(), w -> {
+		});
 	}
 
 	@Override
 	public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
 		ItemStack originalStack = getStackInSlot(slot);
 		Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
-		boolean itemsDiffer = !ItemStack.isSameItemSameTags(originalStack, stack);
-		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && itemsDiffer && wrappers.containsKey(slot)) {
+		boolean itemsDiffer = !ItemStack.isSameItemSameComponents(originalStack, stack);
+		if (SophisticatedCore.isLogicalServerThread() && itemsDiffer && wrappers.containsKey(slot)) {
 			wrappers.get(slot).onBeforeRemoved();
 		}
 
 		super.setStackInSlot(slot, stack);
 
-		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && itemsDiffer) {
+		if (SophisticatedCore.isLogicalServerThread() && itemsDiffer) {
 			onUpgradeAdded(slot);
 		}
 	}
 
 	@Override
+	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+		Item item = resource.getItem();
+		SortedSet<ItemStackHandlerSlot> slots = getSlotsContaining(item);
+		if (slots.isEmpty())
+			return 0; // no slots hold this item
+		long extracted = 0;
+		for (ItemStackHandlerSlot slot : slots) {
+			extracted += extractSlot(slot.getIndex(), resource, maxAmount - extracted, transaction);
+			if (extracted >= maxAmount)
+				return extracted;
+		}
+		return extracted;
+	}
+
+	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		// TODO: Why was this moved again?
-		// Moved to UpgradeHandlerSlot
-		/*TransactionCallback.onSuccess(ctx, () -> {
-			if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
-				ItemStack slotStack = getStackInSlot(slot);
-				if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
-					Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
-					if (wrappers.containsKey(slot)) {
-						wrappers.get(slot).onBeforeRemoved();
+		long extracted;
+		try (Transaction inner = Transaction.openNested(ctx)) {
+			extracted = super.extractSlot(slot, resource, maxAmount, inner);
+			// ctx is on purpose here, we want the inner callbacks to be called first so we need to add them AFTER this callback
+			TransactionCallback.onSuccess(ctx, () -> {
+				if (SophisticatedCore.isLogicalServerThread()) {
+					ItemStack slotStack = getStackInSlot(slot);
+					if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
+						Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
+						if (wrappers.containsKey(slot)) {
+							wrappers.get(slot).onBeforeRemoved();
+						}
 					}
 				}
-			}
-		});*/
-		return super.extractSlot(slot, resource, maxAmount, ctx);
+			});
+			inner.commit();
+		}
+		return extracted;
 	}
 
 	private void initializeTypeWrappers() {
@@ -338,14 +383,10 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	public void increaseSize(int diff) {
-		var previousSlots = new ArrayList<>(getSlots());
-
-		super.setSize(previousSlots.size() + diff);
-		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
-			if (tag != null) {
-				getSlot(i).load(tag);
-			}
+		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, getSlots().stream().map(s -> s.getResource().toStack((int)s.getAmount())).toArray(ItemStack[]::new));
+		super.setSize(previousStacks.size() + diff);
+		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
+			((UpgradeHandlerSlot) this.getSlot(slot)).setInternalNewStack(previousStacks.get(slot));
 		}
 		saveInventory();
 		setRenderUpgradeItems();
@@ -389,44 +430,25 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	private static class UpgradeHandlerSlot extends ItemStackHandlerSlot {
-		private final UpgradeHandler handler;
-
 		public UpgradeHandlerSlot(int index, UpgradeHandler handler, ItemStack initial) {
 			super(index, handler, initial);
-
-			this.handler = handler;
 		}
 
 		@Override
-		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(insertedVariant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, () -> {
-				this.onFinalCommit();
-
-				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread() && inserted > 0 && maxAmount > 0) {
-					this.handler.onUpgradeAdded(this.getIndex());
-				}
-			});
-			return inserted;
+		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext ctx) {
+			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
+			return super.insert(insertedVariant, maxAmount, ctx);
 		}
 
 		@Override
-		public long extract(ItemVariant variant, long maxAmount, TransactionContext transaction) {
-			ItemStack slotStack = getStack();
-			long extracted = super.extract(variant, maxAmount, transaction);
-			TransactionCallback.onSuccess(transaction, () -> {
-				this.onFinalCommit();
-
-				if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
-					if (this.handler.persistent && !slotStack.isEmpty() && maxAmount == 1) {
-						Map<Integer, IUpgradeWrapper> wrappers = this.handler.getSlotWrappers();
-						if (wrappers.containsKey(this.getIndex())) {
-							wrappers.get(this.getIndex()).onBeforeRemoved();
-						}
-					}
-				}
-			});
+		public long extract(ItemVariant variant, long maxAmount, TransactionContext ctx) {
+			long extracted = super.extract(variant, maxAmount, ctx);
+			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
 			return extracted;
+		}
+
+		public void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
 		}
 	}
 }

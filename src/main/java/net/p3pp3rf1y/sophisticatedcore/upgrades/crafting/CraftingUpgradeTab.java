@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
@@ -15,8 +14,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.Button;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ButtonDefinition;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
-import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
-import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 
@@ -158,7 +155,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	private void renderSelectionSlotHover(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		getResultChoiceHovered(mouseX, mouseY).ifPresent(i -> {
 			Position position = resultChoicePositions.get(i);
-			AbstractContainerScreen.renderSlotHighlight(guiGraphics, position.x() + 1, position.y() + 1, 0/*, -2130706433*/);
+			GuiHelper.renderSlotHighlight(guiGraphics, position.x() + 1, position.y() + 1, 0, -2130706433);
 		});
 	}
 
@@ -241,8 +238,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	protected void moveSlotsToTab() {
 		int slotNumber = 0;
 		for (Slot slot : getContainer().getSlots()) {
-			((SlotAccessor) slot).setX(x + 3 + craftingUIAddition.getWidth() - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 1 + (slotNumber % 3) * 18);
-			((SlotAccessor) slot).setY(y + 44 - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 1 + (slotNumber / 3) * 18);
+			slot.x = x + 3 + craftingUIAddition.getWidth() - screen.getGuiLeft() + 1 + (slotNumber % 3) * 18;
+			slot.y = y + 44 - screen.getGuiTop() + 1 + (slotNumber / 3) * 18;
 			slotNumber++;
 			if (slotNumber >= 9) {
 				break;
@@ -250,8 +247,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		}
 
 		Slot craftingSlot = getContainer().getSlots().get(9);
-		((SlotAccessor) craftingSlot).setX(x + 3 + craftingUIAddition.getWidth() - ((AbstractContainerScreenAccessor) screen).getGuiLeft() + 19);
-		((SlotAccessor) craftingSlot).setY(y + 44 - ((AbstractContainerScreenAccessor) screen).getGuiTop() + 72);
+		craftingSlot.x = x + 3 + craftingUIAddition.getWidth() - screen.getGuiLeft() + 19;
+		craftingSlot.y = y + 44 - screen.getGuiTop() + 72;
 
 		craftingUIAddition.onCraftingSlotsDisplayed(getContainer().getSlots());
 	}

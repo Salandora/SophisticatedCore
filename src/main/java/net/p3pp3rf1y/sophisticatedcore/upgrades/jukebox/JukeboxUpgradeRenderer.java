@@ -20,6 +20,6 @@ public class JukeboxUpgradeRenderer implements IUpgradeRenderer<JukeboxUpgradeRe
 		float zOffset = level.random.nextFloat() * 0.6f - 0.1f;
 		Vector3f randomAtTheBack = getPositionFromOffset.apply(new Vector3f(xOffset, yOffset, zOffset));
 
-		level.addParticle(ModParticles.JUKEBOX_NOTE, randomAtTheBack.x(), randomAtTheBack.y(), randomAtTheBack.z(), rand.nextFloat(), 0.0D, 0.0D);
+		level.addParticle(ModParticles.JUKEBOX_NOTE.get(), randomAtTheBack.x(), randomAtTheBack.y(), randomAtTheBack.z(), rand.nextFloat(), 0.0D, 0.0D);
 	}
 }

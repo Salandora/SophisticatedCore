@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.memory;
 
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
@@ -7,11 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.ISettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -48,12 +49,12 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void deserialize() {
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_ITEMS_TAG,
 						Integer::valueOf,
-						(k, v) -> BuiltInRegistries.ITEM.getOptional(new ResourceLocation(v.getAsString())))
+						(k, v) -> BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(v.getAsString())))
 				.ifPresent(map -> map.forEach(this::addSlotItem));
 
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_STACKS_TAG,
 						Integer::valueOf,
-						(k, v) -> v instanceof CompoundTag tag ? Optional.of(ItemStack.of(tag)) : Optional.empty())
+						(k, v) -> v instanceof CompoundTag tag ? RegistryHelper.getRegistryAccess().flatMap(registryAccess -> ItemStack.parse(registryAccess, tag)) : Optional.empty())
 				.ifPresent(map -> map.forEach(this::addSlotStack));
 		ignoreNbt = NBTHelper.getBoolean(categoryNbt, IGNORE_NBT_TAG).orElse(true);
 	}
@@ -247,7 +248,8 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 
 	private void serializeFilterItems() {
 		NBTHelper.putMap(categoryNbt, SLOT_FILTER_ITEMS_TAG, slotFilterItems, String::valueOf, i -> StringTag.valueOf(BuiltInRegistries.ITEM.getKey(i).toString()));
-		NBTHelper.putMap(categoryNbt, SLOT_FILTER_STACKS_TAG, slotFilterStacks, String::valueOf, isk -> isk.stack().save(new CompoundTag()));
+		NBTHelper.putMap(categoryNbt, SLOT_FILTER_STACKS_TAG, slotFilterStacks, String::valueOf,
+				isk -> RegistryHelper.getRegistryAccess().map(registryAccess -> isk.stack().saveOptional(registryAccess)).orElse(new CompoundTag()));
 		saveNbt.accept(categoryNbt);
 	}
 
@@ -285,7 +287,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 			}
 
 			ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
-			if (stackInSlot.isEmpty() || otherCategory.matchesFilter(slot, ItemVariant.of(stackInSlot))) {
+			if (stackInSlot.isEmpty() || otherCategory.matchesFilter(slot, stackInSlot)) {
 				addSlotStack(slot, isk.getStack());
 			}});
 	}
@@ -298,7 +300,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 			}
 
 			ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
-			if (stackInSlot.isEmpty() || otherCategory.matchesFilter(slot, ItemVariant.of(stackInSlot))) {
+			if (stackInSlot.isEmpty() || otherCategory.matchesFilter(slot, stackInSlot)) {
 				addSlotItem(slot, item);
 			}});
 	}
@@ -318,7 +320,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	}
 
 	public boolean matchesFilter(ItemStack stack) {
-		return filterItemSlots.containsKey(stack.getItem()) || (!filterStackSlots.isEmpty() && filterStackSlots.containsKey(ItemStackKey.getHashCode(stack)));
+		return filterItemSlots.containsKey(stack.getItem()) || !filterStackSlots.isEmpty() && filterStackSlots.containsKey(ItemStack.hashItemAndComponents(stack));
 	}
 
 	public void registerListeners(Consumer<Item> onItemAdded, Consumer<Item> onItemRemoved, Consumer<Integer> onStackAdded, Consumer<Integer> onStackRemoved) {

@@ -19,7 +19,7 @@ public class ClientPacketListenerMixin {
 	private RecipeManager recipeManager;
 
 	@Inject(method = "handleUpdateRecipes", at = @At("RETURN"))
-	 private void sophisticatedCore$handleUpdateRecipes(ClientboundUpdateRecipesPacket packet, CallbackInfo ci) {
-		 ClientRecipesUpdated.EVENT.invoker().onRecipesUpdated(this.recipeManager);
-	 }
+	private void sophisticatedCore$handleUpdateRecipes(ClientboundUpdateRecipesPacket packet, CallbackInfo ci) {
+		ClientRecipesUpdated.EVENT.invoker().onRecipesUpdated(this.recipeManager);
+	}
 }

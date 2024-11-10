@@ -1,41 +1,57 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import net.minecraft.Util;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
+import io.github.fabricators_of_create.porting_lib.fluids.BaseFlowingFluid;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidType;
+import io.github.fabricators_of_create.porting_lib.fluids.PortingLibFluids;
+import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalFluidTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.fluid.XPFluid;
+
+import java.util.function.Supplier;
 
 public class ModFluids {
 	private ModFluids() {
 	}
 
-	public static final ResourceLocation EXPERIENCE_TAG_NAME = new ResourceLocation("c:experience");
-	public static final TagKey<Fluid> EXPERIENCE_TAG = TagKey.create(Registries.FLUID, EXPERIENCE_TAG_NAME);
-
-	public static final FlowingFluid XP_STILL = register("xp_still", new XPFluid.Still());
-	public static final FlowingFluid XP_FLOWING = register("xp_flowing", new XPFluid.Flowing());
-
-
-	public static <T extends Fluid> T register(String id, T value) {
-		return Registry.register(BuiltInRegistries.FLUID, SophisticatedCore.getRL(id), value);
+	private static BaseFlowingFluid.Properties fluidProperties() {
+		return new BaseFlowingFluid.Properties(XP_FLUID_TYPE, XP_STILL, XP_FLOWING).bucket(XP_BUCKET);
 	}
 
+	//public static final ResourceLocation EXPERIENCE_TAG_NAME = ResourceLocation.fromNamespaceAndPath("c", "experience");
+
+	public static final TagKey<Fluid> EXPERIENCE_TAG = ConventionalFluidTags.EXPERIENCE;
+	public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, SophisticatedCore.MOD_ID);
+
+	public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(PortingLibFluids.FLUID_TYPES, SophisticatedCore.MOD_ID);
+	public static final Supplier<FlowingFluid> XP_STILL = FLUIDS.register("xp_still", () -> new BaseFlowingFluid.Source(fluidProperties()));
+
+	public static final Supplier<FlowingFluid> XP_FLOWING = FLUIDS.register("xp_flowing", () -> new BaseFlowingFluid.Flowing(fluidProperties()));
+	public static final Supplier<FluidType> XP_FLUID_TYPE = FLUID_TYPES.register("experience", () -> new FluidType(FluidType.Properties.create().lightLevel(10).density(800).viscosity(1500)));
+
+	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, SophisticatedCore.MOD_ID);
+	public static final Supplier<Item> XP_BUCKET = ITEMS.register("xp_bucket", () -> new BucketItem(XP_STILL.get(), new Item.Properties().stacksTo(1)));
+
+	public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB.location(), SophisticatedCore.MOD_ID);
+	public static final Supplier<CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("main", () ->
+			FabricItemGroup.builder().icon(() -> new ItemStack(XP_BUCKET.get()))
+					.title(Component.translatable("itemGroup.sophisticatedcore"))
+					.displayItems((featureFlags, output) -> output.accept(new ItemStack(XP_BUCKET.get())))
+					.build());
+
 	public static void registerHandlers() {
-		FluidVariantAttributes.register(XP_STILL, new FluidVariantAttributeHandler() {
-			@Override
-			public Component getName(FluidVariant fluidVariant) {
-				return Component.translatable(Util.makeDescriptionId("fluid", BuiltInRegistries.FLUID.getKey(fluidVariant.getFluid())));
-			}
-		});
+		FLUIDS.register();
+		FLUID_TYPES.register();
+		ITEMS.register();
+		CREATIVE_MODE_TABS.register();
 	}
 }

@@ -1,27 +1,26 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import com.google.common.base.Preconditions;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
+import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
-import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
-import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Function;
 
-public class ShapelessBasedRecipeBuilder extends ShapelessRecipeBuilder {
+public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 	private final Function<ShapelessRecipe, ? extends ShapelessRecipe> factory;
 
 	public ShapelessBasedRecipeBuilder(ItemStack result, Function<ShapelessRecipe, ? extends ShapelessRecipe> factory) {
-		super(RecipeCategory.MISC, result.getItem(), result.getCount());
+		super(RecipeCategory.MISC, result);
 		this.factory = factory;
 	}
 
@@ -29,9 +28,12 @@ public class ShapelessBasedRecipeBuilder extends ShapelessRecipeBuilder {
 		this(new ItemStack(result, count), factory);
 	}
 
+	public static ShapelessBasedRecipeBuilder shapeless(ItemStack result, Function<ShapelessRecipe, ? extends ShapelessRecipe> factory) {
+		return new ShapelessBasedRecipeBuilder(result, factory);
+	}
+
 	public static ShapelessBasedRecipeBuilder shapeless(ItemStack result) {
-		// Fabric does not have a NBT storing recipe so we make our own
-		return new ShapelessBasedRecipeBuilder(result, r -> new SCShapelessRecipe(r.getGroup(), r.category(), result, r.getIngredients()));
+		return new ShapelessBasedRecipeBuilder(result, r -> r);
 	}
 
 	public static ShapelessBasedRecipeBuilder shapeless(ItemLike result) {
@@ -62,7 +64,7 @@ public class ShapelessBasedRecipeBuilder extends ShapelessRecipeBuilder {
 		withConditions(recipeOutput, new ItemEnabledCondition(getResult())).accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
 	}
 
-	protected RecipeOutput withConditions(final RecipeOutput exporter, final ConditionJsonProvider... conditions) {
+	protected RecipeOutput withConditions(final RecipeOutput exporter, final ResourceCondition... conditions) {
 		Preconditions.checkArgument(conditions.length > 0, "Must add at least one condition.");
 		return new RecipeOutput() {
 			public void accept(ResourceLocation identifier, Recipe<?> recipe, @Nullable AdvancementHolder advancementEntry) {

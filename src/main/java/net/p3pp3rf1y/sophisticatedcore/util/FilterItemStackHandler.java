@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import net.minecraft.world.item.ItemStack;
 
 public class FilterItemStackHandler extends ItemStackHandler {
 	private boolean onlyEmptyFilters = true;
@@ -45,4 +46,11 @@ public class FilterItemStackHandler extends ItemStackHandler {
 	public boolean hasOnlyEmptyFilters() {
 		return onlyEmptyFilters;
 	}
+
+	@Override
+	public boolean isItemValid(int slot, ItemVariant resource, int count) {
+		return this.isItemValid(slot, resource.toStack(count));
+	}
+
+	public boolean isItemValid(int slot, ItemStack stack) { return true; }
 }

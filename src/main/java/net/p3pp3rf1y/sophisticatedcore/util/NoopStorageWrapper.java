@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -55,8 +56,8 @@ public class NoopStorageWrapper implements IStorageWrapper {
             inventoryHandler = new InventoryHandler(0, this, new CompoundTag(), () -> {
             }, 64, new StackUpgradeConfig(new ModConfigSpec.Builder())) {
                 @Override
-                protected boolean isAllowed(ItemVariant resource) {
-                    return true;
+                protected boolean isAllowed(ItemStack stack) {
+                    return false;
                 }
             };
         }

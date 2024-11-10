@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeModConfigEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -7,7 +8,6 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SortButtonsPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
-import fuzs.forgeconfigapiport.api.config.v3.ModConfigEvents;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class Config {
 		public final EnabledItems enabledItems;
 
 		public void initListeners() {
-			ModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
+			NeoForgeModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
 		}
 
 		@SuppressWarnings("unused") //need the Event parameter for forge reflection to understand what event this listens to
@@ -99,7 +99,7 @@ public class Config {
 				for (String itemEnabled : itemsEnableList.get()) {
 					String[] data = itemEnabled.split("\\|");
 					if (data.length == 2) {
-						enabledMap.put(new ResourceLocation(data[0]), Boolean.valueOf(data[1]));
+						enabledMap.put(ResourceLocation.parse(data[0]), Boolean.valueOf(data[1]));
 					} else {
 						SophisticatedCore.LOGGER.error("Wrong data for enabledItems - expected registry name|true/false when {} was provided", itemEnabled);
 					}

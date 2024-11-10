@@ -10,16 +10,20 @@ import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
 
+import static net.p3pp3rf1y.sophisticatedcore.SophisticatedCore.MOD_ID;
+
 public class ModCompat {
-	private ModCompat() {}
+	private ModCompat() {
+	}
 
 	public static void register() {
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.EMI, null), () -> new EmiCompat());
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.JEI, null), () -> new JeiCompat());
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.REI, null), () -> new REICompat());
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.CRAFTING_TWEAKS, null), () -> new CraftingTweaksCompat());
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.LITEMATICA, null), () -> new LitematicaCompat());
-		CompatRegistry.registerCompat(new CompatInfo(CompatModIds.AUDIOPLAYER, null), () -> new AudioPlayerCompat());
+		CompatRegistry registry = CompatRegistry.getRegistry(MOD_ID);
+		registry.registerCompat(new CompatInfo(CompatModIds.EMI, null), () -> new EmiCompat());
+		registry.registerCompat(new CompatInfo(CompatModIds.JEI, null), () -> new JeiCompat());
+		registry.registerCompat(new CompatInfo(CompatModIds.REI, null), () -> new REICompat());
+		registry.registerCompat(new CompatInfo(CompatModIds.CRAFTING_TWEAKS, null), () -> new CraftingTweaksCompat());
+		registry.registerCompat(new CompatInfo(CompatModIds.LITEMATICA, null), () -> new LitematicaCompat());
+		registry.registerCompat(new CompatInfo(CompatModIds.AUDIOPLAYER, null), () -> new AudioPlayerCompat());
 
 		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.INVENTORY_SORTER, null), () -> modBus -> new InventorySorterCompat());
 		//CompatRegistry.registerCompat(new CompatInfo(CompatModIds.ITEM_BORDERS, null), () -> ItemBordersCompat::new);

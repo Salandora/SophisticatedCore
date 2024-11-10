@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
 import net.minecraft.world.item.crafting.RecipeType;
-import net.p3pp3rf1y.sophisticatedcore.compat.common.ClientRecipeHelper;
+import net.p3pp3rf1y.sophisticatedcore.compat.jei.ClientRecipeHelper;
 import net.p3pp3rf1y.sophisticatedcore.crafting.UpgradeNextTierRecipe;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;

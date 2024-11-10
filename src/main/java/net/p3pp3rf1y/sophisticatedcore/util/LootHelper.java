@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -12,8 +14,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,16 +25,14 @@ public class LootHelper {
 	private LootHelper() {}
 
 	public static List<ItemStack> getLoot(ResourceLocation lootTableName, MinecraftServer server, ServerLevel level, Entity entity) {
-		LootTable lootTable = server.getLootData().getLootTable(lootTableName);
+		LootTable lootTable = server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, lootTableName));
 		LootContext.Builder lootBuilder = new LootContext.Builder((new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(entity.blockPosition())).create(LootContextParamSets.CHEST)).withOptionalRandomSeed(level.random.nextLong());
 		List<ItemStack> lootStacks = new ArrayList<>();
-		//lootTable.getRandomItemsRaw(lootBuilder.create(null), lootStacks::add);
 		lootTable.getRandomItems(lootBuilder.create(Optional.empty()), lootStacks::add);
 		return lootStacks;
 	}
 
-	// TODO: IItemHandlerModifiable inventory
-	public static void fillWithLoot(RandomSource rand, List<ItemStack> loot, SlottedStackStorage inventory) {
+	public static void fillWithLoot(RandomSource rand, List<ItemStack> loot, IItemHandlerSimpleInserter inventory) {
 		List<Integer> slots = InventoryHelper.getEmptySlotsRandomized(inventory);
 		InventoryHelper.shuffleItems(loot, slots.size(), rand);
 
