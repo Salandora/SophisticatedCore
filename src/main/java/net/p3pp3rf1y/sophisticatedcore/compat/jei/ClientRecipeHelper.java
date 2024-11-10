@@ -45,17 +45,28 @@ public class ClientRecipeHelper {
 	}
 
 	public static CraftingRecipe copyShapedRecipe(ShapedRecipe recipe) {
-		Minecraft mc = Minecraft.getInstance();
-		return new ShapedRecipe("", recipe.category(), recipe.pattern, recipe.getResultItem(mc.level.registryAccess()));
+		return new ShapedRecipe("", recipe.category(), recipe.pattern, getResultItem(recipe));
 	}
 
-	public static <I extends RecipeInput> ItemStack assemble(Recipe<I> recipe, I container) {
+	public static CraftingRecipe copyShapelessRecipe(ShapelessRecipe recipe) {
+		return new ShapelessRecipe("", recipe.category(), getResultItem(recipe), recipe.getIngredients());
+	}
+
+	private static ItemStack registryAccessAware(Function<RegistryAccess, ItemStack> func) {
 		Minecraft minecraft = Minecraft.getInstance();
 		ClientLevel level = minecraft.level;
 		if (level == null) {
 			throw new NullPointerException("level must not be null.");
 		}
 		RegistryAccess registryAccess = level.registryAccess();
-		return recipe.assemble(container, registryAccess);
+		return func.apply(registryAccess);
+	}
+
+	public static ItemStack getResultItem(Recipe<?> recipe) {
+		return registryAccessAware(recipe::getResultItem);
+	}
+
+	public static <I extends RecipeInput> ItemStack assemble(Recipe<I> recipe, I container) {
+		return registryAccessAware(registry -> recipe.assemble(container, registry));
 	}
 }

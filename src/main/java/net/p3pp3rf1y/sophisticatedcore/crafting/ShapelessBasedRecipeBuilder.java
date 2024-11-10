@@ -28,6 +28,10 @@ public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 		this(new ItemStack(result, count), factory);
 	}
 
+	public static ShapelessBasedRecipeBuilder shapeless(ItemStack result, Function<ShapelessRecipe, ? extends ShapelessRecipe> factory) {
+		return new ShapelessBasedRecipeBuilder(result, factory);
+	}
+
 	public static ShapelessBasedRecipeBuilder shapeless(ItemStack result) {
 		return new ShapelessBasedRecipeBuilder(result, r -> r);
 	}

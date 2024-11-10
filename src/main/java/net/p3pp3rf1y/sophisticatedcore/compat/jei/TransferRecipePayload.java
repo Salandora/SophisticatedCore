@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,9 @@ public record TransferRecipePayload(ResourceLocation recipeId, Map<Integer, Inte
 			TransferRecipePayload::recipeId,
 			StreamCodecHelper.ofMap(ByteBufCodecs.INT, ByteBufCodecs.INT, HashMap::new),
 			TransferRecipePayload::matchingItems,
-			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, ArrayList::new),
+			ByteBufCodecs.INT.apply(ByteBufCodecs.list()),
 			TransferRecipePayload::craftingSlotIndexes,
-			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, ArrayList::new),
+			ByteBufCodecs.INT.apply(ByteBufCodecs.list()),
 			TransferRecipePayload::inventorySlotIndexes,
 			ByteBufCodecs.BOOL,
 			TransferRecipePayload::maxTransfer,

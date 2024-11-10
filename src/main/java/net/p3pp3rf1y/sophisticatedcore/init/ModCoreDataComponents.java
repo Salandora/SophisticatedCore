@@ -18,9 +18,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.feeding.HungerLevel;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.filter.Direction;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.xppump.AutomationDirection;
 import net.p3pp3rf1y.sophisticatedcore.util.SimpleItemContent;
-import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -106,7 +104,7 @@ public class ModCoreDataComponents {
 
     public static final Supplier<DataComponentType<List<SimpleFluidContent>>> FLUID_FILTERS = DATA_COMPONENT_TYPES.register("fluid_filters",
             () -> new DataComponentType.Builder<List<SimpleFluidContent>>().persistent(Codec.list(SimpleFluidContent.CODEC))
-                    .networkSynchronized(StreamCodecHelper.ofCollection(SimpleFluidContent.STREAM_CODEC, ArrayList::new)).build());
+                    .networkSynchronized(SimpleFluidContent.STREAM_CODEC.apply(ByteBufCodecs.list())).build());
 
     public static final Supplier<DataComponentType<Boolean>> IS_INPUT = DATA_COMPONENT_TYPES.register("is_input",
             () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build());
