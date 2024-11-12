@@ -59,13 +59,25 @@ public class CapabilityHelper {
 	}
 
 
-	public static <T, C, U> U getFromCapability(ItemStack stack, ItemApiLookup<T, C> capability, @Nullable C context, Function<T, U> get, U defaultValue) {
+	public static <U> U getFromCapability(ItemStack stack, ItemApiLookup<Storage<FluidVariant>, ContainerItemContext> capability, @Nullable ContainerItemContext context, Function<Storage<FluidVariant>, U> get, U defaultValue) {
+		if (context == null) {
+			context = ContainerItemContext.withConstant(stack);
+		}
+
+		Storage<FluidVariant> fluidHandler = context.find(capability);
+		if (fluidHandler == null) {
+			return defaultValue;
+		}
+
+		return get.apply(fluidHandler);
+	}
+	/*public static <T, C, U> U getFromCapability(ItemStack stack, ItemApiLookup<T, C> capability, @Nullable C context, Function<T, U> get, U defaultValue) {
 		T t = capability.find(stack, context);
 		if (t == null) {
 			return defaultValue;
 		}
 		return get.apply(t);
-	}
+	}*/
 
 	public static <T, C, U> U getFromCapability(Level level, BlockPos pos, BlockApiLookup<T, C> capability, @Nullable C context, Function<T, U> get, U defaultValue) {
 		return getFromCapability(level, pos, null, null, capability, context, get, defaultValue);
