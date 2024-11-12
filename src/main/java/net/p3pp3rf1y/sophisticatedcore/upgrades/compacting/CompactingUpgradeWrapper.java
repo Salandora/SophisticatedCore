@@ -107,7 +107,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	public void setCompactNonUncraftable(boolean shouldCompactNonUncraftable) {
-		upgrade.set(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, shouldCompactNonUncraftable);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, shouldCompactNonUncraftable);
 		save();
 	}
 
@@ -119,7 +119,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	public void setShouldWorkdInGUI(boolean shouldWorkdInGUI) {
-		upgrade.set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
 		save();
 	}
 

@@ -88,7 +88,7 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 
 		private void setIsPlaying(boolean playing) {
 			isPlaying = playing;
-			upgrade.set(ModCoreDataComponents.IS_PLAYING, playing);
+			upgrade.sophisticatedCore_set(ModCoreDataComponents.IS_PLAYING, playing);
 			if (isPlaying) {
 				storageWrapper.getRenderInfo().setUpgradeRenderData(JukeboxUpgradeRenderData.TYPE, new JukeboxUpgradeRenderData(true));
 			} else {

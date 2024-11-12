@@ -148,7 +148,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private void serializeContents() {
-		upgrade.set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
 		save();
 		forceUpdateTankRenderInfo();
 	}

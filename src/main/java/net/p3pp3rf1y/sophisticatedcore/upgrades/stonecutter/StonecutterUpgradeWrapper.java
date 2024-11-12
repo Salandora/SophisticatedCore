@@ -24,7 +24,7 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
-					upgrade.set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
+					upgrade.sophisticatedCore_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
 				}
 				save();
 			}
@@ -38,15 +38,15 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 
 	public void setRecipeId(@Nullable ResourceLocation recipeId) {
 		if (recipeId == null) {
-			upgrade.remove(ModCoreDataComponents.RECIPE_ID);
+			upgrade.sophisticatedCore_remove(ModCoreDataComponents.RECIPE_ID);
 			return;
 		}
-		upgrade.set(ModCoreDataComponents.RECIPE_ID, recipeId);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.RECIPE_ID, recipeId);
 		save();
 	}
 
 	public Optional<ResourceLocation> getRecipeId() {
-		return Optional.ofNullable(upgrade.get(ModCoreDataComponents.RECIPE_ID));
+		return Optional.ofNullable(upgrade.sophisticatedCore_get(ModCoreDataComponents.RECIPE_ID));
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
-		upgrade.set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
 		save();
 	}
 }

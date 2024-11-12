@@ -43,7 +43,7 @@ public class CraftingUpgradeWrapper extends UpgradeWrapperBase<CraftingUpgradeWr
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
-		upgrade.set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
 		save();
 	}
 }

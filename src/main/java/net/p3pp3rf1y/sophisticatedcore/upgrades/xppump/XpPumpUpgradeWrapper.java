@@ -155,12 +155,12 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	public void setDirection(AutomationDirection direction) {
-		upgrade.set(ModCoreDataComponents.AUTOMATION_DIRECTION, direction);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.AUTOMATION_DIRECTION, direction);
 		save();
 	}
 
 	public void setLevel(int level) {
-		upgrade.set(ModCoreDataComponents.LEVEL, level);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.LEVEL, level);
 		save();
 	}
 
@@ -169,7 +169,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	public void setLevelsToStore(int levelsToStore) {
-		upgrade.set(ModCoreDataComponents.LEVELS_TO_STORE, levelsToStore);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.LEVELS_TO_STORE, levelsToStore);
 		save();
 	}
 
@@ -178,7 +178,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	public void setLevelsToTake(int levelsToTake) {
-		upgrade.set(ModCoreDataComponents.LEVELS_TO_TAKE, levelsToTake);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.LEVELS_TO_TAKE, levelsToTake);
 		save();
 	}
 
@@ -191,7 +191,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	public void setMendItems(boolean mendItems) {
-		upgrade.set(ModCoreDataComponents.MEND_ITEMS, mendItems);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.MEND_ITEMS, mendItems);
 		save();
 	}
 }

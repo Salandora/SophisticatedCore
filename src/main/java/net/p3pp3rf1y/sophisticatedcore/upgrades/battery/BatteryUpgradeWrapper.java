@@ -66,7 +66,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}*/
 
 	private void serializeEnergyStored() {
-		upgrade.set(ModCoreDataComponents.ENERGY_STORED, energyStorage.getAmount());
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.ENERGY_STORED, energyStorage.getAmount());
 		save();
 		forceUpdateBatteryRenderInfo();
 	}

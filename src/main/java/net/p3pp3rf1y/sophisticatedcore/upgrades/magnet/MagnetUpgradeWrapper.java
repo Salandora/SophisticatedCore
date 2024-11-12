@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.magnet;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -209,7 +207,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	public void setPickupItems(boolean pickupItems) {
-		upgrade.set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
 		save();
 	}
 
@@ -218,7 +216,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	public void setPickupXp(boolean pickupXp) {
-		upgrade.set(ModCoreDataComponents.PICKUP_XP, pickupXp);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.PICKUP_XP, pickupXp);
 		save();
 	}
 

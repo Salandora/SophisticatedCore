@@ -293,7 +293,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private void setBurnTimeFinish(long burnTimeFinish) {
-		upgrade.set(ModCoreDataComponents.BURN_TIME_FINISH, burnTimeFinish);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.BURN_TIME_FINISH, burnTimeFinish);
 		save();
 	}
 
@@ -302,7 +302,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private void setBurnTimeTotal(int burnTimeTotal) {
-		upgrade.set(ModCoreDataComponents.BURN_TIME_TOTAL, burnTimeTotal);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.BURN_TIME_TOTAL, burnTimeTotal);
 		save();
 	}
 
@@ -311,7 +311,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private void setCookTimeFinish(long cookTimeFinish) {
-		upgrade.set(ModCoreDataComponents.COOK_TIME_FINISH, cookTimeFinish);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.COOK_TIME_FINISH, cookTimeFinish);
 		save();
 	}
 
@@ -320,7 +320,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private void setCookTimeTotal(int cookTimeTotal) {
-		upgrade.set(ModCoreDataComponents.COOK_TIME_TOTAL, cookTimeTotal);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.COOK_TIME_TOTAL, cookTimeTotal);
 		save();
 	}
 
@@ -329,7 +329,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private void setIsCooking(boolean isCooking) {
-		upgrade.set(ModCoreDataComponents.IS_COOKING, isCooking);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.IS_COOKING, isCooking);
 		save();
 	}
 

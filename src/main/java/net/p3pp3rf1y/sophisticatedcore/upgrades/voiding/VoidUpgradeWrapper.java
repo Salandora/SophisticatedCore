@@ -57,7 +57,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	public void setShouldWorkdInGUI(boolean shouldWorkdInGUI) {
-		upgrade.set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
 		save();
 	}
 
@@ -71,7 +71,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		}
 
 		this.shouldVoidOverflow = shouldVoidOverflow;
-		upgrade.set(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflow);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflow);
 		save();
 	}
 

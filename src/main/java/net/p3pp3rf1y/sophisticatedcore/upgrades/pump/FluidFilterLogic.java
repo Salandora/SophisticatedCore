@@ -74,6 +74,6 @@ public class FluidFilterLogic {
 	}
 
 	private void serializeFluidFilters() {
-		upgrade.set(ModCoreDataComponents.FLUID_FILTERS, fluidFilters.stream().map(SimpleFluidContent::copyOf).toList());
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.FLUID_FILTERS, fluidFilters.stream().map(SimpleFluidContent::copyOf).toList());
 	}
 }
