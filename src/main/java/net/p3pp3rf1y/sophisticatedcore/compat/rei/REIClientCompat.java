@@ -27,6 +27,6 @@ public class REIClientCompat implements REIClientPlugin {
 
 	@Override
 	public void registerScreens(ScreenRegistry registry) {
-		registry.registerDraggableStackVisitor(new SettingsGhostIngredientHandler<>());
+		registry.registerDraggableStackVisitor(new REISettingsGhostIngredientHandler<>());
 	}
 }
