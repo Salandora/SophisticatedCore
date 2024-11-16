@@ -15,7 +15,7 @@ public abstract class ItemStackMixin implements SophisticatedItemStack, Sophisti
 	@Shadow @Final public PatchedDataComponentMap components;
 
 	@Override
-	public <T> @Nullable T set(DataComponentType<? super T> type, @Nullable T value) {
+	public <T> @Nullable T sophisticatedCore_set(DataComponentType<? super T> type, @Nullable T value) {
 		return this.components.set(type, value);
 	}
 
@@ -25,7 +25,7 @@ public abstract class ItemStackMixin implements SophisticatedItemStack, Sophisti
 	}
 
 	@Override
-	public <T> @Nullable T remove(DataComponentType<? extends T> type) {
+	public <T> @Nullable T sophisticatedCore_remove(DataComponentType<? extends T> type) {
 		return this.components.remove(type);
 	}
 }

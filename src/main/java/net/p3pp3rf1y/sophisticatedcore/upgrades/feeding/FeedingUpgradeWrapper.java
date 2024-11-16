@@ -1,8 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.feeding;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
@@ -151,7 +148,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	public void setFeedAtHungerLevel(HungerLevel hungerLevel) {
-		upgrade.set(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, hungerLevel);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, hungerLevel);
 		save();
 	}
 
@@ -160,7 +157,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	public void setFeedImmediatelyWhenHurt(boolean feedImmediatelyWhenHurt) {
-		upgrade.set(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, feedImmediatelyWhenHurt);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, feedImmediatelyWhenHurt);
 		save();
 	}
 }

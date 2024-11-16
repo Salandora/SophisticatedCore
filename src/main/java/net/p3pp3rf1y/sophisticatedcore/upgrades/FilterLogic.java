@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -121,7 +120,7 @@ public class FilterLogic {
 	}
 
 	protected void setAttributes(Function<FilterAttributes, FilterAttributes> setter) {
-		upgrade.set(filterAttributesComponent, setter.apply(getAttributes()));
+		upgrade.sophisticatedCore_set(filterAttributesComponent, setter.apply(getAttributes()));
 	}
 
 	public void setAllowByDefault(boolean allowListDefault) {

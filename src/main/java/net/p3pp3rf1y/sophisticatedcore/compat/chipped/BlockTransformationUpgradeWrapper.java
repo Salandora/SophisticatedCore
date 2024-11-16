@@ -25,7 +25,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
-					upgrade.set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
+					upgrade.sophisticatedCore_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
 				}
 				save();
 			}
@@ -40,16 +40,16 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 
 	public void setResult(ItemStack result) {
 		if (result.isEmpty()) {
-			upgrade.remove(ModCoreDataComponents.RESULT_ITEM);
+			upgrade.sophisticatedCore_remove(ModCoreDataComponents.RESULT_ITEM);
 			return;
 		}
 
-		upgrade.set(ModCoreDataComponents.RESULT_ITEM, SimpleItemContent.copyOf(result));
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.RESULT_ITEM, SimpleItemContent.copyOf(result));
 		save();
 	}
 
 	public Optional<SimpleItemContent> getResult() {
-		return Optional.ofNullable(upgrade.get(ModCoreDataComponents.RESULT_ITEM));
+		return Optional.ofNullable(upgrade.sophisticatedCore_get(ModCoreDataComponents.RESULT_ITEM));
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
-		upgrade.set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
 		save();
 	}
 

@@ -7,21 +7,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public interface SophisticatedMutableDataComponentHolder extends DataComponentHolder {
-	<T> @Nullable T set(DataComponentType<? super T> type, @Nullable T value);
+	<T> @Nullable T sophisticatedCore_set(DataComponentType<? super T> type, @Nullable T value);
 
-	default <T> @Nullable T set(Supplier<? extends DataComponentType<? super T>> componentType, @Nullable T value) {
-		return this.set(componentType.get(), value);
+	default <T> @Nullable T sophisticatedCore_set(Supplier<? extends DataComponentType<? super T>> componentType, @Nullable T value) {
+		return this.sophisticatedCore_set(componentType.get(), value);
 	}
 
-	<T> @Nullable T get(DataComponentType<? extends T> type);
-
-	default <T> @Nullable T get(Supplier<? extends DataComponentType<? extends T>> componentType) {
+	default <T> @Nullable T sophisticatedCore_get(Supplier<? extends DataComponentType<? extends T>> componentType) {
 		return this.get(componentType.get());
 	}
 
-	<T> @Nullable T remove(DataComponentType<? extends T> type);
+	<T> @Nullable T sophisticatedCore_remove(DataComponentType<? extends T> type);
 
-	default <T> @Nullable T remove(Supplier<? extends DataComponentType<? extends T>> componentType) {
-		return this.remove(componentType.get());
+	default <T> @Nullable T sophisticatedCore_remove(Supplier<? extends DataComponentType<? extends T>> componentType) {
+		return this.sophisticatedCore_remove(componentType.get());
 	}
 }

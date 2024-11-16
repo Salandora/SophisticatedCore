@@ -24,7 +24,7 @@ public class FilterUpgradeWrapper extends UpgradeWrapperBase<FilterUpgradeWrappe
 	}
 
 	public void setDirection(Direction direction) {
-		upgrade.set(ModCoreDataComponents.DIRECTION, direction);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.DIRECTION, direction);
 		save();
 		storageWrapper.refreshInventoryForInputOutput();
 	}

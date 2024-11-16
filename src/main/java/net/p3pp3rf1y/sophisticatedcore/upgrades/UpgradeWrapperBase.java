@@ -51,7 +51,7 @@ public abstract class UpgradeWrapperBase<W extends IUpgradeWrapper, T extends Up
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		upgrade.set(ModCoreDataComponents.ENABLED, enabled);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.ENABLED, enabled);
 		save();
 		storageWrapper.getUpgradeHandler().refreshWrappersThatImplementAndTypeWrappers();
 	}

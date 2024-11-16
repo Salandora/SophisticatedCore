@@ -273,7 +273,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setIsInput(boolean input) {
-		upgrade.set(ModCoreDataComponents.IS_INPUT, input);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.IS_INPUT, input);
 		save();
 	}
 
@@ -286,7 +286,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setInteractWithHand(boolean interactWithHand) {
-		upgrade.set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
 		save();
 	}
 
@@ -295,7 +295,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setInteractWithWorld(boolean interactWithWorld) {
-		upgrade.set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
 		save();
 	}
 

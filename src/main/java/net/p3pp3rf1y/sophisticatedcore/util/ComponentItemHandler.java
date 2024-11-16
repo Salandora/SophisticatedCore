@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.base.Preconditions;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -220,7 +219,7 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 		contents.copyInto(list);
 		ItemStack oldStack = list.get(slot);
 		list.set(slot, stack);
-		this.parent.set(this.component, ItemContainerContents.fromItems(list));
+		this.parent.sophisticatedCore_set(this.component, ItemContainerContents.fromItems(list));
 		this.onContentsChanged(slot, oldStack, stack);
 	}
 
