@@ -24,7 +24,7 @@ public class FilterLogic {
 	protected final ItemStack upgrade;
 	protected final Consumer<ItemStack> saveHandler;
 	protected final DeferredHolder<DataComponentType<?>, DataComponentType<FilterAttributes>> filterAttributesComponent;
-	private final int filterSlotCount;
+	private final int defaultFilterSlotCount;
 	private final Predicate<ItemStack> isItemValid;
 	@Nullable
 	protected Set<TagKey<Item>> tagKeys = null;
@@ -35,15 +35,15 @@ public class FilterLogic {
 	@Nullable
 	private FilterAttributes emptyAttributes = null;
 
-	public FilterLogic(ItemStack upgrade, Consumer<ItemStack> saveHandler, int filterSlotCount, DeferredHolder<DataComponentType<?>, DataComponentType<FilterAttributes>> filterAttributesComponent) {
-		this(upgrade, saveHandler, filterSlotCount, s -> true, filterAttributesComponent);
+	public FilterLogic(ItemStack upgrade, Consumer<ItemStack> saveHandler, int defaultFilterSlotCount, DeferredHolder<DataComponentType<?>, DataComponentType<FilterAttributes>> filterAttributesComponent) {
+		this(upgrade, saveHandler, defaultFilterSlotCount, s -> true, filterAttributesComponent);
 	}
 
-	public FilterLogic(ItemStack upgrade, Consumer<ItemStack> saveHandler, int filterSlotCount, Predicate<ItemStack> isItemValid, DeferredHolder<DataComponentType<?>, DataComponentType<FilterAttributes>> filterAttributesComponent) {
+	public FilterLogic(ItemStack upgrade, Consumer<ItemStack> saveHandler, int defaultFilterSlotCount, Predicate<ItemStack> isItemValid, DeferredHolder<DataComponentType<?>, DataComponentType<FilterAttributes>> filterAttributesComponent) {
 		this.upgrade = upgrade;
 		this.saveHandler = saveHandler;
 		this.filterAttributesComponent = filterAttributesComponent;
-		this.filterSlotCount = filterSlotCount;
+		this.defaultFilterSlotCount = defaultFilterSlotCount;
 		this.isItemValid = isItemValid;
 	}
 
@@ -53,7 +53,8 @@ public class FilterLogic {
 
 	public ObservableFilterItemStackHandler getFilterHandler() {
 		if (filterHandler == null) {
-			filterHandler = new ObservableFilterItemStackHandler();
+			int filterSlotCount = getAttributes().filterItems().size();
+			filterHandler = new ObservableFilterItemStackHandler(filterSlotCount);
 			filterHandler.initFilters(getAttributes().filterItems());
 			if (getAttributes().filterItems().size() < filterSlotCount) {
 				setAttributes(contents -> contents.expandFilterItems(filterSlotCount));
@@ -114,7 +115,7 @@ public class FilterLogic {
 
 	private FilterAttributes getEmptyAttributes() {
 		if (emptyAttributes == null) {
-			emptyAttributes = new FilterAttributes(Collections.emptySet(), allowListDefault, false, false, PrimaryMatch.ITEM, true, NonNullList.withSize(filterSlotCount, ItemStack.EMPTY), false, false);
+			emptyAttributes = new FilterAttributes(Collections.emptySet(), allowListDefault, false, false, PrimaryMatch.ITEM, true, NonNullList.withSize(defaultFilterSlotCount, ItemStack.EMPTY), false, false);
 		}
 		return emptyAttributes;
 	}
@@ -240,7 +241,7 @@ public class FilterLogic {
 
 	public class ObservableFilterItemStackHandler extends FilterItemStackHandler {
 		private IntConsumer onSlotChange = s -> {};
-		public ObservableFilterItemStackHandler() {
+		public ObservableFilterItemStackHandler(int filterSlotCount) {
 			super(filterSlotCount);
 		}
 

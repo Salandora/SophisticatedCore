@@ -61,6 +61,21 @@ public class ButtonDefinitions {
 					SortBy.TAGS, getButtonStateData(new UV(12, 144), TranslationHelper.INSTANCE.translButton("sort_by_tags"), Dimension.SQUARE_12)
 			));
 
+	private static final TextureBlitData TRANSFER_TO_STORAGE_FOREGROUND = new TextureBlitData(ICONS, Dimension.SQUARE_256, new UV(0, 144), Dimension.SQUARE_12);
+	public static final ButtonDefinition TRANSFER_TO_STORAGE = new ButtonDefinition(Dimension.SQUARE_12, SMALL_BUTTON_BACKGROUND, SMALL_BUTTON_HOVERED_BACKGROUND, TRANSFER_TO_STORAGE_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transfer_to_storage")));
+	private static final TextureBlitData TRANSFER_TO_STORAGE_FILTERED_FOREGROUND = new TextureBlitData(ICONS, Dimension.SQUARE_256, new UV(36, 156), Dimension.SQUARE_12);
+	public static final ButtonDefinition TRANSFER_TO_STORAGE_FILTERED = new ButtonDefinition(Dimension.SQUARE_12, SMALL_BUTTON_BACKGROUND, SMALL_BUTTON_HOVERED_BACKGROUND, TRANSFER_TO_STORAGE_FILTERED_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transfer_to_storage_filtered")),
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transfer_to_storage_filtered.transfer_all")).withStyle(ChatFormatting.DARK_GRAY));
+	private static final TextureBlitData TRANSFER_TO_INVENTORY_FOREGROUND = new TextureBlitData(ICONS, Dimension.SQUARE_256, new UV(12, 156), Dimension.SQUARE_12);
+	public static final ButtonDefinition TRANSFER_TO_INVENTORY = new ButtonDefinition(Dimension.SQUARE_12, SMALL_BUTTON_BACKGROUND, SMALL_BUTTON_HOVERED_BACKGROUND, TRANSFER_TO_INVENTORY_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transfer_to_inventory")));
+	private static final TextureBlitData TRANSFER_TO_INVENTORY_FILTERED_FOREGROUND = new TextureBlitData(ICONS, Dimension.SQUARE_256, new UV(24, 156), Dimension.SQUARE_12);
+	public static final ButtonDefinition TRANSFER_TO_INVENTORY_FILTERED = new ButtonDefinition(Dimension.SQUARE_12, SMALL_BUTTON_BACKGROUND, SMALL_BUTTON_HOVERED_BACKGROUND, TRANSFER_TO_INVENTORY_FILTERED_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transfer_to_inventory_filtered")),
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transfer_to_inventory_filtered.transfer_all")).withStyle(ChatFormatting.DARK_GRAY));
+
 	private static final TextureBlitData SORT_BUTTON_FOREGROUND = new TextureBlitData(ICONS, Dimension.SQUARE_256, new UV(0, 144), Dimension.SQUARE_12);
 	public static final ButtonDefinition SORT = new ButtonDefinition(Dimension.SQUARE_12, SMALL_BUTTON_BACKGROUND, SMALL_BUTTON_HOVERED_BACKGROUND, SORT_BUTTON_FOREGROUND,
 			Component.translatable(TranslationHelper.INSTANCE.translButton("sort_action")));

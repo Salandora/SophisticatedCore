@@ -275,8 +275,39 @@ public class InventoryHelper {
 		return ret;
 	}
 
-	public static void transfer(Storage<ItemVariant> handlerA, Storage<ItemVariant> handlerB, Consumer<Supplier<ItemStack>> onInserted) {
-		transfer(handlerA, handlerB, onInserted, null);
+	public static void transfer(IItemHandlerSimpleInserter handlerA, IItemHandlerSimpleInserter handlerB, Consumer<Supplier<ItemStack>> onInserted) {
+		int slotsA = handlerA.getSlotCount();
+		for (int slot = 0; slot < slotsA; slot++) {
+			ItemStack slotStack = handlerA.getStackInSlot(slot);
+			if (slotStack.isEmpty()) {
+				continue;
+			}
+
+			int countToTransfer = slotStack.getCount();
+			while (countToTransfer > 0) {
+				ItemStack toInsert = slotStack.copy();
+				toInsert.setCount(Math.min(slotStack.getMaxStackSize(), countToTransfer));
+				ItemStack remainingAfterInsert = insertIntoInventory(toInsert, handlerB, true);
+				if (remainingAfterInsert.getCount() == toInsert.getCount()) {
+					break;
+				}
+				int toExtract = toInsert.getCount() - remainingAfterInsert.getCount();
+
+				ItemStack extractedStack = handlerA.extractItem(slot, toExtract, true);
+				if (extractedStack.isEmpty()) {
+					break;
+				}
+
+				insertIntoInventory(handlerA.extractItem(slot, extractedStack.getCount(), false), handlerB, false);
+
+				onInserted.accept(() -> {
+					ItemStack copiedStack = slotStack.copy();
+					copiedStack.setCount(extractedStack.getCount());
+					return copiedStack;
+				});
+				countToTransfer -= extractedStack.getCount();
+			}
+		}
 	}
 	public static void transfer(Storage<ItemVariant> handlerA, Storage<ItemVariant> handlerB, Consumer<Supplier<ItemStack>> onInserted, @Nullable TransactionContext ctx) {
 		if (handlerA == null || handlerB == null) {
@@ -353,6 +384,37 @@ public class InventoryHelper {
 			player.drop(ret, true);
 		}
 	}*/
+
+	public static ItemStack mergeIntoPlayerInventory(Player player, ItemStack stack, int startSlot) {
+		ItemStack result = stack.copy();
+		List<Integer> emptySlots = new ArrayList<>();
+		for (int slot = startSlot; slot < player.getInventory().items.size(); slot++) {
+			ItemStack slotStack = player.getInventory().getItem(slot);
+			if (slotStack.isEmpty()) {
+				emptySlots.add(slot);
+			}
+			if (ItemStack.isSameItemSameComponents(slotStack, result)) {
+				int count = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), result.getCount());
+				slotStack.grow(count);
+				result.shrink(count);
+				if (result.isEmpty()) {
+					return ItemStack.EMPTY;
+				}
+			}
+		}
+
+		for (int slot : emptySlots) {
+			ItemStack slotStack = result.copy();
+			slotStack.setCount(Math.min(slotStack.getMaxStackSize(), result.getCount()));
+			player.getInventory().setItem(slot, slotStack);
+			result.shrink(slotStack.getCount());
+			if (result.isEmpty()) {
+				return ItemStack.EMPTY;
+			}
+		}
+
+		return result;
+	}
 
 	static Map<ItemStackKey, Integer> getCompactedStacks(SlottedStackStorage handler) {
 		return getCompactedStacks(handler, new HashSet<>());

@@ -1,5 +1,6 @@
 accessWidener v2 named
 
+accessible field net/minecraft/client/gui/components/EditBox textColor I
 accessible method net/minecraft/client/gui/components/EditBox isEditable ()Z
 
 accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;)V
