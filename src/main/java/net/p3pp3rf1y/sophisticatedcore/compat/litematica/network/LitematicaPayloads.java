@@ -8,7 +8,7 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModPayloads;
 
 public class LitematicaPayloads {
 	public static void registerPackets() {
-		ModPayloads.registerC2S(RequestContentsPayload.TYPE, RequestContentsPayload.CODEC, RequestContentsPayload::handlePayload);
+		ModPayloads.registerC2S(RequestContentsPayload.TYPE, RequestContentsPayload.STREAM_CODEC, RequestContentsPayload::handlePayload);
 
 		PayloadTypeRegistry.playS2C().register(UpdateMaterialListPayload.TYPE, UpdateMaterialListPayload.STREAM_CODEC);
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -16,4 +16,3 @@ public class LitematicaPayloads {
 		}
 	}
 }
-

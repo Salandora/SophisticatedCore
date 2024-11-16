@@ -22,15 +22,20 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
+import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class RequestContentsPayload implements CustomPacketPayload {
-	public static final RequestContentsPayload INSTANCE = new RequestContentsPayload();
+public record RequestContentsPayload() implements CustomPacketPayload {
 	public static final Type<RequestContentsPayload> TYPE = new Type<>(SophisticatedCore.getRL("litematica_request_contents"));
-	public static final StreamCodec<ByteBuf, RequestContentsPayload> CODEC = StreamCodec.unit(INSTANCE);
+	public static final StreamCodec<ByteBuf, RequestContentsPayload> STREAM_CODEC = StreamCodecHelper.singleton(RequestContentsPayload::new);
+
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
 
 	public static void handlePayload(RequestContentsPayload payload, ServerPlayNetworking.Context context) {
 		List<ItemStack> stacks = Lists.newArrayList();
@@ -97,10 +102,5 @@ public class RequestContentsPayload implements CustomPacketPayload {
 		}
 
 		return items;
-	}
-
-	@Override
-	public Type<? extends CustomPacketPayload> type() {
-		return TYPE;
 	}
 }
