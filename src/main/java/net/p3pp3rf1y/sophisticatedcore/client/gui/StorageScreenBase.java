@@ -841,7 +841,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void tryQuickMoveSlot(int button, Slot slot, Slot slot2) {
 		//noinspection ConstantConditions - by this point minecraft isn't null
-		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.isSameInventory(slot)) {
+		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.sophisticatedCore_isSameInventory(slot)) {
 			ItemStack slotItem = slot2.getItem();
 			if (ItemStack.isSameItemSameComponents(lastQuickMoved, slotItem)) {
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {

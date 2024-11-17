@@ -261,7 +261,7 @@ public class InventoryHelper {
 		return ret;
 	}
 
-	public static <T> T iterate(SlottedStorage<ItemVariant> handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
+	/*public static <T> T iterate(SlottedStorage<ItemVariant> handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
 		T ret = supplyDefault.get();
 		int slots = handler.getSlotCount();
 		for (int slot = 0; slot < slots; slot++) {
@@ -273,7 +273,7 @@ public class InventoryHelper {
 			}
 		}
 		return ret;
-	}
+	}*/
 
 	public static void transfer(IItemHandlerSimpleInserter handlerA, IItemHandlerSimpleInserter handlerB, Consumer<Supplier<ItemStack>> onInserted) {
 		int slotsA = handlerA.getSlotCount();

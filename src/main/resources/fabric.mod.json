@@ -35,7 +35,6 @@
     },
     "mixins": [
         "sophisticatedcore.mixins.json",
-        "porting_lib/base.mixins.json",
         "compat/litematica.mixins.json"
     ],
     "accessWidener": "sophisticatedcore.accesswidener",
@@ -64,6 +63,7 @@
             "net/minecraft/class_1735": ["net/p3pp3rf1y/sophisticatedcore/extensions/inventory/SophisticatedSlot"],
             "net/minecraft/class_1792": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItem"],
             "net/minecraft/class_1799": ["net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack", "net/p3pp3rf1y/sophisticatedcore/extensions/component/SophisticatedMutableDataComponentHolder"],
+            "net/minecraft/class_1937": ["net/p3pp3rf1y/sophisticatedcore/extensions/world/SophisticatedLevel"],
             "net/minecraft/class_2248": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlock"],
             "net/minecraft/class_2680": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"],
             "net/minecraft/class_2586": ["net/p3pp3rf1y/sophisticatedcore/extensions/block/entity/SophisticatedBlockEntity"],

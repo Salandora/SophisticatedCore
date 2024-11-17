@@ -86,8 +86,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void onLoad() {
-		super.onLoad();
+	public void sophisticatedCore_onLoad() {
+		super.sophisticatedCore_onLoad();
 		if (level != null && !level.isClientSide()) {
 			stackStorages.clear();
 			storageStacks.clear();
@@ -791,8 +791,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void onChunkUnloaded() {
-		super.onChunkUnloaded();
+	public void sophisticatedCore_onChunkUnloaded() {
+		super.sophisticatedCore_onChunkUnloaded();
 		detachFromStoragesAndUnlinkBlocks();
 	}
 

@@ -19,20 +19,20 @@ public interface SophisticatedBlockState {
     }
 
     default boolean addLandingEffects(ServerLevel level, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles) {
-        return self().getBlock().addLandingEffects(self(), level, pos, state2, entity, numberOfParticles);
+        return self().getBlock().sophisticatedCore_addLandingEffects(self(), level, pos, state2, entity, numberOfParticles);
     }
 
     default boolean addRunningEffects(Level level, BlockPos pos, Entity entity) {
-        return self().getBlock().addRunningEffects(self(), level, pos, entity);
+        return self().getBlock().sophisticatedCore_addRunningEffects(self(), level, pos, entity);
     }
 
 	@Environment(EnvType.CLIENT)
     default boolean addHitEffects(Level level, HitResult target, ParticleEngine manager) {
-        return self().getBlock().addHitEffects(self(), level, target, manager);
+        return self().getBlock().sophisticatedCore_addHitEffects(self(), level, target, manager);
     }
 
 	@Environment(EnvType.CLIENT)
     default boolean addDestroyEffects(Level level, BlockPos pos, ParticleEngine manager) {
-        return self().getBlock().addDestroyEffects(self(), level, pos, manager);
+        return self().getBlock().sophisticatedCore_addDestroyEffects(self(), level, pos, manager);
     }
 }
