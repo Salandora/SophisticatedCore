@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
 import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import io.github.fabricators_of_create.porting_lib.models.geometry.RegisterGeometryLoadersCallback;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -17,6 +18,7 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.inventory.StorageWrapperRepository;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.model.DynamicFluidContainerModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +58,8 @@ public class SophisticatedCore implements ModInitializer {
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
 
 		CompatRegistry.getRegistry(MOD_ID).setupCompats();
+
+		RegisterGeometryLoadersCallback.EVENT.register(loaders -> loaders.put(SophisticatedCore.getRL("fluid_container"), DynamicFluidContainerModel.Loader.INSTANCE));
 	}
 
 	private static void serverStarted(MinecraftServer server) {
