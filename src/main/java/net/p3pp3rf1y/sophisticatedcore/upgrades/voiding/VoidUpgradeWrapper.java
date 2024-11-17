@@ -62,7 +62,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	public boolean shouldWorkInGUI() {
-		return upgrade.getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
 	}
 
 	public void setShouldVoidOverflow(boolean shouldVoidOverflow) {
@@ -76,7 +76,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	public void setShouldVoidOverflowDefaultOrLoadFromNbt(boolean shouldVoidOverflowDefault) {
-		shouldVoidOverflow = !upgradeItem.isVoidAnythingEnabled() || upgrade.getOrDefault(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflowDefault);
+		shouldVoidOverflow = !upgradeItem.isVoidAnythingEnabled() || upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflowDefault);
 	}
 
 	public boolean shouldVoidOverflow() {

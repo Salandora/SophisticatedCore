@@ -1,4 +1,4 @@
-package net.p3pp3rf1y.sophisticatedcore.extensions.inventory;
+package net.p3pp3rf1y.sophisticatedcore.util;
 
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;

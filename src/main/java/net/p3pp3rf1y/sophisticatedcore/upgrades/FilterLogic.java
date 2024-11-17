@@ -110,7 +110,7 @@ public class FilterLogic {
 	}
 
 	protected FilterAttributes getAttributes() {
-		return upgrade.getOrDefault(filterAttributesComponent, getEmptyAttributes());
+		return upgrade.sophisticatedCore_getOrDefault(filterAttributesComponent, getEmptyAttributes());
 	}
 
 	private FilterAttributes getEmptyAttributes() {

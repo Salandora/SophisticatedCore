@@ -30,7 +30,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 				save();
 			}
 		};
-		inputInventory.setStackInSlot(0, upgrade.getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
+		inputInventory.setStackInSlot(0, upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
 		recipeType = upgradeItem.getRecipeType();
 	}
 
@@ -58,7 +58,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 	}
 
 	public boolean shouldShiftClickIntoStorage() {
-		return upgrade.getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {

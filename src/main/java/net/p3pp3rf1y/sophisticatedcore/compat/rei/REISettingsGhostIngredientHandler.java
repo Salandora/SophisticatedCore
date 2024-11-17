@@ -83,7 +83,7 @@ public class REISettingsGhostIngredientHandler<S extends SettingsScreen> impleme
 		public GhostTarget(S screen, ItemStack stack, Slot slot) {
 			this.slot = slot;
 			this.stack = stack;
-			this.area = new Rectangle(screen.getGuiLeft() + slot.x, screen.getGuiTop() + slot.y, 16, 16);
+			this.area = new Rectangle(screen.sophisticatedCore_getGuiLeft() + slot.x, screen.sophisticatedCore_getGuiTop() + slot.y, 16, 16);
 		}
 
 		public void accept(I ingredient) {

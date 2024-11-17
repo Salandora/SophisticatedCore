@@ -307,7 +307,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, getGuiTop() + 17, getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, sophisticatedCore_getGuiTop() + 17, sophisticatedCore_getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsPosition();
 		} else {
@@ -545,7 +545,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore$getSlotColor(slotId));
+				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore_getSlotColor(slotId));
 			}
 		}
 	}
@@ -562,7 +562,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore$getSlotColor(slotId));
+				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore_getSlotColor(slotId));
 			}
 		}
 	}
@@ -698,7 +698,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private void drawSlotOverlays(GuiGraphics guiGraphics) {
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
-		poseStack.translate(getGuiLeft(), getGuiTop(), 0.0F);
+		poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop(), 0.0F);
 		for (int slotNumber = 0; slotNumber < menu.getNumberOfStorageInventorySlots(); slotNumber++) {
 			List<Integer> colors = menu.getSlotOverlayColors(slotNumber);
 			if (!colors.isEmpty()) {
@@ -1016,7 +1016,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			RenderSystem.disableDepthTest();
 			PoseStack poseStack = guiGraphics.pose();
 			poseStack.pushPose();
-			poseStack.translate(getGuiLeft(), getGuiTop(), 0.0F);
+			poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop(), 0.0F);
 			upgradeSlotChangeResult.errorUpgradeSlots().forEach(slotIndex -> {
 				Slot upgradeSlot = menu.getSlot(menu.getFirstUpgradeSlot() + slotIndex);
 				GuiHelper.renderSlotHighlight(guiGraphics, upgradeSlot.x, upgradeSlot.y, 0, ERROR_SLOT_COLOR);
@@ -1100,7 +1100,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public int getTopY() {
-		return getGuiTop();
+		return sophisticatedCore_getGuiTop();
 	}
 
 	@Override
@@ -1111,7 +1111,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public int getLeftX() {
-		return getGuiLeft();
+		return sophisticatedCore_getGuiLeft();
 	}
 
 	private class TransferButton extends Button {

@@ -22,7 +22,7 @@ public class ParticleEngineMixin {
 
     @Redirect(method = "destroy", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;shouldSpawnTerrainParticles()Z"))
     private boolean sophisticatedcore$addDestroyEffects(BlockState blockState, BlockPos pos) {
-        return !blockState.addDestroyEffects(level, pos, MixinHelper.cast(this));
+        return !blockState.sophisticatedCore_addDestroyEffects(level, pos, MixinHelper.cast(this));
     }
 
 	// lambda inside destroy
@@ -30,7 +30,7 @@ public class ParticleEngineMixin {
 	private void sophisticatedcore$updateSprite(Args args, BlockPos pos, BlockState state, double i, double j, double k, double l, double m, double n) {
 		Particle p = args.get(0);
 		if (p instanceof TerrainParticle tp) {
-			tp.sophisticatedCore$updateSprite(state, pos);
+			tp.sophisticatedCore_updateSprite(state, pos);
 		}
 	}
 }

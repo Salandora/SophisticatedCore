@@ -42,7 +42,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	public static long getEnergyStored(ItemStack upgrade) {
-		return upgrade.getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0L);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0L);
 	}
 
 	@Override

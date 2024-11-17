@@ -22,7 +22,7 @@ public abstract class TerrainParticleMixin extends TextureSheetParticle implemen
 	}
 
 	@Override
-	public Particle sophisticatedCore$updateSprite(BlockState state, @Nullable BlockPos pos) {
+	public Particle sophisticatedCore_updateSprite(BlockState state, @Nullable BlockPos pos) {
 		if (pos != null) {
 			BlockModelShaper shaper = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
 			BakedModel model = shaper.getBlockModel(state);

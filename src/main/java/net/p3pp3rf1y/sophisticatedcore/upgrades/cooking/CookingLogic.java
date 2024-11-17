@@ -289,7 +289,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public long getBurnTimeFinish() {
-		return upgrade.getOrDefault(ModCoreDataComponents.BURN_TIME_FINISH, 0L);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.BURN_TIME_FINISH, 0L);
 	}
 
 	private void setBurnTimeFinish(long burnTimeFinish) {
@@ -298,7 +298,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public int getBurnTimeTotal() {
-		return upgrade.getOrDefault(ModCoreDataComponents.BURN_TIME_TOTAL, 0);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.BURN_TIME_TOTAL, 0);
 	}
 
 	private void setBurnTimeTotal(int burnTimeTotal) {
@@ -307,7 +307,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public long getCookTimeFinish() {
-		return upgrade.getOrDefault(ModCoreDataComponents.COOK_TIME_FINISH, -1L);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.COOK_TIME_FINISH, -1L);
 	}
 
 	private void setCookTimeFinish(long cookTimeFinish) {
@@ -316,7 +316,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public int getCookTimeTotal() {
-		return upgrade.getOrDefault(ModCoreDataComponents.COOK_TIME_TOTAL, 0);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.COOK_TIME_TOTAL, 0);
 	}
 
 	private void setCookTimeTotal(int cookTimeTotal) {
@@ -325,7 +325,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public boolean isCooking() {
-		return upgrade.getOrDefault(ModCoreDataComponents.IS_COOKING, false);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.IS_COOKING, false);
 	}
 
 	private void setIsCooking(boolean isCooking) {

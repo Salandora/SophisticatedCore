@@ -71,7 +71,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		AbstractContainerMenu menu = containerGui.getMenu();
 		ItemStack held = menu.getCarried();
 		if (!held.isEmpty()) {
-			Slot under = containerGui.getSlotUnderMouse();
+			Slot under = containerGui.sophisticatedCore_getSlotUnderMouse();
 
 			List<Slot> slots = menu instanceof StorageContainerMenuBase<?> storageMenu ? storageMenu.realInventorySlots : menu.slots;
 
@@ -95,8 +95,8 @@ public class ClientEventHandler implements ClientModInitializer {
 	}
 
 	private static void renderStashSign(Minecraft mc, AbstractContainerScreen<?> containerGui, GuiGraphics guiGraphics, Slot s, ItemStack stack, IStashStorageItem.StashResult stashResult) {
-		int x = containerGui.getGuiLeft() + s.x;
-		int y = containerGui.getGuiTop() + s.y;
+		int x = containerGui.sophisticatedCore_getGuiLeft() + s.x;
+		int y = containerGui.sophisticatedCore_getGuiTop() + s.y;
 
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();

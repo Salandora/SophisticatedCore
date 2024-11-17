@@ -46,10 +46,10 @@ public class StonecutterRecipeControl extends WidgetBase {
 
 	public void moveSlotsToView() {
 		Slot inputSlot = container.getInputSlot();
-		inputSlot.x = x + getCenteredX(16) - screen.getGuiLeft();
-		inputSlot.y = y - screen.getGuiTop() + 1;
+		inputSlot.x = x + getCenteredX(16) - screen.sophisticatedCore_getGuiLeft();
+		inputSlot.y = y - screen.sophisticatedCore_getGuiTop() + 1;
 		Slot outputSlot = container.getOutputSlot();
-		outputSlot.x = x + getCenteredX(16) - screen.getGuiLeft();
+		outputSlot.x = x + getCenteredX(16) - screen.sophisticatedCore_getGuiLeft();
 		outputSlot.y = inputSlot.y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING + 4;
 	}
 

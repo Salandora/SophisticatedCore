@@ -21,11 +21,11 @@ public interface SophisticatedPlayer {
 		return (Player)this;
 	}
 
-	default OptionalInt openMenu(MenuProvider menuProvider, BlockPos pos) {
-		return this.openMenu(menuProvider, (buf) -> buf.writeBlockPos(pos));
+	default OptionalInt sophisticatedCore_openMenu(MenuProvider menuProvider, BlockPos pos) {
+		return this.sophisticatedCore_openMenu(menuProvider, (buf) -> buf.writeBlockPos(pos));
 	}
 
-	default OptionalInt openMenu(MenuProvider menu, Consumer<RegistryFriendlyByteBuf> context) {
+	default OptionalInt sophisticatedCore_openMenu(MenuProvider menu, Consumer<RegistryFriendlyByteBuf> context) {
 		var screenHandlerFactory = new ExtendedScreenHandlerFactory<>() {
 			@Override
 			public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {

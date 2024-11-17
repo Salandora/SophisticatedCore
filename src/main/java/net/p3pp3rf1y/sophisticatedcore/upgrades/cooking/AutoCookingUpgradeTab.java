@@ -30,7 +30,7 @@ public abstract class AutoCookingUpgradeTab<R extends AbstractCookingRecipe, W e
 	@Override
 	protected void moveSlotsToTab() {
 		inputFilterLogicControl.moveSlotsToView();
-		cookingLogicControl.moveSlotsToView(screen.getGuiLeft(), screen.getGuiTop());
+		cookingLogicControl.moveSlotsToView(screen.sophisticatedCore_getGuiLeft(), screen.sophisticatedCore_getGuiTop());
 		fuelFilterLogicControl.moveSlotsToView();
 	}
 

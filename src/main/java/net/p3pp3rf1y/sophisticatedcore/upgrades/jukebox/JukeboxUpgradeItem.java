@@ -57,7 +57,7 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 					return stack.isEmpty() || stack.has(DataComponents.JUKEBOX_PLAYABLE);
 				}
 			};
-			isPlaying = upgrade.getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
+			isPlaying = upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
 		}
 
 		public void setDisc(ItemStack disc) {
