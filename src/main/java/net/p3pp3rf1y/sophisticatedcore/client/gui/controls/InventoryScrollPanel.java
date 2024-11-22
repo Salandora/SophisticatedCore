@@ -133,7 +133,7 @@ public class InventoryScrollPanel extends ScrollPanel {
 
 			int column = visibleSlotsCount % slotsInARow;
 			int newY = top - screen.getTopY() + row * 18 + TOP_Y_OFFSET;
-			int newX = left - screen.getLeftX() + column * 18;
+			int newX = left - screen.getLeftX() + column * 18 + 1;
 			if (newY < 1 || newY > height || !matchesFilter) {
 				newY = -100;
 			} else {

@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
@@ -171,5 +171,15 @@ public class ServerStorageSoundHandler {
 
 	private static void sendStopMessage(Level level, Vec3 position, UUID storageUuid) {
 		PacketDistributor.sendToAllNear(new StopDiscPlaybackPayload(storageUuid), level, position, 128);
+	}
+
+	@SuppressWarnings({"unused", "java:S1172"}) // needs to be here for addListener to recognize which event this method should be subscribed to
+	public static void onWorldUnload(MinecraftServer server, ServerLevel serverLevel) {
+		/*if (!(evt.getLevel() instanceof ServerLevel serverLevel)) {
+			return;
+		}*/
+
+		worldStorageSoundKeepAlive.remove(serverLevel.dimension());
+		lastWorldCheck.remove(serverLevel.dimension());
 	}
 }

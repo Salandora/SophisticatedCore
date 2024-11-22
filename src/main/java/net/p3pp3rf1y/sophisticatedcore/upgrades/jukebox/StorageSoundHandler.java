@@ -65,6 +65,7 @@ public class StorageSoundHandler {
 
 		Entity entity = level.getEntity(entityId);
 		if (!(entity instanceof LivingEntity)) {
+			stopStorageSound(storageUuid);
 			return;
 		}
 		playStorageSound(storageUuid, new EntityBoundSoundInstance(soundEvent, SoundSource.RECORDS, 2, 1, entity, level.random.nextLong()));

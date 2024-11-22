@@ -539,7 +539,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void renderStorageInventorySlots(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
-		for (int slotId = 0; slotId < menu.realInventorySlots.size(); ++slotId) {
+		for (int slotId = 0; slotId < menu.realInventorySlots.size() && slotId < getMenu().getInventorySlotsSize(); ++slotId) {
 			Slot slot = menu.realInventorySlots.get(slotId);
 			renderSlot(guiGraphics, slot);
 

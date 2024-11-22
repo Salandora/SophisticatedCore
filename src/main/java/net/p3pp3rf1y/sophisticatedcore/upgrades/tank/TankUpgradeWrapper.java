@@ -78,8 +78,10 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	@Override
 	public void forceUpdateTankRenderInfo() {
 		TankRenderInfo renderInfo = new TankRenderInfo();
-		renderInfo.setFluid(contents);
-		renderInfo.setFillRatio((float) Math.round((float) contents.getAmount() / getTankCapacity() * 10) / 10);
+		if (!contents.isEmpty()) {
+			renderInfo.setFluid(contents);
+			renderInfo.setFillRatio((float) Math.round((float) contents.getAmount() / getTankCapacity() * 10) / 10);
+		}
 		updateTankRenderInfoCallback.accept(renderInfo);
 	}
 
