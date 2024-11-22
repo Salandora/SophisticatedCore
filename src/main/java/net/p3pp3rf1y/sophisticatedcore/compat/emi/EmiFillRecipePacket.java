@@ -15,9 +15,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record EmiFillRecipePacket(int syncId, int action, List<Integer> slots, List<Integer> crafting, int output, List<ItemStack> stacks) implements CustomPacketPayload {
@@ -25,10 +23,10 @@ public record EmiFillRecipePacket(int syncId, int action, List<Integer> slots, L
 	public static final StreamCodec<RegistryFriendlyByteBuf, EmiFillRecipePacket> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, EmiFillRecipePacket::syncId,
 			ByteBufCodecs.INT, EmiFillRecipePacket::action,
-			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, ArrayList::new), EmiFillRecipePacket::slots,
-			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, ArrayList::new), EmiFillRecipePacket::crafting,
+			ByteBufCodecs.INT.apply(ByteBufCodecs.list()), EmiFillRecipePacket::slots,
+			ByteBufCodecs.INT.apply(ByteBufCodecs.list()), EmiFillRecipePacket::crafting,
 			ByteBufCodecs.INT, EmiFillRecipePacket::output,
-			ItemStack.LIST_STREAM_CODEC, EmiFillRecipePacket::stacks,
+			ItemStack.OPTIONAL_LIST_STREAM_CODEC, EmiFillRecipePacket::stacks,
 			EmiFillRecipePacket::new);
 
 	@Override
