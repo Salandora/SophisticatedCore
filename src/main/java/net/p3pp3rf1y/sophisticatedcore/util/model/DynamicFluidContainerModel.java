@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 
 import io.github.fabricators_of_create.porting_lib.core.PortingLib;
 import io.github.fabricators_of_create.porting_lib.models.MeshBakedModel;
-import io.github.fabricators_of_create.porting_lib.models.RenderTypeGroup;
 import io.github.fabricators_of_create.porting_lib.models.UnbakedGeometryHelper;
 import io.github.fabricators_of_create.porting_lib.models.geometry.*;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
