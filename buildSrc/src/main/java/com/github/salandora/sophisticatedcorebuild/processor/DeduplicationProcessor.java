@@ -7,9 +7,8 @@ import com.github.salandora.sophisticatedcorebuild.SophisticatedCoreBuildPlugin;
 import com.github.salandora.sophisticatedcorebuild.ProjectProcessor;
 import com.github.salandora.sophisticatedcorebuild.Utils;
 
-import net.fabricmc.loom.task.RemapJarTask;
-
 import org.gradle.api.Project;
+import org.gradle.jvm.tasks.Jar;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
 public class DeduplicationProcessor implements ProjectProcessor {
 	@Override
 	public void apply(Project project) {
-		project.getTasks().named("remapJar", RemapJarTask.class).configure(task -> task.doLast($ -> {
+		project.getTasks().named("remapJar", Jar.class).configure(task -> task.doLast($ -> {
 			Path path = task.getArchiveFile().get().getAsFile().toPath();
 			this.deduplicateInclusions(path);
 		}));
