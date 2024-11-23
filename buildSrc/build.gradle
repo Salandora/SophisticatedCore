@@ -1,0 +1,9 @@
+repositories {
+	mavenCentral()
+	maven { url = "https://maven.fabricmc.net/" }
+}
+
+dependencies {
+	implementation("com.google.code.gson:gson:2.10.1")
+	implementation("net.fabricmc:fabric-loom:1.8-SNAPSHOT")
+}

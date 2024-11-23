@@ -1,6 +1,7 @@
 import net.fabricmc.loom.task.ValidateMixinNameTask
 import net.fabricmc.loom.util.gradle.SourceSetHelper
 import net.fabricmc.loom.util.gradle.SourceSetReference
+import com.github.salandora.sophisticatedcorebuild.SophisticatedCoreBuildPlugin;
 
 buildscript {
     repositories {
@@ -12,13 +13,14 @@ buildscript {
 
 plugins {
     id 'idea'
-    id 'fabric-loom' version '1.8-SNAPSHOT'
+    id 'fabric-loom'
     id 'maven-publish'
     id "net.darkhax.curseforgegradle" version "1.1.15"
     id "com.modrinth.minotaur" version "2.+"
 }
 
 apply from: getProject().file('gradle/package-info.gradle')
+apply plugin: SophisticatedCoreBuildPlugin
 
 idea {
     module {
