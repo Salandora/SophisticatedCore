@@ -279,6 +279,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			if (searchTerm.startsWith("@")) {
 				String modName = searchTerm.substring(1).toLowerCase();
 				filters.add(stack -> modName.isEmpty() || BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().contains(modName));
+			} else if (searchTerm.startsWith("#")) {
+				String tooltipKeyword = searchTerm.substring(1).toLowerCase();
+				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getString().toLowerCase().contains(tooltipKeyword)));
 			} else {
 				filters.add(stack -> stack.getHoverName().getString().toLowerCase().contains(searchTerm.toLowerCase()));
 			}
