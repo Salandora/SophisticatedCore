@@ -84,6 +84,7 @@ public class SCShapelessRecipe extends ShapelessRecipe {
 		public void toNetwork(FriendlyByteBuf buffer, SCShapelessRecipe recipe) {
 			buffer.writeUtf(recipe.getGroup());
 			buffer.writeEnum(recipe.category());
+			buffer.writeVarInt(recipe.getIngredients().size());
 			recipe.getIngredients().forEach(ingredient -> ingredient.toNetwork(buffer));
 			buffer.writeItem(((ShapelessRecipeAccessor) recipe).getResult());
 		}
