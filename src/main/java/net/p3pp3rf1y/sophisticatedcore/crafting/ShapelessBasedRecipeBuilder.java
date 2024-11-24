@@ -67,6 +67,10 @@ public class ShapelessBasedRecipeBuilder implements RecipeBuilder {
 		return new ShapelessBasedRecipeBuilder(stack.getItem(), 1, stack.getTag(), RecipeSerializer.SHAPELESS_RECIPE);
 	}
 
+	public static ShapelessBasedRecipeBuilder shapeless(ItemStack stack, RecipeSerializer<?> serializer) {
+		return new ShapelessBasedRecipeBuilder(stack.getItem(), 1, stack.getTag(), serializer);
+	}
+
 	public ShapelessBasedRecipeBuilder condition(ConditionJsonProvider condition) {
 		conditions.add(condition);
 		return this;

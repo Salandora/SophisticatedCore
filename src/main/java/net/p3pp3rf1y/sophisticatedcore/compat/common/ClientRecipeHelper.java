@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.common;
 
+import mezz.jei.library.util.RecipeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
@@ -9,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,10 @@ public class ClientRecipeHelper {
 	public static CraftingRecipe copyShapedRecipe(ShapedRecipe recipe) {
 		Minecraft mc = Minecraft.getInstance();
 		return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), recipe.getResultItem(mc.level.registryAccess()));
+	}
+
+	public static CraftingRecipe copyShapelessRecipe(ShapelessRecipe recipe) {
+		return new ShapelessRecipe(recipe.getId(), "", recipe.category(), RecipeUtil.getResultItem(recipe), recipe.getIngredients());
 	}
 
 	public static <C extends Container> ItemStack assemble(Recipe<C> recipe, C container) {

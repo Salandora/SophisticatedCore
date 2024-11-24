@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.*;
 import org.joml.Matrix4f;
 
 import net.minecraft.ChatFormatting;
@@ -13,10 +14,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -29,11 +32,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.Config;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.Button;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ButtonDefinitions;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.InventoryScrollPanel;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
@@ -50,17 +49,12 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 import net.p3pp3rf1y.sophisticatedcore.util.ColorHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.GUI_CONTROLS;
 
@@ -97,6 +91,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	};
 
 	protected StorageBackgroundProperties storageBackgroundProperties;
+	@Nullable
+	private Button transferToStorageButton;
+	@Nullable
+	private Button transferToInventoryButton;
+	private TextBox searchBox;
+	private Predicate<ItemStack> stackFilter = stack -> searchBox == null || searchBox.getValue().isEmpty()
+			|| (!stack.isEmpty() && stack.getHoverName().getString().toLowerCase().contains(searchBox.getValue().toLowerCase()));
+	private int visibleSlotsCount;
+	private boolean initializing = true;
 
 	public static void setCraftingUIPart(ICraftingUIPart part) {
 		craftingUIPart = part;
@@ -106,15 +109,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		slotDecorationRenderer = renderer;
 	}
 
-	private static final Set<IButtonFactory> buttonFactories = new HashSet<>();
-
-	public static void addButtonFactory(IButtonFactory buttonFactory) {
-		buttonFactories.add(buttonFactory);
-	}
-
 	protected StorageScreenBase(S pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		numberOfUpgradeSlots = getMenu().getNumberOfUpgradeSlots();
+		visibleSlotsCount = getMenu().getNumberOfStorageInventorySlots();
 		updateDimensionsAndSlotPositions(Minecraft.getInstance().getWindow().getGuiScaledHeight());
 	}
 
@@ -144,6 +142,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		inventoryLabelX = 8 + storageBackgroundProperties.getPlayerInventoryXOffset();
 		updatePlayerSlotsPositions();
 		updateUpgradeSlotsPositions();
+		updateTransferButtonsPositions();
 	}
 
 	protected int getStorageInventoryHeight(int displayableNumberOfRows) {
@@ -167,18 +166,30 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	protected void updateStorageSlotsPositions() {
 		int yPosition = 18;
 
+		visibleSlotsCount = 0;
 		int slotIndex = 0;
 		while (slotIndex < getMenu().getNumberOfStorageInventorySlots()) {
 			Slot slot = getMenu().getSlot(slotIndex);
-			int lineIndex = slotIndex % getSlotsOnLine();
-			((SlotAccessor) slot).setX(8 + lineIndex * 18);
-			((SlotAccessor) slot).setY(yPosition);
-
+			int lineIndex = visibleSlotsCount % getSlotsOnLine();
 			slotIndex++;
-			if (slotIndex % getSlotsOnLine() == 0) {
-				yPosition += 18;
+
+			if (stackFilter.test(slot.getItem())) {
+				((SlotAccessor) slot).setX(8 + lineIndex * 18);
+				((SlotAccessor) slot).setY(yPosition);
+				visibleSlotsCount++;
+				if (visibleSlotsCount % getSlotsOnLine() == 0) {
+					yPosition += 18;
+				}
+			} else {
+				((SlotAccessor) slot).setY(-100);
 			}
+
 		}
+	}
+
+	@Override
+	public Predicate<ItemStack> getStackFilter() {
+		return stackFilter;
 	}
 
 	protected void updatePlayerSlotsPositions() {
@@ -229,15 +240,76 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (shouldShowSortButtons()) {
 			addSortButtons();
 		}
-		addAdditionalButtons();
+
+		addTransferButtons();
+		addSearchBox();
+
+		initializing = false;
+	}
+
+	protected void addSearchBox() {
+		SortButtonsPosition sortButtonsPosition = Config.CLIENT.sortButtonsPosition.get();
+		int x = 7;
+		int xEnd = sortButtonsPosition == SortButtonsPosition.TITLE_LINE_RIGHT ? getSortButtonsPosition(sortButtonsPosition).x() - 1 - leftPos : imageWidth - 7;
+		int width = xEnd - x;
+
+		searchBox = new SearchBox(new Position(leftPos + x, topPos + 5), new Dimension(width, 10), this);
+		searchBox.setResponder(this::onSearchPhraseChange);
+		if (getMenu().shouldKeepSearchPhrase()) {
+			searchBox.setValue(getMenu().getSearchPhrase());
+		}
+		addRenderableWidget(searchBox);
+	}
+
+	private void onSearchPhraseChange(String searchPhrase) {
+		if (!initializing) {
+			getMenu().setSearchPhrase(searchPhrase);
+		}
+		updateSearchFilter(searchPhrase);
+		if (inventoryScrollPanel != null) {
+			inventoryScrollPanel.resetScrollDistance();
+			inventoryScrollPanel.updateSlotsPosition();
+		} else {
+			updateStorageSlotsPositions();
+		}
+	}
+
+	private void updateSearchFilter(String searchPhrase) {
+		if (searchPhrase.trim().isEmpty()) {
+			stackFilter = stack -> true;
+			return;
+		}
+
+		String[] searchTerms = searchPhrase.trim().split(" ");
+
+		List<Predicate<ItemStack>> filters = new ArrayList<>();
+
+		for (String searchTerm : searchTerms) {
+			if (searchTerm.startsWith("@")) {
+				String modName = searchTerm.substring(1).toLowerCase();
+				filters.add(stack -> modName.isEmpty() || BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().contains(modName));
+			} else if (searchTerm.startsWith("#")) {
+				String tooltipKeyword = searchTerm.substring(1).toLowerCase();
+				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getString().toLowerCase().contains(tooltipKeyword)));
+			} else {
+				filters.add(stack -> stack.getHoverName().getString().toLowerCase().contains(searchTerm.toLowerCase()));
+			}
+		}
+
+		stackFilter = stack -> !stack.isEmpty() && filters.stream().allMatch(f -> f.test(stack));
+	}
+
+	private void addTransferButtons() {
+		transferToStorageButton = new TransferButton(filterByContents -> getMenu().transferItemsToStorage(filterByContents), ButtonDefinitions.TRANSFER_TO_STORAGE, ButtonDefinitions.TRANSFER_TO_STORAGE_FILTERED);
+		addRenderableWidget(transferToStorageButton);
+
+		transferToInventoryButton = new TransferButton(filterByContents -> getMenu().transferItemsToPlayerInventory(filterByContents), ButtonDefinitions.TRANSFER_TO_INVENTORY, ButtonDefinitions.TRANSFER_TO_INVENTORY_FILTERED);
+		addRenderableWidget(transferToInventoryButton);
+		updateTransferButtonsPositions();
 	}
 
 	protected boolean shouldShowSortButtons() {
 		return true;
-	}
-
-	private void addAdditionalButtons() {
-		buttonFactories.forEach(factory -> addRenderableWidget(factory.instantiateButton(this)));
 	}
 
 	private void updateInventoryScrollPanel() {
@@ -249,10 +321,18 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
 			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, ((AbstractContainerScreenAccessor) this).getGuiTop() + 17, ((AbstractContainerScreenAccessor) this).getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
-			inventoryScrollPanel.updateSlotsYPosition();
+			inventoryScrollPanel.updateSlotsPosition();
 		} else {
 			inventoryScrollPanel = null;
 		}
+	}
+
+	private void updateTransferButtonsPositions() {
+		if (transferToStorageButton == null || transferToInventoryButton == null) {
+			return;
+		}
+		transferToStorageButton.setPosition(new Position(leftPos + inventoryLabelX + 137, topPos + inventoryLabelY - 2));
+		transferToInventoryButton.setPosition(new Position(leftPos + inventoryLabelX + 149, topPos + inventoryLabelY - 2));
 	}
 
 	private int getNumberOfVisibleRows() {
@@ -313,13 +393,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			}
 		});
 		addWidget(sortButton);
-		sortByButton = new ToggleButton<>(new Position(pos.x() + 14, pos.y()), ButtonDefinitions.SORT_BY, button -> {
+		sortByButton = new ToggleButton<>(new Position(pos.x() + 12, pos.y()), ButtonDefinitions.SORT_BY, button -> {
 			if (button == 0) {
 				getMenu().setSortBy(getMenu().getSortBy().next());
 			}
 		}, () -> getMenu().getSortBy());
 		addWidget(sortByButton);
-
 	}
 
 	private Position getSortButtonsPosition(SortButtonsPosition sortButtonsPosition) {
@@ -328,7 +407,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					new Position(leftPos - UPGRADE_INVENTORY_OFFSET - 2, topPos + getUpgradeHeightWithoutBottom() + UPGRADE_BOTTOM_HEIGHT + 2);
 			case BELOW_UPGRADE_TABS ->
 					new Position(settingsTabControl.getX() + 2, settingsTabControl.getY() + Math.max(0, settingsTabControl.getHeight() + 2));
-			default -> new Position(leftPos + imageWidth - 34, topPos + 4);
+			default -> new Position(leftPos + imageWidth - 31, topPos + 4);
 		};
 	}
 
@@ -360,6 +439,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			updateStorageSlotsPositions();
 			updatePlayerSlotsPositions();
 			updateInventoryScrollPanel();
+			updateTransferButtonsPositions();
 		}
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
@@ -399,7 +479,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void renderStorageInventorySlots(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
-		for (int slotId = 0; slotId < menu.realInventorySlots.size(); ++slotId) {
+		for (int slotId = 0; slotId < menu.realInventorySlots.size() && slotId < getMenu().getInventorySlotsSize(); ++slotId) {
 			Slot slot = menu.realInventorySlots.get(slotId);
 			renderSlot(guiGraphics, slot);
 
@@ -544,7 +624,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int y = (height - imageHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
 		if (inventoryScrollPanel == null) {
-			drawSlotBg(guiGraphics, x, y, getMenu().getNumberOfStorageInventorySlots());
+			drawSlotBg(guiGraphics, x, y, visibleSlotsCount);
 			drawSlotOverlays(guiGraphics);
 		}
 		drawUpgradeBackground(guiGraphics);
@@ -591,6 +671,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		if (sortByButton != null) {
 			sortByButton.renderTooltip(this, guiGraphics, x, y);
+		}
+		if (transferToStorageButton != null) {
+			transferToStorageButton.renderTooltip(this, guiGraphics, x, y);
+		}
+		if (transferToInventoryButton != null) {
+			transferToInventoryButton.renderTooltip(this, guiGraphics, x, y);
+		}
+		if (searchBox != null) {
+			searchBox.renderTooltip(this, guiGraphics, x, y);
 		}
 	}
 
@@ -971,7 +1060,37 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return ((AbstractContainerScreenAccessor) this).getGuiLeft();
 	}
 
-	public Position getRightTopAbovePlayersInventory() {
-		return new Position(storageBackgroundProperties.getPlayerInventoryXOffset() + 8 + 9 * 18, inventoryLabelY);
+	private class TransferButton extends Button {
+		private final ButtonDefinition shiftDefinition;
+		private final ButtonDefinition definition;
+
+		public TransferButton(Consumer<Boolean> transferItems, ButtonDefinition shiftDefinition, ButtonDefinition definition) {
+			super(new Position(StorageScreenBase.this.leftPos, StorageScreenBase.this.topPos), definition, button -> {
+				if (button == 0) {
+					transferItems.accept(!Screen.hasShiftDown());
+				}
+			});
+			this.shiftDefinition = shiftDefinition;
+			this.definition = definition;
+		}
+
+		@Override
+		protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+			if (hasShiftDown()) {
+				GuiHelper.blit(guiGraphics, x, y, shiftDefinition.getForegroundTexture());
+			} else {
+				GuiHelper.blit(guiGraphics, x, y, definition.getForegroundTexture());
+			}
+		}
+
+		@Override
+		protected List<Component> getTooltip() {
+			if (hasShiftDown()) {
+				return shiftDefinition.getTooltip();
+			} else {
+				return definition.getTooltip();
+			}
+		}
 	}
+
 }

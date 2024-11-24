@@ -29,6 +29,7 @@ public class PacketHandler {
 		registerC2SMessage(TransferFullSlotMessage.class, TransferFullSlotMessage::new);
 		registerC2SMessage(SoundStopNotificationMessage.class, SoundStopNotificationMessage::new);
 		registerC2SMessage(TankClickMessage.class, TankClickMessage::new);
+		registerC2SMessage(TransferItemsMessage.class, TransferItemsMessage::new);
 
 		registerS2CMessage(SyncContainerStacksMessage.class, SyncContainerStacksMessage::new);
 		registerS2CMessage(SyncSlotStackMessage.class, SyncSlotStackMessage::new);
@@ -40,6 +41,7 @@ public class PacketHandler {
 		registerS2CMessage(SyncEmptySlotIconsMessage.class, SyncEmptySlotIconsMessage::new);
 		registerS2CMessage(SyncSlotChangeErrorMessage.class, SyncSlotChangeErrorMessage::new);
 		registerS2CMessage(SyncDatapackSettingsTemplateMessage.class, SyncDatapackSettingsTemplateMessage::new);
+
 	}
 
 	public static <T extends SimplePacketBase> void registerC2SMessage(Class<T> type, Function<FriendlyByteBuf, T> factory) {

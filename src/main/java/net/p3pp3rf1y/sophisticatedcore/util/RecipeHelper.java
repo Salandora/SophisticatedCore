@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import net.blay09.mods.balm.api.event.client.RecipesUpdatedEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,88 +17,76 @@ import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.NONE;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.THREE_BY_THREE;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.TWO_BY_TWO;
-import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.TWO_BY_TWO_UNCRAFTABLE;
+import static net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper.CompactingShape.*;
 
 public class RecipeHelper {
-	private static final LoadingCache<Item, Set<CompactingShape>> ITEM_COMPACTING_SHAPES = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build(new CacheLoader<>() {
-		@Override
-		public Set<CompactingShape> load(Item item) {
-			SophisticatedCore.LOGGER.debug("Compacting shapes not found in cache for \"{}\" - querying recipes to get these", BuiltInRegistries.ITEM.getKey(item));
-			return getCompactingShapes(item);
-		}
-	});
 	private static final int MAX_FOLLOW_UP_COMPACTING_RECIPES = 30;
-	private static WeakReference<Level> clientLevel;
-	private static WeakReference<Level> serverLevel;
-	private static final Map<CompactedItem, CompactingResult> COMPACTING_RESULTS = new HashMap<>();
-	private static final Map<Item, UncompactingResult> UNCOMPACTING_RESULTS = new HashMap<>();
-	private static final RecipeChangeListenerList RECIPE_CHANGE_LISTENERS = new RecipeChangeListenerList();
+	private static RecipeCache clientCache;
+	private static RecipeCache serverCache;
 
 	private RecipeHelper() {
 	}
 
 	public static void setLevel(Level l) {
 		if (l instanceof ServerLevel) {
-			serverLevel = new WeakReference<>(l);
+			serverCache = new RecipeCache(l);
 		} else {
-			clientLevel = new WeakReference<>(l);
+			clientCache = new RecipeCache(l);
+		}
+	}
+
+	private static void runOnCache(Consumer<RecipeCache> consumer) {
+		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
+			if (serverCache != null) {
+				consumer.accept(serverCache);
+			}
+		} else {
+			if (clientCache != null) {
+				consumer.accept(clientCache);
+			}
+		}
+	}
+
+	private static <T> T getFromCache(Function<RecipeCache, T> getter, T defaultValue) {
+		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
+			return serverCache == null ? defaultValue : getter.apply(serverCache);
+		} else {
+			return clientCache == null ? defaultValue : getter.apply(clientCache);
 		}
 	}
 
 	public static void addRecipeChangeListener(Runnable runnable) {
-		RECIPE_CHANGE_LISTENERS.add(runnable);
-	}
-
-	public static void clearCache() {
-		COMPACTING_RESULTS.clear();
-		UNCOMPACTING_RESULTS.clear();
-		ITEM_COMPACTING_SHAPES.invalidateAll();
+		runOnCache(cache -> cache.addRecipeChangeListener(runnable));
 	}
 
 	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
 	public static void onRecipesUpdated(RecipeManager manager) {
-		clearCache();
-		RECIPE_CHANGE_LISTENERS.notifyAllListeners();
+		runOnCache(cache -> {
+			cache.clearCache();
+			cache.recipeChangeListeners.notifyAllListeners();
+		});
 	}
 
 	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
 	public static void onDataPackSync(ServerPlayer serverPlayer, boolean b) {
-		clearCache();
-		RECIPE_CHANGE_LISTENERS.notifyAllListeners();
+		runOnCache(cache -> {
+			cache.clearCache();
+			cache.recipeChangeListeners.notifyAllListeners();
+		});
 	}
 
 	private static Optional<Level> getLevel() {
-		if (SophisticatedCore.getCurrentServer() != null && SophisticatedCore.getCurrentServer().isSameThread()) {
-			return serverLevel != null ? Optional.ofNullable(serverLevel.get()) : Optional.empty();
-		} else {
-			return clientLevel != null ? Optional.ofNullable(clientLevel.get()) : Optional.empty();
-		}
+		return getFromCache(cache -> Optional.ofNullable(cache.level.get()), Optional.empty());
 	}
 
 	private static Set<CompactingShape> getCompactingShapes(Item item) {
@@ -179,7 +168,7 @@ public class RecipeHelper {
 	}
 
 	public static UncompactingResult getUncompactingResult(Item resultItem) {
-		return UNCOMPACTING_RESULTS.computeIfAbsent(resultItem, k -> getLevel().map(w -> {
+		return getFromCache(cache -> cache.getUncompactingResults().computeIfAbsent(resultItem, k -> getLevel().map(w -> {
 			for (ItemStack uncompactResultItem : getUncompactResultItems(w, resultItem)) {
 				if (uncompactResultItem.getCount() == 9) {
 					if (getCompactingResult(uncompactResultItem.getItem(), 3, 3).getResult().getItem() == resultItem) {
@@ -190,7 +179,7 @@ public class RecipeHelper {
 				}
 			}
 			return UncompactingResult.EMPTY;
-		}).orElse(UncompactingResult.EMPTY));
+		}).orElse(UncompactingResult.EMPTY)), UncompactingResult.EMPTY);
 	}
 
 	private static List<ItemStack> getUncompactResultItems(Level w, Item itemToUncompact) {
@@ -212,16 +201,20 @@ public class RecipeHelper {
 	}
 
 	private static CompactingResult getCompactingResult(Item item, Level level, int width, int height) {
+		return getFromCache(cache -> getCompactingResult(item, level, width, height, cache.getCompactingResults()), CompactingResult.EMPTY);
+	}
+
+	private static CompactingResult getCompactingResult(Item item, Level level, int width, int height, Map<CompactedItem, CompactingResult> cachedCompactingResults) {
 		CompactedItem compactedItem = new CompactedItem(item, width, height);
-		if (COMPACTING_RESULTS.containsKey(compactedItem)) {
-			return COMPACTING_RESULTS.get(compactedItem);
+		if (cachedCompactingResults.containsKey(compactedItem)) {
+			return cachedCompactingResults.get(compactedItem);
 		}
 
 		CraftingContainer craftingInventory = getFilledCraftingInventory(item, width, height);
 		List<CraftingRecipe> compactingRecipes = safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, level);
 
 		if (compactingRecipes.isEmpty()) {
-			COMPACTING_RESULTS.put(compactedItem, CompactingResult.EMPTY);
+			cachedCompactingResults.put(compactedItem, CompactingResult.EMPTY);
 			return CompactingResult.EMPTY;
 		}
 
@@ -254,10 +247,12 @@ public class RecipeHelper {
 		});
 
 		CompactingResult compactingResult = new CompactingResult(result, remainingItems);
-		if (!result.isEmpty()) {
-			COMPACTING_RESULTS.put(compactedItem, compactingResult);
-		}
-		return compactingResult;
+		return getFromCache(cache -> {
+			if (!result.isEmpty()) {
+				cache.getCompactingResults().put(compactedItem, compactingResult);
+			}
+			return compactingResult;
+		}, compactingResult);
 	}
 
 	private static CraftingContainer getFilledCraftingInventory(Item item, int width, int height) {
@@ -283,7 +278,7 @@ public class RecipeHelper {
 	}
 
 	public static Set<CompactingShape> getItemCompactingShapes(Item item) {
-		return ITEM_COMPACTING_SHAPES.getUnchecked(item);
+		return getFromCache(cache -> cache.getItemCompactingShapes().getUnchecked(item), Collections.emptySet());
 	}
 
 	public static <T extends Recipe<Container>> List<T> getRecipesOfType(RecipeType<T> recipeType, Container inventory) {
@@ -421,6 +416,46 @@ public class RecipeHelper {
 				}
 				return true;
 			});
+		}
+	}
+
+	private static class RecipeCache {
+		private final LoadingCache<Item, Set<CompactingShape>> itemCompactingShapes = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build(new CacheLoader<>() {
+			@Override
+			public Set<CompactingShape> load(Item item) {
+				SophisticatedCore.LOGGER.debug("Compacting shapes not found in cache for \"{}\" - querying recipes to get these", BuiltInRegistries.ITEM.getKey(item));
+				return getCompactingShapes(item);
+			}
+		});
+		private final Map<CompactedItem, CompactingResult> compactingResults = new HashMap<>();
+		private final Map<Item, UncompactingResult> uncompactingResults = new HashMap<>();
+		private final RecipeChangeListenerList recipeChangeListeners = new RecipeChangeListenerList();
+		private final WeakReference<Level> level;
+
+		public RecipeCache(Level level) {
+			this.level = new WeakReference<>(level);
+		}
+
+		public void addRecipeChangeListener(Runnable runnable) {
+			recipeChangeListeners.add(runnable);
+		}
+
+		public Map<Item, UncompactingResult> getUncompactingResults() {
+			return uncompactingResults;
+		}
+
+		public Map<CompactedItem, CompactingResult> getCompactingResults() {
+			return compactingResults;
+		}
+
+		public LoadingCache<Item, Set<CompactingShape>> getItemCompactingShapes() {
+			return itemCompactingShapes;
+		}
+
+		private void clearCache() {
+			compactingResults.clear();
+			uncompactingResults.clear();
+			itemCompactingShapes.invalidateAll();
 		}
 	}
 }
