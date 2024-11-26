@@ -218,7 +218,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			}
 			setBurnTime(level, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
 			if (isBurning(level)) {
-				if (fuel.getRecipeRemainder().isEmpty()) {
+				if (fuel.getItem().hasCraftingRemainingItem()) {
 					setFuelWithoutValidation(fuel.getRecipeRemainder());
 				} else if (!fuel.isEmpty()) {
 					fuel.shrink(1);
