@@ -302,7 +302,6 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	@Nonnull
-	/// Do not call from an open transaction
 	public ItemStack insertItemOnlyToSlot(int slot, ItemStack stack, boolean simulate) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameComponents(getStackInSlot(slot), stack)) {
@@ -320,24 +319,52 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		}
 	}
 
-	/// Do not call from an open transaction
+	private ItemStack superInsertItem(int slot, ItemStack stack, boolean simulate) {
+		if (stack.isEmpty())
+			return ItemStack.EMPTY;
+
+		if (!isItemValid(slot, stack))
+			return stack;
+
+		if (slot < 0 || slot >= getSlotCount())
+			throw new RuntimeException("Slot " + slot + " not in valid range - [0," + getSlotCount() + ")");
+
+		ItemStack existing = this.getSlotStack(slot);
+
+		int limit = getStackLimit(slot, stack);
+
+		if (!existing.isEmpty()) {
+			if (!ItemStack.isSameItemSameComponents(stack, existing))
+				return stack;
+
+			limit -= existing.getCount();
+		}
+
+		if (limit <= 0)
+			return stack;
+
+		boolean reachedLimit = stack.getCount() > limit;
+
+		if (!simulate) {
+			if (existing.isEmpty()) {
+				((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(reachedLimit ? stack.copyWithCount(limit) : stack);
+			} else {
+				existing.grow(reachedLimit ? limit : stack.getCount());
+				((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(existing);
+			}
+			onContentsChanged(slot);
+		}
+
+		return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
+	}
+
 	private ItemStack insertItemInternal(int slot, ItemStack stack, boolean simulate) {
 		ItemStack ret = runOnBeforeInsert(slot, stack, simulate, this, storageWrapper);
 		if (ret.isEmpty()) {
 			return ret;
 		}
 
-		// TODO: ret = inventoryPartitioner.getPartBySlot(slot).insertItem(slot, ret, simulate, super::insertItem);
-		ret = inventoryPartitioner.getPartBySlot(slot).insertItem(slot, ret, simulate, (s, toInsert, sim) -> {
-			long inserted;
-			try (Transaction ctx = Transaction.openOuter()) {
-				inserted = super.insertSlot(slot, ItemVariant.of(toInsert), toInsert.getCount(), ctx);
-				if (!sim) {
-					ctx.commit();
-				}
-			}
-			return toInsert.copyWithCount(toInsert.getCount() - (int) inserted);
-		});
+		ret = inventoryPartitioner.getPartBySlot(slot).insertItem(slot, ret, simulate, this::superInsertItem);
 
 		if (!simulate) {
 			slotTracker.removeAndSetSlotIndexes(this, slot, getStackInSlot(slot));
