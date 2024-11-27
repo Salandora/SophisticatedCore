@@ -350,6 +350,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 				((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(reachedLimit ? stack.copyWithCount(limit) : stack);
 			} else {
 				existing.grow(reachedLimit ? limit : stack.getCount());
+				// Need this here as my version of getSlotStack returns a copy of the stack
 				((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(existing);
 			}
 			onContentsChanged(slot);
