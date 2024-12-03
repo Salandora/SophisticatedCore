@@ -346,14 +346,14 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		boolean reachedLimit = stack.getCount() > limit;
 
 		if (!simulate) {
+			ItemStack result;
 			if (existing.isEmpty()) {
-				((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(reachedLimit ? stack.copyWithCount(limit) : stack);
+				result = reachedLimit ? stack.copyWithCount(limit) : stack;
 			} else {
 				existing.grow(reachedLimit ? limit : stack.getCount());
-				// Need this here as my version of getSlotStack returns a copy of the stack
-				((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(existing);
+				result = existing;
 			}
-			onContentsChanged(slot);
+			this.getSlot(slot).setNewStack(result);
 		}
 
 		return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;

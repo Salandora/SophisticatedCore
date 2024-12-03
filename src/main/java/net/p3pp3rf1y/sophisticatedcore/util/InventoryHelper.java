@@ -8,6 +8,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackSto
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -275,6 +276,7 @@ public class InventoryHelper {
 		return ret;
 	}*/
 
+	/// Do not call from an open transaction
 	public static void transfer(IItemHandlerSimpleInserter handlerA, IItemHandlerSimpleInserter handlerB, Consumer<Supplier<ItemStack>> onInserted) {
 		int slotsA = handlerA.getSlotCount();
 		for (int slot = 0; slot < slotsA; slot++) {
@@ -309,29 +311,30 @@ public class InventoryHelper {
 			}
 		}
 	}
+
 	public static void transfer(Storage<ItemVariant> handlerA, Storage<ItemVariant> handlerB, Consumer<Supplier<ItemStack>> onInserted, @Nullable TransactionContext ctx) {
-		if (handlerA == null || handlerB == null) {
-			return;
-		}
-
-		for (StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
+		for(StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
 			ItemVariant resource = view.getResource();
-			long maxExtracted;
 
-			// check how much can be extracted
-			try (Transaction extractionTestTransaction = Transaction.openNested(ctx)) {
-				maxExtracted = view.extract(resource, view.getAmount(), extractionTestTransaction);
-			}
+			long countToTransfer = view.getAmount();
+			while (countToTransfer > 0) {
+				long inserted = StorageUtil.simulateInsert(handlerB, resource, Math.min(resource.toStack().getMaxStackSize(), countToTransfer), ctx);
+				if (inserted == 0) {
+					break;
+				}
 
-			try (Transaction transferTransaction = Transaction.openNested(ctx)) {
-				// check how much can be inserted
-				long accepted = handlerB.insert(resource, maxExtracted, transferTransaction);
+				long extracted = StorageUtil.simulateExtract(handlerA, resource, inserted, ctx);
+				if (extracted == 0) {
+					break;
+				}
 
-				// extract it, or rollback if the amounts don't match
-				if (accepted > 0 && view.extract(resource, accepted, transferTransaction) == accepted) {
-					TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
+				try (Transaction transferTransaction = Transaction.openNested(ctx)) {
+					extracted = view.extract(resource, extracted, transferTransaction);
+					long accepted = handlerB.insert(resource, inserted, transferTransaction);
+					TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted).copy()));
 					transferTransaction.commit();
 				}
+				countToTransfer -= extracted;
 			}
 		}
 	}
