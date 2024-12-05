@@ -1,5 +1,6 @@
 accessWidener v2 named
 
+accessible field net/minecraft/client/gui/components/EditBox textColor I
 accessible method net/minecraft/client/gui/components/EditBox isEditable ()Z
 
 accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;)V
@@ -21,7 +22,10 @@ transitive-accessible method net/minecraft/client/gui/screens/inventory/Abstract
 transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
 
 accessible field net/minecraft/client/gui/screens/Screen font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 accessible method net/minecraft/client/gui/screens/Screen addRenderableWidget (Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;
+
+transitive-accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 
 accessible method net/minecraft/world/entity/player/Player closeContainer ()V
 

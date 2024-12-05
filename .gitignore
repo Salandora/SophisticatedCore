@@ -18,6 +18,11 @@
 !LICENSE
 !COPYING.txt
 
+# include buildSrc
+!buildSrc
+buildSrc/.gradle/
+buildSrc/build/
+
 # include sourcecode
 !src/
 src/generated/resources/.cache/

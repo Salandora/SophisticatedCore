@@ -10,11 +10,11 @@ public interface SophisticatedDataComponentHolder {
 		return (DataComponentHolder)this;
 	}
 
-	default <T> T getOrDefault(Supplier<? extends DataComponentType<? extends T>> type, T defaultValue) {
+	default <T> T sophisticatedCore_getOrDefault(Supplier<? extends DataComponentType<? extends T>> type, T defaultValue) {
 		return this.self().getOrDefault(type.get(), defaultValue);
 	}
 
-	default <T extends DataComponentType<?>> boolean has(Supplier<T> type) {
+	default <T extends DataComponentType<?>> boolean sophisticatedCore_has(Supplier<T> type) {
 		return this.self().has(type.get());
 	}
 }

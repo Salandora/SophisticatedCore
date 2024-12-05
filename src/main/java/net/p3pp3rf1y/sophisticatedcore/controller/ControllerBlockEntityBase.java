@@ -86,8 +86,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void onLoad() {
-		super.onLoad();
+	public void sophisticatedCore_onLoad() {
+		super.sophisticatedCore_onLoad();
 		if (level != null && !level.isClientSide()) {
 			stackStorages.clear();
 			storageStacks.clear();
@@ -675,7 +675,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 				}
 			}
 		}
-		return remaining;
+		return maxAmount - remaining;
 	}
 
 	private long insertIntoStorages(Set<BlockPos> positions, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx, boolean checkHasEmptySlotFirst) {
@@ -791,8 +791,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void onChunkUnloaded() {
-		super.onChunkUnloaded();
+	public void sophisticatedCore_onChunkUnloaded() {
+		super.sophisticatedCore_onChunkUnloaded();
 		detachFromStoragesAndUnlinkBlocks();
 	}
 

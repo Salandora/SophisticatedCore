@@ -6,8 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class InventoryScrollPanel extends ScrollPanel {
 	private static final int TOP_Y_OFFSET = 1;
@@ -78,6 +80,8 @@ public class InventoryScrollPanel extends ScrollPanel {
 		int getLeftX();
 
 		Slot getSlot(int slotIndex);
+
+		Predicate<ItemStack> getStackFilter();
 	}
 
 	@Override
@@ -93,14 +97,14 @@ public class InventoryScrollPanel extends ScrollPanel {
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		boolean ret = super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-		updateSlotsYPosition();
+		updateSlotsPosition();
 		return ret;
 	}
 
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		boolean ret = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-		updateSlotsYPosition();
+		updateSlotsPosition();
 		return ret;
 	}
 
@@ -112,16 +116,31 @@ public class InventoryScrollPanel extends ScrollPanel {
 		return false;
 	}
 
-	public void updateSlotsYPosition() {
+	public void resetScrollDistance() {
+		scrollDistance = 0;
+	}
+
+	public void updateSlotsPosition() {
 		visibleSlotsCount = 0;
-		for (int i = firstSlotIndex, row = 0; i < firstSlotIndex + numberOfSlots; i++, row = i / slotsInARow) {
-			int newY = top - screen.getTopY() - (int) scrollDistance / 18 * 18 + row * 18 + TOP_Y_OFFSET;
-			if (newY < 1 || newY > height) {
+		int filteredSlotsCount = 0;
+		for (int i = firstSlotIndex; i < firstSlotIndex + numberOfSlots; i++) {
+			int rowOffset = (int) scrollDistance / 18;
+			int row = filteredSlotsCount / slotsInARow - rowOffset;
+			boolean matchesFilter = screen.getStackFilter().test(screen.getSlot(i).getItem());
+			if (matchesFilter) {
+				filteredSlotsCount++;
+			}
+
+			int column = visibleSlotsCount % slotsInARow;
+			int newY = top - screen.getTopY() + row * 18 + TOP_Y_OFFSET;
+			int newX = left - screen.getLeftX() + column * 18 + 1;
+			if (newY < 1 || newY > height || !matchesFilter) {
 				newY = -100;
 			} else {
 				visibleSlotsCount++;
 			}
 			screen.getSlot(i).y = newY;
+			screen.getSlot(i).x = newX;
 		}
 	}
 }

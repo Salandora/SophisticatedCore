@@ -212,7 +212,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	public boolean shouldPickupItems() {
-		return upgrade.getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
 	}
 
 	public void setPickupXp(boolean pickupXp) {
@@ -221,6 +221,6 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	public boolean shouldPickupXp() {
-		return upgrade.getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
 	}
 }

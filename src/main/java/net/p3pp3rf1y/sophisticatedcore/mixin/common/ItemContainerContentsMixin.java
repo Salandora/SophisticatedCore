@@ -11,23 +11,25 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(ItemContainerContents.class)
 public class ItemContainerContentsMixin implements SophisticatedItemContainerContents {
-	@Shadow @Final private NonNullList<ItemStack> items;
+	@Shadow
+	@Final
+	private NonNullList<ItemStack> items;
 
 	@Override
-	public int getSlots() {
+	public int sophisticatedCore_getSlots() {
 		return this.items.size();
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot) {
-		this.validateSlotIndex(slot);
+	public ItemStack sophisticatedCore_getStackInSlot(int slot) {
+		this.sophisticatedCore_validateSlotIndex(slot);
 		return this.items.get(slot).copy();
 	}
 
 	@Unique
-	private void validateSlotIndex(int slot) {
-		if (slot < 0 || slot >= this.getSlots()) {
-			throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + this.getSlots() + ")");
+	private void sophisticatedCore_validateSlotIndex(int slot) {
+		if (slot < 0 || slot >= this.sophisticatedCore_getSlots()) {
+			throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + this.sophisticatedCore_getSlots() + ")");
 		}
 	}
 }

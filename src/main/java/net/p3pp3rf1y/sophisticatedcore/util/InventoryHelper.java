@@ -8,6 +8,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackSto
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -261,7 +262,7 @@ public class InventoryHelper {
 		return ret;
 	}
 
-	public static <T> T iterate(SlottedStorage<ItemVariant> handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
+	/*public static <T> T iterate(SlottedStorage<ItemVariant> handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
 		T ret = supplyDefault.get();
 		int slots = handler.getSlotCount();
 		for (int slot = 0; slot < slots; slot++) {
@@ -273,34 +274,67 @@ public class InventoryHelper {
 			}
 		}
 		return ret;
-	}
+	}*/
 
-	public static void transfer(Storage<ItemVariant> handlerA, Storage<ItemVariant> handlerB, Consumer<Supplier<ItemStack>> onInserted) {
-		transfer(handlerA, handlerB, onInserted, null);
-	}
-	public static void transfer(Storage<ItemVariant> handlerA, Storage<ItemVariant> handlerB, Consumer<Supplier<ItemStack>> onInserted, @Nullable TransactionContext ctx) {
-		if (handlerA == null || handlerB == null) {
-			return;
-		}
-
-		for (StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
-			ItemVariant resource = view.getResource();
-			long maxExtracted;
-
-			// check how much can be extracted
-			try (Transaction extractionTestTransaction = Transaction.openNested(ctx)) {
-				maxExtracted = view.extract(resource, view.getAmount(), extractionTestTransaction);
+	/// Do not call from an open transaction
+	public static void transfer(IItemHandlerSimpleInserter handlerA, IItemHandlerSimpleInserter handlerB, Consumer<Supplier<ItemStack>> onInserted) {
+		int slotsA = handlerA.getSlotCount();
+		for (int slot = 0; slot < slotsA; slot++) {
+			ItemStack slotStack = handlerA.getStackInSlot(slot);
+			if (slotStack.isEmpty()) {
+				continue;
 			}
 
-			try (Transaction transferTransaction = Transaction.openNested(ctx)) {
-				// check how much can be inserted
-				long accepted = handlerB.insert(resource, maxExtracted, transferTransaction);
+			int countToTransfer = slotStack.getCount();
+			while (countToTransfer > 0) {
+				ItemStack toInsert = slotStack.copy();
+				toInsert.setCount(Math.min(slotStack.getMaxStackSize(), countToTransfer));
+				ItemStack remainingAfterInsert = insertIntoInventory(toInsert, handlerB, true);
+				if (remainingAfterInsert.getCount() == toInsert.getCount()) {
+					break;
+				}
+				int toExtract = toInsert.getCount() - remainingAfterInsert.getCount();
 
-				// extract it, or rollback if the amounts don't match
-				if (accepted > 0 && view.extract(resource, accepted, transferTransaction) == accepted) {
-					TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted)));
+				ItemStack extractedStack = handlerA.extractItem(slot, toExtract, true);
+				if (extractedStack.isEmpty()) {
+					break;
+				}
+
+				insertIntoInventory(handlerA.extractItem(slot, extractedStack.getCount(), false), handlerB, false);
+
+				onInserted.accept(() -> {
+					ItemStack copiedStack = slotStack.copy();
+					copiedStack.setCount(extractedStack.getCount());
+					return copiedStack;
+				});
+				countToTransfer -= extractedStack.getCount();
+			}
+		}
+	}
+
+	public static void transfer(Storage<ItemVariant> handlerA, Storage<ItemVariant> handlerB, Consumer<Supplier<ItemStack>> onInserted, @Nullable TransactionContext ctx) {
+		for(StorageView<ItemVariant> view : handlerA.nonEmptyViews()) {
+			ItemVariant resource = view.getResource();
+
+			long countToTransfer = view.getAmount();
+			while (countToTransfer > 0) {
+				long inserted = StorageUtil.simulateInsert(handlerB, resource, Math.min(resource.toStack().getMaxStackSize(), countToTransfer), ctx);
+				if (inserted == 0) {
+					break;
+				}
+
+				long extracted = StorageUtil.simulateExtract(handlerA, resource, inserted, ctx);
+				if (extracted == 0) {
+					break;
+				}
+
+				try (Transaction transferTransaction = Transaction.openNested(ctx)) {
+					extracted = view.extract(resource, extracted, transferTransaction);
+					long accepted = handlerB.insert(resource, inserted, transferTransaction);
+					TransactionCallback.onSuccess(transferTransaction, () -> onInserted.accept(() -> resource.toStack((int) accepted).copy()));
 					transferTransaction.commit();
 				}
+				countToTransfer -= extracted;
 			}
 		}
 	}
@@ -353,6 +387,37 @@ public class InventoryHelper {
 			player.drop(ret, true);
 		}
 	}*/
+
+	public static ItemStack mergeIntoPlayerInventory(Player player, ItemStack stack, int startSlot) {
+		ItemStack result = stack.copy();
+		List<Integer> emptySlots = new ArrayList<>();
+		for (int slot = startSlot; slot < player.getInventory().items.size(); slot++) {
+			ItemStack slotStack = player.getInventory().getItem(slot);
+			if (slotStack.isEmpty()) {
+				emptySlots.add(slot);
+			}
+			if (ItemStack.isSameItemSameComponents(slotStack, result)) {
+				int count = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), result.getCount());
+				slotStack.grow(count);
+				result.shrink(count);
+				if (result.isEmpty()) {
+					return ItemStack.EMPTY;
+				}
+			}
+		}
+
+		for (int slot : emptySlots) {
+			ItemStack slotStack = result.copy();
+			slotStack.setCount(Math.min(slotStack.getMaxStackSize(), result.getCount()));
+			player.getInventory().setItem(slot, slotStack);
+			result.shrink(slotStack.getCount());
+			if (result.isEmpty()) {
+				return ItemStack.EMPTY;
+			}
+		}
+
+		return result;
+	}
 
 	static Map<ItemStackKey, Integer> getCompactedStacks(SlottedStackStorage handler) {
 		return getCompactedStacks(handler, new HashSet<>());

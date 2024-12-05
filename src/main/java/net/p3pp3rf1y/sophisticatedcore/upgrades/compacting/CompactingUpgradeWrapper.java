@@ -103,7 +103,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	public boolean shouldCompactNonUncraftable() {
-		return upgrade.getOrDefault(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, false);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, false);
 	}
 
 	public void setCompactNonUncraftable(boolean shouldCompactNonUncraftable) {
@@ -124,7 +124,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	public boolean shouldWorkInGUI() {
-		return upgrade.getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
 	}
 
 	@Override

@@ -9,8 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.event.common.LivingEntityEvents;
@@ -52,6 +50,6 @@ public abstract class LivingEntityMixin extends Entity {
 
 	@WrapWithCondition(method = "checkFallDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
 	public boolean sophisticatedcore$addLandingEffects(ServerLevel level, ParticleOptions type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed, double y, boolean onGround, BlockState state, BlockPos pos) {
-		return !state.addLandingEffects(level, pos, state, MixinHelper.cast(this), particleCount);
+		return !state.sophisticatedCore_addLandingEffects(level, pos, state, MixinHelper.cast(this), particleCount);
 	}
 }

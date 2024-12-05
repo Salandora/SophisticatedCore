@@ -27,7 +27,7 @@ public class MinecraftMixin {
     @Redirect(method = "continueAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/ParticleEngine;crack(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V"))
     private void sophisticatedcore$addBlockHitEffects(ParticleEngine manager, BlockPos pos, Direction side) {
         BlockState state = level.getBlockState(pos);
-        if (!state.addHitEffects(level, this.hitResult, manager)) {
+        if (!state.sophisticatedCore_addHitEffects(level, this.hitResult, manager)) {
             manager.crack(pos, side);
         }
     }

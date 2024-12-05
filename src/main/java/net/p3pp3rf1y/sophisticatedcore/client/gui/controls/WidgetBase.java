@@ -12,9 +12,9 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 
 public abstract class WidgetBase implements Renderable, GuiEventListener, NarratableEntry {
-	protected final int x;
+	protected int x;
 
-	protected final int y;
+	protected int y;
 	protected final Minecraft minecraft;
 	protected final Font font;
 	private int height;
@@ -81,6 +81,11 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 
 	public int getY() {
 		return y;
+	}
+
+	public void setPosition(Position position) {
+		x = position.x();
+		y = position.y();
 	}
 
 	protected int getCenteredX(int elementWidth) {

@@ -76,22 +76,22 @@ public abstract class AbstractContainerScreenMixin implements SophisticatedAbstr
 	}
 
 	@Override
-	public int getXSize() {
+	public int sophisticatedCore_getXSize() {
 		return imageWidth;
 	}
 
 	@Override
-	public int getGuiLeft() {
+	public int sophisticatedCore_getGuiLeft() {
 		return leftPos;
 	}
 
 	@Override
-	public int getGuiTop() {
+	public int sophisticatedCore_getGuiTop() {
 		return topPos;
 	}
 
 	@Override
-	public Slot getSlotUnderMouse() {
+	public Slot sophisticatedCore_getSlotUnderMouse() {
 		return hoveredSlot;
 	}
 }

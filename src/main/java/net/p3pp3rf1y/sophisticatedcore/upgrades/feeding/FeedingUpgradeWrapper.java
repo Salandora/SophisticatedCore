@@ -144,7 +144,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	public HungerLevel getFeedAtHungerLevel() {
-		return upgrade.getOrDefault(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, HungerLevel.HALF);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, HungerLevel.HALF);
 	}
 
 	public void setFeedAtHungerLevel(HungerLevel hungerLevel) {
@@ -153,7 +153,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	public boolean shouldFeedImmediatelyWhenHurt() {
-		return upgrade.getOrDefault(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, true);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, true);
 	}
 
 	public void setFeedImmediatelyWhenHurt(boolean feedImmediatelyWhenHurt) {

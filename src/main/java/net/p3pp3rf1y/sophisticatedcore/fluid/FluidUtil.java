@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.fluid;
 
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -10,6 +11,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.impl.transfer.DebugMessages;
 import net.minecraft.CrashReport;
@@ -315,5 +317,19 @@ public class FluidUtil {
 		}
 
 		return FluidActionResult.FAILURE;
+	}
+
+	/**
+	 * Helper method to get the fluid contained in an itemStack
+	 */
+	public static Optional<ResourceAmount<FluidVariant>> getFluidContained(ItemStack container) {
+		if (!container.isEmpty()) {
+			container = container.copyWithCount(1);
+			Optional<ResourceAmount<FluidVariant>> fluidContained = Optional.ofNullable(ContainerItemContext.withConstant(container).find(FluidStorage.ITEM))
+					.map(handler -> StorageUtil.findExtractableContent(handler, null));
+
+			return fluidContained.filter(f -> !f.resource().isBlank());
+		}
+		return Optional.empty();
 	}
 }

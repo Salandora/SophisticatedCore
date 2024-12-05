@@ -6,24 +6,24 @@ import javax.annotation.Nullable;
 
 public interface SophisticatedAbstractContainerScreen {
     int slotColor = -2130706433;
-    default int sophisticatedCore$getSlotColor(int slotId) {
+    default int sophisticatedCore_getSlotColor(int slotId) {
         return slotColor;
     }
 
-    default int getXSize() {
+    default int sophisticatedCore_getXSize() {
         throw new RuntimeException("Should have been overriden by mixin.");
     }
 
-    default int getGuiLeft() {
+    default int sophisticatedCore_getGuiLeft() {
         throw new RuntimeException("Should have been overriden by mixin.");
     }
 
-    default int getGuiTop() {
+    default int sophisticatedCore_getGuiTop() {
         throw new RuntimeException("Should have been overriden by mixin.");
     }
 
     @Nullable
-    default Slot getSlotUnderMouse() {
+    default Slot sophisticatedCore_getSlotUnderMouse() {
         throw new RuntimeException("Should have been overriden by mixin.");
     }
 }

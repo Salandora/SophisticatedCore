@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -24,9 +24,9 @@ import java.util.Optional;
 public class LootHelper {
 	private LootHelper() {}
 
-	public static List<ItemStack> getLoot(ResourceLocation lootTableName, MinecraftServer server, ServerLevel level, Entity entity) {
+	public static List<ItemStack> getLoot(ResourceLocation lootTableName, MinecraftServer server, ServerLevel level, BlockPos pos) {
 		LootTable lootTable = server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, lootTableName));
-		LootContext.Builder lootBuilder = new LootContext.Builder((new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(entity.blockPosition())).create(LootContextParamSets.CHEST)).withOptionalRandomSeed(level.random.nextLong());
+		LootContext.Builder lootBuilder = new LootContext.Builder((new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).create(LootContextParamSets.CHEST)).withOptionalRandomSeed(level.random.nextLong());
 		List<ItemStack> lootStacks = new ArrayList<>();
 		lootTable.getRandomItems(lootBuilder.create(Optional.empty()), lootStacks::add);
 		return lootStacks;

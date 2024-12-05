@@ -30,7 +30,7 @@ public class FilterUpgradeWrapper extends UpgradeWrapperBase<FilterUpgradeWrappe
 	}
 
 	public Direction getDirection() {
-		return upgrade.getOrDefault(ModCoreDataComponents.DIRECTION, Direction.BOTH);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.DIRECTION, Direction.BOTH);
 	}
 
 	@Override

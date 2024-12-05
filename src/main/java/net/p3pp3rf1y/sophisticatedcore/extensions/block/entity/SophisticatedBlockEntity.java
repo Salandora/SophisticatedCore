@@ -9,7 +9,7 @@ public interface SophisticatedBlockEntity {
 		return (BlockEntity) this;
 	}
 
-	default void invalidateCapabilities() {
+	default void sophisticatedCore_invalidateCapabilities() {
 		BlockEntity be = self();
 		if (!(be.getLevel() instanceof ServerLevel serverLevel)) {
 			return;
@@ -18,6 +18,9 @@ public interface SophisticatedBlockEntity {
 		((ServerWorldCache) serverLevel).fabric_invalidateCache(be.getBlockPos());
 	}
 
-	default void onChunkUnloaded() {
+	default void sophisticatedCore_onLoad() {
+	}
+
+	default void sophisticatedCore_onChunkUnloaded() {
 	}
 }

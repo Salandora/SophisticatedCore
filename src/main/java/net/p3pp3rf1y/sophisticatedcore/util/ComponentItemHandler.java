@@ -200,7 +200,7 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 	 */
 	protected ItemStack getStackFromContents(ItemContainerContents contents, int slot) {
 		this.validateSlotIndex(slot);
-		return contents.getSlots() <= slot ? ItemStack.EMPTY : contents.getStackInSlot(slot);
+		return contents.sophisticatedCore_getSlots() <= slot ? ItemStack.EMPTY : contents.sophisticatedCore_getStackInSlot(slot);
 	}
 
 	/**
@@ -215,7 +215,7 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 	protected void updateContents(ItemContainerContents contents, ItemStack stack, int slot) {
 		this.validateSlotIndex(slot);
 		// Use the max of the contents slots and the capability slots to avoid truncating
-		NonNullList<ItemStack> list = NonNullList.withSize(Math.max(contents.getSlots(), this.getSlotCount()), ItemStack.EMPTY);
+		NonNullList<ItemStack> list = NonNullList.withSize(Math.max(contents.sophisticatedCore_getSlots(), this.getSlotCount()), ItemStack.EMPTY);
 		contents.copyInto(list);
 		ItemStack oldStack = list.get(slot);
 		list.set(slot, stack);

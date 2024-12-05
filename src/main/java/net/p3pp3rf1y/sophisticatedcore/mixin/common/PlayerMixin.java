@@ -20,16 +20,16 @@ import java.util.function.Consumer;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin implements SophisticatedPlayer {
-
-	@Shadow public abstract OptionalInt openMenu(@Nullable MenuProvider menu);
+	@Shadow
+	public abstract OptionalInt openMenu(@Nullable MenuProvider menu);
 
 	@Override
-	public OptionalInt openMenu(MenuProvider menuProvider, BlockPos pos) {
-		return this.openMenu(menuProvider, (buf) -> buf.writeBlockPos(pos));
+	public OptionalInt sophisticatedCore_openMenu(MenuProvider menuProvider, BlockPos pos) {
+		return this.sophisticatedCore_openMenu(menuProvider, (buf) -> buf.writeBlockPos(pos));
 	}
 
 	@Override
-	public OptionalInt openMenu(MenuProvider menu, Consumer<RegistryFriendlyByteBuf> context) {
+	public OptionalInt sophisticatedCore_openMenu(MenuProvider menu, Consumer<RegistryFriendlyByteBuf> context) {
 		var screenHandlerFactory = new ExtendedScreenHandlerFactory<>() {
 			@Override
 			public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {

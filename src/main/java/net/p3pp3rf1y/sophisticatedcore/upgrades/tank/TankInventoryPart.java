@@ -46,11 +46,14 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 		renderFluid(guiGraphics);
 
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().translate(0, 0, 100);
 		yOffset = 0;
 		for (int i = 0; i < height / 18; i++) {
 			GuiHelper.blit(guiGraphics, getTankLeft() + 1, pos.y() + yOffset, OVERLAY);
 			yOffset += 18;
 		}
+		guiGraphics.pose().popPose();
 	}
 
 	private int getTankLeft() {
@@ -59,8 +62,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 	@Override
 	public boolean handleMouseReleased(double mouseX, double mouseY, int button) {
-		if (mouseX < screen.getGuiLeft() + getTankLeft() || mouseX >= screen.getGuiLeft() + getTankLeft() + 18 ||
-				mouseY < screen.getGuiTop() + pos.y() || mouseY >= screen.getGuiTop() + pos.y() + height) {
+		if (mouseX < screen.sophisticatedCore_getGuiLeft() + getTankLeft() || mouseX >= screen.sophisticatedCore_getGuiLeft() + getTankLeft() + 18 ||
+				mouseY < screen.sophisticatedCore_getGuiTop() + pos.y() || mouseY >= screen.sophisticatedCore_getGuiTop() + pos.y() + height) {
 			return false;
 		}
 
@@ -87,8 +90,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 			contents = FluidStack.EMPTY;
 		}
 
-		int screenX = screen.getGuiLeft() + pos.x() + 10;
-		int screenY = screen.getGuiTop() + pos.y() + 1;
+		int screenX = screen.sophisticatedCore_getGuiLeft() + pos.x() + 10;
+		int screenY = screen.sophisticatedCore_getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {

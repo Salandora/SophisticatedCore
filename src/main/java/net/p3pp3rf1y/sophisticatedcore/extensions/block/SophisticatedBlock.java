@@ -12,21 +12,21 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 public interface SophisticatedBlock {
-    default boolean addLandingEffects(BlockState state1, ServerLevel level, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles)
-    {
+    default boolean sophisticatedCore_addLandingEffects(BlockState state1, ServerLevel level, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles) {
         return false;
     }
 
-    default boolean addRunningEffects(BlockState state, Level level, BlockPos pos, Entity entity)
-    {
+    default boolean sophisticatedCore_addRunningEffects(BlockState state, Level level, BlockPos pos, Entity entity) {
         return false;
     }
 
 	@Environment(EnvType.CLIENT)
-    default boolean addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) { return false; }
+    default boolean sophisticatedCore_addHitEffects(BlockState state, Level level, HitResult target, ParticleEngine manager) {
+		return false;
+	}
 
 	@Environment(EnvType.CLIENT)
-    default boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) {
+    default boolean sophisticatedCore_addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine manager) {
 		return !state.shouldSpawnTerrainParticles();
 	}
 }

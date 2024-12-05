@@ -30,8 +30,8 @@ public class TankUpgradeTab extends UpgradeSettingsTab<TankUpgradeContainer> {
 	@Override
 	protected void moveSlotsToTab() {
 		List<Slot> slots = getContainer().getSlots();
-		positionSlot(slots.get(TankUpgradeWrapper.INPUT_SLOT), screen.getGuiLeft(), screen.getGuiTop(), 4);
-		positionSlot(slots.get(TankUpgradeWrapper.OUTPUT_SLOT), screen.getGuiLeft(), screen.getGuiTop(), 25);
+		positionSlot(slots.get(TankUpgradeWrapper.INPUT_SLOT), screen.sophisticatedCore_getGuiLeft(), screen.sophisticatedCore_getGuiTop(), 4);
+		positionSlot(slots.get(TankUpgradeWrapper.OUTPUT_SLOT), screen.sophisticatedCore_getGuiLeft(), screen.sophisticatedCore_getGuiTop(), 25);
 	}
 
 	private void positionSlot(Slot slot, int screenGuiLeft, int screenGuiTop, int xOffset) {

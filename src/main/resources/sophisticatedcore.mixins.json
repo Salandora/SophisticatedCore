@@ -16,6 +16,7 @@
         "common.ItemMixin",
         "common.ItemStackMixin",
         "common.LevelChunkMixin",
+        "common.LevelMixin",
         "common.LivingEntityMixin",
         "common.MobMixin",
         "common.PersistentEntitySectionManagerMixin",

@@ -18,10 +18,16 @@ public class SettingsManager {
 			new MainSetting<>("shiftClickOpenTab", NBTHelper::getBoolean, CompoundTag::putBoolean, true);
 	public static final MainSetting<Boolean> KEEP_TAB_OPEN =
 			new MainSetting<>("keepTabOpen", NBTHelper::getBoolean, CompoundTag::putBoolean, true);
+	public static final MainSetting<Boolean> KEEP_SEARCH_PHRASE =
+			new MainSetting<>("keepSearchPhrase", NBTHelper::getBoolean, CompoundTag::putBoolean, true);
+	public static final MainSetting<String> SEARCH_PHRASE =
+			new MainSetting<>("searchPhrase", NBTHelper::getString, CompoundTag::putString, "");
 
 	static {
 		settings.put(SHIFT_CLICK_INTO_OPEN_TAB_FIRST.getName(), SHIFT_CLICK_INTO_OPEN_TAB_FIRST);
 		settings.put(KEEP_TAB_OPEN.getName(), KEEP_TAB_OPEN);
+		settings.put(KEEP_SEARCH_PHRASE.getName(), KEEP_SEARCH_PHRASE);
+		settings.put(SEARCH_PHRASE.getName(), SEARCH_PHRASE);
 	}
 
 	public static void addSetting(MainSetting<?> setting) {

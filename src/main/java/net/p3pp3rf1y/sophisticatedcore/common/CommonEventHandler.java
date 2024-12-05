@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.common;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,6 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.init.ModPayloads;
 import net.p3pp3rf1y.sophisticatedcore.init.ModRecipes;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.ServerStorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 public class CommonEventHandler {
@@ -28,6 +30,9 @@ public class CommonEventHandler {
 		ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register(RecipeHelper::onDataPackSync);
 
 		UseBlockCallback.EVENT.register(this::onUseBlock);
+
+		ServerWorldEvents.UNLOAD.register(ServerStorageSoundHandler::onWorldUnload);
+		ServerTickEvents.END_WORLD_TICK.register(ServerStorageSoundHandler::tick);
 	}
 
 	private InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {

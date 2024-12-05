@@ -46,7 +46,7 @@ public abstract class UpgradeWrapperBase<W extends IUpgradeWrapper, T extends Up
 
 	@Override
 	public boolean isEnabled() {
-		return upgrade.getOrDefault(ModCoreDataComponents.ENABLED, true);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.ENABLED, true);
 	}
 
 	@Override

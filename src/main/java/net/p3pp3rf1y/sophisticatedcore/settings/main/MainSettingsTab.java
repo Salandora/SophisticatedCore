@@ -50,6 +50,21 @@ public class MainSettingsTab<T extends MainSettingsContainer> extends SettingsTa
 									Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("keep_tab_open.off.tooltip")).withStyle(ChatFormatting.GRAY))
 					)
 			));
+
+	private static final ButtonDefinition.Toggle<Boolean> KEEP_SEARCH_PHRASE = createToggleButtonDefinition(
+			Map.of(
+					true, getButtonStateData(new UV(208, 32), Dimension.SQUARE_16, new Position(1, 1),
+							List.of(
+									Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("keep_search_phrase.on")),
+									Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("keep_search_phrase.on.tooltip")).withStyle(ChatFormatting.GRAY))
+					),
+					false, getButtonStateData(new UV(224, 32), Dimension.SQUARE_16, new Position(1, 1),
+							List.of(
+									Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("keep_search_phrase.off")),
+									Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("keep_search_phrase.off.tooltip")).withStyle(ChatFormatting.GRAY))
+					)
+			));
+
 	private static final List<Component> PLAYER_CONTEXT_TOOLTIP = List.of(
 			Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("context_player.tooltip")),
 			Component.translatable(TranslationHelper.INSTANCE.translSettingsButton("context_player.tooltip_detail")).withStyle(ChatFormatting.GRAY)
@@ -64,6 +79,7 @@ public class MainSettingsTab<T extends MainSettingsContainer> extends SettingsTa
 				() -> container.getContext() == Context.PLAYER ? PLAYER_CONTEXT_TOOLTIP : storageContextTooltip));
 		addHideableChild(new ToggleButton<>(new Position(x + 3, y + 46), SHIFT_CLICK_INTO_OPEN_TAB, button -> container.toggleShiftClickIntoOpenTab(), container::shouldShiftClickIntoOpenTab));
 		addHideableChild(new ToggleButton<>(new Position(x + 21, y + 46), KEEP_TAB_OPEN, button -> container.toggleKeepTabOpen(), container::shouldKeepTabOpen));
+		addHideableChild(new ToggleButton<>(new Position(x + 39, y + 46), KEEP_SEARCH_PHRASE, button -> container.toggleKeepSearchPhrase(), container::shouldKeepSearchPhrase));
 	}
 
 	@Override

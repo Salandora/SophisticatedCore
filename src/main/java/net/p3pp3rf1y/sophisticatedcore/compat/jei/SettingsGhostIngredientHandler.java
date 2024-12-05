@@ -32,7 +32,7 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 								targets.add(new Target<>() {
 									@Override
 									public Rect2i getArea() {
-										return new Rect2i(gui.getGuiLeft() + s.x, gui.getGuiTop() + s.y, 17, 17);
+										return new Rect2i(gui.sophisticatedCore_getGuiLeft() + s.x, gui.sophisticatedCore_getGuiTop() + s.y, 17, 17);
 									}
 
 									@Override
