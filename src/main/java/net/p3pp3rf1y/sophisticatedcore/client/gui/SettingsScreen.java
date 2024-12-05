@@ -25,9 +25,11 @@ import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 import net.p3pp3rf1y.sophisticatedcore.settings.StorageSettingsTabControlBase;
 
 import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public abstract class SettingsScreen extends AbstractContainerScreen<SettingsContainerMenu<?>> implements InventoryScrollPanel.IInventoryScreen {
 	public static final int HEIGHT_WITHOUT_STORAGE_SLOTS = 114;
+	public static final Predicate<ItemStack> MATCH_ALL_FILTER = stack -> true;
 	private StorageSettingsTabControlBase settingsTabControl;
 	private InventoryScrollPanel inventoryScrollPanel = null;
 	private TemplatePersistanceControl templatePersistanceControl = null;
@@ -75,7 +77,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
 			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, ((AbstractContainerScreenAccessor) this).getGuiTop() + 17, ((AbstractContainerScreenAccessor) this).getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
-			inventoryScrollPanel.updateSlotsYPosition();
+			inventoryScrollPanel.updateSlotsPosition();
 		} else {
 			inventoryScrollPanel = null;
 		}
@@ -315,5 +317,10 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	public void stopMouseDragHandledByOther() {
 		mouseDragHandledByOther = false;
+	}
+
+	@Override
+	public Predicate<ItemStack> getStackFilter() {
+		return MATCH_ALL_FILTER;
 	}
 }

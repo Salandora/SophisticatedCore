@@ -223,10 +223,11 @@ public class GuiHelper {
 	}
 
 	public static void renderTiledFluidTextureAtlas(GuiGraphics guiGraphics, TextureAtlasSprite sprite, int color, int x, int y, int height) {
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
 		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+		RenderSystem.enableBlend();
 		BufferBuilder builder = Tesselator.getInstance().getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 
 		float u1 = sprite.getU0();
 		float v1 = sprite.getV0();
@@ -244,16 +245,17 @@ public class GuiHelper {
 			// we need to draw the quads per width too
 			Matrix4f matrix = guiGraphics.pose().last().pose();
 			float u2 = sprite.getU((16f * 16) / spriteWidth);
-			builder.vertex(matrix, x, (float) startY + renderHeight, 100).uv(u1, v2).color(red, green, blue, 1).endVertex();
-			builder.vertex(matrix, (float) x + 16, (float) startY + renderHeight, 100).uv(u2, v2).color(red, green, blue, 1).endVertex();
-			builder.vertex(matrix, (float) x + 16, startY, 100).uv(u2, v1).color(red, green, blue, 1).endVertex();
-			builder.vertex(matrix, x, startY, 100).uv(u1, v1).color(red, green, blue, 1).endVertex();
+			builder.vertex(matrix, x, (float) startY + renderHeight, 100).color(red, green, blue, 1).uv(u1, v2).endVertex();
+			builder.vertex(matrix, (float) x + 16, (float) startY + renderHeight, 100).color(red, green, blue, 1).uv(u2, v2).endVertex();
+			builder.vertex(matrix, (float) x + 16, startY, 100).color(red, green, blue, 1).uv(u2, v1).endVertex();
+			builder.vertex(matrix, x, startY, 100).color(red, green, blue, 1).uv(u1, v1).endVertex();
 
 			startY += renderHeight;
 		} while (height > 0);
 
 		// finish drawing sprites
 		BufferUploader.drawWithShader(builder.end());
+		RenderSystem.disableBlend();
 	}
 
 	public static void renderControlBackground(GuiGraphics guiGraphics, int x, int y, int renderWidth, int renderHeight) {

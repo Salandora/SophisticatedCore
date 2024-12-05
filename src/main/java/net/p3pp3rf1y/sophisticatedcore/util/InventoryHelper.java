@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
@@ -163,7 +164,8 @@ public class InventoryHelper {
 		return runPickupOnPickupResponseUpgrades(world, null, upgradeHandler, remainingStack, ctx);
 	}
 
-	public static ItemStack runPickupOnPickupResponseUpgrades(Level world, @Nullable Player player, UpgradeHandler upgradeHandler, ItemStack remainingStack, TransactionContext ctx) {
+	public static ItemStack runPickupOnPickupResponseUpgrades(Level world,
+															  @Nullable Player player, UpgradeHandler upgradeHandler, ItemStack remainingStack, TransactionContext ctx) {
 		List<IPickupResponseUpgrade> pickupUpgrades = upgradeHandler.getWrappersThatImplement(IPickupResponseUpgrade.class);
 
 		for (IPickupResponseUpgrade pickupUpgrade : pickupUpgrades) {
@@ -332,6 +334,37 @@ public class InventoryHelper {
 		if (toInsert > 0) {
 			player.drop(resource.toStack((int) toInsert), true);
 		}
+	}
+
+	public static ItemStack mergeIntoPlayerInventory(Player player, ItemStack stack, int startSlot) {
+		ItemStack result = stack.copy();
+		List<Integer> emptySlots = new ArrayList<>();
+		for (int slot = startSlot; slot < player.getInventory().items.size(); slot++) {
+			ItemStack slotStack = player.getInventory().getItem(slot);
+			if (slotStack.isEmpty()) {
+				emptySlots.add(slot);
+			}
+			if (ItemHandlerHelper.canItemStacksStack(slotStack, result)) {
+				int count = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), result.getCount());
+				slotStack.grow(count);
+				result.shrink(count);
+				if (result.isEmpty()) {
+					return ItemStack.EMPTY;
+				}
+			}
+		}
+
+		for (int slot : emptySlots) {
+			ItemStack slotStack = result.copy();
+			slotStack.setCount(Math.min(slotStack.getMaxStackSize(), result.getCount()));
+			player.getInventory().setItem(slot, slotStack);
+			result.shrink(slotStack.getCount());
+			if (result.isEmpty()) {
+				return ItemStack.EMPTY;
+			}
+		}
+
+		return result;
 	}
 
 	static Map<ItemStackKey, Integer> getCompactedStacks(SlottedStackStorage handler) {

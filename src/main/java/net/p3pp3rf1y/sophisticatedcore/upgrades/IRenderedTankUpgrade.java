@@ -40,7 +40,10 @@ public interface IRenderedTankUpgrade {
 
 		public static TankRenderInfo deserialize(CompoundTag tag) {
 			if (tag.contains(FLUID_TAG)) {
-				return new TankRenderInfo( FluidStack.loadFluidStackFromNBT(tag.getCompound(FLUID_TAG)), tag.getFloat(FILL_RATIO_TAG));
+				FluidStack contents = FluidStack.loadFluidStackFromNBT(tag.getCompound(FLUID_TAG));
+				if (!contents.isEmpty()) {
+					return new TankRenderInfo(contents, tag.getFloat(FILL_RATIO_TAG));
+				}
 			}
 
 			return new TankRenderInfo();

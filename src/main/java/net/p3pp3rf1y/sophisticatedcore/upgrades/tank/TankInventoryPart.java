@@ -53,11 +53,14 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 		renderFluid(guiGraphics);
 
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().translate(0, 0, 100);
 		yOffset = 0;
 		for (int i = 0; i < height / 18; i++) {
 			GuiHelper.blit(guiGraphics, getTankLeft() + 1, pos.y() + yOffset, OVERLAY);
 			yOffset += 18;
 		}
+		guiGraphics.pose().popPose();
 	}
 
 	private int getTankLeft() {
