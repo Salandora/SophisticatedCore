@@ -1,4 +1,3 @@
-/*
 package net.p3pp3rf1y.sophisticatedcore.data;
 
 import net.minecraft.core.HolderLookup;
@@ -18,4 +17,3 @@ public class SCFluidTagsProvider extends FabricTagProvider.FluidTagProvider {
 		getOrCreateTagBuilder(ModFluids.EXPERIENCE_TAG).add(ModFluids.XP_STILL.get());
 	}
 }
-*/
