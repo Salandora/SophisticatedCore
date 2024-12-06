@@ -9,7 +9,7 @@ public class DataGenerators implements DataGeneratorEntrypoint {
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
 		final FabricDataGenerator.Pack pack = generator.createPack();
 
-		//pack.addProvider(SCFluidTagsProvider::new);
+		pack.addProvider(SCFluidTagsProvider::new);
 		pack.addProvider(SCRecipeProvider::new);
 	}
 }
