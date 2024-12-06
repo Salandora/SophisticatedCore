@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,6 +29,7 @@ public class SyncPlayerSettingsPacket implements FabricPacket {
 		this(buffer.readUtf(), buffer.readNbt());
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void handle(LocalPlayer player, PacketSender responseSender) {
 		if (settingsNbt == null) {
 			return;

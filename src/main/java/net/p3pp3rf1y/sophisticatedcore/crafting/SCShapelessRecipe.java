@@ -14,7 +14,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.p3pp3rf1y.sophisticatedcore.init.ModRecipes;
-import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.ShapedRecipeAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.ShapelessRecipeAccessor;
 
 import java.util.Optional;
@@ -85,8 +84,9 @@ public class SCShapelessRecipe extends ShapelessRecipe {
 		public void toNetwork(FriendlyByteBuf buffer, SCShapelessRecipe recipe) {
 			buffer.writeUtf(recipe.getGroup());
 			buffer.writeEnum(recipe.category());
+			buffer.writeVarInt(recipe.getIngredients().size());
 			recipe.getIngredients().forEach(ingredient -> ingredient.toNetwork(buffer));
-			buffer.writeItem(((ShapedRecipeAccessor) recipe).getResult());
+			buffer.writeItem(((ShapelessRecipeAccessor) recipe).getResult());
 		}
 	}
 }
