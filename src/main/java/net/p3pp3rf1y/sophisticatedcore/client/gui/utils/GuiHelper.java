@@ -2,12 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.utils;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
 import org.joml.Matrix4f;
@@ -24,6 +19,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPosition
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -77,7 +73,7 @@ public class GuiHelper {
 	}
 
 	public static void renderSlotsBackground(GuiGraphics guiGraphics, int x, int y, int slotWidth, int slotHeight) {
-		for(int currentY = y, remainingSlotHeight = slotHeight; remainingSlotHeight > 0; currentY += 12 *18, remainingSlotHeight -= Math.min(slotHeight, 12)) {
+		for (int currentY = y, remainingSlotHeight = slotHeight; remainingSlotHeight > 0; currentY += 12 * 18, remainingSlotHeight -= Math.min(slotHeight, 12)) {
 			int finalRemainingSlotHeight = remainingSlotHeight;
 			int key = getSlotsBackgroundKey(slotWidth, remainingSlotHeight);
 			blit(guiGraphics, x, currentY, SLOTS_BACKGROUNDS.computeIfAbsent(key, k ->
@@ -95,7 +91,7 @@ public class GuiHelper {
 	}
 
 	public static void renderItemInGUI(GuiGraphics guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay,
-			@Nullable String countText) {
+									   @Nullable String countText) {
 		RenderSystem.enableDepthTest();
 		guiGraphics.renderItem(stack, xPosition, yPosition);
 		if (renderOverlay) {
@@ -197,6 +193,33 @@ public class GuiHelper {
 		builder.vertex(matrix, x2, y2, 400).color(f5, f6, f7, f4).endVertex();
 	}
 
+	public static void fill(GuiGraphics guiGraphics, float minX, float minY, float maxX, float maxY, int color) {
+		fill(guiGraphics, RenderType.gui(), minX, minY, maxX, maxY, 0, color);
+	}
+
+	public static void fill(GuiGraphics guiGraphics, RenderType renderType, float minX, float minY, float maxX, float maxY, float z, int color) {
+		Matrix4f matrix4f = guiGraphics.pose().last().pose();
+		float j;
+		if (minX < maxX) {
+			j = minX;
+			minX = maxX;
+			maxX = j;
+		}
+
+		if (minY < maxY) {
+			j = minY;
+			minY = maxY;
+			maxY = j;
+		}
+
+		VertexConsumer vertexconsumer = guiGraphics.bufferSource().getBuffer(renderType);
+		vertexconsumer.vertex(matrix4f, minX, minY, z).color(color).endVertex();
+		vertexconsumer.vertex(matrix4f, minX, maxY, z).color(color).endVertex();
+		vertexconsumer.vertex(matrix4f, maxX, maxY, z).color(color).endVertex();
+		vertexconsumer.vertex(matrix4f, maxX, minY, z).color(color).endVertex();
+		guiGraphics.flush();
+	}
+
 	public static ToggleButton.StateData getButtonStateData(UV uv, Dimension dimension, Position offset, Component... tooltip) {
 		return getButtonStateData(uv, dimension, offset, Arrays.asList(tooltip));
 	}
@@ -263,6 +286,10 @@ public class GuiHelper {
 		int v = 146;
 		int textureBgWidth = 66;
 		int textureBgHeight = 56;
+		renderControlBackground(guiGraphics, x, y, renderWidth, renderHeight, u, v, textureBgWidth, textureBgHeight);
+	}
+
+	public static void renderControlBackground(GuiGraphics guiGraphics, int x, int y, int renderWidth, int renderHeight, int u, int v, int textureBgWidth, int textureBgHeight) {
 		int halfWidth = renderWidth / 2;
 		int halfHeight = renderHeight / 2;
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, u, v, halfWidth, halfHeight, GUI_CONTROLS_TEXTURE_WIDTH, GUI_CONTROLS_TEXTURE_HEIGHT);

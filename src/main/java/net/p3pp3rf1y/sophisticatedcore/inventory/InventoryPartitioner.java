@@ -9,6 +9,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,9 +98,6 @@ public class InventoryPartitioner {
 		for (IInventoryPartHandler inventoryPartHandler : inventoryPartHandlers) {
 			inventoryPartHandler.onInit();
 		}
-	}
-
-	public record SlotRange(int firstSlot, int numberOfSlots) {
 	}
 
 	public Optional<SlotRange> getFirstSpace(int maxNumberOfSlots) {
