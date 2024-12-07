@@ -32,6 +32,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.*;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.*;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.TransferFullSlotPayload;
@@ -58,7 +59,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private static final int UPGRADE_SLOT_HEIGHT = 16;
 	private static final int UPGRADE_BOTTOM_HEIGHT = 6;
 	public static final int UPGRADE_INVENTORY_OFFSET = 21;
-	public static final int DISABLED_SLOT_X_POS = -1000;
+	public static final int DISABLED_SLOT_X_POS = -2000;
 	static final int SLOTS_Y_OFFSET = 17;
 	static final int SLOTS_X_OFFSET = 7;
 	public static final int ERROR_SLOT_COLOR = (DyeColor.RED.getTextureDiffuseColor() & 0x00_FFFFFF) | 0xAA000000;
@@ -172,7 +173,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					yPosition += 18;
 				}
 			} else {
-				slot.y = -100;
+				slot.x = DISABLED_SLOT_X_POS;
 			}
 
 		}
@@ -748,7 +749,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	protected List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
 		List<Component> ret = getTooltipFromItem(minecraft, itemStack);
 		if (hoveredSlot != null && hoveredSlot.getMaxStackSize() > 99) {
-			ret.add(Component.translatable("gui.sophisticatedcore.tooltip.stack_count",
+			ret.add(Component.translatable(TranslationHelper.INSTANCE.translGuiTooltip("stack_count"),
 							Component.literal(NumberFormat.getNumberInstance().format(itemStack.getCount())).withStyle(ChatFormatting.DARK_AQUA)
 									.append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
 									.append(Component.literal(NumberFormat.getNumberInstance().format(hoveredSlot.getMaxStackSize(itemStack))).withStyle(ChatFormatting.DARK_AQUA)))

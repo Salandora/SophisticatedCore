@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
@@ -163,6 +164,6 @@ public interface IInventoryPartHandler {
 	}
 
 	interface Factory {
-		IInventoryPartHandler create(InventoryHandler parent, InventoryPartitioner.SlotRange slotRange, Supplier<MemorySettingsCategory> getMemorySettings);
+		IInventoryPartHandler create(InventoryHandler parent, SlotRange slotRange, Supplier<MemorySettingsCategory> getMemorySettings);
 	}
 }
