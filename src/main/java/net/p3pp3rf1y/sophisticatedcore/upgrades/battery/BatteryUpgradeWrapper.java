@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +19,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.EnergyStorageUtil;
+import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -28,27 +30,48 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	public static final int OUTPUT_SLOT = 1;
 	private Consumer<BatteryRenderInfo> updateTankRenderInfoCallback;
 	private final BatteryComponentItemHandler inventory;
-	private final BatteryUpgradeEnergyStorage energyStorage;
+	private final SimpleSidedEnergyContainer energyStorage;
 
 	protected BatteryUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
 		inventory = new BatteryComponentItemHandler(upgrade);
-		energyStorage = new BatteryUpgradeEnergyStorage(getEnergyStored(upgrade)) {
+		energyStorage = new SimpleSidedEnergyContainer() {
 			@Override
 			protected void onFinalCommit() {
 				serializeEnergyStored();
 			}
+
+			@Override
+			public long getCapacity() {
+				return BatteryUpgradeWrapper.this.getCapacity();
+			}
+
+			@Override
+			public long getMaxInsert(@Nullable Direction side) {
+				return BatteryUpgradeWrapper.this.getMaxInOut();
+			}
+
+			@Override
+			public long getMaxExtract(@Nullable Direction side) {
+				return BatteryUpgradeWrapper.this.getMaxInOut();
+			}
 		};
+		energyStorage.amount = getEnergyStored(upgrade);
 	}
 
 	public static long getEnergyStored(ItemStack upgrade) {
 		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0L);
 	}
 
+	public EnergyStorage getSideEnergyStorage(@Nullable Direction side) {
+		return energyStorage.getSideStorage(side);
+	}
+
 	@Override
 	public long insert(long maxAmount, TransactionContext ctx) {
-		long ret = Math.min(getCapacity() - getAmount(), Math.min(getMaxInOut(), maxAmount));
-		return energyStorage.insert(ret, ctx);
+		// This is handled through the SimpleSidedEnergyContainer for us
+		//long ret = Math.min(getCapacity() - getAmount(), Math.min(getMaxInOut(), maxAmount));
+		return getSideEnergyStorage(null).insert(maxAmount, ctx);
 	}
 
 	/*@Override
@@ -66,15 +89,16 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}*/
 
 	private void serializeEnergyStored() {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.ENERGY_STORED, energyStorage.getAmount());
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.ENERGY_STORED, energyStorage.amount);
 		save();
 		forceUpdateBatteryRenderInfo();
 	}
 
 	@Override
 	public long extract(long maxAmount, TransactionContext ctx) {
-		long ret = Math.min(getAmount(), Math.min(getMaxInOut(), maxAmount));
-		return energyStorage.extract(ret, ctx);
+		// This is handled through the SimpleSidedEnergyContainer for us
+		//long ret = Math.min(getAmount(), Math.min(getMaxInOut(), maxAmount));
+		return getSideEnergyStorage(null).extract(maxAmount, ctx);
 	}
 
 	/*@Override
@@ -94,7 +118,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 
 	@Override
 	public long getAmount() {
-		return energyStorage.getAmount();
+		return energyStorage.amount;
 	}
 
 	@Override
@@ -119,7 +143,8 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	private boolean isValidEnergyItem(ItemStack stack, boolean isOutput) {
-		if (!EnergyStorageUtil.isEnergyStorage(stack)) {
+		EnergyStorage energyStorage = ContainerItemContext.withConstant(stack).find(EnergyStorage.ITEM);
+		if (energyStorage == null) {
 			return false;
 		}
 
@@ -147,7 +172,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 		if (getAmount() < getCapacity()) {
 			EnergyStorageUtil.move(
 					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(INPUT_SLOT)).find(EnergyStorage.ITEM),
-					energyStorage,
+					getSideEnergyStorage(null),
 					Long.MAX_VALUE,
 					null
 			);
@@ -155,7 +180,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 
 		if (getAmount() > 0) {
 			EnergyStorageUtil.move(
-					energyStorage,
+					getSideEnergyStorage(null),
 					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(OUTPUT_SLOT)).find(EnergyStorage.ITEM),
 					Long.MAX_VALUE,
 					null
