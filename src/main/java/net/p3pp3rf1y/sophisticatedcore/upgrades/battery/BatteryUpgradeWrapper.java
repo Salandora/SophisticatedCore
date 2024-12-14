@@ -185,6 +185,16 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 					Long.MAX_VALUE,
 					null
 			);
+
+			// TeamReborns energy system is push based so we need to add this code here
+			for (Direction side : Direction.values()) {
+				EnergyStorageUtil.move(
+						getSideEnergyStorage(side),
+						EnergyStorage.SIDED.find(level, pos.relative(side), side.getOpposite()),
+						Long.MAX_VALUE,
+						null
+				);
+			}
 		}
 	}
 
