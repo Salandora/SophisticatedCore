@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
@@ -316,7 +315,12 @@ public class InventoryHelper {
 
 		SingleSlotStorage<ItemVariant> slot = itemHandler.getSlot(slotIndex);
 		ItemVariant resource = slot.getResource();
-		return resource.toStack((int) slot.extract(resource, Long.MAX_VALUE, null));
+		long extracted;
+		try (Transaction ctx = Transaction.openOuter()) {
+			extracted = slot.extract(resource, Long.MAX_VALUE, ctx);
+			ctx.commit();
+		}
+		return resource.toStack((int) extracted);
 	}
 
 	public static void insertOrDropItem(Player player, ItemStack stack, Storage<ItemVariant>... inventories) {
@@ -344,7 +348,7 @@ public class InventoryHelper {
 			if (slotStack.isEmpty()) {
 				emptySlots.add(slot);
 			}
-			if (ItemHandlerHelper.canItemStacksStack(slotStack, result)) {
+			if (ItemStack.isSameItemSameTags(slotStack, result)) {
 				int count = Math.min(slotStack.getMaxStackSize() - slotStack.getCount(), result.getCount());
 				slotStack.grow(count);
 				result.shrink(count);
