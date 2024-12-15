@@ -26,8 +26,13 @@ public class ModRecipes {
 	public static void registerHandlers() {
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleIdentifiablePrepareableReloadListener<>(SophisticatedCore.getRL("modrecipes")) {
 			@Override
-			protected void apply(Object object, ResourceManager resourceManager, ProfilerFiller profiler) {
+			protected Object prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
 				UpgradeNextTierRecipe.REGISTERED_RECIPES.clear();
+				return super.prepare(resourceManager, profiler);
+			}
+
+			@Override
+			protected void apply(Object object, ResourceManager resourceManager, ProfilerFiller profiler) {
 			}
 		});
 
