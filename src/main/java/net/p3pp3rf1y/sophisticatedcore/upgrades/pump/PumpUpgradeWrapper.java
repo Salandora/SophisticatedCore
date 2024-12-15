@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -215,7 +216,28 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		if (itemInHand.getCount() != 1 || itemInHand == storageWrapper.getWrappedStorageStack()) {
 			return false;
 		}
-        return FluidHelper.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
+
+		Storage<FluidVariant> handStorage = ContainerItemContext.ofPlayerHand(player, hand).find(FluidStorage.ITEM);
+		if (handStorage == null) return false;
+
+		if (isInput()) {
+			return fillFromHand(player, hand, handStorage, storageFluidHandler);
+		} else {
+			return fillContainerInHand(player, hand, handStorage, storageFluidHandler);
+		}
+	}
+
+	private boolean fillContainerInHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
+		boolean ret = fillFluidHandler(itemFluidHandler, storageFluidHandler);
+		// No need to do that with fabric
+		/*if (ret) {
+			player.setItemInHand(hand, itemFluidHandler.getContainer());
+		}*/
+		return ret;
+	}
+
+	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {
+		return fillFluidHandler(fluidHandler, storageFluidHandler, FluidConstants.BUCKET);
 	}
 
 	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler, long maxFill) {
@@ -229,6 +251,15 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 			}
 		}
 		return ret;
+	}
+
+	private boolean fillFromHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
+		if (fillFromFluidHandler(itemFluidHandler, storageFluidHandler)) {
+			// No need to do that with fabric
+			// player.setItemInHand(hand, itemFluidHandler.getContainer());
+			return true;
+		}
+		return false;
 	}
 
 	private boolean fillFromFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {
