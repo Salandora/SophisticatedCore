@@ -1,19 +1,15 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
 import com.google.common.collect.Maps;
+import dev.emi.emi.api.EmiDragDropHandler;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.FluidEmiStack;
-import dev.emi.emi.api.stack.ItemEmiStack;
 import dev.emi.emi.api.widget.Bounds;
-import dev.emi.emi.mixin.accessor.HandledScreenAccessor;
 import dev.emi.emi.runtime.EmiDrawContext;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -21,20 +17,15 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetGhostSlotPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
-import dev.emi.emi.api.EmiDragDropHandler;
-import dev.emi.emi.api.stack.EmiStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.pump.PumpUpgradeTab;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class EmiStorageGhostDragDropHandler<T extends StorageScreenBase<?>> implements EmiDragDropHandler<T> {
     private final BiFunction<T, EmiIngredient, Map<Bounds, Consumer<EmiIngredient>>> bounds;
@@ -59,9 +50,7 @@ public class EmiStorageGhostDragDropHandler<T extends StorageScreenBase<?>> impl
                     if (s instanceof IFilterSlot && s.mayPlace(ghostStack)) {
                         map.put(
                                 new Bounds(screen.getLeftX() + s.x, screen.getTopY() + s.y, 18, 18),
-                                (i) -> {
-                                    PacketDistributor.sendToServer(new SetGhostSlotPayload(ghostStack, s.index));
-                                });
+                                (i) -> PacketDistributor.sendToServer(new SetGhostSlotPayload(ghostStack, s.index)));
                     }
                 }));
             } else if (ingredient instanceof FluidEmiStack fluidStack) {
