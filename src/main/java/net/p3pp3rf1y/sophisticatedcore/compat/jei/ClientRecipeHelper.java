@@ -3,16 +3,29 @@ package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ClientRecipeHelper {
 	private ClientRecipeHelper() {}
+
+	public static <T extends Recipe<?>> Optional<RecipeHolder<T>> getCraftingRecipeByKey(RecipeType<T> type, ResourceLocation recipeKey) {
+		Minecraft minecraft = Minecraft.getInstance();
+		ClientLevel world = minecraft.level;
+		if (world == null) {
+			return Optional.empty();
+		}
+
+		RecipeHolder<?> recipeHolder = world.getRecipeManager().byKey(recipeKey).orElse(null);
+		return recipeHolder != null && recipeHolder.value().getType().equals(type) ? Optional.of((RecipeHolder<T>) recipeHolder) : Optional.empty();
+	}
 
 	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfType(RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, T> transformRecipe) {
 		Minecraft minecraft = Minecraft.getInstance();
