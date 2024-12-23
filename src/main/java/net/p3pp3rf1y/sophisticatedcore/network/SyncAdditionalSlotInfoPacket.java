@@ -1,8 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -72,7 +74,8 @@ public class SyncAdditionalSlotInfoPacket implements FabricPacket {
 		});
 	}
 
-	public void handle(LocalPlayer player, PacketSender responseSender) {
+	@Environment(EnvType.CLIENT)
+	public void handle(Player player, PacketSender responseSender) {
 		if (!(player.containerMenu instanceof IAdditionalSlotInfoMenu menu)) {
 			return;
 		}

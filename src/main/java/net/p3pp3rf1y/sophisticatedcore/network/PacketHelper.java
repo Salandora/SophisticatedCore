@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -52,6 +54,7 @@ public class PacketHelper {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static <T extends FabricPacket> void sendToServer(T packet) {
 		ClientPlayNetworking.send(packet);
 	}
