@@ -1,12 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.minecraft.world.entity.player.Player;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
@@ -29,7 +31,8 @@ public class SyncDatapackSettingsTemplatePacket implements FabricPacket {
 		this(buffer.readUtf(), buffer.readUtf(), buffer.readNbt());
 	}
 
-	public void handle(LocalPlayer player, PacketSender responseSender) {
+	@Environment(EnvType.CLIENT)
+	public void handle(Player player, PacketSender responseSender) {
 		if (settingsNbt == null) {
 			return;
 		}

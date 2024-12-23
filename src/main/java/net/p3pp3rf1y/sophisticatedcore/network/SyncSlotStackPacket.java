@@ -1,8 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -29,7 +31,8 @@ public class SyncSlotStackPacket implements FabricPacket {
 		this(buffer.readUnsignedByte(), buffer.readVarInt(), buffer.readShort(), PacketHelper.readOversizedItemStack(buffer));
 	}
 
-	public void handle(LocalPlayer player, PacketSender responseSender) {
+	@Environment(EnvType.CLIENT)
+	public void handle(Player player, PacketSender responseSender) {
 		if (!(player.containerMenu instanceof StorageContainerMenuBase || player.containerMenu instanceof SettingsContainerMenu) || player.containerMenu.containerId != windowId) {
 			return;
 		}

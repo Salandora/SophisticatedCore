@@ -1,12 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.minecraft.world.entity.player.Player;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsTemplateStorage;
@@ -27,7 +29,8 @@ public class SyncTemplateSettingsPacket implements FabricPacket {
 		this(buffer.readMap(FriendlyByteBuf::readInt, FriendlyByteBuf::readNbt), buffer.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readNbt));
 	}
 
-	public void handle(LocalPlayer player, PacketSender responseSender) {
+	@Environment(EnvType.CLIENT)
+	public void handle(Player player, PacketSender responseSender) {
 		SettingsTemplateStorage settingsTemplateStorage = SettingsTemplateStorage.get();
 		settingsTemplateStorage.clearPlayerTemplates(player);
 		playerTemplates.forEach((k, v) -> settingsTemplateStorage.putPlayerTemplate(player, k, v));

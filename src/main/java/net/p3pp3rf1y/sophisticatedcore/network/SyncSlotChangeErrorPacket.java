@@ -1,12 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.minecraft.world.entity.player.Player;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeSlotChangeResult;
@@ -36,7 +38,8 @@ public class SyncSlotChangeErrorPacket implements FabricPacket {
 		buffer.writeVarIntArray(slotChangeResult.getErrorInventoryParts().stream().mapToInt(i -> i).toArray());
 	}
 
-	public void handle(LocalPlayer player, PacketSender responseSender) {
+	@Environment(EnvType.CLIENT)
+	public void handle(Player player, PacketSender responseSender) {
 		if (!(player.containerMenu instanceof StorageContainerMenuBase<?> menu)) {
 			return;
 		}
