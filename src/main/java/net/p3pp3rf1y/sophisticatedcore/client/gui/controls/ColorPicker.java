@@ -10,6 +10,7 @@ import net.minecraft.world.item.DyeColor;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
+import net.p3pp3rf1y.sophisticatedcore.util.ColorHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		addChild(textColorEntry);
 		colorGradientArea = new ColorGradientArea(new Position(0, 0), new Dimension(COLOR_GRADIENT_WIDTH, COLOR_GRADIENT_HEIGHT),
 				gradientColor -> {
-					textColorEntry.setValueWithoutNotification(getHexColor(gradientColor));
+					textColorEntry.setValueWithoutNotification(ColorHelper.getHexColor(gradientColor));
 					colorPreview.setColor(gradientColor);
 				});
 		colorGradientArea.setColor(color);
@@ -59,7 +60,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		addChild(rainbowSlider);
 		addChild(colorGradientArea);
 
-		textColorEntry.setValue(getHexColor(color));
+		textColorEntry.setValue(ColorHelper.getHexColor(color));
 		textColorEntry.setResponder(s -> {
 			if (s.length() != 7) {
 				return;
@@ -103,16 +104,11 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 				colorGradientArea.setColor(color);
 				rainbowSlider.setColor(color);
 				colorPreview.setColor(color);
-				textColorEntry.setValueWithoutNotification(getHexColor(color));
+				textColorEntry.setValueWithoutNotification(ColorHelper.getHexColor(color));
 			}, null);
 			defaultColorButtons.add(colorButton);
 			addChild(colorButton);
 		}
-	}
-
-	private String getHexColor(int rgb) {
-		rgb = rgb & 0x00FFFFFF;
-		return String.format("#%06X", rgb);
 	}
 
 	@Override

@@ -51,4 +51,9 @@ public class ColorHelper {
 
 		return 0xFF_000000 | finalColor;
 	}
+
+	public static String getHexColor(int rgb) {
+		rgb = rgb & 0x00FFFFFF;
+		return String.format("#%06X", rgb);
+	}
 }

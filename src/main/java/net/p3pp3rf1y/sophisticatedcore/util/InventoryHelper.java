@@ -2,10 +2,14 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
+import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -24,10 +28,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
-import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
-import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
+import net.p3pp3rf1y.sophisticatedcore.inventory.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -40,6 +41,17 @@ import java.util.function.*;
 
 public class InventoryHelper {
 	private InventoryHelper() {}
+
+	private static final List<Function<Player, SlottedStorage<ItemVariant>>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
+
+	static {
+		//registerPlayerInventoryProvider(player -> player.getCapability(Capabilities.ItemHandler.ENTITY));
+		registerPlayerInventoryProvider(player -> PlayerInventoryStorage.of(player));
+	}
+
+	public static void registerPlayerInventoryProvider(Function<Player, SlottedStorage<ItemVariant>> provider) {
+		PLAYER_INVENTORY_PROVIDERS.add(provider);
+	}
 
 	public static Optional<ItemStack> getItemFromEitherHand(Player player, Item item) {
 		ItemStack mainHandItem = player.getMainHandItem();
@@ -134,11 +146,15 @@ public class InventoryHelper {
 
 	/// Do not call from an open transaction
 	public static ItemStack extractFromInventory(Item item, int count, IItemHandlerSimpleInserter inventory, boolean simulate) {
+		return extractFromInventory(stack -> stack.getItem() == item, count, inventory, simulate);
+	}
+
+	public static ItemStack extractFromInventory(Predicate<ItemStack> stackMatcher, int count, IItemHandlerSimpleInserter inventory, boolean simulate) {
 		ItemStack ret = ItemStack.EMPTY;
 		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
-			if (slotStack.getItem() == item && (ret.isEmpty() || ItemStack.isSameItemSameComponents(ret, slotStack))) {
+			if (stackMatcher.test(slotStack) && (ret.isEmpty() || ItemStack.isSameItemSameComponents(ret, slotStack))) {
 				int toExtract = Math.min(slotStack.getCount(), count - ret.getCount());
 				ItemStack extractedStack = inventory.extractItem(slot, toExtract, simulate);
 				if (ret.isEmpty()) {
@@ -561,5 +577,24 @@ public class InventoryHelper {
 		});
 		double percentFilled = totalFilled.get() / handler.getSlotCount();
 		return Mth.floor(percentFilled * 14.0F) + (isEmpty.get() ? 0 : 1);
+	}
+
+	public static List<Storage<ItemVariant>> getItemHandlersFromPlayerIncludingContainers(Player player) {
+		List<Storage<ItemVariant>> itemHandlers = new ArrayList<>();
+		PLAYER_INVENTORY_PROVIDERS.forEach(provider -> {
+			SlottedStorage<ItemVariant> itemHandler = provider.apply(player);
+			itemHandlers.add(itemHandler);
+			for (StorageView<ItemVariant> view : itemHandler.nonEmptyViews()) {
+				if (view.isResourceBlank()) {
+					continue;
+				}
+
+				Storage<ItemVariant> containerHandler = new MutableContainerItemContext(view.getResource().toStack((int) view.getAmount())).find(ItemStorage.ITEM);
+				if (containerHandler != null) {
+					itemHandlers.add(containerHandler);
+				}
+			}
+		});
+		return itemHandlers;
 	}
 }
