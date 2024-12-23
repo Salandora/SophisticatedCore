@@ -5,11 +5,9 @@ import io.github.fabricators_of_create.porting_lib.transfer.callbacks.Transactio
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -137,8 +135,8 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return RegistryHelper.getRegistryAccess().map(registryAccess -> CodecHelper.OVERSIZED_ITEM_STACK_CODEC.encode(slotStack, registryAccess.createSerializationContext(NbtOps.INSTANCE), itemTag).getOrThrow()).orElse(itemTag);
 	}
 
-	private Optional<ItemStack> getStackFromNbt(Tag itemTag, RegistryAccess registryAccess) {
-		return CodecHelper.OVERSIZED_ITEM_STACK_CODEC.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), itemTag)
+	private Optional<ItemStack> getStackFromNbt(Tag itemTag, HolderLookup.Provider lookupProvider) {
+		return CodecHelper.OVERSIZED_ITEM_STACK_CODEC.parse(lookupProvider.createSerializationContext(NbtOps.INSTANCE), itemTag)
 				.resultOrPartial(itemName -> SophisticatedCore.LOGGER.error("Tried to load invalid item: '{}'", itemName));
 	}
 
@@ -152,9 +150,8 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 				CompoundTag itemTag = tagList.getCompound(i);
 				int slot = itemTag.getInt("Slot");
 				if (slot >= 0 && slot < getSlotCount()) {
-					getStackFromNbt(itemTag, registryAccess).ifPresent(stack -> {
-						((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(stack);
-					});
+					// Changed to call onStackChange in the load function
+					this.getSlot(slot).load(registryAccess, itemTag);
 				}
 			}
 		});
@@ -616,6 +613,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 
 		protected void setInternalNewStack(ItemStack stack) {
 			super.setStack(stack);
+			onStackChange();
 		}
 
 		@Override
@@ -624,7 +622,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 				return 0;
 			}
 
-			return super.insert(variant, maxAmount, ctx);
+			return InventoryHandler.this.insertSlot(getIndex(), variant, maxAmount, ctx);
 		}
 
 		@Override
@@ -634,6 +632,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 			}
 
 			return InventoryHandler.this.extractSlot(getIndex(), variant, maxAmount, ctx);
+		}
+
+		@Override
+		public void load(HolderLookup.Provider provider, CompoundTag tag) {
+			getStackFromNbt(tag, provider).ifPresent(this::setStack);
+			onStackChange();
 		}
 	}
 }

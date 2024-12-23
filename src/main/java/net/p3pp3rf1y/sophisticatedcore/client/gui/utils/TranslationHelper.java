@@ -151,4 +151,8 @@ public class TranslationHelper {
 	public String translGui(String guiTranslateKey) {
 		return guiPrefix + guiTranslateKey;
 	}
+
+	public String translGuiTooltip(String guiTranslateKey) {
+		return guiPrefix.substring(0, guiPrefix.length() - 1) + TOOLTIP_SUFFIX + "." + guiTranslateKey;
+	}
 }

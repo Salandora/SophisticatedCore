@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import net.minecraft.nbt.CompoundTag;
+import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ class InventoryPartitionerTest {
 		partitioner.addInventoryPart(9, 9, () -> "dummy2");
 		partitioner.removeInventoryPart(9);
 
-		Optional<InventoryPartitioner.SlotRange> firstSpace = partitioner.getFirstSpace(9);
+		Optional<SlotRange> firstSpace = partitioner.getFirstSpace(9);
 		Assertions.assertTrue(firstSpace.isPresent());
 		Assertions.assertEquals(firstSpace.get().firstSlot(), 9);
 	}
@@ -98,7 +99,7 @@ class InventoryPartitionerTest {
 		partitioner.removeInventoryPart(0);
 		partitioner.removeInventoryPart(9);
 
-		Optional<InventoryPartitioner.SlotRange> firstSpace = partitioner.getFirstSpace(9);
+		Optional<SlotRange> firstSpace = partitioner.getFirstSpace(9);
 		Assertions.assertTrue(firstSpace.isPresent());
 		Assertions.assertEquals(firstSpace.get().firstSlot(), 0);
 		Assertions.assertEquals(partitioner.getPartBySlot(0), partitioner.getPartBySlot(80));
@@ -140,7 +141,7 @@ class InventoryPartitionerTest {
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
 
-		Optional<InventoryPartitioner.SlotRange> firstSpace = partitioner.getFirstSpace(9);
+		Optional<SlotRange> firstSpace = partitioner.getFirstSpace(9);
 		Assertions.assertTrue(firstSpace.isPresent());
 		Assertions.assertEquals(slots, firstSpace.get().numberOfSlots());
 		Assertions.assertEquals(0, firstSpace.get().firstSlot());

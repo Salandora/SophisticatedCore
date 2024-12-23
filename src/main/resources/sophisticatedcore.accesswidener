@@ -1,5 +1,6 @@
 accessWidener v2 named
 
+accessible field net/minecraft/client/gui/components/EditBox responder Ljava/util/function/Consumer;
 accessible field net/minecraft/client/gui/components/EditBox textColor I
 accessible method net/minecraft/client/gui/components/EditBox isEditable ()Z
 

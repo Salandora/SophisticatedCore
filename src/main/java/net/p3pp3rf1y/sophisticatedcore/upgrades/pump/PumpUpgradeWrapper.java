@@ -1,5 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -12,20 +20,12 @@ import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
-import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
 import javax.annotation.Nullable;
@@ -221,23 +221,28 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		if (itemInHand.getCount() != 1 || itemInHand == storageWrapper.getWrappedStorageStack()) {
 			return false;
 		}
+
 		return CapabilityHelper.getFromFluidHandler(itemInHand, itemFluidHandler -> {
-			return FluidUtil.interactWithFluidStorage(storageFluidHandler, player, hand, !isInput());
-			/*if (isInput()) {
+			if (isInput()) {
 				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);
 			} else {
 				return fillContainerInHand(player, hand, itemFluidHandler, storageFluidHandler);
-			}*/
+			}
 		}, false);
 	}
 
-	/*private boolean fillContainerInHand(Player player, InteractionHand hand, IFluidHandlerItem itemFluidHandler, IFluidHandler storageFluidHandler) {
+	private boolean fillContainerInHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
 		boolean ret = fillFluidHandler(itemFluidHandler, storageFluidHandler);
-		if (ret) {
+		// No need to do that with fabric
+		/*if (ret) {
 			player.setItemInHand(hand, itemFluidHandler.getContainer());
-		}
+		}*/
 		return ret;
-	}*/
+	}
+
+	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {
+		return fillFluidHandler(fluidHandler, storageFluidHandler, FluidConstants.BUCKET);
+	}
 
 	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler, long maxFill) {
 		boolean ret = false;
@@ -252,13 +257,14 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return ret;
 	}
 
-	/*private boolean fillFromHand(Player player, InteractionHand hand, IFluidHandlerItem itemFluidHandler, IFluidHandler storageFluidHandler) {
+	private boolean fillFromHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
 		if (fillFromFluidHandler(itemFluidHandler, storageFluidHandler)) {
-			player.setItemInHand(hand, itemFluidHandler.getContainer());
+			// No need to do that with fabric
+			// player.setItemInHand(hand, itemFluidHandler.getContainer());
 			return true;
 		}
 		return false;
-	}*/
+	}
 
 	private boolean fillFromFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {
 		return fillFromFluidHandler(fluidHandler, storageFluidHandler, FluidConstants.BUCKET);

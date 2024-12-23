@@ -106,4 +106,14 @@ public class ButtonDefinitions {
 
 	private static final TextureBlitData REMOVE_TAG_FOREGROUND = new TextureBlitData(ICONS, new Position(1, 1), Dimension.SQUARE_256, new UV(112, 32), Dimension.SQUARE_16);
 	public static final ButtonDefinition REMOVE_TAG = new ButtonDefinition(Dimension.SQUARE_18, DEFAULT_BUTTON_BACKGROUND, DEFAULT_BUTTON_HOVERED_BACKGROUND, REMOVE_TAG_FOREGROUND, Component.literal(""));
+
+	private static final TextureBlitData CONFIRM_BUTTON_FOREGROUND = new TextureBlitData(ICONS, new Position(1, 1), Dimension.SQUARE_256, new UV(192, 64), Dimension.SQUARE_16);
+	public static final ButtonDefinition CONFIRM = new ButtonDefinition(Dimension.SQUARE_16, DEFAULT_BUTTON_BACKGROUND, DEFAULT_BUTTON_HOVERED_BACKGROUND, CONFIRM_BUTTON_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("confirm")));
+	private static final TextureBlitData CANCEL_BUTTON_FOREGROUND = new TextureBlitData(ICONS, new Position(1, 1), Dimension.SQUARE_256, new UV(208, 64), Dimension.SQUARE_16);
+	public static final ButtonDefinition CANCEL = new ButtonDefinition(Dimension.SQUARE_16, DEFAULT_BUTTON_BACKGROUND, DEFAULT_BUTTON_HOVERED_BACKGROUND, CANCEL_BUTTON_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("cancel")));
+	private static final TextureBlitData TRANSPARENT_BUTTON_FOREGROUND = new TextureBlitData(ICONS, new Position(1, 1), Dimension.SQUARE_256, new UV(224, 64), Dimension.SQUARE_16);
+	public static final ButtonDefinition TRANSPARENT = new ButtonDefinition(Dimension.SQUARE_16, DEFAULT_BUTTON_BACKGROUND, DEFAULT_BUTTON_HOVERED_BACKGROUND, TRANSPARENT_BUTTON_FOREGROUND,
+			Component.translatable(TranslationHelper.INSTANCE.translButton("transparent")));
 }

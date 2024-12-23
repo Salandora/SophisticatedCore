@@ -64,7 +64,7 @@ public class GuiHelper {
 	}
 
 	public static void renderSlotsBackground(GuiGraphics guiGraphics, int x, int y, int slotWidth, int slotHeight) {
-		for(int currentY = y, remainingSlotHeight = slotHeight; remainingSlotHeight > 0; currentY += 12 *18, remainingSlotHeight -= Math.min(slotHeight, 12)) {
+		for (int currentY = y, remainingSlotHeight = slotHeight; remainingSlotHeight > 0; currentY += 12 * 18, remainingSlotHeight -= Math.min(slotHeight, 12)) {
 			int finalRemainingSlotHeight = remainingSlotHeight;
 			int key = getSlotsBackgroundKey(slotWidth, remainingSlotHeight);
 			blit(guiGraphics, x, currentY, SLOTS_BACKGROUNDS.computeIfAbsent(key, k ->
@@ -82,7 +82,7 @@ public class GuiHelper {
 	}
 
 	public static void renderItemInGUI(GuiGraphics guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay,
-			@Nullable String countText) {
+									   @Nullable String countText) {
 		RenderSystem.enableDepthTest();
 		guiGraphics.renderItem(stack, xPosition, yPosition);
 		if (renderOverlay) {
@@ -181,6 +181,33 @@ public class GuiHelper {
 		builder.addVertex(matrix, x2, y2, 400).setColor(f5, f6, f7, f4);
 	}
 
+	public static void fill(GuiGraphics guiGraphics, float minX, float minY, float maxX, float maxY, int color) {
+		fill(guiGraphics, RenderType.gui(), minX, minY, maxX, maxY, 0, color);
+	}
+
+	public static void fill(GuiGraphics guiGraphics, RenderType renderType, float minX, float minY, float maxX, float maxY, float z, int color) {
+		Matrix4f matrix4f = guiGraphics.pose().last().pose();
+		float j;
+		if (minX < maxX) {
+			j = minX;
+			minX = maxX;
+			maxX = j;
+		}
+
+		if (minY < maxY) {
+			j = minY;
+			minY = maxY;
+			maxY = j;
+		}
+
+		VertexConsumer vertexconsumer = guiGraphics.bufferSource().getBuffer(renderType);
+		vertexconsumer.addVertex(matrix4f, minX, minY, z).setColor(color);
+		vertexconsumer.addVertex(matrix4f, minX, maxY, z).setColor(color);
+		vertexconsumer.addVertex(matrix4f, maxX, maxY, z).setColor(color);
+		vertexconsumer.addVertex(matrix4f, maxX, minY, z).setColor(color);
+		guiGraphics.flush();
+	}
+
 	public static ToggleButton.StateData getButtonStateData(UV uv, Dimension dimension, Position offset, Component... tooltip) {
 		return getButtonStateData(uv, dimension, offset, Arrays.asList(tooltip));
 	}
@@ -220,7 +247,7 @@ public class GuiHelper {
 		do {
 			int renderHeight = Math.min(spriteHeight, height);
 			height -= renderHeight;
-			float v1 = sprite.getV((float)renderHeight / spriteHeight);
+			float v1 = sprite.getV((float) renderHeight / spriteHeight);
 
 			// we need to draw the quads per width too
 			Matrix4f matrix = guiGraphics.pose().last().pose();
@@ -242,6 +269,10 @@ public class GuiHelper {
 		int v = 146;
 		int textureBgWidth = 66;
 		int textureBgHeight = 56;
+		renderControlBackground(guiGraphics, x, y, renderWidth, renderHeight, u, v, textureBgWidth, textureBgHeight);
+	}
+
+	public static void renderControlBackground(GuiGraphics guiGraphics, int x, int y, int renderWidth, int renderHeight, int u, int v, int textureBgWidth, int textureBgHeight) {
 		int halfWidth = renderWidth / 2;
 		int halfHeight = renderHeight / 2;
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, u, v, halfWidth, halfHeight, GUI_CONTROLS_TEXTURE_WIDTH, GUI_CONTROLS_TEXTURE_HEIGHT);
@@ -255,8 +286,7 @@ public class GuiHelper {
 			BakedModel bakedmodel = itemRenderer.getModel(stack, null, livingEntity, 0);
 			try {
 				renderGuiItem(guiGraphics, itemRenderer, stack, x, y, bakedmodel, rotation);
-			}
-			catch (Throwable throwable) {
+			} catch (Throwable throwable) {
 				CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
 				CrashReportCategory crashreportcategory = crashreport.addCategory("Item being rendered");
 				crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
