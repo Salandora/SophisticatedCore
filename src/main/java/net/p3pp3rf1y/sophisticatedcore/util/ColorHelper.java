@@ -15,6 +15,10 @@ public class ColorHelper {
 		return red << 16 | green << 8 | blue;
 	}
 
+	public static int opaque(int color) {
+		return color | 0xFF000000;
+	}
+
 	public static int calculateColor(int baseColor, int defaultColor, List<DyeColor> dyes) {
 		if (dyes.isEmpty()) {
 			return baseColor;

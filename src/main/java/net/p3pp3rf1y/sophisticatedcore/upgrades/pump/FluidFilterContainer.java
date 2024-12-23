@@ -47,10 +47,8 @@ public class FluidFilterContainer {
 	public boolean handleMessage(CompoundTag data) {
 		if (data.contains(DATA_FLUID)) {
 			CompoundTag fluidData = data.getCompound(DATA_FLUID);
-			FluidStack fluid = FluidStack.loadFluidStackFromNBT(data.getCompound("fluid"));
-			if (!fluid.isEmpty()) {
-				setFluid(fluidData.getInt("index"), fluid);
-			}
+			FluidStack fluid = FluidStack.loadFluidStackFromNBT(fluidData.getCompound("fluid"));
+			setFluid(fluidData.getInt("index"), fluid);
 			return true;
 		}
 		return false;

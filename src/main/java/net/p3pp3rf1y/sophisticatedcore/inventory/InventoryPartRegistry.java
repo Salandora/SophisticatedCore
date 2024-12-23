@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class InventoryPartRegistry {
 		INVENTORY_PART_FACTORIES.put(name, factory);
 	}
 
-	public static IInventoryPartHandler instantiatePart(String name, InventoryHandler parent, InventoryPartitioner.SlotRange slotRange, Supplier<MemorySettingsCategory> getMemorySettings) {
+	public static IInventoryPartHandler instantiatePart(String name, InventoryHandler parent, SlotRange slotRange, Supplier<MemorySettingsCategory> getMemorySettings) {
 		return INVENTORY_PART_FACTORIES.get(name).create(parent, slotRange, getMemorySettings);
 	}
 }

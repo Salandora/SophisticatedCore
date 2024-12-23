@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.battery;
 
+import net.minecraft.core.Direction;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.EnergyStorageUtil;
 import team.reborn.energy.api.base.SimpleEnergyItem;
@@ -20,6 +21,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
+import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
 
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -31,7 +33,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	public static final String ENERGY_STORED_TAG = SimpleEnergyItem.ENERGY_KEY;
 	private Consumer<BatteryRenderInfo> updateTankRenderInfoCallback;
 	private final ItemStackHandler inventory;
-	private final BatteryUpgradeEnergyStorage energyStorage;
+	private final SimpleSidedEnergyContainer energyStorage;
 
 	protected BatteryUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
@@ -66,22 +68,43 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 			}
 		};
 		NBTHelper.getCompound(upgrade, "inventory").ifPresent(inventory::deserializeNBT);
-		energyStorage = new BatteryUpgradeEnergyStorage(getEnergyStored(upgrade)) {
+		energyStorage = new SimpleSidedEnergyContainer() {
 			@Override
 			protected void onFinalCommit() {
 				serializeEnergyStored();
 			}
+
+			@Override
+			public long getCapacity() {
+				return BatteryUpgradeWrapper.this.getCapacity();
+			}
+
+			@Override
+			public long getMaxInsert(@Nullable Direction side) {
+				return BatteryUpgradeWrapper.this.getMaxInOut();
+			}
+
+			@Override
+			public long getMaxExtract(@Nullable Direction side) {
+				return BatteryUpgradeWrapper.this.getMaxInOut();
+			}
 		};
+		energyStorage.amount = getEnergyStored(upgrade);
 	}
 
 	public static long getEnergyStored(ItemStack upgrade) {
 		return NBTHelper.getLong(upgrade, ENERGY_STORED_TAG).orElse(0L);
 	}
 
+	public EnergyStorage getSideEnergyStorage(@Nullable Direction side) {
+		return energyStorage.getSideStorage(side);
+	}
+
 	@Override
 	public long insert(long maxAmount, TransactionContext ctx) {
-		long ret = Math.min(getCapacity() - getAmount(), Math.min(getMaxInOut(), maxAmount));
-		return energyStorage.insert(ret, ctx);
+		// This is handled through the SimpleSidedEnergyContainer for us
+		//long ret = Math.min(getCapacity() - getAmount(), Math.min(getMaxInOut(), maxAmount));
+		return getSideEnergyStorage(null).insert(maxAmount, ctx);
 	}
 
 	private void serializeEnergyStored() {
@@ -92,13 +115,14 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 
 	@Override
 	public long extract(long maxAmount, TransactionContext ctx) {
-		long ret = Math.min(getAmount(), Math.min(getMaxInOut(), maxAmount));
-		return energyStorage.extract(ret, ctx);
+		// This is handled through the SimpleSidedEnergyContainer for us
+		//long ret = Math.min(getAmount(), Math.min(getMaxInOut(), maxAmount));
+		return getSideEnergyStorage(null).extract(maxAmount, ctx);
 	}
 
 	@Override
 	public long getAmount() {
-		return energyStorage.getAmount();
+		return energyStorage.amount;
 	}
 
 	@Override
@@ -142,7 +166,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 		if (getAmount() < getCapacity()) {
 			EnergyStorageUtil.move(
 					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(INPUT_SLOT)).find(EnergyStorage.ITEM),
-					energyStorage,
+					getSideEnergyStorage(null),
 					Long.MAX_VALUE,
 					null
 			);
@@ -150,11 +174,21 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 
 		if (getAmount() > 0) {
 			EnergyStorageUtil.move(
-					energyStorage,
+					getSideEnergyStorage(null),
 					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(OUTPUT_SLOT)).find(EnergyStorage.ITEM),
 					Long.MAX_VALUE,
 					null
 			);
+
+			// TeamReborns energy system is push based so we need to add this code here
+			for (Direction side : Direction.values()) {
+				EnergyStorageUtil.move(
+						getSideEnergyStorage(side),
+						EnergyStorage.SIDED.find(world, pos.relative(side), side.getOpposite()),
+						Long.MAX_VALUE,
+						null
+				);
+			}
 		}
 	}
 

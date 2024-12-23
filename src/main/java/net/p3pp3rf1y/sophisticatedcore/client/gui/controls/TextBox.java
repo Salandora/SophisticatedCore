@@ -86,6 +86,13 @@ public class TextBox extends WidgetBase {
 		editBox.setValue(value);
 	}
 
+	public void setValueWithoutNotification(String value) {
+		Consumer<String> temp = ((EditBoxAccessor) editBox).getResponder();
+		editBox.setResponder(null);
+		editBox.setValue(value);
+		editBox.setResponder(temp);
+	}
+
 	public void setTextColor(int color) {
 		editBox.setTextColor(color);
 	}
