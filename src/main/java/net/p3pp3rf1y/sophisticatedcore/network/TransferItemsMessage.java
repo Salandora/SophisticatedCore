@@ -264,14 +264,16 @@ public class TransferItemsMessage extends SimplePacketBase {
 
 		@Override
 		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			// noop
-			return 0;
+			if (!matchContents || matchesFilter(resource.toStack((int) maxAmount))) {
+				return itemHandler.insert(resource, maxAmount, transaction);
+			} else {
+				return 0;
+			}
 		}
 
 		@Override
 		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			// noop
-			return 0;
+			return itemHandler.extract(resource, maxAmount, transaction);
 		}
 	}
 
