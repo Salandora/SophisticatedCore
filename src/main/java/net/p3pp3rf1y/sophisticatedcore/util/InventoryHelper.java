@@ -277,7 +277,6 @@ public class InventoryHelper {
 		}
 		return ret;
 	}
-
 	/*public static <T> T iterate(SlottedStorage<ItemVariant> handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
 		T ret = supplyDefault.get();
 		int slots = handler.getSlotCount();
@@ -584,12 +583,12 @@ public class InventoryHelper {
 		PLAYER_INVENTORY_PROVIDERS.forEach(provider -> {
 			SlottedStorage<ItemVariant> itemHandler = provider.apply(player);
 			itemHandlers.add(itemHandler);
-			for (StorageView<ItemVariant> view : itemHandler.nonEmptyViews()) {
-				if (view.isResourceBlank()) {
+			for (SingleSlotStorage<ItemVariant> slot : itemHandler.getSlots()) {
+				if (slot.isResourceBlank()) {
 					continue;
 				}
 
-				Storage<ItemVariant> containerHandler = new MutableContainerItemContext(view.getResource().toStack((int) view.getAmount())).find(ItemStorage.ITEM);
+				Storage<ItemVariant> containerHandler = ContainerItemContext.ofPlayerSlot(player, slot).find(ItemStorage.ITEM);
 				if (containerHandler != null) {
 					itemHandlers.add(containerHandler);
 				}
