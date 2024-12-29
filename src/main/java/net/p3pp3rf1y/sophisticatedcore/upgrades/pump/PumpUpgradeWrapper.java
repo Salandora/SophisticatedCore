@@ -222,7 +222,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 			return false;
 		}
 
-		return CapabilityHelper.getFromFluidHandler(itemInHand, itemFluidHandler -> {
+		return CapabilityHelper.getFromFluidHandler(player, hand, itemFluidHandler -> {
 			if (isInput()) {
 				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);
 			} else {
