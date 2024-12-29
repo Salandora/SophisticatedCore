@@ -12,7 +12,9 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,12 +60,7 @@ public class CapabilityHelper {
 		}
 	}
 
-
-	public static <U> U getFromCapability(ItemStack stack, ItemApiLookup<Storage<FluidVariant>, ContainerItemContext> capability, @Nullable ContainerItemContext context, Function<Storage<FluidVariant>, U> get, U defaultValue) {
-		if (context == null) {
-			context = ContainerItemContext.withConstant(stack);
-		}
-
+	public static <U> U getFromCapability(ItemApiLookup<Storage<FluidVariant>, ContainerItemContext> capability, ContainerItemContext context, Function<Storage<FluidVariant>, U> get, U defaultValue) {
 		Storage<FluidVariant> fluidHandler = context.find(capability);
 		if (fluidHandler == null) {
 			return defaultValue;
@@ -71,13 +68,6 @@ public class CapabilityHelper {
 
 		return get.apply(fluidHandler);
 	}
-	/*public static <T, C, U> U getFromCapability(ItemStack stack, ItemApiLookup<T, C> capability, @Nullable C context, Function<T, U> get, U defaultValue) {
-		T t = capability.find(stack, context);
-		if (t == null) {
-			return defaultValue;
-		}
-		return get.apply(t);
-	}*/
 
 	public static <T, C, U> U getFromCapability(Level level, BlockPos pos, BlockApiLookup<T, C> capability, @Nullable C context, Function<T, U> get, U defaultValue) {
 		return getFromCapability(level, pos, null, null, capability, context, get, defaultValue);
@@ -104,7 +94,11 @@ public class CapabilityHelper {
 	}
 
 	public static <T> T getFromFluidHandler(ItemStack stack, Function<Storage<FluidVariant>, T> get, T defaultValue) {
-		return getFromCapability(stack, FluidStorage.ITEM, new MutableContainerItemContext(stack), get, defaultValue);
+		return getFromCapability(FluidStorage.ITEM, ContainerItemContext.withConstant(stack), get, defaultValue);
+	}
+
+	public static <T> T getFromFluidHandler(Player player, InteractionHand hand, Function<Storage<FluidVariant>, T> get, T defaultValue) {
+		return getFromCapability(FluidStorage.ITEM, ContainerItemContext.forPlayerInteraction(player, hand), get, defaultValue);
 	}
 
 	public static void runOnFluidHandler(ItemStack stack, BiConsumer<ContainerItemContext, Storage<FluidVariant>> run) {

@@ -28,8 +28,8 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 		if (ingredient.getType() == VanillaTypes.ITEM_STACK) {
 			StorageContainerMenuBase<?> container = gui.getMenu();
 			ingredient.getItemStack().ifPresent(ghostStack -> {
-						FluidStack fluidStack = CapabilityHelper.getFromCapability(ghostStack, FluidStorage.ITEM,
-								null, fluidHandler -> Optional.ofNullable(StorageUtil.findExtractableContent(fluidHandler, null)).map(FluidStack::new).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
+						FluidStack fluidStack = CapabilityHelper.getFromFluidHandler(ghostStack,
+								fluidHandler -> Optional.ofNullable(StorageUtil.findExtractableContent(fluidHandler, null)).map(FluidStack::new).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
 						if (!fluidStack.isEmpty()) {
 							gui.getUpgradeSettingsControl().getOpenTab().filter(tab -> tab instanceof PumpUpgradeTab.Advanced).map(PumpUpgradeTab.Advanced.class::cast).ifPresent(pumpUpgradeTab -> {
 								addFluidTargets(pumpUpgradeTab, fluidStack, targets);
