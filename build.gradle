@@ -199,6 +199,8 @@ dependencies {
     modCompileOnly("maven.modrinth:simple-voice-chat:${simple_voice_chat_version}")
     modCompileOnly("maven.modrinth:audioplayer:${audioplayer_version}")
 
+    modCompileOnly("dev.emi:trinkets:$project.trinkets_version")
+
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.+'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.+'

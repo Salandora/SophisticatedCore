@@ -71,6 +71,10 @@ public class NBTHelper {
 		return Optional.of(getValue.apply(tag, key));
 	}
 
+	public static boolean hasTag(ItemStack stack, String key) {
+		return stack.getTag() != null && stack.getTag().contains(key);
+	}
+
 	public static <E, C extends Collection<E>> Optional<C> getCollection(ItemStack stack, String parentKey, String tagName, byte listType, Function<Tag, Optional<E>> getElement, Supplier<C> initCollection) {
 		return getTagValue(stack, parentKey, tagName, (c, n) -> c.getList(n, listType)).map(listNbt -> {
 			C ret = initCollection.get();

@@ -3,8 +3,13 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemItemStorages;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -37,6 +42,16 @@ import java.util.function.*;
 
 public class InventoryHelper {
 	private InventoryHelper() {}
+
+	private static final List<Function<Player, SlottedStorage<ItemVariant>>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
+
+	static {
+		registerPlayerInventoryProvider(PlayerInventoryStorage::of);
+	}
+
+	public static void registerPlayerInventoryProvider(Function<Player, SlottedStorage<ItemVariant>> provider) {
+		PLAYER_INVENTORY_PROVIDERS.add(provider);
+	}
 
 	public static Optional<ItemStack> getItemFromEitherHand(Player player, Item item) {
 		ItemStack mainHandItem = player.getMainHandItem();
@@ -141,6 +156,30 @@ public class InventoryHelper {
 			inner.commit();
 			return resource.toStack((int)(maxAmount - inserted));
 		}
+	}
+
+
+	public static ItemStack extractFromInventory(Item item, int count, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		return extractFromInventory(stack -> stack.getItem() == item, count, inventory, ctx);
+	}
+
+	public static ItemStack extractFromInventory(Predicate<ItemStack> stackMatcher, int count, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
+		ItemStack ret = ItemStack.EMPTY;
+		int slots = inventory.getSlotCount();
+		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
+			ItemStack slotStack = inventory.getStackInSlot(slot);
+			if (stackMatcher.test(slotStack) && (ret.isEmpty() || ItemHandlerHelper.canItemStacksStack(ret, slotStack))) {
+				int toExtract = Math.min(slotStack.getCount(), count - ret.getCount());
+				ItemVariant variant = ItemVariant.of(slotStack);
+				long extractedStack = inventory.extractSlot(slot, variant, toExtract, ctx);
+				if (ret.isEmpty()) {
+					ret = variant.toStack((int) extractedStack);
+				} else {
+					ret.setCount(ret.getCount() + (int) extractedStack);
+				}
+			}
+		}
+		return ret;
 	}
 
 	public static ItemStack extractFromInventory(ItemVariant resource, long maxAmount, SlottedStackStorage inventory, @Nullable TransactionContext ctx) {
@@ -505,5 +544,28 @@ public class InventoryHelper {
 		});
 		double percentFilled = totalFilled.get() / handler.getSlotCount();
 		return Mth.floor(percentFilled * 14.0F) + (isEmpty.get() ? 0 : 1);
+	}
+
+	public static List<Storage<ItemVariant>> getItemHandlersFromPlayerIncludingContainers(Player player) {
+		List<Storage<ItemVariant>> itemHandlers = new ArrayList<>();
+		PLAYER_INVENTORY_PROVIDERS.forEach(provider -> {
+			if (provider == null) {
+				return;
+			}
+
+			SlottedStorage<ItemVariant> itemHandler = provider.apply(player);
+			itemHandlers.add(itemHandler);
+			for (SingleSlotStorage<ItemVariant> slot : itemHandler.getSlots()) {
+				if (slot.isResourceBlank()) {
+					continue;
+				}
+
+				Storage<ItemVariant> handler = ContainerItemContext.ofPlayerSlot(player, slot).find(ItemItemStorages.ITEM);
+				if (handler != null) {
+					itemHandlers.add(handler);
+				}
+			}
+		});
+		return itemHandlers;
 	}
 }
