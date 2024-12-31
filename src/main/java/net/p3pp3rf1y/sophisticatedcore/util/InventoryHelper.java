@@ -2,14 +2,11 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
 import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -42,14 +39,14 @@ import java.util.function.*;
 public class InventoryHelper {
 	private InventoryHelper() {}
 
-	private static final List<Function<Player, SlottedStorage<ItemVariant>>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
+	private static final List<Function<Player, SlottedStackStorage>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
 
 	static {
 		//registerPlayerInventoryProvider(player -> player.getCapability(Capabilities.ItemHandler.ENTITY));
-		registerPlayerInventoryProvider(player -> PlayerInventoryStorage.of(player));
+		registerPlayerInventoryProvider(PlayerInventoryStorageWrapper::of);
 	}
 
-	public static void registerPlayerInventoryProvider(Function<Player, SlottedStorage<ItemVariant>> provider) {
+	public static void registerPlayerInventoryProvider(Function<Player, SlottedStackStorage> provider) {
 		PLAYER_INVENTORY_PROVIDERS.add(provider);
 	}
 
@@ -374,6 +371,7 @@ public class InventoryHelper {
 		return resource.toStack((int) slot.extract(resource, Long.MAX_VALUE, null));
 	}
 
+	@SafeVarargs
 	public static void insertOrDropItem(Player player, ItemStack stack, Storage<ItemVariant>... inventories) {
 		ItemVariant resource = ItemVariant.of(stack);
 		long toInsert = stack.getCount();
@@ -581,14 +579,15 @@ public class InventoryHelper {
 	public static List<Storage<ItemVariant>> getItemHandlersFromPlayerIncludingContainers(Player player) {
 		List<Storage<ItemVariant>> itemHandlers = new ArrayList<>();
 		PLAYER_INVENTORY_PROVIDERS.forEach(provider -> {
-			SlottedStorage<ItemVariant> itemHandler = provider.apply(player);
+			SlottedStackStorage itemHandler = provider.apply(player);
 			itemHandlers.add(itemHandler);
-			for (SingleSlotStorage<ItemVariant> slot : itemHandler.getSlots()) {
+			for (int i = 0; i < itemHandler.getSlotCount(); i++) {
+				SingleSlotStorage<ItemVariant> slot = itemHandler.getSlot(i);
 				if (slot.isResourceBlank()) {
 					continue;
 				}
 
-				Storage<ItemVariant> containerHandler = ContainerItemContext.ofPlayerSlot(player, slot).find(ItemStorage.ITEM);
+				Storage<ItemVariant> containerHandler = SlottedStackStorageContainerItemContext.of(itemHandler, i).find(ItemStorage.ITEM);
 				if (containerHandler != null) {
 					itemHandlers.add(containerHandler);
 				}
