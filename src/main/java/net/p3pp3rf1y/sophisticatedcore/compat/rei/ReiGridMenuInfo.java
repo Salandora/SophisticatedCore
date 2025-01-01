@@ -10,15 +10,29 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 
 import java.util.stream.IntStream;
 
 public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends SimpleGridMenuDisplay> implements SimpleGridMenuInfo<T, D> {
     private final D display;
+    private final RecipeType<? extends Recipe<?>> recipeType;
 
-    public ReiGridMenuInfo(D display) {
+    public static <T extends StorageContainerMenuBase<?>, D extends SimpleGridMenuDisplay> ReiGridMenuInfo<T, D> crafting(D display) {
+        return new ReiGridMenuInfo<>(display, RecipeType.CRAFTING);
+    }
+    public static <T extends StorageContainerMenuBase<?>, D extends SimpleGridMenuDisplay> ReiGridMenuInfo<T, D> stonecutting(D display) {
+        return new ReiGridMenuInfo<>(display, RecipeType.STONECUTTING);
+    }
+    /*public static <T extends StorageContainerMenuBase<?>, D extends SimpleGridMenuDisplay> ReiGridMenuInfo<T, D> smithing(D display) {
+        return new ReiGridMenuInfo<>(display, RecipeType.SMITHING);
+    }*/
+
+    private ReiGridMenuInfo(D display, RecipeType<? extends Recipe<?>> recipeType) {
         this.display = display;
+        this.recipeType = recipeType;
     }
 
     @Override
@@ -28,7 +42,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public int getCraftingWidth(T menu) {
-        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer();
+        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer(recipeType);
         if (potentialCraftingContainer.isEmpty()) {
             return 0;
         }
@@ -38,7 +52,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public int getCraftingHeight(T menu) {
-        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer();
+        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer(recipeType);
         if (potentialCraftingContainer.isEmpty()) {
             return 0;
         }
@@ -48,7 +62,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public void clearInputSlots(T menu) {
-        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer();
+        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer(recipeType);
         if (potentialCraftingContainer.isEmpty()) {
             return;
         }
@@ -63,7 +77,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public IntStream getInputStackSlotIds(MenuInfoContext<T, ?, D> context) {
-        var potentialCraftingContainer = context.getMenu().getOpenOrFirstCraftingContainer();
+        var potentialCraftingContainer = context.getMenu().getOpenOrFirstCraftingContainer(recipeType);
         if (potentialCraftingContainer.isEmpty()) {
             return IntStream.empty();
         }
@@ -73,7 +87,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
 
     @Override
     public int getCraftingResultSlotIndex(T menu) {
-        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer();
+        var potentialCraftingContainer = menu.getOpenOrFirstCraftingContainer(recipeType);
         if (potentialCraftingContainer.isEmpty()) {
             return 0;
         }
@@ -90,7 +104,7 @@ public class ReiGridMenuInfo<T extends StorageContainerMenuBase<?>, D extends Si
     @Override
     public CompoundTag save(MenuSerializationContext<T, ?, D> context, D display) {
         // This is a bit hacky to do here, but it prevents us from implementing a custom TransferHandler just to set the tab id
-        context.getMenu().getOpenOrFirstCraftingContainer().ifPresent(openOrFirstCraftingContainer -> {
+        context.getMenu().getOpenOrFirstCraftingContainer(recipeType).ifPresent(openOrFirstCraftingContainer -> {
             if (!openOrFirstCraftingContainer.isOpen()) {
 				T container = context.getMenu();
 				container.getOpenContainer().ifPresent(c -> {

@@ -1,8 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
 import java.util.ArrayList;
@@ -11,14 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 public class TransferRecipeMessage extends SimplePacketBase {
+	private final ResourceLocation recipeTypeId;
 	private final Map<Integer, Integer> matchingItems;
 	private final List<Integer> craftingSlotIndexes;
 	private final List<Integer> inventorySlotIndexes;
 	private final boolean maxTransfer;
 	private final ResourceLocation recipeId;
 
-	public TransferRecipeMessage(ResourceLocation recipeId, Map<Integer, Integer> matchingItems, List<Integer> craftingSlotIndexes, List<Integer> inventorySlotIndexes, boolean maxTransfer) {
+	public TransferRecipeMessage(ResourceLocation recipeId, ResourceLocation recipeTypeId, Map<Integer, Integer> matchingItems, List<Integer> craftingSlotIndexes, List<Integer> inventorySlotIndexes, boolean maxTransfer) {
 		this.recipeId = recipeId;
+		this.recipeTypeId = recipeTypeId;
 		this.matchingItems = matchingItems;
 		this.craftingSlotIndexes = craftingSlotIndexes;
 		this.inventorySlotIndexes = inventorySlotIndexes;
@@ -26,12 +30,13 @@ public class TransferRecipeMessage extends SimplePacketBase {
 	}
 
 	public TransferRecipeMessage(FriendlyByteBuf buffer) {
-		this(buffer.readResourceLocation(), readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
+		this(buffer.readResourceLocation(), buffer.readResourceLocation(), readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
 	}
 
 	@Override
 	public void write(FriendlyByteBuf packetBuffer) {
 		packetBuffer.writeResourceLocation(this.recipeId);
+		packetBuffer.writeResourceLocation(this.recipeTypeId);
 		writeMap(packetBuffer, this.matchingItems);
 		writeList(packetBuffer, this.craftingSlotIndexes);
 		writeList(packetBuffer, this.inventorySlotIndexes);
@@ -76,7 +81,12 @@ public class TransferRecipeMessage extends SimplePacketBase {
 			if (sender == null) {
 				return;
 			}
-			CraftingContainerRecipeTransferHandlerServer.setItems(sender, this.recipeId, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
+
+			RecipeType<?> recipeType = BuiltInRegistries.RECIPE_TYPE.get(this.recipeTypeId);
+			if (recipeType == null) {
+				return;
+			}
+			CraftingContainerRecipeTransferHandlerServer.setItems(sender, this.recipeId, recipeType, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
 		});
 		return true;
 	}
