@@ -108,11 +108,11 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 		}
 
 		public void stop(LivingEntity entity) {
-			if (!(entity.level() instanceof ServerLevel)) {
+			if (!(entity.level() instanceof ServerLevel serverLevel)) {
 				return;
 			}
 			storageWrapper.getContentsUuid().ifPresent(storageUuid ->
-					ServerStorageSoundHandler.stopPlayingDisc((ServerLevel) entity.level(), entity.position(), storageUuid)
+					ServerStorageSoundHandler.stopPlayingDisc(serverLevel, entity.position(), storageUuid)
 			);
 			setIsPlaying(false);
 		}
