@@ -7,9 +7,9 @@ import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
@@ -44,8 +44,8 @@ public class ModCoreDataComponents {
     public static final Supplier<DataComponentType<SortBy>> SORT_BY = DATA_COMPONENT_TYPES.register("sort_by",
             () -> new DataComponentType.Builder<SortBy>().persistent(SortBy.CODEC).networkSynchronized(SortBy.STREAM_CODEC).build());
 
-    public static final Supplier<DataComponentType<CompoundTag>> RENDER_INFO_TAG = DATA_COMPONENT_TYPES.register("render_info_tag",
-            () -> new DataComponentType.Builder<CompoundTag>().persistent(CompoundTag.CODEC).networkSynchronized(ByteBufCodecs.COMPOUND_TAG).build());
+    public static final Supplier<DataComponentType<CustomData>> RENDER_INFO_TAG = DATA_COMPONENT_TYPES.register("render_info_tag",
+            () -> new DataComponentType.Builder<CustomData>().persistent(CustomData.CODEC).networkSynchronized(CustomData.STREAM_CODEC).build());
 
     public static final Supplier<DataComponentType<Boolean>> SHIFT_CLICK_INTO_STORAGE = DATA_COMPONENT_TYPES.register("shift_click_into_storage",
             () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build());

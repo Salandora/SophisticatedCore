@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
@@ -43,7 +44,7 @@ public class InventoryHelper {
 
 	static {
 		//registerPlayerInventoryProvider(player -> player.getCapability(Capabilities.ItemHandler.ENTITY));
-		registerPlayerInventoryProvider(PlayerInventoryStorageWrapper::of);
+		registerPlayerInventoryProvider(InventoryStorageWrapper::of);
 	}
 
 	public static void registerPlayerInventoryProvider(Function<Player, SlottedStackStorage> provider) {

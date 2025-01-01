@@ -26,4 +26,8 @@ public class UpgradeSettingsTabControl extends SettingsTabControl<StorageScreenB
 
 		return true;
 	}
+
+	public void tick() {
+		children.forEach(Tab::tick);
+	}
 }

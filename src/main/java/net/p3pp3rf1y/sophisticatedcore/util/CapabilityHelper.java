@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.p3pp3rf1y.sophisticatedcore.inventory.PlayerInventoryStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
@@ -27,8 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CapabilityHelper {
-
-	public static void runOnItemHandler(Entity entity, Consumer<PlayerInventoryStorageWrapper> run) {
+	public static void runOnItemHandler(Entity entity, Consumer<IInventoryHandlerHelper> run) {
 		runOnCapability(entity, Capabilities.ItemHandler.ENTITY, null, run);
 	}
 

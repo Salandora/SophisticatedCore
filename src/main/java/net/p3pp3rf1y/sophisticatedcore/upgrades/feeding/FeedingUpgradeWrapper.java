@@ -5,6 +5,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -41,13 +42,13 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
-		if (isInCooldown(level) || (entity != null && !(entity instanceof Player))) {
+	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
+		if (isInCooldown(level)) {
 			return;
 		}
 
 		boolean hungryPlayer = false;
-		if (entity == null) {
+		if (!(entity instanceof Player)) {
 			AtomicBoolean stillHungryPlayer = new AtomicBoolean(false);
 			level.getEntities(EntityType.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, level)));
 			hungryPlayer = stillHungryPlayer.get();

@@ -1,10 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.renderdata;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedBatteryUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedTankUpgrade;
@@ -17,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class RenderInfo {
 	private static final String TANKS_TAG = "tanks";
@@ -38,6 +35,7 @@ public abstract class RenderInfo {
 
 	private ItemDisplayRenderInfo itemDisplayRenderInfo;
 	private final Supplier<Runnable> getSaveHandler;
+	private final boolean showsCountsAndFillRatios;
 	private final List<ItemStack> upgradeItems = new ArrayList<>();
 	private final Map<UpgradeRenderDataType<?>, IUpgradeRenderData> upgradeData = new HashMap<>();
 
@@ -49,9 +47,13 @@ public abstract class RenderInfo {
 	};
 
 	protected RenderInfo(Supplier<Runnable> getSaveHandler) {
-		this.getSaveHandler = getSaveHandler;
-		itemDisplayRenderInfo = new ItemDisplayRenderInfo();
+		this(getSaveHandler, false);
+	}
 
+	protected RenderInfo(Supplier<Runnable> getSaveHandler, boolean showsCountsAndFillRatios) {
+		this.getSaveHandler = getSaveHandler;
+		this.showsCountsAndFillRatios = showsCountsAndFillRatios;
+		itemDisplayRenderInfo = new ItemDisplayRenderInfo();
 	}
 
 	public ItemDisplayRenderInfo getItemDisplayRenderInfo() {
@@ -96,8 +98,8 @@ public abstract class RenderInfo {
 		serializeRenderInfo(renderInfo);
 	}
 
-	public void refreshItemDisplayRenderInfo(List<DisplayItem> displayItems, List<Integer> inaccessibleSlots) {
-		itemDisplayRenderInfo = new ItemDisplayRenderInfo(displayItems, inaccessibleSlots);
+	public void refreshItemDisplayRenderInfo(List<DisplayItem> displayItems, List<Integer> inaccessibleSlots, List<Integer> slotCounts, List<Float> slotFillRatios) {
+		itemDisplayRenderInfo = new ItemDisplayRenderInfo(displayItems, inaccessibleSlots, slotCounts, slotFillRatios);
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
 		renderInfo.put(ITEM_DISPLAY_TAG, itemDisplayRenderInfo.serialize());
 		serializeRenderInfo(renderInfo);
@@ -173,7 +175,7 @@ public abstract class RenderInfo {
 		return getRenderInfoTag().orElse(new CompoundTag());
 	}
 
-	public void deserializeFrom(HolderLookup.Provider registries, CompoundTag renderInfoNbt) {
+	public void deserializeFrom(CompoundTag renderInfoNbt) {
 		resetUpgradeInfo(false);
 		upgradeData.clear();
 		serializeRenderInfo(renderInfoNbt);
@@ -254,23 +256,33 @@ public abstract class RenderInfo {
 		return upgradeItems;
 	}
 
+	public boolean showsCountsAndFillRatios() {
+		return showsCountsAndFillRatios;
+	}
+
 	public static class ItemDisplayRenderInfo {
 		private static final String ITEMS_TAG = "items";
 		private static final String INACCESSIBLE_SLOTS_TAG = "inaccessibleSlots";
+		public static final String SLOT_COUNTS_TAG = "slotCounts";
+		public static final String SLOT_FILL_RATIOS_TAG = "slotFillRatios";
 		private final List<DisplayItem> displayItems;
 		private final List<Integer> inaccessibleSlots;
+		private final List<Integer> slotCounts;
+		private final List<Float> slotFillRatios;
 
-		private ItemDisplayRenderInfo(DisplayItem displayItem, List<Integer> inaccessibleSlots) {
-			this(List.of(displayItem), inaccessibleSlots);
+		private ItemDisplayRenderInfo(DisplayItem displayItem, List<Integer> inaccessibleSlots, List<Integer> slotCounts, List<Float> slotFillRatios) {
+			this(List.of(displayItem), inaccessibleSlots, slotCounts, slotFillRatios);
 		}
 
-		private ItemDisplayRenderInfo(List<DisplayItem> displayItems, List<Integer> inaccessibleSlots) {
+		private ItemDisplayRenderInfo(List<DisplayItem> displayItems, List<Integer> inaccessibleSlots, List<Integer> slotCounts, List<Float> slotFillRatios) {
 			this.displayItems = displayItems;
 			this.inaccessibleSlots = inaccessibleSlots;
+			this.slotCounts = slotCounts;
+			this.slotFillRatios = slotFillRatios;
 		}
 
 		public ItemDisplayRenderInfo() {
-			this(new ArrayList<>(), new ArrayList<>());
+			this(new ArrayList<>(), new ArrayList<>(), Collections.emptyList(), Collections.emptyList());
 		}
 
 		public CompoundTag serialize() {
@@ -280,27 +292,32 @@ public abstract class RenderInfo {
 			} else if (displayItems.size() > 1) {
 				NBTHelper.putList(ret, ITEMS_TAG, displayItems, displayItem -> displayItem.serialize(new CompoundTag()));
 			}
-			NBTHelper.putList(ret, INACCESSIBLE_SLOTS_TAG, inaccessibleSlots, IntTag::valueOf);
+			ret.putIntArray(INACCESSIBLE_SLOTS_TAG, inaccessibleSlots.stream().mapToInt(i -> i).toArray());
+			ret.putIntArray(SLOT_COUNTS_TAG, slotCounts.stream().mapToInt(i -> i).toArray());
+			NBTHelper.putList(ret, SLOT_FILL_RATIOS_TAG, slotFillRatios, FloatTag::valueOf);
 			return ret;
 		}
 
 		public static ItemDisplayRenderInfo deserialize(CompoundTag tag) {
-			List<Integer> inaccessibleSlots = NBTHelper.getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).getAsInt()), ArrayList::new).orElseGet(ArrayList::new);
+			List<Integer> inaccessibleSlots;
+			if (tag.getTagType(INACCESSIBLE_SLOTS_TAG) == Tag.TAG_INT_ARRAY) {
+				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG)).boxed().collect(Collectors.toCollection(ArrayList::new));
+			} else {
+				inaccessibleSlots = NBTHelper.getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).getAsInt()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
+			}
+			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG)).boxed().collect(Collectors.toCollection(ArrayList::new));
+			List<Float> slotFillRatios = NBTHelper.getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).getAsFloat()), ArrayList::new).orElseGet(ArrayList::new);
 			if (tag.contains(DisplayItem.ITEM_TAG)) {
-				return new ItemDisplayRenderInfo(DisplayItem.deserialize(tag), inaccessibleSlots);
+				return new ItemDisplayRenderInfo(DisplayItem.deserialize(tag), inaccessibleSlots, slotCounts, slotFillRatios);
 			} else if (tag.contains(ITEMS_TAG)) {
 				List<DisplayItem> items = NBTHelper.getCollection(tag, ITEMS_TAG, Tag.TAG_COMPOUND, stackTag -> Optional.of(DisplayItem.deserialize((CompoundTag) stackTag)), ArrayList::new).orElseGet(ArrayList::new);
-				return new ItemDisplayRenderInfo(items, inaccessibleSlots);
+				return new ItemDisplayRenderInfo(items, inaccessibleSlots, slotCounts, slotFillRatios);
 			}
 			return new ItemDisplayRenderInfo();
 		}
 
 		public Optional<DisplayItem> getDisplayItem() {
-			return isValidIndex(displayItems, 0) ? Optional.of(displayItems.get(0)) : Optional.empty();
-		}
-
-		private boolean isValidIndex(List<?> list, int index) {
-			return index >= 0 && index < list.size();
+			return !displayItems.isEmpty() ? Optional.of(displayItems.getFirst()) : Optional.empty();
 		}
 
 		public List<DisplayItem> getDisplayItems() {
@@ -309,6 +326,14 @@ public abstract class RenderInfo {
 
 		public List<Integer> getInaccessibleSlots() {
 			return inaccessibleSlots;
+		}
+
+		public List<Integer> getSlotCounts() {
+			return slotCounts;
+		}
+
+		public List<Float> getSlotFillRatios() {
+			return slotFillRatios;
 		}
 	}
 
