@@ -19,7 +19,7 @@ public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgrade
 			public void setChanged() {
 				super.setChanged();
 				if (upgradeWrapper.isPlaying()) {
-					upgradeWrapper.stop(player);
+					stop();
 				}
 			}
 		});
