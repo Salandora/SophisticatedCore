@@ -17,6 +17,10 @@ public class MenuProviderHelper {
 		return createMenuProvider(menuConstructor, buf -> buf.writeBlockPos(pos), name);
 	}
 
+	public static <T extends ContextProvider> ExtendedScreenHandlerFactory createMenuProvider(MenuConstructor<T> menuConstructor, Component name, T context) {
+		return createMenuProvider(menuConstructor, context, name);
+	}
+
     public static <T extends ContextProvider> ExtendedScreenHandlerFactory createMenuProvider(MenuConstructor<T> menuConstructor, T context, Component name) {
         return new ExtendedScreenHandlerFactory() {
             @Nullable
