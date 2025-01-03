@@ -23,7 +23,8 @@ public class ScreenEffectRendererMixin {
 
     @Redirect(method = "renderScreenEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/BlockModelShaper;getParticleIcon(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"))
     private static TextureAtlasSprite sophisticatedcore$renderEffectScreen$getParticleIcon(BlockModelShaper instance, BlockState state, @Share("pos") LocalRef<BlockPos> pos) {
-        if (pos.get() != null && instance.getBlockModel(state) instanceof CustomParticleIcon model && Minecraft.getInstance().level.getBlockEntityRenderData(pos.get()) instanceof ModelData data) {
+        if (pos.get() != null && instance.getBlockModel(state) instanceof CustomParticleIcon model) {
+            ModelData data = model.getModelData(Minecraft.getInstance().level, pos.get(), state, ModelData.EMPTY);
             return model.getParticleIcon(data);
         }
         return instance.getParticleIcon(state);
