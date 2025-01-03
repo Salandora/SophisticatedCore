@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -42,7 +43,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
 		if (isInCooldown(level) || (entity != null && !(entity instanceof Player))) {
 			return;
 		}
