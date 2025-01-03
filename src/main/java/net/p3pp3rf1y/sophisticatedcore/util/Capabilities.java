@@ -15,13 +15,13 @@ public class Capabilities {
 		 * Capability for the inventory of an entity.
 		 * If an entity has multiple inventory "subparts", this capability should give a combined view of all the subparts.
 		 */
-		public static final EntityApiLookup<IInventoryHandlerHelper, Void> ENTITY = EntityApiLookup.get(SophisticatedCore.getRL("item_storage"), IInventoryHandlerHelper.class, Void.class);
+		public static final EntityApiLookup<IInventoryHandlerHelper, Void> ENTITY = EntityApiLookup.get(SophisticatedCore.getRL("entity_item_storage"), IInventoryHandlerHelper.class, Void.class);
 
 		/**
 		 * Capability for an inventory of entity that should be accessible to automation,
 		 * in the sense that droppers, hoppers, and similar modded devices will try to use it.
 		 */
-		public static final EntityApiLookup<IInventoryHandlerHelper, Direction> ENTITY_AUTOMATION = EntityApiLookup.get(SophisticatedCore.getRL("item_storage"), IInventoryHandlerHelper.class, Direction.class);
+		public static final EntityApiLookup<IInventoryHandlerHelper, Direction> ENTITY_AUTOMATION = EntityApiLookup.get(SophisticatedCore.getRL("entity_automation_item_storage"), IInventoryHandlerHelper.class, Direction.class);
 
 		static {
 			var containerEntities = List.of(
