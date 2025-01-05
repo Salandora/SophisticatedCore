@@ -35,7 +35,11 @@ public class ShapeBasedRecipeBuilder extends SCShapedRecipeBuilder {
 	}
 
 	public static ShapeBasedRecipeBuilder shaped(ItemLike result, Function<ShapedRecipe, ? extends ShapedRecipe> factory) {
-		return new ShapeBasedRecipeBuilder(new ItemStack(result, 1), factory);
+		return shaped(new ItemStack(result, 1), factory);
+	}
+
+	public static ShapeBasedRecipeBuilder shaped(ItemStack result, Function<ShapedRecipe, ? extends ShapedRecipe> factory) {
+		return new ShapeBasedRecipeBuilder(result, factory);
 	}
 
 	@Override
