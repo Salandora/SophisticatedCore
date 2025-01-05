@@ -74,6 +74,10 @@ public class ShapeBasedRecipeBuilder {
 		return shaped(stack.getItem(), stack.getTag(), RecipeSerializer.SHAPED_RECIPE, stack.getCount());
 	}
 
+	public static ShapeBasedRecipeBuilder shaped(ItemStack result, RecipeSerializer<?> serializer) {
+		return new ShapeBasedRecipeBuilder(result.getItem(), result.getTag(), serializer, 1);
+	}
+
 	public ShapeBasedRecipeBuilder define(Character symbol, TagKey<Item> tagIn) {
 		return define(symbol, Ingredient.of(tagIn));
 	}
