@@ -706,7 +706,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			}
 		}
 
-		return (insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : maxAmount - remaining);
+		return maxAmount - (insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : remaining);
 	}
 
 	private long insertIntoStoragesThatMatchStack(ItemVariant resource, long maxAmount, ItemStackKey stackKey, TransactionContext ctx) {
@@ -914,9 +914,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 		return new CombinedIterator();
 	}
 
-	/**
-	 * The combined iterator for multiple storages.
-	 */
 	private class CombinedIterator implements Iterator<StorageView<ItemVariant>> {
 		final Iterator<BlockPos> positionIterator = storagePositions.iterator();
 		// Always holds the next StorageView<T>, except during next() while the iterator is being advanced.
