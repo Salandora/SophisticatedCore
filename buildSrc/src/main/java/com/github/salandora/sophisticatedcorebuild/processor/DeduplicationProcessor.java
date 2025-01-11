@@ -73,6 +73,11 @@ public class DeduplicationProcessor implements ProjectProcessor {
 					for (Iterator<Path> itr = files.iterator(); itr.hasNext();) {
 						Path jij = itr.next();
 						log("jij: " + jij.getFileName());
+						if (jij.getFileName().toString().endsWith("-dev.jar")) {
+							log("skipped");
+							Files.delete(jij);
+							continue;
+						}
 						// move all of that jar's JiJs
 						moveInclusions(jij, target);
 						// and move the jar itself
@@ -163,6 +168,6 @@ public class DeduplicationProcessor implements ProjectProcessor {
 	}
 
 	public static void log(String data) {
-		//		log(data);
+		System.out.println(data);
 	}
 }
