@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.client.render.CustomParticleIcon;
 import net.p3pp3rf1y.sophisticatedcore.extensions.client.particle.SophisticatedTerrainParticle;
+import net.p3pp3rf1y.sophisticatedcore.util.model.ModelData;
 import org.spongepowered.asm.mixin.Mixin;
 
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +26,9 @@ public abstract class TerrainParticleMixin extends TextureSheetParticle implemen
 	public Particle sophisticatedCore_updateSprite(BlockState state, @Nullable BlockPos pos) {
 		if (pos != null) {
 			BlockModelShaper shaper = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
-			BakedModel model = shaper.getBlockModel(state);
-			if (model instanceof CustomParticleIcon) {
-				this.setSprite(shaper.getParticleIcon(state));
+			if (shaper.getBlockModel(state) instanceof CustomParticleIcon model) {
+				ModelData data = model.getModelData(Minecraft.getInstance().level, pos, state, ModelData.EMPTY);
+				this.setSprite(model.getParticleIcon(data));
 			}
 		}
 

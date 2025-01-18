@@ -7,7 +7,6 @@ import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.runtime.EmiDrawContext;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +14,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
-import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetGhostSlotPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.pump.PumpUpgradeTab;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
@@ -51,7 +49,7 @@ public class EmiStorageGhostDragDropHandler<T extends StorageScreenBase<?>> impl
                     if (s instanceof IFilterSlot && s.mayPlace(ghostStack)) {
                         map.put(
                                 new Bounds(screen.getLeftX() + s.x, screen.getTopY() + s.y, 18, 18),
-                                (i) -> PacketDistributor.sendToServer(new SetGhostSlotPayload(ghostStack, s.index)));
+                                (i) -> PacketDistributor.sendToServer(new EmiSetGhostSlotPayload(ghostStack, s.index)));
                     }
                 }));
             } else if (ingredient instanceof FluidEmiStack fluidStack) {

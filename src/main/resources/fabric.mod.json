@@ -42,8 +42,6 @@
         "minecraft": "${minecraft_version}",
         "fabricloader": ">=${loader_version}",
         "fabric-api": ">=${fabric_version}",
-        "porting_lib_fluids": ">=${port_lib_version}",
-        "porting_lib_transfer": ">=${port_lib_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
         "team_reborn_energy": ">=${energy_version}"
     },

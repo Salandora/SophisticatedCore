@@ -13,10 +13,6 @@ public interface SophisticatedMutableDataComponentHolder extends DataComponentHo
 		return this.sophisticatedCore_set(componentType.get(), value);
 	}
 
-	default <T> @Nullable T sophisticatedCore_get(Supplier<? extends DataComponentType<? extends T>> componentType) {
-		return this.get(componentType.get());
-	}
-
 	<T> @Nullable T sophisticatedCore_remove(DataComponentType<? extends T> type);
 
 	default <T> @Nullable T sophisticatedCore_remove(Supplier<? extends DataComponentType<? extends T>> componentType) {

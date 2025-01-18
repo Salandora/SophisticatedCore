@@ -1,11 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
@@ -13,12 +11,14 @@ import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.common.transfer.TransferOperation;
 import mezz.jei.common.util.StringUtil;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class CraftingContainerRecipeTransferHandlerBase<C extends StorageContainerMenuBase<?>> implements IRecipeTransferHandler<C, RecipeHolder<CraftingRecipe>> {
+public abstract class CraftingContainerRecipeTransferHandlerBase<C extends StorageContainerMenuBase<?>, R extends RecipeHolder<? extends Recipe<?>>> implements IRecipeTransferHandler<C, R> {
 	private final IRecipeTransferHandlerHelper handlerHelper;
 	private final IStackHelper stackHelper;
 
@@ -44,15 +44,10 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 		return Optional.empty();
 	}
 
-	@Override
-	public RecipeType<RecipeHolder<CraftingRecipe>> getRecipeType() {
-		return RecipeTypes.CRAFTING;
-	}
-
 	@Nullable
 	@Override
-	public IRecipeTransferError transferRecipe(C container, RecipeHolder<CraftingRecipe> recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
-		Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = container.getOpenOrFirstCraftingContainer();
+	public IRecipeTransferError transferRecipe(C container, R recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
+		Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = container.getOpenOrFirstCraftingContainer(recipe.value().getType());
 		if (potentialCraftingContainer.isEmpty()) {
 			return handlerHelper.createInternalError();
 		}
@@ -109,13 +104,17 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 				openOrFirstCraftingContainer.setIsOpen(true);
 				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
 			}
-			TransferRecipePayload packet = new TransferRecipePayload(
-					recipe.id(),
-					toMap(transferOperations.results, container),
-					craftingSlotIndexes,
-					inventorySlotIndexes,
-					maxTransfer);
-			PacketDistributor.sendToServer(packet);
+			ResourceLocation recipeTypeId = BuiltInRegistries.RECIPE_TYPE.getKey(recipe.value().getType());
+			if (recipeTypeId != null) {
+				TransferRecipePayload packet = new TransferRecipePayload(
+						recipe.id(),
+						recipeTypeId,
+						toMap(transferOperations.results, container),
+						craftingSlotIndexes,
+						inventorySlotIndexes,
+						maxTransfer);
+				PacketDistributor.sendToServer(packet);
+			}
 		}
 
 		return null;

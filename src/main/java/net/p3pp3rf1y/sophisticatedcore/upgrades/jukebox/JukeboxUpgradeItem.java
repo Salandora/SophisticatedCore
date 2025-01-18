@@ -4,6 +4,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackSto
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.JukeboxSong;
@@ -73,7 +74,7 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 					.ifPresent(song -> ServerStorageSoundHandler.startPlayingDisc(serverLevel, pos, storageUuid, getDisc(), song, () -> setIsPlaying(false))));
 		}
 
-		public void play(LivingEntity entity) {
+		public void play(Entity entity) {
 			play(entity.level(), (world, storageUuid) -> JukeboxSong.fromStack(entity.level().registryAccess(), getDisc())
 					.ifPresent(song -> ServerStorageSoundHandler.startPlayingDisc(world, entity.position(), storageUuid, entity.getId(), getDisc(), song, () -> setIsPlaying(false))));
 		}
@@ -116,7 +117,7 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeItem.Wrapp
 		}
 
 		@Override
-		public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+		public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
 			if (isPlaying && lastKeepAliveSendTime < level.getGameTime() - KEEP_ALIVE_SEND_INTERVAL) {
 				storageWrapper.getContentsUuid().ifPresent(storageUuid ->
 						ServerStorageSoundHandler.updateKeepAlive(storageUuid, level, entity != null ? entity.position() : Vec3.atCenterOf(pos), () -> setIsPlaying(false))

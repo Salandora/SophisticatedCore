@@ -51,8 +51,8 @@ repositories {
             includeGroupByRegex "io.github.fabricators_of_create.Porting-Lib.*"
         }
     }
-    /*maven { url = "https://mvn.devos.one/snapshots/" } // Create, Porting Lib
-    maven { url = "https://mvn.devos.one/releases/" } // Porting Lib*/
+    maven { url = "https://mvn.devos.one/snapshots/" } // Create, Porting Lib
+    maven { url = "https://mvn.devos.one/releases/" } // Porting Lib
 
     maven { // Forge Config API Port
         name = "Fuzs Mod Resources"
@@ -186,8 +186,8 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 
-    for (def module in port_lib_modules.split(',')) {
-        modApi(include("io.github.fabricators_of_create.Porting-Lib:${module.trim()}:$port_lib_version+$minecraft_version"))
+    for (def module in porting_lib_modules.split(',')) {
+        modApi(include("io.github.fabricators_of_create.Porting-Lib:${module.trim()}:$porting_lib_version+$minecraft_version"))
     }
 
     // EMI
@@ -218,6 +218,8 @@ dependencies {
     modCompileOnly("maven.modrinth:admiral:${admiral_version}")
     modCompileOnly("maven.modrinth:simple-voice-chat:${simple_voice_chat_version}")
     modCompileOnly("maven.modrinth:audioplayer:${audioplayer_version}")
+
+    modCompileOnly("dev.emi:trinkets:$project.trinkets_version")
 
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.+'
@@ -289,7 +291,6 @@ processResources {
             fabric_version      : project.fabric_version,
             forge_config_version: project.forge_config_api_port_version,
             energy_version      : project.energy_version,
-            port_lib_version    : project.port_lib_version,
             jei_version         : project.jei_version
     ]
 

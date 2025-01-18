@@ -1,36 +1,38 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class PlayerInventoryStorageWrapper implements IInventoryHandlerHelper {
-	public static PlayerInventoryStorageWrapper of(Player player) {
-		return new PlayerInventoryStorageWrapper(PlayerInventoryStorage.of(player.getInventory()));
+public class InventoryStorageWrapper implements SlottedStackStorage, IInventoryHandlerHelper {
+	public static InventoryStorageWrapper of(Player player) {
+		return new InventoryStorageWrapper(player.getInventory());
+	}
+	public static InventoryStorageWrapper of(Container container) {
+		return new InventoryStorageWrapper(container);
 	}
 
-	public static PlayerInventoryStorageWrapper of(Inventory playerInventory) {
-		return new PlayerInventoryStorageWrapper(PlayerInventoryStorage.of(playerInventory));
-	}
+	private final InventoryStorage wrapped;
+	private final Container wrappedInventory;
 
-	private PlayerInventoryStorage wrapped;
-
-	private PlayerInventoryStorageWrapper(PlayerInventoryStorage wrapped) {
-		this.wrapped = wrapped;
+	private InventoryStorageWrapper(Container inventory) {
+		this.wrapped = InventoryStorage.of(inventory, null);
+		this.wrappedInventory = inventory;
 	}
 
 	@Override
 	public @UnmodifiableView List<SingleSlotStorage<ItemVariant>> getSlots() {
-		return List.of();
+		return wrapped.getSlots();
 	}
 
 	@Override
@@ -53,16 +55,19 @@ public class PlayerInventoryStorageWrapper implements IInventoryHandlerHelper {
 		return wrapped.extract(resource, maxAmount, transaction);
 	}
 
-	public long offer(ItemVariant variant, long maxAmount, TransactionContext transaction) {
-		return wrapped.offer(variant, maxAmount, transaction);
+	@Override
+	public ItemStack getStackInSlot(int slot) {
+		return wrappedInventory.getItem(slot);
 	}
 
-	public void drop(ItemVariant variant, long amount, boolean throwRandomly, boolean retainOwnership, TransactionContext transaction) {
-		wrapped.drop(variant, amount, throwRandomly, retainOwnership, transaction);
+	@Override
+	public void setStackInSlot(int slot, ItemStack stack) {
+		this.wrappedInventory.setItem(slot, stack);
 	}
 
-	public SingleSlotStorage<ItemVariant> getHandSlot(InteractionHand hand) {
-		return wrapped.getHandSlot(hand);
+	@Override
+	public int getSlotLimit(int slot) {
+		return (int) wrapped.getSlot(slot).getCapacity();
 	}
 
 	@Override

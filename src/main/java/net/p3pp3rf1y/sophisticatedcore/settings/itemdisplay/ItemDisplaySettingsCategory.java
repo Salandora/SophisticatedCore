@@ -13,6 +13,7 @@ import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.settings.ISettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.ISlotColorCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
 import java.util.*;
@@ -77,16 +78,36 @@ public class ItemDisplaySettingsCategory implements ISettingsCategory<ItemDispla
 		}
 
 		int i = 0;
+		InventoryHandler inventoryHandler = inventoryHandlerSupplier.get();
 		for (int slotIndex : slotIndexes) {
 			ItemStack newItem = getSlotItemCopy(slotIndex).orElse(ItemStack.EMPTY);
 
 			ItemStack stack = previousDisplayItems.get(i).getItem();
 			if (ItemStack.hashItemAndComponents(newItem) != ItemStack.hashItemAndComponents(stack)
-					|| (inaccessibleSlots.contains(slotIndex) == inventoryHandlerSupplier.get().isSlotAccessible(slotIndex))) {
+					|| (inaccessibleSlots.contains(slotIndex) == inventoryHandler.isSlotAccessible(slotIndex))) {
 				return true;
 			}
 
 			i++;
+		}
+
+		if (renderInfoSupplier.get().showsCountsAndFillRatios()) {
+			List<Integer> previousSlotCounts = renderInfoSupplier.get().getItemDisplayRenderInfo().getSlotCounts();
+			List<Float> previousSlotFillRatios = renderInfoSupplier.get().getItemDisplayRenderInfo().getSlotFillRatios();
+
+			if (previousSlotCounts.size() != inventoryHandler.getSlotCount() || previousSlotFillRatios.size() != inventoryHandler.getSlotCount()) {
+				return true;
+			}
+
+			for (int slotIndex = 0; slotIndex < inventoryHandler.getSlotCount(); slotIndex++) {
+				int previousSlotCount = previousSlotCounts.get(slotIndex);
+				float previousSlotFillRatio = previousSlotFillRatios.get(slotIndex);
+				ItemStack stack = inventoryHandler.getStackInSlot(slotIndex);
+				float currentSlotFillRatio = calculateSlotFillRatio(stack, inventoryHandler, slotIndex);
+				if (previousSlotCount != stack.getCount() || !MathHelper.epsilonEquals(previousSlotFillRatio, currentSlotFillRatio)) {
+					return true;
+				}
+			}
 		}
 
 		return i != previousDisplayItems.size();
@@ -95,15 +116,30 @@ public class ItemDisplaySettingsCategory implements ISettingsCategory<ItemDispla
 	private void updateFullRenderInfo() {
 		List<RenderInfo.DisplayItem> displayItems = new ArrayList<>();
 		List<Integer> inaccessibleSlots = new ArrayList<>();
+		InventoryHandler inventoryHandler = inventoryHandlerSupplier.get();
 		for (int slotIndex : slotIndexes) {
-			getSlotItemCopy(slotIndex).ifPresent(stackCopy ->
-					displayItems.add(new RenderInfo.DisplayItem(stackCopy, slotRotations.getOrDefault(slotIndex, 0), slotIndex, displaySide)));
-			if (!inventoryHandlerSupplier.get().isSlotAccessible(slotIndex)) {
+			displayItems.add(new RenderInfo.DisplayItem(getSlotItemCopy(slotIndex).orElse(ItemStack.EMPTY), slotRotations.getOrDefault(slotIndex, 0), slotIndex, displaySide));
+			if (!inventoryHandler.isSlotAccessible(slotIndex)) {
 				inaccessibleSlots.add(slotIndex);
 			}
 		}
 
-		renderInfoSupplier.get().refreshItemDisplayRenderInfo(displayItems, inaccessibleSlots);
+		List<Integer> slotCounts = new ArrayList<>();
+		List<Float> slotFillRatios = new ArrayList<>();
+
+		if (renderInfoSupplier.get().showsCountsAndFillRatios()) {
+			for (int slotIndex = 0; slotIndex < inventoryHandler.getSlotCount(); slotIndex++) {
+				ItemStack stack = inventoryHandler.getStackInSlot(slotIndex);
+				slotCounts.add(stack.getCount());
+				slotFillRatios.add(calculateSlotFillRatio(stack, inventoryHandler, slotIndex));
+			}
+		}
+
+		renderInfoSupplier.get().refreshItemDisplayRenderInfo(displayItems, inaccessibleSlots, slotCounts, slotFillRatios);
+	}
+
+	private static float calculateSlotFillRatio(ItemStack stack, InventoryHandler inventoryHandler, int slotIndex) {
+		return stack.isEmpty() ? 0 : (float) stack.getCount() / inventoryHandler.getStackLimit(slotIndex, stack);
 	}
 
 	private Optional<ItemStack> getSlotItemCopy(int slotIndex) {

@@ -5,7 +5,6 @@ import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
-import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetMemorySlotPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsTab;
 
@@ -35,7 +34,7 @@ public class EmiSettingsGhostDragDropHandler<T extends SettingsScreen> extends E
 
                 ItemStack stack = stacks.get(0).getItemStack();
                 if (slot.mayPlace(stack)) {
-					PacketDistributor.sendToServer(new SetMemorySlotPayload(stack, slot.index));
+					PacketDistributor.sendToServer(new EmiSetMemorySlotPayload(stack, slot.index));
                 }
             }
         );

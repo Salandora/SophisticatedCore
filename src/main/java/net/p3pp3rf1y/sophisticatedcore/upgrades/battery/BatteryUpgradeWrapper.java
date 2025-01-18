@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -168,7 +168,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	@Override
-	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
 		if (getAmount() < getCapacity()) {
 			EnergyStorageUtil.move(
 					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(INPUT_SLOT)).find(EnergyStorage.ITEM),
@@ -199,7 +199,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	/*@Override
-	public void tick(@Nullable LivingEntity entity, Level level, BlockPos pos) {
+	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
 		if (energyStored < getMaxEnergyStored()) {
 			ItemStack energyContainer = inventory.getStackInSlot(INPUT_SLOT);
 			IEnergyStorage energyStorage = energyContainer.getCapability(Capabilities.EnergyStorage.ITEM);
@@ -228,9 +228,9 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 				inventory.setStackInSlotWithoutValidation(OUTPUT_SLOT, energyContainer);
 			}
 		}
-	}*/
+	}
 
-/*	private void receiveFromStorage(IEnergyStorage energyStorage) {
+	private void receiveFromStorage(IEnergyStorage energyStorage) {
 		int toReceive = innerReceiveEnergy(getMaxInOut(), true);
 		if (toReceive > 0) {
 			toReceive = energyStorage.extractEnergy(toReceive, true);

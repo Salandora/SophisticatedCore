@@ -56,6 +56,13 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 	}
 
 	/**
+	 * Creates a new builder for a shapeless recipe.
+	 */
+	public static SCShapelessRecipeBuilder shapeless(RecipeCategory category, ItemStack result) {
+		return new SCShapelessRecipeBuilder(category, result);
+	}
+
+	/**
 	 * Adds an ingredient that can be any item in the given tag.
 	 */
 	public SCShapelessRecipeBuilder requires(TagKey<Item> tag) {

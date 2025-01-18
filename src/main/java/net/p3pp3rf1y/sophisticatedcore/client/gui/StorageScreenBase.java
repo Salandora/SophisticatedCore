@@ -66,7 +66,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private static final int ERROR_TEXT_COLOR = DyeColor.RED.getTextureDiffuseColor();
 	public static final int HEIGHT_WITHOUT_STORAGE_SLOTS = 114;
 
-	private UpgradeSettingsTabControl settingsTabControl = new UpgradeSettingsTabControl(new Position(0, 0), this, "");
+	private UpgradeSettingsTabControl settingsTabControl;
 	private final int numberOfUpgradeSlots;
 	@Nullable
 	private Button sortButton = null;
@@ -543,7 +543,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void renderStorageInventorySlots(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
-		for (int slotId = 0; slotId < menu.realInventorySlots.size() && slotId < getMenu().getInventorySlotsSize(); ++slotId) {
+		for (int slotId = 0; slotId < menu.realInventorySlots.size() && slotId < getMenu().getNumberOfStorageInventorySlots(); ++slotId) {
 			Slot slot = menu.realInventorySlots.get(slotId);
 			renderSlot(guiGraphics, slot);
 
@@ -1116,6 +1116,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	public int getLeftX() {
 		return sophisticatedCore_getGuiLeft();
+	}
+
+	@Override
+	protected void containerTick() {
+		super.containerTick();
+		settingsTabControl.tick();
 	}
 
 	private class TransferButton extends Button {

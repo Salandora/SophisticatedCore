@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.controller;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -530,7 +529,11 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		if (index < 0 || index >= storagePositions.size()) {
 			return (IItemHandlerSimpleInserter) EmptyItemHandler.INSTANCE;
 		}
-		return getWrapperValueFromHolder(storagePositions.get(index), wrapper -> (IItemHandlerSimpleInserter) wrapper.getInventoryForInputOutput()).orElse((IItemHandlerSimpleInserter) EmptyItemHandler.INSTANCE);
+		return getHandlerFromBlockPos(storagePositions.get(index));
+	}
+
+	private IItemHandlerSimpleInserter getHandlerFromBlockPos(BlockPos pos) {
+		return getWrapperValueFromHolder(pos, wrapper -> (IItemHandlerSimpleInserter) wrapper.getInventoryForInputOutput()).orElse((IItemHandlerSimpleInserter) EmptyItemHandler.INSTANCE);
 	}
 
 	protected int getSlotFromIndex(int slot, int index) {
@@ -645,7 +648,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			}
 		}
 
-		return (insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : maxAmount - remaining);
+		return maxAmount - (insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : remaining);
 	}
 
 	private long insertIntoStoragesThatMatchStack(ItemVariant resource, long maxAmount, ItemStackKey stackKey, @Nullable TransactionContext ctx) {
@@ -891,10 +894,47 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 	@Override
 	public Iterator<StorageView<ItemVariant>> iterator() {
-		CombinedSlottedStorage<ItemVariant, SlottedStackStorage> combinedStorage = new CombinedSlottedStorage<>(new ArrayList<>());
-		for (int i = 0; i < storagePositions.size(); i++) {
-			combinedStorage.parts.add(getHandlerFromIndex(i));
+		return new CombinedIterator();
+	}
+
+	private class CombinedIterator implements Iterator<StorageView<ItemVariant>> {
+		final Iterator<BlockPos> positionIterator = storagePositions.iterator();
+		// Always holds the next StorageView<T>, except during next() while the iterator is being advanced.
+		Iterator<? extends StorageView<ItemVariant>> currentHandlerIterator = null;
+
+		CombinedIterator() {
+			advanceCurrentPartIterator();
 		}
-		return combinedStorage.iterator();
+
+		@Override
+		public boolean hasNext() {
+			return currentHandlerIterator != null && currentHandlerIterator.hasNext();
+		}
+
+		@Override
+		public StorageView<ItemVariant> next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+
+			StorageView<ItemVariant> returned = currentHandlerIterator.next();
+
+			// Advance the current part iterator
+			if (!currentHandlerIterator.hasNext()) {
+				advanceCurrentPartIterator();
+			}
+
+			return returned;
+		}
+
+		private void advanceCurrentPartIterator() {
+			while (positionIterator.hasNext()) {
+				this.currentHandlerIterator = getHandlerFromBlockPos(positionIterator.next()).iterator();
+
+				if (this.currentHandlerIterator.hasNext()) {
+					break;
+				}
+			}
+		}
 	}
 }

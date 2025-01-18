@@ -4,7 +4,10 @@ import net.blay09.mods.craftingtweaks.CraftingTweaksProviderManager;
 import net.blay09.mods.craftingtweaks.api.CraftingTweaksClientAPI;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.components.Button;
+import net.blay09.mods.craftingtweaks.api.TweakType;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
@@ -16,14 +19,14 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
     @Environment(EnvType.CLIENT)
 	private StorageScreenBase<?> storageScreen;
 
-	private final List<Button> buttons = new ArrayList<>();
+	private final List<AbstractWidget> buttons = new ArrayList<>();
 
 	public static void register() {
 		StorageScreenBase.setCraftingUIPart(new CraftingUpgradeTweakUIPart());
 	}
 
     @Environment(EnvType.CLIENT)
-	private void addButton(Button button) {
+	private void addButton(AbstractWidget button) {
 		buttons.add(button);
 		storageScreen.addRenderableWidget(button);
 	}
@@ -31,7 +34,7 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
 	@Override
     @Environment(EnvType.CLIENT)
 	public void onCraftingSlotsHidden() {
-		if (buttons.isEmpty()) {
+		if (buttons.isEmpty() || storageScreen == null) {
 			return;
 		}
 
@@ -53,14 +56,14 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
 
 	@Override
 	public void onCraftingSlotsDisplayed(List<Slot> slots) {
-		if (slots.isEmpty()) {
+		if (slots.isEmpty() || storageScreen == null) {
 			return;
 		}
-		Slot firstSlot = slots.get(0);
+		Slot firstSlot = slots.getFirst();
 		CraftingTweaksProviderManager.getDefaultCraftingGrid(storageScreen.getMenu()).ifPresent(craftingGrid -> {
-			addButton(CraftingTweaksClientAPI.createRotateButtonRelative(craftingGrid, storageScreen, getButtonX(firstSlot), getButtonY(firstSlot, 0)));
-			addButton(CraftingTweaksClientAPI.createBalanceButtonRelative(craftingGrid, storageScreen, getButtonX(firstSlot), getButtonY(firstSlot, 1)));
-			addButton(CraftingTweaksClientAPI.createClearButtonRelative(craftingGrid, storageScreen, getButtonX(firstSlot), getButtonY(firstSlot, 2)));
+			addButton(CraftingTweaksClientAPI.createTweakButtonRelative(craftingGrid, storageScreen, getButtonX(firstSlot), getButtonY(firstSlot, 0), TweakType.Rotate));
+			addButton(CraftingTweaksClientAPI.createTweakButtonRelative(craftingGrid, storageScreen, getButtonX(firstSlot), getButtonY(firstSlot, 1), TweakType.Balance));
+			addButton(CraftingTweaksClientAPI.createTweakButtonRelative(craftingGrid, storageScreen, getButtonX(firstSlot), getButtonY(firstSlot, 2), TweakType.Clear));
 		});
 	}
 
