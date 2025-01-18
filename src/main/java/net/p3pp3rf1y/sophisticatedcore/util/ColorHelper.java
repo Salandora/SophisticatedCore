@@ -63,4 +63,9 @@ public class ColorHelper {
 
 		return finalColor;
 	}
+
+	public static String getHexColor(int rgb) {
+		rgb = rgb & 0x00FFFFFF;
+		return String.format("#%06X", rgb);
+	}
 }

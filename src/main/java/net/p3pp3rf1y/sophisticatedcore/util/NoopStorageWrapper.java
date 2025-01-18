@@ -40,7 +40,7 @@ public class NoopStorageWrapper implements IStorageWrapper {
     }
 
     @Override
-    public void setSaveHandler(Runnable saveHandler) {
+    public void setContentsChangeHandler(Runnable saveHandler) {
         //noop
     }
 

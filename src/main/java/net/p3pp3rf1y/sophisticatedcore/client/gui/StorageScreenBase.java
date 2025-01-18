@@ -475,7 +475,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void renderStorageInventorySlots(GuiGraphics guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
-		for (int slotId = 0; slotId < menu.realInventorySlots.size() && slotId < getMenu().getInventorySlotsSize(); ++slotId) {
+		for (int slotId = 0; slotId < menu.realInventorySlots.size() && slotId < getMenu().getNumberOfStorageInventorySlots(); ++slotId) {
 			Slot slot = menu.realInventorySlots.get(slotId);
 			renderSlot(guiGraphics, slot);
 
@@ -1054,6 +1054,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	public int getLeftX() {
 		return ((AbstractContainerScreenAccessor) this).getGuiLeft();
+	}
+
+	@Override
+	protected void containerTick() {
+		super.containerTick();
+		settingsTabControl.tick();
 	}
 
 	private class TransferButton extends Button {

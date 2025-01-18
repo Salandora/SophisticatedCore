@@ -11,12 +11,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -97,6 +99,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	public abstract Optional<BlockPos> getBlockPosition();
+
+	public abstract Optional<Entity> getEntity();
 
 	protected void initSlotsAndContainers(Player player, int storageItemSlotIndex, boolean shouldLockStorageItemSlot) {
 		addStorageInventorySlots();
@@ -293,10 +297,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return addSlot(slot);
 	}
 
-	public void closeScreenIfSomethingMessedWithStorageItemStack() {
-		if (!isClientSide() && storageItemHasChanged()) {
-			player.closeContainer();
-		}
+	public boolean hasSomethingMessedWithStorage() {
+		return !isClientSide() && (storageItemHasChanged() || realInventorySlots.size() != storageWrapper.getInventoryHandler().getSlotCount() + NUMBER_OF_PLAYER_SLOTS);
 	}
 
 	protected boolean isClientSide() {
@@ -773,10 +775,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected abstract boolean storageItemHasChanged();
 
 	@SuppressWarnings("unchecked") // both conditions of T are checked before casting it in the result
-	public <T extends UpgradeContainerBase<?, ?> & ICraftingContainer> Optional<T> getOpenOrFirstCraftingContainer() {
+	public <T extends UpgradeContainerBase<?, ?> & ICraftingContainer> Optional<T> getOpenOrFirstCraftingContainer(RecipeType<?> recipeType) {
 		T firstContainer = null;
 		for (UpgradeContainerBase<?, ?> container : upgradeContainers.values()) {
-			if (container instanceof ICraftingContainer) {
+			if (container instanceof ICraftingContainer craftingContainer && craftingContainer.getRecipeType() == recipeType) {
 				if (container.isOpen()) {
 					return Optional.of((T) container);
 				} else if (firstContainer == null) {
@@ -1453,7 +1455,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public void broadcastChanges() {
-		closeScreenIfSomethingMessedWithStorageItemStack();
+		if (hasSomethingMessedWithStorage()) {
+			player.closeContainer();
+			return;
+		}
 
 		((AbstractContainerMenuAccessor) this).callSynchronizeCarriedToRemote();
 		broadcastChangesIn(lastUpgradeSlots, remoteUpgradeSlots, upgradeSlots, getFirstUpgradeSlot());

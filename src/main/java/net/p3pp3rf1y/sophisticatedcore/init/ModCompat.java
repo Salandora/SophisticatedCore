@@ -10,6 +10,7 @@ import net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
+import net.p3pp3rf1y.sophisticatedcore.compat.trinkets.TrinketsCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +23,19 @@ public class ModCompat {
 	private static final Map<String, Supplier<Callable<ICompat>>> compatFactories = new HashMap<>();
 
 	static {
-		compatFactories.put(CompatModIds.EMI, () -> EmiCompat::new);
 		compatFactories.put(CompatModIds.JEI, () -> JeiCompat::new);
-		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
 		compatFactories.put(CompatModIds.CRAFTING_TWEAKS, () -> CraftingTweaksCompat::new);
 		//compatFactories.put(CompatModIds.INVENTORY_SORTER, () -> InventorySorterCompat::new);
 		//compatFactories.put(CompatModIds.ITEM_BORDERS, () -> ItemBordersCompat::new);
+		//compatFactories.put(CompatModIds.CURIOS, () -> CuriosCompat::new);
 		//compatFactories.put(CompatModIds.QUARK, () -> QuarkCompat::new); //TODO readd quark compat
+
+		// Fabric additions
+		compatFactories.put(CompatModIds.EMI, () -> EmiCompat::new);
+		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
 		compatFactories.put(CompatModIds.LITEMATICA, () -> LitematicaCompat::new);
 		compatFactories.put(CompatModIds.AUDIOPLAYER, () -> AudioPlayerCompat::new);
+		compatFactories.put(CompatModIds.TRINKETS, () -> TrinketsCompat::new);
 	}
 
 	public static void initCompats() {

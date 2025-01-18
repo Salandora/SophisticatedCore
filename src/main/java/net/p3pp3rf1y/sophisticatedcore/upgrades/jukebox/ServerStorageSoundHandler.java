@@ -159,6 +159,7 @@ public class ServerStorageSoundHandler {
 			worldStorageSoundKeepAlive.get(dim).get(storageUuid).getSoundHandler().stop(serverWorld, position, storageUuid);
 		}
 		removeKeepAliveInfo(serverWorld, storageUuid);
+		sendStopMessage(serverWorld, position, storageUuid);
 	}
 
 	private static void removeKeepAliveInfo(ServerLevel serverWorld, UUID storageUuid) {

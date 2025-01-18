@@ -17,4 +17,6 @@ public interface SophisticatedEntity {
 	default Collection<ItemEntity> sophisticatedCaptureDrops(Collection<ItemEntity> value) {
 		throw new RuntimeException("This should have been implemented via mixin.");
 	}
+
+	default void sophisticatedInvalidateCaps() {}
 }

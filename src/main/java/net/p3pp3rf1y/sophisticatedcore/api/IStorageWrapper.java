@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public interface IStorageWrapper {
 
-	void setSaveHandler(Runnable saveHandler);
+	void setContentsChangeHandler(Runnable saveHandler);
 
 	default void setInventorySlotChangeHandler(Runnable slotChangeHandler) {
 		//noop

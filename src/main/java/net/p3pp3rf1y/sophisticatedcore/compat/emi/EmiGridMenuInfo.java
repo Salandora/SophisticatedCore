@@ -12,6 +12,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
@@ -22,24 +24,39 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements StandardRecipeHandler<T> {
+	private final RecipeType<? extends Recipe<?>> recipeType;
+
+	public static <T extends StorageContainerMenuBase<?>> EmiGridMenuInfo<T> crafting() {
+		return new EmiGridMenuInfo<>(RecipeType.CRAFTING);
+	}
+	public static <T extends StorageContainerMenuBase<?>> EmiGridMenuInfo<T> smithing() {
+		return new EmiGridMenuInfo<>(RecipeType.SMITHING);
+	}
+	public static <T extends StorageContainerMenuBase<?>> EmiGridMenuInfo<T> stonecutting() {
+		return new EmiGridMenuInfo<>(RecipeType.STONECUTTING);
+	}
+
+	private EmiGridMenuInfo(RecipeType<? extends Recipe<?>> recipeType) {
+		this.recipeType = recipeType;
+	}
 
     @Override
     public List<Slot> getInputSources(T handler) {
         List<Slot> slots = new ArrayList<>(handler.realInventorySlots);
-        handler.getOpenOrFirstCraftingContainer().ifPresent(c -> slots.addAll(c.getRecipeSlots()));
+        handler.getOpenOrFirstCraftingContainer(recipeType).ifPresent(c -> slots.addAll(c.getRecipeSlots()));
         return slots;
     }
 
     @Override
     public List<Slot> getCraftingSlots(T handler) {
         List<Slot> slots = new ArrayList<>();
-        handler.getOpenOrFirstCraftingContainer().ifPresent(c -> slots.addAll(c.getRecipeSlots()));
+        handler.getOpenOrFirstCraftingContainer(recipeType).ifPresent(c -> slots.addAll(c.getRecipeSlots()));
         return slots;
     }
 
     @Override
     public @Nullable Slot getOutputSlot(T handler) {
-        return handler.getOpenOrFirstCraftingContainer().map(c -> c.getSlots().get(c.getSlots().size() - 1)).orElse(null);
+        return handler.getOpenOrFirstCraftingContainer(recipeType).map(c -> c.getSlots().get(c.getSlots().size() - 1)).orElse(null);
     }
 
     @Override
@@ -49,13 +66,13 @@ public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements S
 
 	@Override
 	public boolean canCraft(EmiRecipe recipe, EmiCraftContext<T> context) {
-		return context.getScreenHandler().getOpenOrFirstCraftingContainer().isPresent() && StandardRecipeHandler.super.canCraft(recipe, context);
+		return context.getScreenHandler().getOpenOrFirstCraftingContainer(recipeType).isPresent() && StandardRecipeHandler.super.canCraft(recipe, context);
 	}
 
 	@Override
     public boolean craft(EmiRecipe recipe, EmiCraftContext<T> context) {
 		T container = context.getScreenHandler();
-		Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = container.getOpenOrFirstCraftingContainer();
+		Optional<? extends UpgradeContainerBase<?, ?>> potentialCraftingContainer = container.getOpenOrFirstCraftingContainer(RecipeType.CRAFTING);
 
         List<ItemStack> stacks = EmiRecipeFiller.getStacks(this, recipe, context.getScreen(), context.getAmount());
         if (stacks != null) {
