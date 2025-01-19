@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.PlayDiscMessage;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundStopNotificationMessage;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundFinishedNotificationMessage;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StopDiscPlaybackMessage;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.tank.TankClickMessage;
 
@@ -36,12 +36,12 @@ public class PacketHandler {
 		registerS2CMessage(SyncPlayerSettingsMessage.class, SyncPlayerSettingsMessage::new);
 		registerS2CMessage(PlayDiscMessage.class, PlayDiscMessage::new);
 		registerS2CMessage(StopDiscPlaybackMessage.class, StopDiscPlaybackMessage::new);
+		registerS2CMessage(SoundFinishedNotificationMessage.class, SoundFinishedNotificationMessage::new);
 		registerS2CMessage(SyncTemplateSettingsMessage.class, SyncTemplateSettingsMessage::new);
 		registerS2CMessage(SyncAdditionalSlotInfoMessage.class, SyncAdditionalSlotInfoMessage::new);
 		registerS2CMessage(SyncEmptySlotIconsMessage.class, SyncEmptySlotIconsMessage::new);
 		registerS2CMessage(SyncSlotChangeErrorMessage.class, SyncSlotChangeErrorMessage::new);
 		registerS2CMessage(SyncDatapackSettingsTemplateMessage.class, SyncDatapackSettingsTemplateMessage::new);
-
 	}
 
 	public static <T extends SimplePacketBase> void registerC2SMessage(Class<T> type, Function<FriendlyByteBuf, T> factory) {
