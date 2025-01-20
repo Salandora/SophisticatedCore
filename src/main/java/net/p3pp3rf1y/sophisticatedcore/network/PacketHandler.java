@@ -27,7 +27,7 @@ public class PacketHandler {
 
 		registerC2SMessage(SyncContainerClientDataMessage.class, SyncContainerClientDataMessage::new);
 		registerC2SMessage(TransferFullSlotMessage.class, TransferFullSlotMessage::new);
-		registerC2SMessage(SoundStopNotificationMessage.class, SoundStopNotificationMessage::new);
+		registerC2SMessage(SoundFinishedNotificationMessage.class, SoundFinishedNotificationMessage::new);
 		registerC2SMessage(TankClickMessage.class, TankClickMessage::new);
 		registerC2SMessage(TransferItemsMessage.class, TransferItemsMessage::new);
 
@@ -36,7 +36,6 @@ public class PacketHandler {
 		registerS2CMessage(SyncPlayerSettingsMessage.class, SyncPlayerSettingsMessage::new);
 		registerS2CMessage(PlayDiscMessage.class, PlayDiscMessage::new);
 		registerS2CMessage(StopDiscPlaybackMessage.class, StopDiscPlaybackMessage::new);
-		registerS2CMessage(SoundFinishedNotificationMessage.class, SoundFinishedNotificationMessage::new);
 		registerS2CMessage(SyncTemplateSettingsMessage.class, SyncTemplateSettingsMessage::new);
 		registerS2CMessage(SyncAdditionalSlotInfoMessage.class, SyncAdditionalSlotInfoMessage::new);
 		registerS2CMessage(SyncEmptySlotIconsMessage.class, SyncEmptySlotIconsMessage::new);

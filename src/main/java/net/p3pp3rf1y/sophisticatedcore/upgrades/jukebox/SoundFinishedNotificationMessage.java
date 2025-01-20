@@ -14,7 +14,7 @@ public class SoundFinishedNotificationMessage extends SimplePacketBase {
 		this.storageUuid = storageUuid;
 	}
 
-	public SoundStopNotificationMessage(FriendlyByteBuf packetBuffer) {
+	public SoundFinishedNotificationMessage(FriendlyByteBuf packetBuffer) {
 		this(packetBuffer.readUUID());
 	}
 

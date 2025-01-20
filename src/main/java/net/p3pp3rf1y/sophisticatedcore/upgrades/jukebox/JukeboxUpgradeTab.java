@@ -11,6 +11,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.Button;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ButtonDefinition;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
+import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.SlotAccessor;
 
 import java.util.Map;
 
@@ -73,8 +74,8 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 	protected void moveSlotsToTab() {
 		int slotIndex = 0;
 		for (Slot discSlot : getContainer().getSlots()) {
-			discSlot.x = x - screen.getGuiLeft() + 4 + (slotIndex % slotsInRow) * 18;
-			discSlot.y = y - screen.getGuiTop() + TOP_Y + 1 + (slotIndex / slotsInRow) * 18;
+			((SlotAccessor) discSlot).setX(x - screen.getLeftX() + 4 + (slotIndex % slotsInRow) * 18);
+			((SlotAccessor) discSlot).setY(y - screen.getTopY() + TOP_Y + 1 + (slotIndex / slotsInRow) * 18);
 			slotIndex++;
 		}
 	}
