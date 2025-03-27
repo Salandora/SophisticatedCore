@@ -22,6 +22,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -144,7 +145,7 @@ public class RecipeHelperTest {
 	void testGetCompatingResult(Level level, Item item, RecipeHelper.CompactingResult expectedResult) {
 		RecipeHelper.setLevel(level);
 
-		RecipeHelper.CompactingResult actualResult = RecipeHelper.getCompactingResult(item, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE);
+		RecipeHelper.CompactingResult actualResult = RecipeHelper.getCompactingResult(new ItemStack(item), RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE);
 
 		assertCompactingResultEquals(expectedResult, actualResult, "getCompactingResult returned wrong result");
 	}
@@ -166,7 +167,7 @@ public class RecipeHelperTest {
 	void testGetUncompactingResult(Level level, Item item, RecipeHelper.UncompactingResult expectedResult) {
 		RecipeHelper.setLevel(level);
 
-		RecipeHelper.UncompactingResult actualResult = RecipeHelper.getUncompactingResult(item);
+		RecipeHelper.UncompactingResult actualResult = RecipeHelper.getUncompactingResult(new ItemStack(item));
 
 		assertUncompactingResultEquals(expectedResult, actualResult, "getUncompactingResult returned wrong result");
 	}
@@ -174,10 +175,10 @@ public class RecipeHelperTest {
 	static Stream<Arguments> testGetUncompactingResult() {
 		return withClassParams(
 				List.of(
-						Arguments.of(Items.GOLD_BLOCK, new RecipeHelper.UncompactingResult(Items.GOLD_INGOT, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.GOLD_INGOT, new RecipeHelper.UncompactingResult(Items.GOLD_NUGGET, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.DIORITE, new RecipeHelper.UncompactingResult(Items.GRANITE, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
-						Arguments.of(Items.GRANITE, new RecipeHelper.UncompactingResult(Items.STONE, RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE))
+						Arguments.of(Items.GOLD_BLOCK, new RecipeHelper.UncompactingResult(new ItemStack(Items.GOLD_INGOT), RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+						Arguments.of(Items.GOLD_INGOT, new RecipeHelper.UncompactingResult(new ItemStack(Items.GOLD_NUGGET), RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+						Arguments.of(Items.DIORITE, new RecipeHelper.UncompactingResult(new ItemStack(Items.GRANITE), RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE)),
+						Arguments.of(Items.GRANITE, new RecipeHelper.UncompactingResult(new ItemStack(Items.STONE), RecipeHelper.CompactingShape.THREE_BY_THREE_UNCRAFTABLE))
 				)
 		);
 	}
@@ -187,7 +188,7 @@ public class RecipeHelperTest {
 	void testGetItemCompactingShapes(Level level, Item item, Set<RecipeHelper.CompactingShape> shapes) {
 		RecipeHelper.setLevel(level);
 
-		Set<RecipeHelper.CompactingShape> actualShapes = RecipeHelper.getItemCompactingShapes(item);
+		Set<RecipeHelper.CompactingShape> actualShapes = RecipeHelper.getItemCompactingShapes(new ItemStack(item));
 
 		if (!Objects.equals(shapes, actualShapes)) {
 			assertionFailure().message("getItemCompactingShapes returned wrong result")
@@ -233,7 +234,7 @@ public class RecipeHelperTest {
 		return true;
 	}
 	private static void assertUncompactingResultEquals(RecipeHelper.UncompactingResult expected, RecipeHelper.UncompactingResult actual, Object message) {
-		if (expected.getResult() == actual.getResult() && expected.getCompactUsingShape() == actual.getCompactUsingShape()) {
+		if (ItemHandlerHelper.canItemStacksStack(expected.getResult(), actual.getResult()) && expected.getCompactUsingShape() == actual.getCompactUsingShape()) {
 			return;
 		}
 		assertionFailure().message(message)

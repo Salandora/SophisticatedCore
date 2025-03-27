@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -22,19 +23,13 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeConfig;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class InventoryHandler extends ItemStackHandler implements ITrackedContentsItemHandler {
 	public static final String INVENTORY_TAG = "inventory";
@@ -181,8 +176,13 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		if (!stackUpgradeConfig.canStackItem(resource.getItem())) {
 			return resource.getItem().getMaxStackSize();
 		}
+		int maxStackSize = resource.isBlank() ? getBaseSlotLimit() : resource.getItem().getMaxStackSize();
 
-		int limit = MathHelper.intMaxCappedMultiply(resource.getItem().getMaxStackSize(), (baseSlotLimit / 64));
+		if (baseSlotLimit < 64) {
+			return (int) Math.max(1, (double) maxStackSize * baseSlotLimit / 64);
+		}
+
+		int limit = MathHelper.intMaxCappedMultiply(maxStackSize, baseSlotLimit / 64);
 		int remainder = baseSlotLimit % 64;
 		if (remainder > 0) {
 			limit = MathHelper.intMaxCappedAddition(limit, remainder * resource.getItem().getMaxStackSize() / 64);
@@ -329,9 +329,14 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		this.persistent = persistent;
 	}
 
+	public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player) {
+		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource, count, player, super::isItemValid)
+				&& isAllowed(resource) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, resource);
+	}
+
 	@Override
 	public boolean isItemValid(int slot, ItemVariant resource, int count) {
-		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource, count) && isAllowed(resource) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, resource);
+		return isItemValid(slot, resource, count, null);
 	}
 
 	@Nonnull
@@ -500,6 +505,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public void setShouldInsertIntoEmpty(BooleanSupplier shouldInsertIntoEmpty) {
 		this.shouldInsertIntoEmpty = shouldInsertIntoEmpty;
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
+	}
+
+	public boolean isInfinite(int slot) {
+		return inventoryPartitioner.isInfinite(slot);
 	}
 
 	@Override

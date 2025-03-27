@@ -9,6 +9,7 @@ import java.util.Map;
 public enum AutomationDirection implements StringRepresentable {
 	INPUT("input"),
 	OUTPUT("output"),
+	KEEP("keep"),
 	OFF("off");
 
 	private final String name;

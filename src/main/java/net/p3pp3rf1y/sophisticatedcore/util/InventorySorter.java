@@ -11,16 +11,12 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InventorySorter {
-	private InventorySorter() {}
+	private InventorySorter() {
+	}
 
 	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_NAME = Comparator.comparing(o -> o.getKey().getStack().getHoverName().getString());
 	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_MOD =
@@ -81,7 +77,7 @@ public class InventorySorter {
 	}
 
 	public static void sortHandler(SlottedStackStorage handler, Comparator<? super Map.Entry<ItemStackKey, Integer>> comparator, Set<Integer> noSortSlots) {
-		Map<ItemStackKey, Integer> compactedStacks = InventoryHelper.getCompactedStacks(handler, noSortSlots);
+		Map<ItemStackKey, Integer> compactedStacks = InventoryHelper.getCompactedStacks(handler, noSortSlots, false);
 		List<Map.Entry<ItemStackKey, Integer>> sortedList = new ArrayList<>(compactedStacks.entrySet());
 		sortedList.sort(comparator);
 
@@ -117,12 +113,12 @@ public class InventorySorter {
 	private static void sortIntoNoSortSlots(SlottedStackStorage handler, Set<Integer> noSortSlots, List<Map.Entry<ItemStackKey, Integer>> sortedList) {
 		Iterator<Map.Entry<ItemStackKey, Integer>> it = sortedList.iterator();
 		if (!noSortSlots.isEmpty()) {
-			while(it.hasNext()) {
+			while (it.hasNext()) {
 				Map.Entry<ItemStackKey, Integer> entry = it.next();
 				ItemStackKey current = entry.getKey();
 				Integer count = entry.getValue();
 
-				for(int slot : noSortSlots) {
+				for (int slot : noSortSlots) {
 					ItemStack slotStack = handler.getStackInSlot(slot);
 					if (ItemHandlerHelper.canItemStacksStack(slotStack, current.getStack())) {
 						int placedCount = placeStack(handler, current, count, slot, true);
@@ -141,23 +137,47 @@ public class InventorySorter {
 
 	private static void emptySlot(SlottedStackStorage handler, int slot) {
 		if (!handler.getStackInSlot(slot).isEmpty()) {
-			handler.setStackInSlot(slot, ItemStack.EMPTY);
+			if (handler instanceof InventoryHandler inventoryHandler) {
+				inventoryHandler.setSlotStack(slot, ItemStack.EMPTY);
+			} else {
+				handler.setStackInSlot(slot, ItemStack.EMPTY);
+			}
 		}
 	}
 
 	private static int placeStack(SlottedStackStorage handler, ItemStackKey current, int count, int slot, boolean countWithCurrentStack) {
+		if (handler instanceof InventoryHandler inventoryHandler) {
+			return placeStack(current, count, slot, countWithCurrentStack, inventoryHandler::getStackLimit, inventoryHandler::getSlotStack, inventoryHandler::setSlotStack);
+		} else {
+			return placeStack(current, count, slot, countWithCurrentStack, (s, stack) -> handler.getSlotLimit(s), handler::getStackInSlot, handler::setStackInSlot);
+		}
+	}
+
+	private static int placeStack(ItemStackKey current, int count, int slot, boolean countWithCurrentStack,
+								  IStackLimitGetter stackLimitGetter, ISlotStackGetter slotStackGetter, ISlotStackSetter slotStackSetter) {
 		ItemStack copy = current.getStack().copy();
-		int slotLimit = handler instanceof InventoryHandler inventoryHandler ? inventoryHandler.getStackLimit(slot, ItemVariant.of(copy)) : handler.getSlotLimit(slot);
-		int existingCount = handler.getStackInSlot(slot).getCount();
+		int slotLimit = stackLimitGetter.getStackLimit(slot, copy);
+		int existingCount = slotStackGetter.getSlotStack(slot).getCount();
 		if (countWithCurrentStack) {
 			count += existingCount;
 		}
 		int countPlaced = Math.min(count, slotLimit);
 		copy.setCount(countPlaced);
-		if (!ItemStack.matches(handler.getStackInSlot(slot), copy)) {
-			handler.setStackInSlot(slot, copy);
+		if (!ItemStack.matches(slotStackGetter.getSlotStack(slot), copy)) {
+			slotStackSetter.setSlotStack(slot, copy);
 		}
 		return countWithCurrentStack ? countPlaced - existingCount : countPlaced;
 	}
 
+	private interface IStackLimitGetter {
+		int getStackLimit(int slot, ItemStack stack);
+	}
+
+	private interface ISlotStackGetter {
+		ItemStack getSlotStack(int slot);
+	}
+
+	private interface ISlotStackSetter {
+		void setSlotStack(int slot, ItemStack stack);
+	}
 }

@@ -2,11 +2,24 @@ package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ItemStackKey {
+	/*private static final Field CAP_NBT = findCapNBTField();
+
+	private static Field findCapNBTField() {
+		try {
+			Field f = ItemStack.class.getDeclaredField("capNBT");
+			f.setAccessible(true);
+			return f;
+		} catch (NoSuchFieldException e) {
+			throw new IllegalArgumentException("Unable to findField capNBT", e);
+		}
+	}*/
+
 	private final ItemStack stack;
 
 	private static final Map<ItemStack, ItemStackKey> CACHE = new ConcurrentHashMap<>();
@@ -45,7 +58,7 @@ public final class ItemStackKey {
 		}
 
 		//noinspection DataFlowIssue
-		return (!a.hasTag() || a.getTag().equals(b.getTag()));
+		return (!a.hasTag() || a.getTag().equals(b.getTag())); // && Objects.equals(getCapNbt(a), getCapNbt(b));
 	}
 
 	public boolean hashCodeNotEquals(ItemStack otherStack) {
@@ -67,8 +80,23 @@ public final class ItemStackKey {
 			//noinspection ConstantConditions - hasTag call makes sure getTag doesn't return null
 			hash = hash * 31 + stack.getTag().hashCode();
 		}
+		/*CompoundTag capNbt = getCapNbt(stack);
+		if (capNbt != null && !capNbt.isEmpty()) {
+			hash = hash * 31 + capNbt.hashCode();
+		}*/
 		return hash;
 	}
+
+	/*@Nullable
+	private static CompoundTag getCapNbt(ItemStack stack) {
+		try {
+			return (CompoundTag) CAP_NBT.get(stack);
+		}
+		catch (IllegalAccessException e) {
+			SophisticatedCore.LOGGER.error("Error getting capNBT of stack ", e);
+			return null;
+		}
+	}*/
 
 	public static int getHashCode(ItemVariant resource) {
 		return getHashCode(resource.toStack());

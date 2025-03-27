@@ -17,21 +17,29 @@ import java.util.stream.Collectors;
 public class SyncAdditionalSlotInfoMessage extends SimplePacketBase {
 	private final Set<Integer> inaccessibleSlots;
 	private final Map<Integer, Integer> slotLimitOverrides;
+	private final Set<Integer> infiniteSlots;
 	private final Map<Integer, Item> slotFilterItems;
-	public SyncAdditionalSlotInfoMessage(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Map<Integer, Item> slotFilterItems) {
+	public SyncAdditionalSlotInfoMessage(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Set<Integer> infiniteSlots, Map<Integer, Item> slotFilterItems) {
 		this.inaccessibleSlots = inaccessibleSlots;
 		this.slotLimitOverrides = slotLimitOverrides;
 		this.slotFilterItems = slotFilterItems;
+		this.infiniteSlots = infiniteSlots;
 	}
 
 	public SyncAdditionalSlotInfoMessage(FriendlyByteBuf buffer) {
-		this(Arrays.stream(buffer.readVarIntArray()).boxed().collect(Collectors.toSet()), deserializeSlotLimitOverrides(buffer), deserializeSlotFilterItems(buffer));
+		this(
+				Arrays.stream(buffer.readVarIntArray()).boxed().collect(Collectors.toSet()),
+				deserializeSlotLimitOverrides(buffer),
+				Arrays.stream(buffer.readVarIntArray()).boxed().collect(Collectors.toSet()),
+				deserializeSlotFilterItems(buffer)
+		);
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeVarIntArray(inaccessibleSlots.stream().mapToInt(i->i).toArray());
 		serializeSlotLimitOverrides(buffer, slotLimitOverrides);
+		buffer.writeVarIntArray(infiniteSlots.stream().mapToInt(i->i).toArray());
 		serializeSlotFilterItems(buffer, slotFilterItems);
 	}
 
@@ -82,7 +90,7 @@ public class SyncAdditionalSlotInfoMessage extends SimplePacketBase {
 			if (player == null || !(player.containerMenu instanceof IAdditionalSlotInfoMenu menu)) {
 				return;
 			}
-			menu.updateAdditionalSlotInfo(inaccessibleSlots, slotLimitOverrides, slotFilterItems);
+			menu.updateAdditionalSlotInfo(inaccessibleSlots, slotLimitOverrides, infiniteSlots, slotFilterItems);
 		});
 		return true;
 	}

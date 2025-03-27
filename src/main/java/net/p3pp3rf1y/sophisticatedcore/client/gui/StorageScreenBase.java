@@ -10,6 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -22,8 +23,8 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
@@ -456,6 +457,66 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		renderTooltip(guiGraphics, mouseX, mouseY);
 	}
 
+	/*@SuppressWarnings("java:S4449")
+	//renderFloatingItem should really have altText as nullable as it is then only passed to nullable parameter
+	private void renderSuper(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) { //copy of super.render with storage inventory slots rendering and snap rendering removed
+		int i = leftPos;
+		int j = topPos;
+		renderBg(guiGraphics, pPartialTick, pMouseX, pMouseY);
+		//noinspection UnstableApiUsage
+		MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.ContainerScreenEvent.Render.Background(this, guiGraphics, pMouseX, pMouseY));
+		RenderSystem.disableDepthTest();
+
+		hoveredSlot = null;
+
+		for (Renderable widget : renderables) {
+			widget.render(guiGraphics, pMouseX, pMouseY, pPartialTick);
+		}
+
+		PoseStack poseStack = guiGraphics.pose();
+		poseStack.pushPose();
+		poseStack.translate(i, j, 0.0D);
+
+		for (int k = 0; k < StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS; ++k) {
+			Slot slot = getMenu().getSlot(getMenu().getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + k);
+			if (slot.isActive()) {
+				renderSlot(guiGraphics, slot);
+			}
+
+			if (isHovering(slot, pMouseX, pMouseY) && slot.isActive()) {
+				hoveredSlot = slot;
+				int l = slot.x;
+				int i1 = slot.y;
+				renderSlotHighlight(guiGraphics, l, i1, 0, getSlotColor(k));
+			}
+		}
+
+		renderLabels(guiGraphics, pMouseX, pMouseY);
+		//noinspection UnstableApiUsage
+		MinecraftForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, guiGraphics, pMouseX, pMouseY));
+		ItemStack itemstack = draggingItem.isEmpty() ? menu.getCarried() : draggingItem;
+		if (!itemstack.isEmpty()) {
+			int i2 = draggingItem.isEmpty() ? 8 : 16;
+			String s = null;
+			if (!draggingItem.isEmpty() && isSplittingStack) {
+				itemstack = itemstack.copy();
+				itemstack.setCount(Mth.ceil(itemstack.getCount() / 2.0F));
+			} else if (isQuickCrafting && quickCraftSlots.size() > 1) {
+				itemstack = itemstack.copy();
+				itemstack.setCount(quickCraftingRemainder);
+				if (itemstack.isEmpty()) {
+					s = ChatFormatting.YELLOW + "0";
+				}
+			}
+
+			//noinspection ConstantConditions - renderFloatingItem should really have altText as nullable as it is then only passed to nullable parameter
+			renderFloatingItem(guiGraphics, itemstack, pMouseX - i - 8, pMouseY - j - i2, s);
+		}
+
+		poseStack.popPose();
+		RenderSystem.enableDepthTest();
+	}*/
+
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
@@ -515,6 +576,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		boolean rightClickDragging = slotsEqual && !draggingItemEmpty && !isSplittingStack;
 		ItemStack carriedStack = getMenu().getCarried();
 		String stackCountText = null;
+		if (getMenu().isInfiniteSlot(slot.index)) {
+			stackCountText = "∞";
+		}
+
 		if (slotsEqual && !draggingItemEmpty && isSplittingStack && !stackToRender.isEmpty()) {
 			stackToRender = stackToRender.copy();
 			stackToRender.setCount(stackToRender.getCount() / 2);
@@ -526,8 +591,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			if (StorageContainerMenuBase.canItemQuickReplace(slot, carriedStack) && menu.canDragTo(slot)) {
 				flag = true;
 				int slotStackCount = stackToRender.isEmpty() ? 0 : stackToRender.getCount();
-				int renderCount = AbstractContainerMenu.getQuickCraftPlaceCount(quickCraftSlots, ((AbstractContainerScreenAccessor) this).getQuickCraftingType(), carriedStack) + slotStackCount;
-				int slotLimit = slot.getMaxStackSize(stackToRender);
+				int renderCount = StorageContainerMenuBase.getQuickCraftPlaceCount(slot, quickCraftSlots.size(), ((AbstractContainerScreenAccessor) this).getQuickCraftingType(), carriedStack) + slotStackCount;
+				int slotLimit = stackToRender.isEmpty() ? 64 : slot.getMaxStackSize(stackToRender);
 				if (renderCount > slotLimit) {
 					stackCountText = ChatFormatting.YELLOW + CountAbbreviator.abbreviate(slotLimit);
 				}
@@ -569,19 +634,22 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void renderSlotBackground(GuiGraphics guiGraphics, Slot slot, int i, int j) {
 		Optional<ItemStack> memorizedStack = getMenu().getMemorizedStackInSlot(slot.index);
-		if (memorizedStack.isPresent()) {
-			guiGraphics.renderItem(memorizedStack.get(), i, j);
-			drawStackOverlay(guiGraphics, i, j);
-		} else if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
-			guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.index), i, j);
-			drawStackOverlay(guiGraphics, i, j);
-		} else {
-			Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
-			if (pair != null) {
-				//noinspection ConstantConditions - by this point minecraft isn't null
-				TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-				guiGraphics.blit(i, j, 0, 16, 16, textureatlassprite);
+		if (getMenu().isStorageInventorySlot(slot.index)) {
+			if (memorizedStack.isPresent()) {
+				guiGraphics.renderItem(memorizedStack.get(), i, j);
+				drawStackOverlay(guiGraphics, i, j);
+				return;
+			} else if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
+				guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.index), i, j);
+				drawStackOverlay(guiGraphics, i, j);
+				return;
 			}
+		}
+		Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
+		if (pair != null) {
+			//noinspection ConstantConditions - by this point minecraft isn't null
+			TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
+			guiGraphics.blit(i, j, 0, 16, 16, textureatlassprite);
 		}
 	}
 
@@ -682,7 +750,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	protected List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
 		List<Component> ret = getTooltipFromItem(minecraft, itemStack);
-		if (hoveredSlot != null && hoveredSlot.getMaxStackSize() > 64) {
+		if (hoveredSlot != null && hoveredSlot instanceof StorageInventorySlot && hoveredSlot.getMaxStackSize() != itemStack.getMaxStackSize()) {
 			ret.add(Component.translatable(TranslationHelper.INSTANCE.translGuiTooltip("stack_count"),
 							Component.literal(NumberFormat.getNumberInstance().format(itemStack.getCount())).withStyle(ChatFormatting.DARK_AQUA)
 									.append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
@@ -946,7 +1014,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					ItemStack slotStack = slot.getItem();
 					int slotStackCount = slotStack.isEmpty() ? 0 : slotStack.getCount();
 					int maxStackSize = slot.getMaxStackSize(carriedStack);
-					int quickCraftPlaceCount = Math.min(AbstractContainerMenu.getQuickCraftPlaceCount(quickCraftSlots, ((AbstractContainerScreenAccessor) this).getQuickCraftingType(), carriedStack) + slotStackCount, maxStackSize);
+					int quickCraftPlaceCount = Math.min(StorageContainerMenuBase.getQuickCraftPlaceCount(slot, quickCraftSlots.size(), ((AbstractContainerScreenAccessor) this).getQuickCraftingType(), carriedStack) + slotStackCount, maxStackSize);
 					((AbstractContainerScreenAccessor) this).setQuickCraftingRemainder(((AbstractContainerScreenAccessor) this).getQuickCraftingRemainder() - quickCraftPlaceCount - slotStackCount);
 				}
 			}
