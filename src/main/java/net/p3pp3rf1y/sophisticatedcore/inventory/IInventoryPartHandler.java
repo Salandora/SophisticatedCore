@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
+import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -49,10 +50,10 @@ public interface IInventoryPartHandler {
 	}
 
 	@Deprecated
-	default boolean isItemValid(int slot, ItemVariant resource, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
+	default boolean isItemValid(int slot, ItemVariant resource, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
 		return isItemValid(slot, resource, 1, player, isItemValidSuper);
 	}
-	default boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
+	default boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
 		return false;
 	}
 
@@ -145,7 +146,7 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant stack, int count, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
+		public boolean isItemValid(int slot, ItemVariant stack, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
 			return true;
 		}
 

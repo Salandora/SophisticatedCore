@@ -120,7 +120,7 @@ public class InventorySorter {
 
 				for (int slot : noSortSlots) {
 					ItemStack slotStack = handler.getStackInSlot(slot);
-					if (ItemHandlerHelper.canItemStacksStack(slotStack, current.getStack())) {
+					if (ItemStack.isSameItemSameTags(slotStack, current.getStack())) {
 						int placedCount = placeStack(handler, current, count, slot, true);
 						count -= placedCount;
 						entry.setValue(count);
@@ -156,7 +156,7 @@ public class InventorySorter {
 	private static int placeStack(ItemStackKey current, int count, int slot, boolean countWithCurrentStack,
 								  IStackLimitGetter stackLimitGetter, ISlotStackGetter slotStackGetter, ISlotStackSetter slotStackSetter) {
 		ItemStack copy = current.getStack().copy();
-		int slotLimit = stackLimitGetter.getStackLimit(slot, copy);
+		int slotLimit = stackLimitGetter.getStackLimit(slot, ItemVariant.of(copy));
 		int existingCount = slotStackGetter.getSlotStack(slot).getCount();
 		if (countWithCurrentStack) {
 			count += existingCount;
@@ -170,7 +170,7 @@ public class InventorySorter {
 	}
 
 	private interface IStackLimitGetter {
-		int getStackLimit(int slot, ItemStack stack);
+		int getStackLimit(int slot, ItemVariant stack);
 	}
 
 	private interface ISlotStackGetter {

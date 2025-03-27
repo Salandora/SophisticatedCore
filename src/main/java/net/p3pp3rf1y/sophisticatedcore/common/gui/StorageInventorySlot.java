@@ -23,7 +23,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 
 	@Override
 	public boolean mayPlace(ItemStack stack) {
-		return storageWrapper.getInventoryHandler().isItemValid(slotIndex, stack, player);
+		return storageWrapper.getInventoryHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount(), player);
 	}
 
 	@Override

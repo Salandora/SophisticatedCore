@@ -165,7 +165,7 @@ public class InventoryHelper {
 		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
-			if (stackMatcher.test(slotStack) && (ret.isEmpty() || ItemHandlerHelper.canItemStacksStack(ret, slotStack))) {
+			if (stackMatcher.test(slotStack) && (ret.isEmpty() || ItemStack.isSameItemSameTags(ret, slotStack))) {
 				int toExtract = Math.min(slotStack.getCount(), count - ret.getCount());
 				ItemVariant variant = ItemVariant.of(slotStack);
 				long extractedStack = inventory.extractSlot(slot, variant, toExtract, ctx);

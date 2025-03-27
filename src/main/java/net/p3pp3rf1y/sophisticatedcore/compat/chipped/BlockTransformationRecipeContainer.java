@@ -98,7 +98,7 @@ public class BlockTransformationRecipeContainer {
 				getLastSelectedResult.get().ifPresent(lastSelectedResult -> {
 					int i = 0;
 					for (ItemStack result : results.get()) {
-						if (ItemHandlerHelper.canItemStacksStack(result, lastSelectedResult)) {
+						if (ItemStack.isSameItemSameTags(result, lastSelectedResult)) {
 							selectedRecipe.set(i);
 							updateRecipeResultSlot();
 							return;

@@ -116,7 +116,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 						for (CraftingRecipe craftingRecipe : matchedCraftingRecipes) {
 							ItemStack result = craftingRecipe.assemble(craftMatrix, player.level().registryAccess());
 							matchedCraftingResults.add(result);
-							if (ItemHandlerHelper.canItemStacksStack(getItem(), result)) {
+							if (ItemStack.isSameItemSameTags(getItem(), result)) {
 								selectedCraftingResultIndex = resultIndex;
 							}
 							resultIndex++;

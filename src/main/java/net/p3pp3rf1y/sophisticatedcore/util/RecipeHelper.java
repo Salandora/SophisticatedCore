@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.datafixers.util.Pair;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -15,10 +16,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
@@ -107,7 +105,7 @@ public class RecipeHelper {
 	private static Optional<CompactingShape> getCompactingShape(ItemStack stack, Level w, int width, int height, CompactingShape uncraftableShape, CompactingShape shape) {
 		CompactingResult compactingResult = getCompactingResult(stack, w, width, height);
 		if (!compactingResult.getResult().isEmpty()) {
-			if (ItemHandlerHelper.canItemStacksStack(stack, compactingResult.getResult())) {
+			if (ItemStack.isSameItemSameTags(stack, compactingResult.getResult())) {
 				return Optional.empty();
 			}
 
@@ -134,7 +132,7 @@ public class RecipeHelper {
 			ItemStack itemToCompact = itemsToCompact.poll();
 			compactingResultStack = getCompactingResult(itemToCompact, w, 2, 2).getResult();
 			if (!compactingResultStack.isEmpty()) {
-				if (ItemHandlerHelper.canItemStacksStack(compactingResultStack, firstCompacted)) {
+				if (ItemStack.isSameItemSameTags(compactingResultStack, firstCompacted)) {
 					return true;
 				} else if (compactedItemHashes.contains(ItemStackKey.getHashCode(compactingResultStack))) {
 					return false; //loop exists but the first compacted item isn't part of it so we will let it be compacted, but no follow up compacting will happen
@@ -144,7 +142,7 @@ public class RecipeHelper {
 
 			compactingResultStack = getCompactingResult(itemToCompact, w, 3, 3).getResult();
 			if (!compactingResultStack.isEmpty()) {
-				if (ItemHandlerHelper.canItemStacksStack(compactingResultStack, firstCompacted)) {
+				if (ItemStack.isSameItemSameTags(compactingResultStack, firstCompacted)) {
 					return true;
 				} else if (compactedItemHashes.contains(ItemStackKey.getHashCode(compactingResultStack))) {
 					return false; //loop exists but the first compacted item isn't part of it so we will let it be compacted, but no follow up compacting will happen
@@ -162,7 +160,7 @@ public class RecipeHelper {
 
 	private static boolean uncompactMatchesItem(ItemStack itemToUncompact, Level w, ItemStack itemToMatch, int count) {
 		for (ItemStack uncompactResult : getUncompactResultItems(w, itemToUncompact)) {
-			if (ItemHandlerHelper.canItemStacksStack(uncompactResult, itemToMatch) && uncompactResult.getCount() == count) {
+			if (ItemStack.isSameItemSameTags(uncompactResult, itemToMatch) && uncompactResult.getCount() == count) {
 				return true;
 			}
 		}
@@ -173,10 +171,10 @@ public class RecipeHelper {
 		return getFromCache(cache -> cache.getUncompactingResults().computeIfAbsent(ItemStackKey.getHashCode(uncompactedItem), k -> getLevel().map(w -> {
 			for (ItemStack uncompactResultItem : getUncompactResultItems(w, uncompactedItem)) {
 				if (uncompactResultItem.getCount() == 9) {
-					if (ItemHandlerHelper.canItemStacksStack(getCompactingResult(uncompactResultItem, 3, 3).getResult(), uncompactedItem)) {
+					if (ItemStack.isSameItemSameTags(getCompactingResult(uncompactResultItem, 3, 3).getResult(), uncompactedItem)) {
 						return new UncompactingResult(uncompactResultItem, THREE_BY_THREE_UNCRAFTABLE);
 					}
-				} else if (uncompactResultItem.getCount() == 4 && ItemHandlerHelper.canItemStacksStack(getCompactingResult(uncompactResultItem, 2, 2).getResult(), uncompactedItem)) {
+				} else if (uncompactResultItem.getCount() == 4 && ItemStack.isSameItemSameTags(getCompactingResult(uncompactResultItem, 2, 2).getResult(), uncompactedItem)) {
 					return new UncompactingResult(uncompactResultItem, TWO_BY_TWO_UNCRAFTABLE);
 				}
 			}
@@ -399,7 +397,7 @@ public class RecipeHelper {
 			CompactedItem that = (CompactedItem) o;
 			return width == that.width &&
 					height == that.height &&
-					ItemHandlerHelper.canItemStacksStack(item, that.item);
+					ItemStack.isSameItemSameTags(item, that.item);
 		}
 
 		@Override
