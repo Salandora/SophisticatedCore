@@ -706,7 +706,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements S
 			}
 		}
 
-		return (insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : maxAmount - remaining);
+		return (insertIntoAnyEmpty ? (maxAmount - remaining) + insertIntoStorages(emptySlotsStorages, resource, remaining, ctx, false) : maxAmount - remaining);
 	}
 
 	private long insertIntoStoragesThatMatchStack(ItemVariant resource, long maxAmount, ItemStackKey stackKey, TransactionContext ctx) {
