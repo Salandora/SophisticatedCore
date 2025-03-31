@@ -30,6 +30,7 @@ public class XpPumpUpgradeTab extends UpgradeSettingsTab<XpPumpUpgradeContainer>
 			Map.of(
 					AutomationDirection.INPUT, GuiHelper.getButtonStateData(new UV(144, 0), TranslationHelper.INSTANCE.translUpgradeButton("xp_pump_input"), Dimension.SQUARE_16, new Position(1, 1)),
 					AutomationDirection.OUTPUT, GuiHelper.getButtonStateData(new UV(128, 16), TranslationHelper.INSTANCE.translUpgradeButton("xp_pump_output"), Dimension.SQUARE_16, new Position(1, 1)),
+					AutomationDirection.KEEP, GuiHelper.getButtonStateData(new UV(96, 96), TranslationHelper.INSTANCE.translUpgradeButton("xp_pump_keep"), Dimension.SQUARE_16, new Position(1, 1)),
 					AutomationDirection.OFF, GuiHelper.getButtonStateData(new UV(240, 0), TranslationHelper.INSTANCE.translUpgradeButton("xp_pump_off"), Dimension.SQUARE_16, new Position(1, 1))
 			));
 	private static final ButtonDefinition.Toggle<Boolean> MEND_ITEMS = createToggleButtonDefinition(

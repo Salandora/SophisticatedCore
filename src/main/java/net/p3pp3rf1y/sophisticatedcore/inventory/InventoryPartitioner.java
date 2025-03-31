@@ -230,4 +230,8 @@ public class InventoryPartitioner {
 			i++;
 		}
 	}
+
+	public boolean isInfinite(int slot) {
+		return getPartBySlot(slot).isInfinite(slot);
+	}
 }

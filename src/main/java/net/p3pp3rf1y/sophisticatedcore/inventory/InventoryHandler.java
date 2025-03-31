@@ -13,6 +13,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -184,7 +185,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 			return stack.getMaxStackSize();
 		}
 		int maxStackSize = stack.isEmpty() ? getBaseSlotLimit() : stack.getMaxStackSize();
-		int limit = MathHelper.intMaxCappedMultiply(maxStackSize, (baseSlotLimit / 64));
+
+		if (baseSlotLimit < 64) {
+			return (int) Math.max(1, (double) maxStackSize * baseSlotLimit / 64);
+		}
+
+		int limit = MathHelper.intMaxCappedMultiply(maxStackSize, baseSlotLimit / 64);
 		int remainder = baseSlotLimit % 64;
 		if (remainder > 0) {
 			limit = MathHelper.intMaxCappedAddition(limit, remainder * maxStackSize / 64);
@@ -415,9 +421,23 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		this.persistent = persistent;
 	}
 
+	public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player) {
+		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, stack, player, super::isItemValid)
+				&& isAllowed(stack) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, stack);
+	}
+
+	@Override
+	public boolean isItemValid(int slot, ItemStack stack) {
+		return isItemValid(slot, stack, null);
+	}
+
+	public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player) {
+		return isItemValid(slot, resource.toStack(count), player);
+	}
+
 	@Override
 	public boolean isItemValid(int slot, ItemVariant resource, int count) {
-		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource, count) && isAllowed(resource) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, resource);
+		return isItemValid(slot, resource.toStack(count), null);
 	}
 
 	@Override
@@ -599,6 +619,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	@Override
 	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
 		return new InventoryHandlerSlot(index, this, stack);
+	}
+
+	public boolean isInfinite(int slot) {
+		return inventoryPartitioner.isInfinite(slot);
 	}
 
 	private class InventoryHandlerSlot extends ItemStackHandlerSlot {

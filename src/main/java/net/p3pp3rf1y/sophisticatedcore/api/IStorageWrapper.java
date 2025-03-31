@@ -10,11 +10,12 @@ import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.renderdata.RenderInfo;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
+import net.p3pp3rf1y.sophisticatedcore.util.ITintable;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface IStorageWrapper {
+public interface IStorageWrapper extends ITintable {
 
 	void setContentsChangeHandler(Runnable contentsChangeHandler);
 
@@ -38,17 +39,11 @@ public interface IStorageWrapper {
 
 	Optional<UUID> getContentsUuid();
 
-	int getMainColor();
-
-	int getAccentColor();
-
 	Optional<Integer> getOpenTabId();
 
 	void setOpenTabId(int openTabId);
 
 	void removeOpenTabId();
-
-	void setColors(int mainColor, int accentColor);
 
 	void setSortBy(SortBy sortBy);
 

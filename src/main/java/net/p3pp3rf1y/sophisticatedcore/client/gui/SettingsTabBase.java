@@ -20,7 +20,7 @@ import java.util.function.IntConsumer;
 
 public abstract class SettingsTabBase<T extends AbstractContainerScreen<?>> extends Tab {
 	private static final int RIGHT_BORDER_WIDTH = 6;
-	private static final int BOTTOM_BORDER_HEIGHT = 7;
+	private static final int BOTTOM_BORDER_HEIGHT = 6;
 
 	protected final T screen;
 	protected Dimension openTabDimension = new Dimension(0, 0);

@@ -28,7 +28,20 @@ class InventoryPartitionerTest {
 	}
 
 	@Test
-	void addInventoryPartAtTheBeginnigProperlyUpdatesParts() {
+	void addInventoryPartWithMaxIntSlotsAddsItForAllSlotsFromTheBaseIndex() {
+		InventoryHandler invHandler = getInventoryHandler(81);
+
+		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);
+
+		IInventoryPartHandler dummyPartHandler = () -> "dummy";
+		partitioner.addInventoryPart(0, Integer.MAX_VALUE, dummyPartHandler);
+
+		Assertions.assertEquals(dummyPartHandler, partitioner.getPartBySlot(0));
+		Assertions.assertEquals(dummyPartHandler, partitioner.getPartBySlot(80));
+	}
+
+	@Test
+	void addInventoryPartAtTheBeginningProperlyUpdatesParts() {
 		InventoryHandler invHandler = getInventoryHandler(81);
 
 		InventoryPartitioner partitioner = new InventoryPartitioner(new CompoundTag(), invHandler, () -> null);

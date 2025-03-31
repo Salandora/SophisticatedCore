@@ -67,6 +67,7 @@ public class SophisticatedCore implements ModInitializer {
 		if (world != null) {
 			RecipeHelper.setLevel(world);
 			StorageWrapperRepository.clearCache();
+			Config.COMMON.saveIfChanged();
 		}
 	}
 

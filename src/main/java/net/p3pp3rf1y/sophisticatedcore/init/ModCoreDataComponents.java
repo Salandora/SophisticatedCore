@@ -16,6 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterAttributes;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.feeding.HungerLevel;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.filter.Direction;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.RepeatMode;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.xppump.AutomationDirection;
 import net.p3pp3rf1y.sophisticatedcore.util.SimpleItemContent;
 
@@ -150,6 +151,18 @@ public class ModCoreDataComponents {
 
     public static final Supplier<DataComponentType<Boolean>> ENABLED = DATA_COMPONENT_TYPES.register("enabled",
             () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build());
+
+    public static final Supplier<DataComponentType<RepeatMode>> REPEAT_MODE = DATA_COMPONENT_TYPES.register("repeat_mode",
+            () -> new DataComponentType.Builder<RepeatMode>().persistent(RepeatMode.CODEC).networkSynchronized(RepeatMode.STREAM_CODEC).build());
+
+    public static final Supplier<DataComponentType<Boolean>> SHUFFLE = DATA_COMPONENT_TYPES.register("shuffle",
+            () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build());
+
+    public static final Supplier<DataComponentType<Integer>> DISC_SLOT_ACTIVE = DATA_COMPONENT_TYPES.register("disc_slot_active",
+            () -> new DataComponentType.Builder<Integer>().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build());
+
+    public static final Supplier<DataComponentType<Long>> DISC_FINISH_TIME = DATA_COMPONENT_TYPES.register("disc_finish_time",
+            () -> new DataComponentType.Builder<Long>().persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.VAR_LONG).build());
 
     public static void register() {
         DATA_COMPONENT_TYPES.register();

@@ -46,7 +46,7 @@ public class TranslationHelper {
 		upgradeControlsPrefix = guiUpgradePrefix + CONTROLS_SUFFIX;
 	}
 
-	public Component translStatusMessage(String statusMessage, Object... params) {
+	public MutableComponent translStatusMessage(String statusMessage, Object... params) {
 		return Component.translatable(guiStatusPrefix + statusMessage, params);
 	}
 
