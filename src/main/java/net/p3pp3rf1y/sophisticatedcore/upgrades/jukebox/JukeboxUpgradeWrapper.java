@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -10,12 +11,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.ComponentItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -63,26 +63,26 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 				return stack.isEmpty() || stack.has(DataComponents.JUKEBOX_PLAYABLE);
 			}
 		};
-		isPlaying = upgrade.getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
+		isPlaying = upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
 	}
 
 	public boolean isShuffleEnabled() {
-		return upgrade.getOrDefault(ModCoreDataComponents.SHUFFLE, false);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHUFFLE, false);
 	}
 
 	public void setShuffleEnabled(boolean shuffleEnabled) {
-		upgrade.set(ModCoreDataComponents.SHUFFLE, shuffleEnabled);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHUFFLE, shuffleEnabled);
 		save();
 
 		initPlaylist(true);
 	}
 
 	public RepeatMode getRepeatMode() {
-		return upgrade.getOrDefault(ModCoreDataComponents.REPEAT_MODE, RepeatMode.NO);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.REPEAT_MODE, RepeatMode.NO);
 	}
 
 	public void setRepeatMode(RepeatMode repeatMode) {
-		upgrade.set(ModCoreDataComponents.REPEAT_MODE, repeatMode);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.REPEAT_MODE, repeatMode);
 		save();
 	}
 
@@ -91,11 +91,11 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public int getDiscSlotActive() {
-		return upgrade.getOrDefault(ModCoreDataComponents.DISC_SLOT_ACTIVE, -1);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.DISC_SLOT_ACTIVE, -1);
 	}
 
 	private void setDiscSlotActive(int discSlotActive) {
-		upgrade.set(ModCoreDataComponents.DISC_SLOT_ACTIVE, discSlotActive);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.DISC_SLOT_ACTIVE, discSlotActive);
 		save();
 	}
 
@@ -128,11 +128,11 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 		storageWrapper.getContentsUuid().ifPresent(storageUuid -> getJukeboxSongHolder(level).ifPresent(song -> {
 			if (entityPlaying != null) {
-				ServerStorageSoundHandler.startPlayingDisc(serverLevel, entityPlaying.position(), storageUuid, entityPlaying.getId(), song, onFinishedCallback);
+				ServerStorageSoundHandler.startPlayingDisc(serverLevel, entityPlaying.position(), storageUuid, entityPlaying.getId(), getDisc(), song, onFinishedCallback);
 			} else {
-				ServerStorageSoundHandler.startPlayingDisc(serverLevel, posPlaying, storageUuid, song, onFinishedCallback);
+				ServerStorageSoundHandler.startPlayingDisc(serverLevel, posPlaying, storageUuid, getDisc(), song, onFinishedCallback);
 			}
-			upgrade.set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
+			upgrade.sophisticatedCore_set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
 		}));
 		setIsPlaying(true);
 	}
@@ -153,7 +153,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 	private void setIsPlaying(boolean playing) {
 		isPlaying = playing;
-		upgrade.set(ModCoreDataComponents.IS_PLAYING, playing);
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.IS_PLAYING, playing);
 		if (isPlaying) {
 			storageWrapper.getRenderInfo().setUpgradeRenderData(JukeboxUpgradeRenderData.TYPE, new JukeboxUpgradeRenderData(true));
 		} else {
@@ -175,13 +175,13 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 				ServerStorageSoundHandler.stopPlayingDisc(entity.level(), entity.position(), storageUuid)
 		);
 		setIsPlaying(false);
-		upgrade.remove(ModCoreDataComponents.DISC_FINISH_TIME);
+		upgrade.sophisticatedCore_remove(ModCoreDataComponents.DISC_FINISH_TIME);
 		setDiscSlotActive(-1);
 		playlist.clear();
 		history.clear();
 	}
 
-	public IItemHandler getDiscInventory() {
+	public SlottedStackStorage getDiscInventory() {
 		return discInventory;
 	}
 
@@ -238,7 +238,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 		}
 		if (getDiscSlotActive() != -1) {
 			history.add(getDiscSlotActive());
-			if (history.size() > discInventory.getSlots()) {
+			if (history.size() > discInventory.getSlotCount()) {
 				history.poll();
 			}
 		}
@@ -253,7 +253,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 	private void initPlaylist(boolean excludeActive) {
 		playlist.clear();
-		for (int i = 0; i < discInventory.getSlots(); i++) {
+		for (int i = 0; i < discInventory.getSlotCount(); i++) {
 			if (!discInventory.getStackInSlot(i).isEmpty() && (!excludeActive || !isPlaying || i != getDiscSlotActive())) {
 				playlist.add(i);
 			}
@@ -284,6 +284,6 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public long getDiscFinishTime() {
-		return upgrade.getOrDefault(ModCoreDataComponents.DISC_FINISH_TIME, 0L);
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.DISC_FINISH_TIME, 0L);
 	}
 }

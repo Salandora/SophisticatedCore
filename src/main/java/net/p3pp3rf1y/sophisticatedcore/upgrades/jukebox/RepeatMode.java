@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ public enum RepeatMode implements StringRepresentable {
 	NO("no");
 
 	public static final Codec<RepeatMode> CODEC = StringRepresentable.fromEnum(RepeatMode::values);
-	public static final StreamCodec<FriendlyByteBuf, RepeatMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(RepeatMode.class);
+	public static final StreamCodec<FriendlyByteBuf, RepeatMode> STREAM_CODEC = StreamCodecHelper.enumCodec(RepeatMode.class);
 
 	private final String name;
 

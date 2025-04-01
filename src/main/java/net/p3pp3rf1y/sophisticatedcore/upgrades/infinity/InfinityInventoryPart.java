@@ -1,10 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.infinity;
 
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryPartHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
+import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
 import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
@@ -37,8 +39,8 @@ public abstract class InfinityInventoryPart implements IInventoryPartHandler {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
-		return player != null && player.hasPermissions(permissionLevel) && parent.getSlotStack(slot).isEmpty() && isItemValidSuper.test(slot, stack);
+	public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
+		return player != null && player.hasPermissions(permissionLevel) && parent.getSlotStack(slot).isEmpty() && isItemValidSuper.test(slot, resource, count);
 	}
 
 	@Override

@@ -22,7 +22,6 @@ public class ModPayloads {
 	public static void registerPayloads() {
 		registerC2S(SyncContainerClientDataPayload.TYPE, SyncContainerClientDataPayload.STREAM_CODEC, SyncContainerClientDataPayload::handlePayload);
 		registerC2S(TransferFullSlotPayload.TYPE, TransferFullSlotPayload.STREAM_CODEC, TransferFullSlotPayload::handlePayload);
-		registerC2S(StopDiscPlaybackPayload.TYPE, StopDiscPlaybackPayload.STREAM_CODEC, StopDiscPlaybackPayload::handlePayload);
 		registerC2S(SoundFinishedNotificationPayload.TYPE, SoundFinishedNotificationPayload.STREAM_CODEC, SoundFinishedNotificationPayload::handlePayload);
 		registerC2S(TankClickPayload.TYPE, TankClickPayload.STREAM_CODEC, TankClickPayload::handlePayload);
 		registerC2S(TransferItemsPayload.TYPE, TransferItemsPayload.STREAM_CODEC, TransferItemsPayload::handlePayload);

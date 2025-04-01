@@ -421,23 +421,24 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		this.persistent = persistent;
 	}
 
-	public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player) {
-		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, stack, player, super::isItemValid)
-				&& isAllowed(stack) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, stack);
-	}
-
 	@Override
 	public boolean isItemValid(int slot, ItemStack stack) {
 		return isItemValid(slot, stack, null);
 	}
 
-	public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player) {
-		return isItemValid(slot, resource.toStack(count), player);
+	public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player) {
+		return isItemValid(slot, ItemVariant.of(stack), stack.getCount(), player);
 	}
 
 	@Override
 	public boolean isItemValid(int slot, ItemVariant resource, int count) {
-		return isItemValid(slot, resource.toStack(count), null);
+		return isItemValid(slot, resource, count, null);
+	}
+
+	public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player) {
+		ItemStack stack = resource.toStack(count);
+		return inventoryPartitioner.getPartBySlot(slot).isItemValid(slot, resource, count, player, super::isItemValid)
+				&& isAllowed(stack) && storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(slot, stack);
 	}
 
 	@Override

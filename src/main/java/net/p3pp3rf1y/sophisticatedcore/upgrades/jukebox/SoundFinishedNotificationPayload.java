@@ -1,10 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public record SoundFinishedNotificationPayload(UUID storageUuid) implements Cust
 		return TYPE;
 	}
 
-	public static void handlePayload(SoundFinishedNotificationPayload payload, IPayloadContext context) {
+	public static void handlePayload(SoundFinishedNotificationPayload payload, ServerPlayNetworking.Context context) {
 		ServerStorageSoundHandler.onSoundFinished(context.player().level(), payload.storageUuid);
 	}
 }
