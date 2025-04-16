@@ -26,7 +26,7 @@ public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgrade
 				public void setChanged() {
 					super.setChanged();
 					if (upgradeWrapper.isPlaying() && sophisticatedCore_getSlotIndex() == upgradeWrapper.getDiscSlotActive()) {
-						stop();
+						upgradeWrapper.stop(player);
 					}
 				}
 			});
