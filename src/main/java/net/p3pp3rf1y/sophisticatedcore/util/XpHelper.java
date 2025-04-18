@@ -6,7 +6,7 @@ import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 public class XpHelper {
 	private XpHelper() {}
 
-	private static final long RATIO = 20 * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS;
+	private static final long RATIO = 20;
 
 	public static float liquidToExperience(long liquid) {
 		return (float) liquid / RATIO;

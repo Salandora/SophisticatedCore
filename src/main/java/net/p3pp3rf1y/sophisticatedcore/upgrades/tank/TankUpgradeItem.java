@@ -27,19 +27,18 @@ public class TankUpgradeItem extends UpgradeItemBase<TankUpgradeWrapper> {
 		this.tankUpgradeConfig = tankUpgradeConfig;
 	}
 
-	public long getBaseCapacity(IStorageWrapper storageWrapper) {
-		return (long) tankUpgradeConfig.capacityPerSlotRow.get() * storageWrapper.getNumberOfSlotRows() * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS;
+	public int getBaseCapacity(IStorageWrapper storageWrapper) {
+		return tankUpgradeConfig.capacityPerSlotRow.get() * storageWrapper.getNumberOfSlotRows();
 	}
 
 	public double getAdjustedStackMultiplier(IStorageWrapper storageWrapper) {
 		return 1 + (tankUpgradeConfig.stackMultiplierRatio.get() * (storageWrapper.getInventoryHandler().getStackSizeMultiplier() - 1));
 	}
 
-	public long getTankCapacity(IStorageWrapper storageWrapper) {
+	public int getTankCapacity(IStorageWrapper storageWrapper) {
 		double stackMultiplier = getAdjustedStackMultiplier(storageWrapper);
-		long baseCapacity = getBaseCapacity(storageWrapper);
-		long maxCapacity = Integer.MAX_VALUE * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS;
-		return maxCapacity / stackMultiplier < baseCapacity ? maxCapacity : (int) (baseCapacity * stackMultiplier);
+		int baseCapacity = getBaseCapacity(storageWrapper);
+		return Integer.MAX_VALUE / stackMultiplier < baseCapacity ? Integer.MAX_VALUE : (int) (baseCapacity * stackMultiplier);
 	}
 
 	public TankUpgradeConfig getTankUpgradeConfig() {
