@@ -200,7 +200,7 @@ dependencies {
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$rei_version")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
 
-    modApi(include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$project.forge_config_api_port_version"))
+    modApi("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$project.forge_config_api_port_version")
     modApi(include("teamreborn:energy:$project.energy_version"))
 
     modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:$project.cloth_config_version")
@@ -517,7 +517,7 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
 
     // Dependencies
     mainFile.addRequirement('fabric-api')
-    mainFile.addEmbedded('forge-config-api-port-fabric')
+    mainFile.addRequirement('forge-config-api-port-fabric')
     mainFile.addEmbedded('porting-lib')
     onlyIf { !project.ext.changelog.isEmpty() }
 }
@@ -531,7 +531,7 @@ modrinth {
     loaders = ["fabric"]
     dependencies {
         required.project "fabric-api"
-        embedded.project "forge-config-api-port"
+        required.project "forge-config-api-port"
         embedded.project "porting_lib"
     }
     changelog = provider {
