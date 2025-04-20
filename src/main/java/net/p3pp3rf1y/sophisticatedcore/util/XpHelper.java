@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 public class XpHelper {
 	private XpHelper() {}
 
-	private static final long RATIO = 20 * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS;
+	private static final long RATIO = 20;
 
 	public static float liquidToExperience(long liquid) {
 		return (float) liquid / RATIO;
