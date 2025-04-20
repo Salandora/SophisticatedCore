@@ -103,9 +103,9 @@ public record EmiFillRecipePacket(int syncId, int action, List<Integer> slots, L
 				}
 				if (output != null) {
 					if (payload.action == 1) {
-						handler.clicked(output.getContainerSlot(), 0, ClickType.PICKUP, player);
+						handler.clicked(output.index, 0, ClickType.PICKUP, player);
 					} else if (payload.action == 2) {
-						handler.clicked(output.getContainerSlot(), 0, ClickType.QUICK_MOVE, player);
+						handler.clicked(output.index, 0, ClickType.QUICK_MOVE, player);
 					}
 				}
 			} finally {
