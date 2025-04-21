@@ -113,7 +113,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
             outer.commit();
 
             if (!drained.isEmpty()) {
-                player.giveExperiencePoints((int) XpHelper.liquidToExperience((int) drained.getAmount()));
+                player.giveExperiencePoints((int) XpHelper.liquidToExperience(drained.getAmount()));
             }
         }
 	}
