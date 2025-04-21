@@ -1,11 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import net.minecraft.core.registries.BuiltInRegistries;
 import com.mojang.datafixers.util.Pair;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,12 +15,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -91,11 +90,11 @@ public class RecipeHelper {
 		return getFromCache(cache -> Optional.ofNullable(cache.level.get()), Optional.empty());
 	}
 
-	private static Set<CompactingShape> getCompactingShapes(Item item) {
+	private static Set<CompactingShape> getCompactingShapes(ItemStack stack) {
 		return getLevel().map(w -> {
 			Set<CompactingShape> compactingShapes = new HashSet<>();
-			getCompactingShape(item, w, 2, 2, TWO_BY_TWO_UNCRAFTABLE, TWO_BY_TWO).ifPresent(compactingShapes::add);
-			getCompactingShape(item, w, 3, 3, THREE_BY_THREE_UNCRAFTABLE, THREE_BY_THREE).ifPresent(compactingShapes::add);
+			getCompactingShape(stack, w, 2, 2, TWO_BY_TWO_UNCRAFTABLE, TWO_BY_TWO).ifPresent(compactingShapes::add);
+			getCompactingShape(stack, w, 3, 3, THREE_BY_THREE_UNCRAFTABLE, THREE_BY_THREE).ifPresent(compactingShapes::add);
 			if (compactingShapes.isEmpty()) {
 				compactingShapes.add(NONE);
 			}
@@ -103,18 +102,18 @@ public class RecipeHelper {
 		}).orElse(Collections.emptySet());
 	}
 
-	private static Optional<CompactingShape> getCompactingShape(Item item, Level w, int width, int height, CompactingShape uncraftableShape, CompactingShape shape) {
-		CompactingResult compactingResult = getCompactingResult(item, w, width, height);
+	private static Optional<CompactingShape> getCompactingShape(ItemStack stack, Level w, int width, int height, CompactingShape uncraftableShape, CompactingShape shape) {
+		CompactingResult compactingResult = getCompactingResult(stack, w, width, height);
 		if (!compactingResult.getResult().isEmpty()) {
-			if (item == compactingResult.getResult().getItem()) {
+			if (ItemStack.isSameItemSameTags(stack, compactingResult.getResult())) {
 				return Optional.empty();
 			}
 
-			if (isPartOfCompactingLoop(item, compactingResult.getResult().getItem(), w)) {
+			if (isPartOfCompactingLoop(stack, compactingResult.getResult(), w)) {
 				return Optional.empty();
 			}
 
-			if (uncompactMatchesItem(compactingResult.getResult(), w, item, width * height)) {
+			if (uncompactMatchesItem(compactingResult.getResult(), w, stack, width * height)) {
 				return Optional.of(uncraftableShape);
 			} else {
 				return Optional.of(shape);
@@ -123,34 +122,34 @@ public class RecipeHelper {
 		return Optional.empty();
 	}
 
-	private static boolean isPartOfCompactingLoop(Item firstCompacted, Item firstCompactResult, Level w) {
+	private static boolean isPartOfCompactingLoop(ItemStack firstCompacted, ItemStack firstCompactResult, Level w) {
 		ItemStack compactingResultStack;
 		int iterations = 0;
-		Set<Item> compactedItems = new HashSet<>();
-		Queue<Item> itemsToCompact = new LinkedList<>();
+		Set<Integer> compactedItemHashes = new HashSet<>();
+		Queue<ItemStack> itemsToCompact = new LinkedList<>();
 		itemsToCompact.add(firstCompactResult);
 		while (!itemsToCompact.isEmpty()) {
-			Item itemToCompact = itemsToCompact.poll();
+			ItemStack itemToCompact = itemsToCompact.poll();
 			compactingResultStack = getCompactingResult(itemToCompact, w, 2, 2).getResult();
 			if (!compactingResultStack.isEmpty()) {
-				if (compactingResultStack.getItem() == firstCompacted) {
+				if (ItemStack.isSameItemSameTags(compactingResultStack, firstCompacted)) {
 					return true;
-				} else if (compactedItems.contains(compactingResultStack.getItem())) {
+				} else if (compactedItemHashes.contains(ItemStackKey.getHashCode(compactingResultStack))) {
 					return false; //loop exists but the first compacted item isn't part of it so we will let it be compacted, but no follow up compacting will happen
 				}
-				itemsToCompact.add(compactingResultStack.getItem());
+				itemsToCompact.add(compactingResultStack);
 			}
 
 			compactingResultStack = getCompactingResult(itemToCompact, w, 3, 3).getResult();
 			if (!compactingResultStack.isEmpty()) {
-				if (compactingResultStack.getItem() == firstCompacted) {
+				if (ItemStack.isSameItemSameTags(compactingResultStack, firstCompacted)) {
 					return true;
-				} else if (compactedItems.contains(compactingResultStack.getItem())) {
+				} else if (compactedItemHashes.contains(ItemStackKey.getHashCode(compactingResultStack))) {
 					return false; //loop exists but the first compacted item isn't part of it so we will let it be compacted, but no follow up compacting will happen
 				}
-				itemsToCompact.add(compactingResultStack.getItem());
+				itemsToCompact.add(compactingResultStack);
 			}
-			compactedItems.add(itemToCompact);
+			compactedItemHashes.add(ItemStackKey.getHashCode(itemToCompact));
 			iterations++;
 			if (iterations > MAX_FOLLOW_UP_COMPACTING_RECIPES) {
 				return true; //we were unable to figure out if the loop exists because of way too many follow up compacting recipe thus not allowing to compact anyway
@@ -159,60 +158,59 @@ public class RecipeHelper {
 		return false;
 	}
 
-	private static boolean uncompactMatchesItem(ItemStack result, Level w, Item item, int count) {
-		Item itemToUncompact = result.getItem();
+	private static boolean uncompactMatchesItem(ItemStack itemToUncompact, Level w, ItemStack itemToMatch, int count) {
 		for (ItemStack uncompactResult : getUncompactResultItems(w, itemToUncompact)) {
-			if (uncompactResult.getItem() == item && uncompactResult.getCount() == count) {
+			if (ItemStack.isSameItemSameTags(uncompactResult, itemToMatch) && uncompactResult.getCount() == count) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static UncompactingResult getUncompactingResult(Item resultItem) {
-		return getFromCache(cache -> cache.getUncompactingResults().computeIfAbsent(resultItem, k -> getLevel().map(w -> {
-			for (ItemStack uncompactResultItem : getUncompactResultItems(w, resultItem)) {
+	public static UncompactingResult getUncompactingResult(ItemStack uncompactedItem) {
+		return getFromCache(cache -> cache.getUncompactingResults().computeIfAbsent(ItemStackKey.getHashCode(uncompactedItem), k -> getLevel().map(w -> {
+			for (ItemStack uncompactResultItem : getUncompactResultItems(w, uncompactedItem)) {
 				if (uncompactResultItem.getCount() == 9) {
-					if (getCompactingResult(uncompactResultItem.getItem(), 3, 3).getResult().getItem() == resultItem) {
-						return new UncompactingResult(uncompactResultItem.getItem(), THREE_BY_THREE_UNCRAFTABLE);
+					if (ItemStack.isSameItemSameTags(getCompactingResult(uncompactResultItem, 3, 3).getResult(), uncompactedItem)) {
+						return new UncompactingResult(uncompactResultItem, THREE_BY_THREE_UNCRAFTABLE);
 					}
-				} else if (uncompactResultItem.getCount() == 4 && getCompactingResult(uncompactResultItem.getItem(), 2, 2).getResult().getItem() == resultItem) {
-					return new UncompactingResult(uncompactResultItem.getItem(), TWO_BY_TWO_UNCRAFTABLE);
+				} else if (uncompactResultItem.getCount() == 4 && ItemStack.isSameItemSameTags(getCompactingResult(uncompactResultItem, 2, 2).getResult(), uncompactedItem)) {
+					return new UncompactingResult(uncompactResultItem, TWO_BY_TWO_UNCRAFTABLE);
 				}
 			}
 			return UncompactingResult.EMPTY;
 		}).orElse(UncompactingResult.EMPTY)), UncompactingResult.EMPTY);
 	}
 
-	private static List<ItemStack> getUncompactResultItems(Level w, Item itemToUncompact) {
+	private static List<ItemStack> getUncompactResultItems(Level w, ItemStack itemToUncompact) {
 		CraftingContainer craftingInventory = getFilledCraftingInventory(itemToUncompact, 1, 1);
 		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, w).stream().map(r -> r.assemble(craftingInventory, w.registryAccess())).toList();
 	}
 
-	public static CompactingResult getCompactingResult(Item item, CompactingShape shape) {
+	public static CompactingResult getCompactingResult(ItemStack stack, CompactingShape shape) {
 		if (shape == TWO_BY_TWO_UNCRAFTABLE || shape == TWO_BY_TWO) {
-			return RecipeHelper.getCompactingResult(item, 2, 2);
+			return RecipeHelper.getCompactingResult(stack, 2, 2);
 		} else if (shape == THREE_BY_THREE_UNCRAFTABLE || shape == THREE_BY_THREE) {
-			return RecipeHelper.getCompactingResult(item, 3, 3);
+			return RecipeHelper.getCompactingResult(stack, 3, 3);
 		}
 		return CompactingResult.EMPTY;
 	}
 
-	public static CompactingResult getCompactingResult(Item item, int width, int height) {
-		return getLevel().map(w -> getCompactingResult(item, w, width, height)).orElse(CompactingResult.EMPTY);
+	public static CompactingResult getCompactingResult(ItemStack stack, int width, int height) {
+		return getLevel().map(w -> getCompactingResult(stack, w, width, height)).orElse(CompactingResult.EMPTY);
 	}
 
-	private static CompactingResult getCompactingResult(Item item, Level level, int width, int height) {
-		return getFromCache(cache -> getCompactingResult(item, level, width, height, cache.getCompactingResults()), CompactingResult.EMPTY);
+	private static CompactingResult getCompactingResult(ItemStack stack, Level level, int width, int height) {
+		return getFromCache(cache -> getCompactingResult(stack, level, width, height, cache.getCompactingResults()), CompactingResult.EMPTY);
 	}
 
-	private static CompactingResult getCompactingResult(Item item, Level level, int width, int height, Map<CompactedItem, CompactingResult> cachedCompactingResults) {
-		CompactedItem compactedItem = new CompactedItem(item, width, height);
+	private static CompactingResult getCompactingResult(ItemStack stack, Level level, int width, int height, Map<CompactedItem, CompactingResult> cachedCompactingResults) {
+		CompactedItem compactedItem = new CompactedItem(stack, width, height);
 		if (cachedCompactingResults.containsKey(compactedItem)) {
 			return cachedCompactingResults.get(compactedItem);
 		}
 
-		CraftingContainer craftingInventory = getFilledCraftingInventory(item, width, height);
+		CraftingContainer craftingInventory = getFilledCraftingInventory(stack, width, height);
 		List<CraftingRecipe> compactingRecipes = safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory, level);
 
 		if (compactingRecipes.isEmpty()) {
@@ -226,7 +224,7 @@ public class RecipeHelper {
 
 		for (CraftingRecipe recipe : compactingRecipes) {
 			ItemStack result = recipe.assemble(craftingInventory, level.registryAccess());
-			if (uncompactMatchesItem(result, level, item, width * height)) {
+			if (uncompactMatchesItem(result, level, stack, width * height)) {
 				return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, result);
 			}
 		}
@@ -257,7 +255,7 @@ public class RecipeHelper {
 		}, compactingResult);
 	}
 
-	private static CraftingContainer getFilledCraftingInventory(Item item, int width, int height) {
+	private static CraftingContainer getFilledCraftingInventory(ItemStack stack, int width, int height) {
 		CraftingContainer craftinginventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
 			@Override
 			public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
@@ -270,7 +268,7 @@ public class RecipeHelper {
 		}, width, height);
 
 		for (int i = 0; i < craftinginventory.getContainerSize(); i++) {
-			craftinginventory.setItem(i, new ItemStack(item));
+			craftinginventory.setItem(i, stack.copyWithCount(1));
 		}
 		return craftinginventory;
 	}
@@ -279,8 +277,8 @@ public class RecipeHelper {
 		return getLevel().flatMap(w -> safeGetRecipeFor(recipeType, new SimpleContainer(stack), w, null));
 	}
 
-	public static Set<CompactingShape> getItemCompactingShapes(Item item) {
-		return getFromCache(cache -> cache.getItemCompactingShapes().getUnchecked(item), Collections.emptySet());
+	public static Set<CompactingShape> getItemCompactingShapes(ItemStack stack) {
+		return getFromCache(cache -> cache.getItemCompactingShapes(stack), Collections.emptySet());
 	}
 
 	public static <T extends Recipe<Container>> List<T> getRecipesOfType(RecipeType<T> recipeType, Container inventory) {
@@ -355,18 +353,18 @@ public class RecipeHelper {
 	}
 
 	public static class UncompactingResult {
-		public static final UncompactingResult EMPTY = new UncompactingResult(Items.AIR, NONE);
+		public static final UncompactingResult EMPTY = new UncompactingResult(ItemStack.EMPTY, NONE);
 
-		private final Item result;
+		private final ItemStack result;
 
 		private final CompactingShape compactUsingShape;
 
-		public UncompactingResult(Item result, CompactingShape compactUsingShape) {
-			this.result = result;
+		public UncompactingResult(ItemStack result, CompactingShape compactUsingShape) {
+			this.result = result.copyWithCount(1);
 			this.compactUsingShape = compactUsingShape;
 		}
 
-		public Item getResult() {
+		public ItemStack getResult() {
 			return result;
 		}
 
@@ -376,14 +374,16 @@ public class RecipeHelper {
 	}
 
 	private static class CompactedItem {
-		private final Item item;
+		private final ItemStack item;
+		private final int itemHash;
 		private final int width;
 		private final int height;
 
-		private CompactedItem(Item item, int width, int height) {
-			this.item = item;
+		private CompactedItem(ItemStack item, int width, int height) {
+			this.item = item.copyWithCount(1);
 			this.width = width;
 			this.height = height;
+			this.itemHash = ItemStackKey.getHashCode(item);
 		}
 
 		@Override
@@ -397,12 +397,12 @@ public class RecipeHelper {
 			CompactedItem that = (CompactedItem) o;
 			return width == that.width &&
 					height == that.height &&
-					item.equals(that.item);
+					ItemStack.isSameItemSameTags(item, that.item);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(item, width, height);
+			return Objects.hash(itemHash, width, height);
 		}
 	}
 
@@ -426,15 +426,9 @@ public class RecipeHelper {
 	}
 
 	private static class RecipeCache {
-		private final LoadingCache<Item, Set<CompactingShape>> itemCompactingShapes = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build(new CacheLoader<>() {
-			@Override
-			public Set<CompactingShape> load(Item item) {
-				SophisticatedCore.LOGGER.debug("Compacting shapes not found in cache for \"{}\" - querying recipes to get these", BuiltInRegistries.ITEM.getKey(item));
-				return getCompactingShapes(item);
-			}
-		});
+		private final Cache<Integer, Set<CompactingShape>> itemCompactingShapes = CacheBuilder.newBuilder().expireAfterAccess(10L, TimeUnit.MINUTES).build();
 		private final Map<CompactedItem, CompactingResult> compactingResults = new HashMap<>();
-		private final Map<Item, UncompactingResult> uncompactingResults = new HashMap<>();
+		private final Map<Integer, UncompactingResult> uncompactingResults = new HashMap<>();
 		private final RecipeChangeListenerList recipeChangeListeners = new RecipeChangeListenerList();
 		private final WeakReference<Level> level;
 
@@ -446,7 +440,7 @@ public class RecipeHelper {
 			recipeChangeListeners.add(runnable);
 		}
 
-		public Map<Item, UncompactingResult> getUncompactingResults() {
+		public Map<Integer, UncompactingResult> getUncompactingResults() {
 			return uncompactingResults;
 		}
 
@@ -454,8 +448,16 @@ public class RecipeHelper {
 			return compactingResults;
 		}
 
-		public LoadingCache<Item, Set<CompactingShape>> getItemCompactingShapes() {
-			return itemCompactingShapes;
+		public Set<CompactingShape> getItemCompactingShapes(ItemStack stack) {
+			int hash = ItemStackKey.getHashCode(stack);
+			Set<CompactingShape> compactingShapes = itemCompactingShapes.getIfPresent(hash);
+			if (compactingShapes == null) {
+				SophisticatedCore.LOGGER.debug("Compacting shapes not found in cache for \"{}\" - querying recipes to get these", BuiltInRegistries.ITEM.getKey(stack.getItem()));
+				compactingShapes = getCompactingShapes(stack);
+				itemCompactingShapes.put(hash, compactingShapes);
+			}
+
+			return compactingShapes;
 		}
 
 		private void clearCache() {

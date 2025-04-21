@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 
@@ -36,7 +36,6 @@ public class StorageSoundHandler {
 	public static void stopStorageSound(UUID storageUuid) {
 		if (storageSounds.containsKey(storageUuid)) {
 			Minecraft.getInstance().getSoundManager().stop(storageSounds.remove(storageUuid));
-			PacketHandler.sendToServer(new SoundStopNotificationMessage(storageUuid));
 		}
 	}
 
@@ -45,7 +44,7 @@ public class StorageSoundHandler {
 			lastPlaybackChecked = level.getGameTime();
 			storageSounds.entrySet().removeIf(entry -> {
 				if (!Minecraft.getInstance().getSoundManager().isActive(entry.getValue())) {
-					PacketHandler.sendToServer(new SoundStopNotificationMessage(entry.getKey()));
+					PacketHandler.sendToServer(new SoundFinishedNotificationMessage(entry.getKey()));
 					return true;
 				}
 				return false;
@@ -64,10 +63,21 @@ public class StorageSoundHandler {
 		}
 
 		Entity entity = level.getEntity(entityId);
-		if (!(entity instanceof LivingEntity)) {
+		if (entity == null) {
 			return;
 		}
-		playStorageSound(storageUuid, new EntityBoundSoundInstance(soundEvent, SoundSource.RECORDS, 2, 1, entity, level.random.nextLong()));
+		playStorageSound(storageUuid, new EntityBoundSoundInstance(soundEvent, SoundSource.RECORDS, 2, 1, entity, level.random.nextLong()) {
+			@Override
+			public void tick() {
+				super.tick();
+				if (entity instanceof Player player) {
+					Vec3 lookAngle = player.getLookAngle();
+					this.x = player.getX() + lookAngle.x;
+					this.y = player.getEyeY() + lookAngle.y;
+					this.z = player.getZ() + lookAngle.z;
+				}
+			}
+		});
 	}
 
 	public static void onWorldUnload(MinecraftServer minecraftServer, ServerLevel serverLevel) {

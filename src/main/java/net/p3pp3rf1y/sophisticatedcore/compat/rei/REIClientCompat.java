@@ -3,6 +3,8 @@ package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.client.registry.screen.ScreenRegistry;
+import me.shedaniel.rei.api.client.registry.transfer.TransferHandlerRegistry;
+import me.shedaniel.rei.api.client.registry.transfer.simple.SimpleTransferHandler;
 import me.shedaniel.rei.api.common.display.Display;
 import me.shedaniel.rei.plugin.common.BuiltinPlugin;
 

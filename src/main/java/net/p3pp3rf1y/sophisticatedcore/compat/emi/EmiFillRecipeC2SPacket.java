@@ -151,9 +151,9 @@ public class EmiFillRecipeC2SPacket extends SimplePacketBase {
                     }
                     if (output != null) {
                         if (action == 1) {
-                            handler.clicked(output.getContainerSlot(), 0, ClickType.PICKUP, sender);
+                            handler.clicked(output.index, 0, ClickType.PICKUP, sender);
                         } else if (action == 2) {
-                            handler.clicked(output.getContainerSlot(), 0, ClickType.QUICK_MOVE, sender);
+                            handler.clicked(output.index, 0, ClickType.QUICK_MOVE, sender);
                         }
                     }
                 } finally {

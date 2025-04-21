@@ -2,40 +2,55 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
-public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgradeItem.Wrapper, JukeboxUpgradeContainer> {
+import java.util.Optional;
+
+public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgradeWrapper, JukeboxUpgradeContainer> {
 
 	private static final String ACTION_DATA = "action";
 
-	public JukeboxUpgradeContainer(Player player, int upgradeContainerId, JukeboxUpgradeItem.Wrapper upgradeWrapper, UpgradeContainerType<JukeboxUpgradeItem.Wrapper, JukeboxUpgradeContainer> type) {
+	public JukeboxUpgradeContainer(Player player, int upgradeContainerId, JukeboxUpgradeWrapper upgradeWrapper, UpgradeContainerType<JukeboxUpgradeWrapper, JukeboxUpgradeContainer> type) {
 		super(player, upgradeContainerId, upgradeWrapper, type);
-		slots.add(new SCSlotItemHandler(upgradeWrapper.getDiscInventory(), 0, -100, -100) {
-			@Override
-			public void setChanged() {
-				super.setChanged();
-				if (upgradeWrapper.isPlaying()) {
-					stop();
+		for (int slot = 0; slot < upgradeWrapper.getDiscInventory().getSlotCount(); slot++) {
+			slots.add(new SCSlotItemHandler(upgradeWrapper.getDiscInventory(), slot, -100, -100) {
+				@Override
+				public void setChanged() {
+					super.setChanged();
+					if (upgradeWrapper.isPlaying() && getSlotIndex() == upgradeWrapper.getDiscSlotActive()) {
+						upgradeWrapper.stop(player);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override
 	public void handleMessage(CompoundTag data) {
 		if (data.contains(ACTION_DATA)) {
 			String actionName = data.getString(ACTION_DATA);
-			if (actionName.equals("play")) {
-				if (player.containerMenu instanceof StorageContainerMenuBase<?> storageContainerMenu) {
-					storageContainerMenu.getBlockPosition().ifPresentOrElse(pos -> upgradeWrapper.play(player.level(), pos), () -> upgradeWrapper.play(player));
+			switch (actionName) {
+				case "play" -> {
+					if (player.containerMenu instanceof StorageContainerMenuBase<?> storageContainerMenu) {
+					storageContainerMenu.getBlockPosition().ifPresentOrElse(pos -> upgradeWrapper.play(player.level(), pos), () ->  upgradeWrapper.play(storageContainerMenu.getEntity().orElse(player)));
+					}
 				}
-			} else if (actionName.equals("stop")) {
-				upgradeWrapper.stop(player);
+				case "stop" -> upgradeWrapper.stop(player);
+				case "next" -> upgradeWrapper.next();
+				case "previous" -> upgradeWrapper.previous();
 			}
+		}
+		if (data.contains("shuffle")) {
+			upgradeWrapper.setShuffleEnabled(data.getBoolean("shuffle"));
+		}
+
+		if (data.contains("repeat")) {
+			NBTHelper.getEnumConstant(data, "repeat", RepeatMode::fromName).ifPresent(upgradeWrapper::setRepeatMode);
 		}
 	}
 
@@ -45,5 +60,46 @@ public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgrade
 
 	public void stop() {
 		sendDataToServer(() -> NBTHelper.putString(new CompoundTag(), ACTION_DATA, "stop"));
+	}
+
+	public void next() {
+		sendDataToServer(() -> NBTHelper.putString(new CompoundTag(), ACTION_DATA, "next"));
+	}
+
+	public void previous() {
+		sendDataToServer(() -> NBTHelper.putString(new CompoundTag(), ACTION_DATA, "previous"));
+	}
+
+	public boolean isShuffleEnabled() {
+		return upgradeWrapper.isShuffleEnabled();
+	}
+
+	public void toggleShuffle() {
+		boolean newValue = !upgradeWrapper.isShuffleEnabled();
+		upgradeWrapper.setShuffleEnabled(newValue);
+		sendBooleanToServer("shuffle", newValue);
+	}
+
+	public RepeatMode getRepeatMode() {
+		return upgradeWrapper.getRepeatMode();
+	}
+
+	public void toggleRepeat() {
+		RepeatMode newValue = upgradeWrapper.getRepeatMode().next();
+		upgradeWrapper.setRepeatMode(newValue);
+		sendDataToServer(() -> NBTHelper.putEnumConstant(new CompoundTag(), "repeat", newValue));
+	}
+
+	public Optional<Slot> getDiscSlotActive() {
+		int discSlotActive = upgradeWrapper.getDiscSlotActive();
+		return discSlotActive > -1 ? Optional.of(slots.get(discSlotActive)) : Optional.empty();
+	}
+
+	public long getDiscFinishTime() {
+		return upgradeWrapper.getDiscFinishTime();
+	}
+
+	public int getDiscLength() {
+		return upgradeWrapper.getDiscLength();
 	}
 }

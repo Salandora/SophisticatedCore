@@ -142,7 +142,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 
 		int cooldown = COOLDOWN_TICKS;
 
-		Player player = (Player) entity;
+		Player player = entity instanceof Player ? (Player) entity : null;
 
 		for (ItemEntity itemEntity : itemEntities) {
 			if (!itemEntity.isAlive() || !filterLogic.matchesFilter(itemEntity.getItem()) || canNotPickup(itemEntity, entity)) {

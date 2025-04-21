@@ -7,14 +7,14 @@ import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
 import java.util.UUID;
 
-public class SoundStopNotificationMessage extends SimplePacketBase {
+public class SoundFinishedNotificationMessage extends SimplePacketBase {
 	private final UUID storageUuid;
 
-	public SoundStopNotificationMessage(UUID storageUuid) {
+	public SoundFinishedNotificationMessage(UUID storageUuid) {
 		this.storageUuid = storageUuid;
 	}
 
-	public SoundStopNotificationMessage(FriendlyByteBuf packetBuffer) {
+	public SoundFinishedNotificationMessage(FriendlyByteBuf packetBuffer) {
 		this(packetBuffer.readUUID());
 	}
 
@@ -30,7 +30,7 @@ public class SoundStopNotificationMessage extends SimplePacketBase {
 			if (sender == null) {
 				return;
 			}
-			ServerStorageSoundHandler.onSoundStopped((ServerLevel) sender.level(), storageUuid);
+			ServerStorageSoundHandler.onSoundFinished((ServerLevel) sender.level(), storageUuid);
 		});
 		return true;
 	}

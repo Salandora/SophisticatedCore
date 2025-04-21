@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -10,12 +11,19 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 	private final boolean isClientSide;
 	private final IStorageWrapper storageWrapper;
 	private final int slotIndex;
+	private final Player player;
 
-	public StorageInventorySlot(boolean isClientSide, IStorageWrapper storageWrapper, int slotIndex) {
+	public StorageInventorySlot(boolean isClientSide, IStorageWrapper storageWrapper, int slotIndex, Player player) {
 		super(storageWrapper::getInventoryHandler, slotIndex, 0, 0);
 		this.isClientSide = isClientSide;
 		this.storageWrapper = storageWrapper;
 		this.slotIndex = slotIndex;
+		this.player = player;
+	}
+
+	@Override
+	public boolean mayPlace(ItemStack stack) {
+		return storageWrapper.getInventoryHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount(), player);
 	}
 
 	@Override
@@ -56,5 +64,9 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 		} else {
 			return stack;
 		}
+	}
+
+	public boolean isInfinite() {
+		return storageWrapper.getInventoryHandler().isInfinite(slotIndex);
 	}
 }

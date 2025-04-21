@@ -6,18 +6,21 @@ import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
+import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 public interface IInventoryPartHandler {
 	IInventoryPartHandler EMPTY = () -> "EMPTY";
@@ -47,11 +50,10 @@ public interface IInventoryPartHandler {
 	}
 
 	@Deprecated
-	default boolean isItemValid(int slot, ItemVariant resource) {
-		return isItemValid(slot, resource, 1);
+	default boolean isItemValid(int slot, ItemVariant resource, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
+		return isItemValid(slot, resource, 1, player, isItemValidSuper);
 	}
-
-	default boolean isItemValid(int slot, ItemVariant resource, int count) {
+	default boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
 		return false;
 	}
 
@@ -104,6 +106,10 @@ public interface IInventoryPartHandler {
 		//noop
 	}
 
+	default boolean isInfinite(int slot) {
+		return false;
+	}
+
 	class Default implements IInventoryPartHandler {
 		public static final String NAME = "default";
 		private final InventoryHandler parent;
@@ -140,7 +146,7 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant resource, int count) {
+		public boolean isItemValid(int slot, ItemVariant stack, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
 			return true;
 		}
 

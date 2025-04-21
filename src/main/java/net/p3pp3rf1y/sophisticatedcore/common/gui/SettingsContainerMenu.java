@@ -43,6 +43,7 @@ import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsContainer;
 import net.p3pp3rf1y.sophisticatedcore.settings.nosort.NoSortSettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.nosort.NoSortSettingsContainer;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +54,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends AbstractContainerMenu implements ISyncedContainer, IAdditionalSlotInfoMenu {
 	private static final Map<String, ISettingsContainerFactory<?, ?>> SETTINGS_CONTAINER_FACTORIES = new HashMap<>();
@@ -369,11 +369,11 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 				slotFilterItems.put(slot, inventoryHandler.getFilterItem(slot));
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, Map.of(), slotFilterItems));
+		PacketHandler.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, Map.of(), Set.of(), slotFilterItems));
 	}
 
 	@Override
-	public void updateAdditionalSlotInfo(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Map<Integer, Item> slotFilterItems) {
+	public void updateAdditionalSlotInfo(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Set<Integer> infiniteSlots, Map<Integer, Item> slotFilterItems) {
 		this.inaccessibleSlots.clear();
 		this.inaccessibleSlots.addAll(inaccessibleSlots);
 

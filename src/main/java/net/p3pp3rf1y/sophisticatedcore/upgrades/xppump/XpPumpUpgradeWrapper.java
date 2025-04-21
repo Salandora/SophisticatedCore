@@ -93,11 +93,10 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 				return;
 			}
 
-			if (direction == AutomationDirection.INPUT) {
-				if (level < player.experienceLevel || (level == player.experienceLevel && player.experienceProgress > 0)) {
-					tryFillTankWithPlayerExperience(player, fluidHandler, level, false);
-				}
-			} else if (direction == AutomationDirection.OUTPUT && level > player.experienceLevel) {
+			if ((direction == AutomationDirection.INPUT || direction == AutomationDirection.KEEP)
+					&& (level < player.experienceLevel || (level == player.experienceLevel && player.experienceProgress > 0))) {
+				tryFillTankWithPlayerExperience(player, fluidHandler, level, false);
+			} else if ((direction == AutomationDirection.OUTPUT || direction == AutomationDirection.KEEP) && level > player.experienceLevel) {
 				tryGivePlayerExperienceFromTank(player, fluidHandler, level, false);
 			}
 		});
@@ -114,7 +113,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
             outer.commit();
 
             if (!drained.isEmpty()) {
-                player.giveExperiencePoints((int) XpHelper.liquidToExperience((int) drained.getAmount()));
+                player.giveExperiencePoints((int) XpHelper.liquidToExperience(drained.getAmount()));
             }
         }
 	}
