@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPayloads;
 import net.p3pp3rf1y.sophisticatedcore.network.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.PlayDiscPayload;
-import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundStopNotificationPayload;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundFinishedNotificationPayload;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StopDiscPlaybackPayload;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.tank.TankClickPayload;
 
@@ -22,7 +22,7 @@ public class ModPayloads {
 	public static void registerPayloads() {
 		registerC2S(SyncContainerClientDataPayload.TYPE, SyncContainerClientDataPayload.STREAM_CODEC, SyncContainerClientDataPayload::handlePayload);
 		registerC2S(TransferFullSlotPayload.TYPE, TransferFullSlotPayload.STREAM_CODEC, TransferFullSlotPayload::handlePayload);
-		registerC2S(SoundStopNotificationPayload.TYPE, SoundStopNotificationPayload.STREAM_CODEC, SoundStopNotificationPayload::handlePayload);
+		registerC2S(SoundFinishedNotificationPayload.TYPE, SoundFinishedNotificationPayload.STREAM_CODEC, SoundFinishedNotificationPayload::handlePayload);
 		registerC2S(TankClickPayload.TYPE, TankClickPayload.STREAM_CODEC, TankClickPayload::handlePayload);
 		registerC2S(TransferItemsPayload.TYPE, TransferItemsPayload.STREAM_CODEC, TransferItemsPayload::handlePayload);
 

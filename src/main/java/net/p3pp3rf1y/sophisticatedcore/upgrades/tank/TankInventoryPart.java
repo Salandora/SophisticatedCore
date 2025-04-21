@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -95,7 +96,9 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {
-				tooltip.add(contents.getHoverName());
+				// Porting-Lib and Architectury API are incompatible, therefore we can not use porting-libs version to get the hover name
+				// tooltip.add(contents.getHoverName());
+				tooltip.add(FluidVariantAttributes.getName(contents.getVariant()));
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
 			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);

@@ -88,8 +88,10 @@ public abstract class Tab extends CompositeWidgetBase<WidgetBase> {
 	@Override
 	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		int halfHeight = height / 2;
+		int oddHeightAddition = height % 2;
+		int secondHalfHeight = halfHeight + oddHeightAddition;
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, (float) TEXTURE_WIDTH - width, 0, width, halfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y + halfHeight, (float) TEXTURE_WIDTH - width, (float) TEXTURE_HEIGHT - halfHeight, width, halfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y + halfHeight, (float) TEXTURE_WIDTH - width, (float) TEXTURE_HEIGHT - secondHalfHeight, width, secondHalfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x - 3, y, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height);
 	}
 

@@ -48,6 +48,7 @@ public class Config {
 	}
 
 	public static class Common {
+		private boolean configChanged = false;
 		public final EnabledItems enabledItems;
 
 		public void initListeners() {
@@ -62,15 +63,24 @@ public class Config {
 		Common(ModConfigSpec.Builder builder) {
 			builder.comment("Common Settings").push("common");
 
-			enabledItems = new EnabledItems(builder);
+			enabledItems = new EnabledItems(builder, () -> configChanged = true);
+		}
+
+		public void saveIfChanged() {
+			if (configChanged) {
+				configChanged = false;
+				COMMON_SPEC.save();
+			}
 		}
 
 		public static class EnabledItems {
 			private final ModConfigSpec.ConfigValue<List<String>> itemsEnableList;
+			private final Runnable onConfigChange;
 			private final Map<ResourceLocation, Boolean> enabledMap = new ConcurrentHashMap<>();
 
-			EnabledItems(ModConfigSpec.Builder builder) {
+			EnabledItems(ModConfigSpec.Builder builder, Runnable onConfigChange) {
 				itemsEnableList = builder.comment("Disable / enable any items here (disables their recipes)").define("enabledItems", new ArrayList<>());
+				this.onConfigChange = onConfigChange;
 			}
 
 			public boolean isItemEnabled(Item item) {
@@ -94,11 +104,7 @@ public class Config {
 				List<String> list = itemsEnableList.get();
 				list.add(itemRegistryName + "|true");
 				itemsEnableList.set(list);
-				try {
-					COMMON_SPEC.save();
-				} catch (WritingException e) {
-					SophisticatedCore.LOGGER.warn("Failed to save common config", e);
-				}
+				onConfigChange.run();
 			}
 
 			private void loadEnabledMap() {
@@ -112,6 +118,5 @@ public class Config {
 				}
 			}
 		}
-
 	}
 }

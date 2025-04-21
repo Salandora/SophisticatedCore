@@ -11,6 +11,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
@@ -78,6 +79,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	private boolean inventorySlotStackChanged = false;
 	private final Set<Integer> inaccessibleSlots = new HashSet<>();
 	private final Map<Integer, Integer> slotLimitOverrides = new HashMap<>();
+	private final Set<Integer> infiniteSlots = new HashSet<>();
 	private final Map<Integer, ItemStack> slotFilterItems = new HashMap<>();
 	private final Map<Integer, Pair<ResourceLocation, ResourceLocation>> emptySlotIcons = new HashMap<>();
 
@@ -219,7 +221,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		Set<Integer> noSortSlotIndexes = getNoSortSlotIndexes();
 		while (slotIndex < inventoryHandler.getSlotCount()) {
 			int finalSlotIndex = slotIndex;
-			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide, storageWrapper, finalSlotIndex) {
+			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide, storageWrapper, finalSlotIndex, player) {
 				@Override
 				public void set(@Nonnull ItemStack stack) {
 					super.set(stack);
@@ -864,6 +866,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		sendAdditionalSlotInfo();
 	}
 
+	public boolean isInfiniteSlot(int slot) {
+		return infiniteSlots.contains(slot);
+	}
+
 	private void sendEmptySlotIcons() {
 		if (!(player instanceof ServerPlayer serverPlayer)) {
 			return;
@@ -884,11 +890,15 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		}
 		Set<Integer> inaccessibleSlots = new HashSet<>();
 		Map<Integer, Integer> slotLimitOverrides = new HashMap<>();
+		Set<Integer> infiniteSlots = new HashSet<>();
 		InventoryHandler inventoryHandler = storageWrapper.getInventoryHandler();
 		Map<Integer, Holder<Item>> slotFilterItems = new HashMap<>();
 		for (int slot = 0; slot < inventoryHandler.getSlotCount(); slot++) {
 			if (!inventoryHandler.isSlotAccessible(slot)) {
 				inaccessibleSlots.add(slot);
+			}
+			if (inventoryHandler.isInfinite(slot)) {
+				infiniteSlots.add(slot);
 			}
 			ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
 			int stackLimit = inventoryHandler.getStackLimit(slot, stackInSlot);
@@ -899,7 +909,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				slotFilterItems.put(slot, inventoryHandler.getFilterItem(slot).builtInRegistryHolder());
 			}
 		}
-		PacketDistributor.sendToPlayer(serverPlayer, new SyncAdditionalSlotInfoPayload(inaccessibleSlots, slotLimitOverrides, slotFilterItems));
+		PacketDistributor.sendToPlayer(serverPlayer, new SyncAdditionalSlotInfoPayload(inaccessibleSlots, slotLimitOverrides, infiniteSlots, slotFilterItems));
 	}
 
 	@Override
@@ -917,7 +927,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			ItemStack previous = remoteRealSlots.get(slotIndex);
 			remoteRealSlots.set(slotIndex, stack);
 
-			if (previous.isEmpty() || stack.isEmpty()) {
+			if (isStorageInventorySlot(slotIndex) && (previous.isEmpty() || stack.isEmpty())) {
 				inventorySlotStackChanged = true;
 			}
 		} else {
@@ -966,6 +976,17 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	private void onSwapCraft(Slot slot, int numItemsCrafted) {
 		slot.onSwapCraft(numItemsCrafted);
+	}
+
+	public static int getQuickCraftPlaceCount(Slot slot, int quickCraftSlotsSize, int quickCraftingType, ItemStack carriedStack) {
+		int placeCount;
+		switch (quickCraftingType) {
+			case 0 -> placeCount = Mth.floor((float) carriedStack.getCount() / (float) quickCraftSlotsSize);
+			case 1 -> placeCount = 1;
+			case 2 -> placeCount = carriedStack.getMaxStackSize();
+			default -> placeCount = carriedStack.getCount();
+		}
+		return Math.min(slot.getMaxStackSize(carriedStack), placeCount);
 	}
 
 	//copy of Container's doClick with the replacement of inventorySlots.get to getSlot, call to onswapcraft as that's protected in vanilla and an addition of upgradeSlots to pickup all
@@ -1022,7 +1043,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 								slotStackLimit = carriedCopy.getMaxStackSize();
 							}
 
-							int l = Math.min(getQuickCraftPlaceCount(this.quickcraftSlots, this.quickcraftType, carriedCopy) + j, slotStackLimit);
+							int l = Math.min(getQuickCraftPlaceCount(slot1, this.quickcraftSlots.size(), this.quickcraftType, carriedCopy) + j, slotStackLimit);
 							j1 -= l - j;
 							slot1.setByPlayer(carriedCopy.copyWithCount(l));
 						}
@@ -1084,8 +1105,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 						}
 					} else if (slot7.mayPickup(player)) {
 						if (carriedStack.isEmpty()) {
-							int i3 = clickaction == ClickAction.PRIMARY ? Math.min(slotStack.getCount(), slotStack.getMaxStackSize()) : Math.min(slotStack.getMaxStackSize() + 1, slotStack.getCount() + 1) / 2;
-							Optional<ItemStack> optional1 = slot7.tryRemove(i3, Integer.MAX_VALUE, player);
+							int countToRemove;
+							countToRemove = Math.min(slotStack.getCount(), slotStack.getMaxStackSize());
+							if (clickaction == ClickAction.SECONDARY) {
+								countToRemove = countToRemove / 2 + countToRemove % 2;
+							}
+							Optional<ItemStack> optional1 = slot7.tryRemove(countToRemove, Integer.MAX_VALUE, player);
 							optional1.ifPresent((p_150421_) -> {
 								setCarried(p_150421_);
 								slot7.onTake(player, p_150421_);
@@ -1490,7 +1515,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (!ItemStack.matches(remoteStack, slotStack)) {
 				ItemStack stackCopy = slotStackCopy.get();
 				remoteSlotsCollection.set(slotIndex, stackCopy);
-				if (isStorageInventorySlot(slotIndex) && (remoteStack.isEmpty() || slotStack.isEmpty())) {
+				if (isStorageInventorySlot(slotIndex + slotIndexOffset) && (remoteStack.isEmpty() || slotStack.isEmpty())) {
 					inventorySlotStackChanged = true;
 				}
 				if (synchronizer != null) {
@@ -1583,12 +1608,32 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	@Override
-	public void updateAdditionalSlotInfo(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Map<Integer, Holder<Item>> slotFilterItems) {
+	public void updateAdditionalSlotInfo(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides, Set<Integer> infiniteSlots, Map<Integer, Holder<Item>> slotFilterItems) {
 		this.inaccessibleSlots.clear();
 		this.inaccessibleSlots.addAll(inaccessibleSlots);
 
 		this.slotLimitOverrides.clear();
 		this.slotLimitOverrides.putAll(slotLimitOverrides);
+
+		this.infiniteSlots.clear();
+		this.infiniteSlots.addAll(infiniteSlots);
+
+		Set<Integer> noSort = getNoSortSlotIndexes();
+		noSort.addAll(infiniteSlots);
+
+		List<Slot> slotsToMakeIntoNoSort = new ArrayList<>();
+		List<Slot> slotsToMakeSortable = new ArrayList<>();
+		for (int i = 0; i < getNumberOfStorageInventorySlots(); i++) {
+			Slot slot = realInventorySlots.get(i);
+			if (noSort.contains(slot.index) && slots.contains(slot)) {
+				slotsToMakeIntoNoSort.add(slot);
+			} else if (!noSort.contains(slot.index) && !slots.contains(slot)) {
+				slotsToMakeSortable.add(slot);
+			}
+		}
+
+		slotsToMakeIntoNoSort.forEach(slots::remove);
+		slots.addAll(slotsToMakeSortable);
 
 		this.slotFilterItems.clear();
 		slotFilterItems.forEach((slot, item) -> this.slotFilterItems.put(slot, new ItemStack(item)));
@@ -1687,7 +1732,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				return false;
 			}
 
-			UpgradeSlotChangeResult result = ((IUpgradeItem<?>) getItem().getItem()).canRemoveUpgradeFrom(storageWrapper, player.level().isClientSide());
+			UpgradeSlotChangeResult result = ((IUpgradeItem<?>) getItem().getItem()).canRemoveUpgradeFrom(storageWrapper, player.level().isClientSide(), player);
 			updateSlotChangeError(result);
 			return result.successful();
 		}

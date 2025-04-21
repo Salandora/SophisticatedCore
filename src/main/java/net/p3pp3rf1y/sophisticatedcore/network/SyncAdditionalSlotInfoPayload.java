@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 public record SyncAdditionalSlotInfoPayload(Set<Integer> inaccessibleSlots, Map<Integer, Integer> slotLimitOverrides,
-											Map<Integer, Holder<Item>> slotFilterItems) implements CustomPacketPayload {
+											Set<Integer> infiniteSlots, Map<Integer, Holder<Item>> slotFilterItems) implements CustomPacketPayload {
 	public static final Type<SyncAdditionalSlotInfoPayload> TYPE = new Type<>(SophisticatedCore.getRL("sync_additional_slot_info"));
 	private static final StreamCodec<RegistryFriendlyByteBuf, Holder<Item>> ITEM_STREAM_CODEC = ByteBufCodecs.holderRegistry(Registries.ITEM);
 	public static final StreamCodec<RegistryFriendlyByteBuf, SyncAdditionalSlotInfoPayload> STREAM_CODEC = StreamCodec.composite(
@@ -29,6 +29,8 @@ public record SyncAdditionalSlotInfoPayload(Set<Integer> inaccessibleSlots, Map<
 			SyncAdditionalSlotInfoPayload::inaccessibleSlots,
 			StreamCodecHelper.ofMap(ByteBufCodecs.INT, ByteBufCodecs.INT, HashMap::new),
 			SyncAdditionalSlotInfoPayload::slotLimitOverrides,
+			StreamCodecHelper.ofCollection(ByteBufCodecs.INT, HashSet::new),
+			SyncAdditionalSlotInfoPayload::infiniteSlots,
 			StreamCodecHelper.ofMap(ByteBufCodecs.INT, ITEM_STREAM_CODEC, HashMap::new),
 			SyncAdditionalSlotInfoPayload::slotFilterItems,
 			SyncAdditionalSlotInfoPayload::new);
@@ -43,6 +45,6 @@ public record SyncAdditionalSlotInfoPayload(Set<Integer> inaccessibleSlots, Map<
 		if (!(context.player().containerMenu instanceof IAdditionalSlotInfoMenu menu)) {
 			return;
 		}
-		menu.updateAdditionalSlotInfo(payload.inaccessibleSlots, payload.slotLimitOverrides, payload.slotFilterItems);
+		menu.updateAdditionalSlotInfo(payload.inaccessibleSlots, payload.slotLimitOverrides, payload.infiniteSlots, payload.slotFilterItems);
 	}
 }

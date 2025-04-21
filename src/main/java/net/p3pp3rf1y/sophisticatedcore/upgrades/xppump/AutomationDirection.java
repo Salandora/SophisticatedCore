@@ -12,6 +12,7 @@ import java.util.Map;
 public enum AutomationDirection implements StringRepresentable {
 	INPUT("input"),
 	OUTPUT("output"),
+	KEEP("keep"),
 	OFF("off");
 
 	public static final Codec<AutomationDirection> CODEC = StringRepresentable.fromEnum(AutomationDirection::values);

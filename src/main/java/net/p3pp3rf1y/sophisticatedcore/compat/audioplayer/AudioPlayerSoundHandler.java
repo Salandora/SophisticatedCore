@@ -124,7 +124,7 @@ public class AudioPlayerSoundHandler implements SoundHandler {
 			lastPlaybackChecked = level.getGameTime();
 			storageUUIDToChannelUUID.entrySet().removeIf(entry -> {
 				if (!SCPlayerManager.instance().isPlaying(entry.getValue())) {
-					ServerStorageSoundHandler.onSoundStopped(level, entry.getKey());
+					ServerStorageSoundHandler.onSoundFinished(level, entry.getKey());
 					return true;
 				}
 				return false;

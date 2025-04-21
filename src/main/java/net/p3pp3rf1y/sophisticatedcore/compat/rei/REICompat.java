@@ -11,5 +11,7 @@ public class REICompat implements ICompat {
 	public void setup() {
 		ModPayloads.registerC2S(REISetGhostSlotPayload.TYPE, REISetGhostSlotPayload.STREAM_CODEC, REISetGhostSlotPayload::handlePayload);
 		ModPayloads.registerC2S(REISetMemorySlotPayload.TYPE, REISetMemorySlotPayload.STREAM_CODEC, REISetMemorySlotPayload::handlePayload);
+
+		ModPayloads.registerC2S(REIMoveItemsPayload.TYPE, REIMoveItemsPayload.STREAM_CODEC, REIMoveItemsPayload::handlePayload);
 	}
 }

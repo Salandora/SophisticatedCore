@@ -59,17 +59,6 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 		ignoreNbt = NBTHelper.getBoolean(categoryNbt, IGNORE_NBT_TAG).orElse(true);
 	}
 
-	public boolean matchesFilter(int slotNumber, ItemVariant resource) {
-		if (slotFilterItems.containsKey(slotNumber)) {
-			return !resource.isBlank() && resource.getItem() == slotFilterItems.get(slotNumber);
-		}
-		if (slotFilterStacks.containsKey(slotNumber)) {
-			return !resource.isBlank() && slotFilterStacks.get(slotNumber).matches(resource);
-		}
-
-		return true;
-	}
-
 	public boolean matchesFilter(int slotNumber, ItemStack stack) {
 		if (slotFilterItems.containsKey(slotNumber)) {
 			return !stack.isEmpty() && stack.getItem() == slotFilterItems.get(slotNumber);

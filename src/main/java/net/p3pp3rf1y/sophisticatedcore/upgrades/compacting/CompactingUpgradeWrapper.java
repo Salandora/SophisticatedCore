@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.compacting;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
@@ -31,7 +30,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		super(storageWrapper, upgrade, upgradeSaveHandler);
 
 		filterLogic = new FilterLogic(upgrade, upgradeSaveHandler, upgradeItem.getFilterSlotCount(),
-				stack -> stack.getComponentsPatch().isEmpty() && !RecipeHelper.getItemCompactingShapes(stack.getItem()).isEmpty(),
+				stack -> RecipeHelper.getItemCompactingShapes(stack).stream().anyMatch(shape -> shape != CompactingShape.NONE),
 				ModCoreDataComponents.FILTER_ATTRIBUTES);
 	}
 
@@ -48,26 +47,24 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	private void compactSlot(IItemHandlerSimpleInserter inventoryHandler, int slot) {
 		ItemStack slotStack = inventoryHandler.getStackInSlot(slot);
 
-		if (slotStack.isEmpty() || !slotStack.getComponentsPatch().isEmpty() || !filterLogic.matchesFilter(slotStack)) {
+		if (slotStack.isEmpty() || !filterLogic.matchesFilter(slotStack)) {
 			return;
 		}
 
-		Item item = slotStack.getItem();
-
-		Set<CompactingShape> shapes = RecipeHelper.getItemCompactingShapes(item);
+		Set<CompactingShape> shapes = RecipeHelper.getItemCompactingShapes(slotStack);
 
 		if (upgradeItem.shouldCompactThreeByThree() && (shapes.contains(CompactingShape.THREE_BY_THREE_UNCRAFTABLE) || (shouldCompactNonUncraftable() && shapes.contains(CompactingShape.THREE_BY_THREE)))) {
-			tryCompacting(inventoryHandler, item, 3, 3);
+			tryCompacting(inventoryHandler, slotStack, 3, 3);
 		} else if (shapes.contains(CompactingShape.TWO_BY_TWO_UNCRAFTABLE) || (shouldCompactNonUncraftable() && shapes.contains(CompactingShape.TWO_BY_TWO))) {
-			tryCompacting(inventoryHandler, item, 2, 2);
+			tryCompacting(inventoryHandler, slotStack, 2, 2);
 		}
 	}
 
-	private void tryCompacting(IItemHandlerSimpleInserter inventoryHandler, Item item, int width, int height) {
+	private void tryCompacting(IItemHandlerSimpleInserter inventoryHandler, ItemStack stack, int width, int height) {
 		int totalCount = width * height;
-		RecipeHelper.CompactingResult compactingResult = RecipeHelper.getCompactingResult(item, width, height);
+		RecipeHelper.CompactingResult compactingResult = RecipeHelper.getCompactingResult(stack, width, height);
 		if (!compactingResult.getResult().isEmpty()) {
-			ItemStack extractedStack = InventoryHelper.extractFromInventory(item, totalCount, inventoryHandler, true);
+			ItemStack extractedStack = InventoryHelper.extractFromInventory(stack.copyWithCount(totalCount), inventoryHandler, true);
 			if (extractedStack.getCount() != totalCount) {
 				return;
 			}
@@ -76,14 +73,13 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 				ItemStack resultCopy = compactingResult.getResult().copy();
 				List<ItemStack> remainingItemsCopy = compactingResult.getRemainingItems().isEmpty() ? Collections.emptyList() : compactingResult.getRemainingItems().stream().map(ItemStack::copy).toList();
 
-				if (!fitsResultAndRemainingItems(inventoryHandler, remainingItemsCopy, compactingResult.getResult().copy())) {
+				if (!fitsResultAndRemainingItems(inventoryHandler, remainingItemsCopy, resultCopy)) {
 					break;
 				}
-
-				InventoryHelper.extractFromInventory(item, totalCount, inventoryHandler, false);
+				InventoryHelper.extractFromInventory(stack.copyWithCount(totalCount), inventoryHandler, false);
 				inventoryHandler.insertItem(resultCopy, false);
 				InventoryHelper.insertIntoInventory(remainingItemsCopy, inventoryHandler, false);
-				extractedStack = InventoryHelper.extractFromInventory(item, totalCount, inventoryHandler, true);
+				extractedStack = InventoryHelper.extractFromInventory(stack.copyWithCount(totalCount), inventoryHandler, true);
 			}
 		}
 	}
