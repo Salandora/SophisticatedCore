@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +22,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -47,10 +50,18 @@ public class CapabilityHelper {
 	public static <T, C> void runOnCapability(ItemStack stack, ItemApiLookup<T, C> capability, @Nullable C context, Consumer<T> run) {
 		runOnCapability(run, capability.find(stack, context));
 	}
+	public static <T, C> void runOnCapability(ItemStack stack, ItemApiLookup<T, C> capability, @Nullable C context, BiConsumer<C, T> run) {
+		runOnCapability(run, context, capability.find(stack, context));
+	}
 
 	private static <T> void runOnCapability(Consumer<T> run, @Nullable T t) {
 		if (t != null) {
 			run.accept(t);
+		}
+	}
+	private static <T, C> void runOnCapability(BiConsumer<C, T> run, @Nullable C context, @Nullable T t) {
+		if (t != null) {
+			run.accept(context, t);
 		}
 	}
 
@@ -88,10 +99,10 @@ public class CapabilityHelper {
 	}
 
 	public static <T> T getFromFluidHandler(ItemStack stack, Function<Storage<FluidVariant>, T> get, T defaultValue) {
-		return getFromCapability(stack, FluidStorage.ITEM, null, get, defaultValue);
+		return getFromCapability(stack, FluidStorage.ITEM, ContainerItemContext.withConstant(stack), get, defaultValue);
 	}
 
-	public static void runOnFluidHandler(ItemStack stack, Consumer<Storage<FluidVariant>> run) {
-		runOnCapability(stack, FluidStorage.ITEM, null, run);
+	public static void runOnFluidHandler(ItemStack stack, BiConsumer<ContainerItemContext, Storage<FluidVariant>> run) {
+		runOnCapability(stack, FluidStorage.ITEM, new MutableContainerItemContext(stack), run);
 	}
 }

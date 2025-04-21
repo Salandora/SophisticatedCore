@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -42,12 +44,15 @@ public class TankClickPacket implements FabricPacket {
 		Storage<FluidVariant> storage = cic.find(FluidStorage.ITEM);
 		if (storage != null) {
 			TankUpgradeWrapper tankWrapper = tankContainer.getUpgradeWrapper();
-			io.github.fabricators_of_create.porting_lib.fluids.FluidStack tankContents = tankWrapper.getContents();
+			FluidStack tankContents = tankWrapper.getContents();
 			if (tankContents.isEmpty()) {
-				tankWrapper.drainHandler(storage);
+				drainHandler(player, containerMenu, cic, storage, tankWrapper);
 			} else {
-				if (!tankWrapper.fillHandler(storage)) {
-					tankWrapper.drainHandler(storage);
+				if (!tankWrapper.fillHandler(cic, storage, itemStackIn -> {
+					containerMenu.setCarried(itemStackIn);
+					player.connection.send(new ClientboundContainerSetSlotPacket(-1, containerMenu.incrementStateId(), -1, containerMenu.getCarried()));
+				})) {
+					drainHandler(player, containerMenu, cic, storage, tankWrapper);
 				}
 			}
 		}
@@ -61,5 +66,12 @@ public class TankClickPacket implements FabricPacket {
 	@Override
 	public PacketType<?> getType() {
 		return TYPE;
+	}
+
+	private static void drainHandler(ServerPlayer player, AbstractContainerMenu containerMenu, ContainerItemContext cic, Storage<FluidVariant> fluidHandler, TankUpgradeWrapper tankWrapper) {
+		tankWrapper.drainHandler(cic, fluidHandler, itemStackIn -> {
+			containerMenu.setCarried(itemStackIn);
+			player.connection.send(new ClientboundContainerSetSlotPacket(-1, containerMenu.incrementStateId(), -1, containerMenu.getCarried()));
+		});
 	}
 }
