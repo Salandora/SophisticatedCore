@@ -8,7 +8,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPayloads;
 import net.p3pp3rf1y.sophisticatedcore.network.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.PlayDiscPayload;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundFinishedNotificationPayload;
@@ -49,8 +48,6 @@ public class ModPayloads {
 			ClientPlayNetworking.registerGlobalReceiver(SyncSlotChangeErrorPayload.TYPE, SyncSlotChangeErrorPayload::handlePayload);
 			ClientPlayNetworking.registerGlobalReceiver(SyncDatapackSettingsTemplatePayload.TYPE, SyncDatapackSettingsTemplatePayload::handlePayload);
 		}
-
-		LitematicaPayloads.registerPackets();
 	}
 
 	public static <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> id, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, ServerPlayNetworking.PlayPayloadHandler<T> handler) {
