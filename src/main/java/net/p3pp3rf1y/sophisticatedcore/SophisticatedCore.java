@@ -51,7 +51,6 @@ public class SophisticatedCore implements ModInitializer {
 		Config.COMMON.initListeners();
 		ModCoreDataComponents.register();
 
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STARTED.register(SophisticatedCore::serverStarted);
 		ServerLifecycleEvents.SERVER_STOPPED.register(SophisticatedCore::serverStopped);
 
@@ -63,6 +62,7 @@ public class SophisticatedCore implements ModInitializer {
 	}
 
 	private static void serverStarted(MinecraftServer server) {
+		currentServer = server;
 		ServerLevel world = server.getLevel(Level.OVERWORLD);
 		if (world != null) {
 			RecipeHelper.setLevel(world);
@@ -72,6 +72,7 @@ public class SophisticatedCore implements ModInitializer {
 	}
 
 	private static void serverStopped(MinecraftServer server) {
+		currentServer = null;
 		StorageWrapperRepository.clearCache();
 	}
 
