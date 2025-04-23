@@ -15,6 +15,4 @@ public class CompatModIds {
 	public static final String EMI = "emi";
 	public static final String REI = "roughlyenoughitems";
 	public static final String TRINKETS = "trinkets";
-	public static final String LITEMATICA = "litematica";
-	public static final String AUDIOPLAYER = "audioplayer";
 }

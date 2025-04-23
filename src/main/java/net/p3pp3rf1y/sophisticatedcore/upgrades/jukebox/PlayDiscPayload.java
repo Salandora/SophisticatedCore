@@ -11,21 +11,18 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.JukeboxSong;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.UUID;
 
-public record PlayDiscPayload(boolean blockStorage, UUID storageUuid, ItemStack discItemStack, Holder<JukeboxSong> song, int entityId, BlockPos pos) implements CustomPacketPayload {
+public record PlayDiscPayload(boolean blockStorage, UUID storageUuid, Holder<JukeboxSong> song, int entityId, BlockPos pos) implements CustomPacketPayload {
 	public static final Type<PlayDiscPayload> TYPE = new Type<>(SophisticatedCore.getRL("play_disc"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, PlayDiscPayload> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.BOOL,
 			PlayDiscPayload::blockStorage,
 			UUIDUtil.STREAM_CODEC,
 			PlayDiscPayload::storageUuid,
-			ItemStack.STREAM_CODEC,
-			PlayDiscPayload::discItemStack,
 			JukeboxSong.STREAM_CODEC,
 			PlayDiscPayload::song,
 			ByteBufCodecs.INT,
@@ -34,12 +31,12 @@ public record PlayDiscPayload(boolean blockStorage, UUID storageUuid, ItemStack 
 			PlayDiscPayload::pos,
 			PlayDiscPayload::new);
 
-	public PlayDiscPayload(UUID storageUuid, ItemStack discItemStack, Holder<JukeboxSong> song, BlockPos pos) {
-		this(true, storageUuid, discItemStack, song, 0, pos);
+	public PlayDiscPayload(UUID storageUuid, Holder<JukeboxSong> song, BlockPos pos) {
+		this(true, storageUuid, song, 0, pos);
 	}
 
-	public PlayDiscPayload(UUID storageUuid, ItemStack discItemStack, Holder<JukeboxSong> song, int entityId) {
-		this(false, storageUuid, discItemStack, song, entityId, BlockPos.ZERO);
+	public PlayDiscPayload(UUID storageUuid, Holder<JukeboxSong> song, int entityId) {
+		this(false, storageUuid, song, entityId, BlockPos.ZERO);
 	}
 
 	@Override
