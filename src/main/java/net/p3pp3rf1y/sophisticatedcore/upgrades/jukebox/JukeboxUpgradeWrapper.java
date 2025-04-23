@@ -128,9 +128,9 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 		storageWrapper.getContentsUuid().ifPresent(storageUuid -> getJukeboxSongHolder(level).ifPresent(song -> {
 			if (entityPlaying != null) {
-				ServerStorageSoundHandler.startPlayingDisc(serverLevel, entityPlaying.position(), storageUuid, entityPlaying.getId(), getDisc(), song, onFinishedCallback);
+				ServerStorageSoundHandler.startPlayingDisc(serverLevel, entityPlaying.position(), storageUuid, entityPlaying.getId(), song, onFinishedCallback);
 			} else {
-				ServerStorageSoundHandler.startPlayingDisc(serverLevel, posPlaying, storageUuid, getDisc(), song, onFinishedCallback);
+				ServerStorageSoundHandler.startPlayingDisc(serverLevel, posPlaying, storageUuid, song, onFinishedCallback);
 			}
 			upgrade.sophisticatedCore_set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
 		}));
