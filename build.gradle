@@ -81,6 +81,13 @@ repositories {
     maven { url = "https://www.cursemaven.com" } // Balm, CraftingTweaks
     maven { url = "https://modmaven.dev" } // Jei
     maven { url = "https://maven.resourcefulbees.com/repository/maven-public/" } // Chipped, resourcefullib, athena
+    maven {
+        url "https://maven.twelveiterations.com/repository/maven-public/"
+
+        content {
+            includeGroup "net.blay09.mods"
+        }
+    }
 }
 
 group = mod_group_id
@@ -207,8 +214,8 @@ dependencies {
 
     modCompileOnly("curse.maven:jade-324717:${project.jade_version}")
 
-    modCompileOnly("curse.maven:craftingtweaks-502516:${project.crafting_tweaks_cf_file_id}")
-    modCompileOnly("curse.maven:balm-500525:${project.balm_cf_file_id}")
+    modCompileOnly("net.blay09.mods:craftingtweaks-fabric:${project.craftingtweaks_version}")
+    modCompileOnly("net.blay09.mods:balm-fabric:${project.balm_version}")
 
     modCompileOnly("earth.terrarium.chipped:chipped-fabric-${minecraft_version}:${project.chipped_version}")
 
