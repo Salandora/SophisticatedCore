@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
 import me.shedaniel.rei.api.client.registry.transfer.TransferHandler;
-import me.shedaniel.rei.api.common.category.CategoryIdentifier;
-import me.shedaniel.rei.api.common.display.Display;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.entry.EntryStack;
 import me.shedaniel.rei.api.common.entry.InputIngredient;
@@ -12,6 +10,8 @@ import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessorRegistry;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
 import me.shedaniel.rei.impl.common.transfer.InputSlotCrafter;
 import me.shedaniel.rei.impl.common.transfer.NewInputSlotCrafter;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -22,18 +22,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +45,7 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 	private final boolean shiftDown;
 	private final CompoundTag tag;
 
+	@Environment(EnvType.CLIENT)
 	public REIMoveItemsPayload(TransferHandler.Context context, boolean shiftDown, List<InputIngredient<ItemStack>> inputs, Iterable<SlotAccessor> inputSlots, Iterable<SlotAccessor> inventorySlots) {
 		this.shiftDown = shiftDown;
 		this.tag = save(context, inputs, inputSlots, inventorySlots);
@@ -121,6 +118,7 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	private static CompoundTag save(TransferHandler.Context context, List<InputIngredient<ItemStack>> inputs, Iterable<SlotAccessor> inputSlots, Iterable<SlotAccessor> inventorySlots) {
 		CompoundTag tag = new CompoundTag();
 		tag.putInt("Version", 1);
@@ -130,6 +128,7 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 		return tag;
 	}
 
+	@Environment(EnvType.CLIENT)
 	private static Tag saveSlots(TransferHandler.Context context, Iterable<SlotAccessor> slots) {
 		ListTag tag = new ListTag();
 
@@ -140,6 +139,7 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 		return tag;
 	}
 
+	@Environment(EnvType.CLIENT)
 	private static Tag saveInputs(List<InputIngredient<ItemStack>> inputs) {
 		ListTag tag = new ListTag();
 
