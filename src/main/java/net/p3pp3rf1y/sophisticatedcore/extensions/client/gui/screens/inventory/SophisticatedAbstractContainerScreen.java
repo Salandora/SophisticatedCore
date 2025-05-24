@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.client.gui.screens.inventory;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.inventory.Slot;
 
 import javax.annotation.Nullable;
@@ -26,4 +27,6 @@ public interface SophisticatedAbstractContainerScreen {
     default Slot sophisticatedCore_getSlotUnderMouse() {
         throw new RuntimeException("Should have been overriden by mixin.");
     }
+
+    default void sophisticatedCore_superRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) { throw new RuntimeException("Should have been overriden by mixin."); }
 }
