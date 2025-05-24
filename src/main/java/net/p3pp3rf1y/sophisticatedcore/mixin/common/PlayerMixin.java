@@ -37,6 +37,11 @@ public abstract class PlayerMixin implements SophisticatedPlayer {
 			}
 
 			@Override
+			public boolean shouldCloseCurrentScreen() {
+				return menu.shouldCloseCurrentScreen();
+			}
+
+			@Override
 			public Component getDisplayName() {
 				return menu.getDisplayName();
 			}
