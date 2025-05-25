@@ -22,16 +22,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Collections;
 import java.util.List;
 
 @Mixin(HopperBlockEntity.class)
 public class HopperBlockEntityMixin {
 	@Inject(
-			at = @At(
-					value = "INVOKE_ASSIGN",
-					target = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;getAttachedContainer(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/Container;"
-			),
 			method = "ejectItems",
+			at = @At(value = "HEAD"),
 			cancellable = true
 	)
 	private static void sophisticatedCore_ejectItems(Level level, BlockPos pos, BlockState state, Container sourceContainer, CallbackInfoReturnable<Boolean> cir) {
@@ -43,33 +41,32 @@ public class HopperBlockEntityMixin {
 						searchPos.x() - (double)0.5F, searchPos.y() - (double)0.5F, searchPos.z() - (double)0.5F,
 						searchPos.x() + (double)0.5F, searchPos.y() + (double)0.5F, searchPos.z() + (double)0.5F
 				),
-				EntitySelector.CONTAINER_ENTITY_SELECTOR
+				EntitySelector.ENTITY_STILL_ALIVE
 		);
 		if (list.isEmpty()) {
 			return;
 		}
 
-		Entity entity = list.get(level.random.nextInt(list.size()));
-		Storage<ItemVariant> target = Capabilities.ItemHandler.ENTITY_AUTOMATION.find(entity, direction.getOpposite());
-
-		if (target != null) {
-			long moved = StorageUtil.move(
-					InventoryStorage.of(sourceContainer, direction),
-					target,
-					iv -> true,
-					1,
-					null
-			);
-			cir.setReturnValue(moved == 1);
+		Collections.shuffle(list);
+		for (Entity entity : list) {
+			Storage<ItemVariant> target = Capabilities.ItemHandler.ENTITY_AUTOMATION.find(entity, direction.getOpposite());
+			if (target != null) {
+				long moved = StorageUtil.move(
+						InventoryStorage.of(sourceContainer, direction),
+						target,
+						iv -> true,
+						1,
+						null
+				);
+				cir.setReturnValue(moved == 1);
+				return;
+			}
 		}
 	}
 
 	@Inject(
-			at = @At(
-					value = "INVOKE_ASSIGN",
-					target = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;getSourceContainer(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/Hopper;)Lnet/minecraft/world/Container;"
-			),
 			method = "suckInItems",
+			at = @At(value = "HEAD"),
 			cancellable = true
 	)
 	private static void sophisticatedCore_suckInItems(Level world, Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
@@ -78,26 +75,28 @@ public class HopperBlockEntityMixin {
 				(Entity)null,
 				new AABB(
 						searchPos.x() - (double)0.5F, searchPos.y() - (double)0.5F, searchPos.z() - (double)0.5F,
-						searchPos.x() + (double)0.5F, searchPos.y() + (double)0.5F + 1.0F, searchPos.z() + (double)0.5F
+						searchPos.x() + (double)0.5F, searchPos.y() + (double)0.5F, searchPos.z() + (double)0.5F
 				),
-				EntitySelector.CONTAINER_ENTITY_SELECTOR
+				EntitySelector.ENTITY_STILL_ALIVE
 		);
 		if (list.isEmpty()) {
 			return;
 		}
 
-		Entity entity = list.get(world.random.nextInt(list.size()));
-		Storage<ItemVariant> source = Capabilities.ItemHandler.ENTITY_AUTOMATION.find(entity, Direction.DOWN);
-
-		if (source != null) {
-			long moved = StorageUtil.move(
-					source,
-					InventoryStorage.of(hopper, Direction.UP),
-					iv -> true,
-					1,
-					null
-			);
-			cir.setReturnValue(moved == 1);
+		Collections.shuffle(list);
+		for (Entity entity : list) {
+			Storage<ItemVariant> source = Capabilities.ItemHandler.ENTITY_AUTOMATION.find(entity, Direction.DOWN);
+			if (source != null) {
+				long moved = StorageUtil.move(
+						source,
+						InventoryStorage.of(hopper, Direction.UP),
+						iv -> true,
+						1,
+						null
+				);
+				cir.setReturnValue(moved == 1);
+				return;
+			}
 		}
 	}
 }
