@@ -123,6 +123,13 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			}
 
 			@Override
+			public void set(ItemStack stack) {
+				// Bypass QuickBenchs client side restriction as we do things server side
+				this.container.setItem(this.getContainerSlot(), stack);
+				this.setChanged();
+			}
+
+			@Override
 			public void setChanged() {
 				super.setChanged();
 				if (player.level().isClientSide()) {
