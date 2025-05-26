@@ -33,6 +33,11 @@ public interface SophisticatedPlayer {
 			}
 
 			@Override
+			public boolean shouldCloseCurrentScreen() {
+				return menu.shouldCloseCurrentScreen();
+			}
+
+			@Override
 			public Component getDisplayName() {
 				return menu.getDisplayName();
 			}
