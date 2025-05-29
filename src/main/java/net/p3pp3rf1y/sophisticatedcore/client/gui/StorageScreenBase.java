@@ -438,6 +438,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		poseStack.translate(0, 0, -20);
 		this.sophisticatedCore_superRender(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popPose();
+
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);

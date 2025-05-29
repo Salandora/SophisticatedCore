@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.NonNullList;
@@ -97,26 +95,11 @@ public abstract class AbstractContainerScreenMixin extends Screen implements Sop
 
 		allowed = ifStorageScreenBase(() -> {
 			renderBg(guiGraphics, partialTick, mouseX, mouseY);
-
-			RenderSystem.disableDepthTest();
-
-			hoveredSlot = null;
-
-			for (Renderable widget : renderables) {
-				widget.render(guiGraphics, mouseX, mouseY, partialTick);
-			}
 			return false;
 		}, () -> true);
 
-		// Fix for Blur+
 		allowed &= ifSettingsScreen(() -> {
 			renderBg(guiGraphics, partialTick, mouseX, mouseY);
-
-			RenderSystem.disableDepthTest();
-
-			for (Renderable widget : renderables) {
-				widget.render(guiGraphics, mouseX, mouseY, partialTick);
-			}
 			return false;
 		}, () -> true);
 
