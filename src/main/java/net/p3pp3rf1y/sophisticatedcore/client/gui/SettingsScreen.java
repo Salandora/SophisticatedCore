@@ -140,13 +140,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		// Fix for Blur+ fix
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
-		poseStack.translate(0, 0, -20);
-		this.sophisticatedCore_superRender(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popPose();
-
 		menu.detectSettingsChangeAndReload();
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 		templatePersistanceControl.render(guiGraphics, mouseX, mouseY, partialTicks);

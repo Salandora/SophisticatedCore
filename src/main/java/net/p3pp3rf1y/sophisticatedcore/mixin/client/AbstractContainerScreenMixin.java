@@ -1,13 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.extensions.client.gui.screens.inventory.SophisticatedAbstractContainerScreen;
@@ -25,11 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Supplier;
 
 @Mixin(AbstractContainerScreen.class)
-public abstract class AbstractContainerScreenMixin extends Screen implements SophisticatedAbstractContainerScreen {
-	protected AbstractContainerScreenMixin(Component title) {
-		super(title);
-	}
-
+public abstract class AbstractContainerScreenMixin implements SophisticatedAbstractContainerScreen {
 	@Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY);
 
 	@Shadow
@@ -60,11 +52,6 @@ public abstract class AbstractContainerScreenMixin extends Screen implements Sop
 		}
 	}
 
-	@Unique
-	private <T> T ifSettingsScreen(Supplier<T> value, Supplier<T> elseValue) {
-		return getSelf() instanceof SettingsScreen ? value.get() : elseValue.get();
-	}
-
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;size()I"))
     private int sophisticatedcore$MenuSlotSize(NonNullList<Slot> instance) {
 		return ifStorageScreenBase(() -> StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS, instance::size);
@@ -88,24 +75,6 @@ public abstract class AbstractContainerScreenMixin extends Screen implements Sop
 		ifStorageScreenBase(() -> {}, () -> hoveredSlot = value);
 	}
 
-	// Fix for Blur+ fix
-	@WrapWithCondition(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-	private boolean sophisticatedCore$noSuperRender(Screen instance, GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		boolean allowed;
-
-		allowed = ifStorageScreenBase(() -> {
-			renderBg(guiGraphics, partialTick, mouseX, mouseY);
-			return false;
-		}, () -> true);
-
-		allowed &= ifSettingsScreen(() -> {
-			renderBg(guiGraphics, partialTick, mouseX, mouseY);
-			return false;
-		}, () -> true);
-
-		return allowed;
-	}
-
 	@Override
 	public int sophisticatedCore_getXSize() {
 		return imageWidth;
@@ -124,10 +93,5 @@ public abstract class AbstractContainerScreenMixin extends Screen implements Sop
 	@Override
 	public Slot sophisticatedCore_getSlotUnderMouse() {
 		return hoveredSlot;
-	}
-
-	@Override
-	public void sophisticatedCore_superRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
 	}
 }

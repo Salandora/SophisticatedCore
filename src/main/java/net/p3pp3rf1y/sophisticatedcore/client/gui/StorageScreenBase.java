@@ -432,13 +432,14 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			updateInventoryScrollPanel();
 			updateTransferButtonsPositions();
 		}
-		// Fix for Blur+ fix
+		// This is done in the super call and would lead to a darker background
+		/*
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
 		poseStack.translate(0, 0, -20);
-		this.sophisticatedCore_superRender(guiGraphics, mouseX, mouseY, partialTicks);
+		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popPose();
-
+		*/
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 
 		super.render(guiGraphics, mouseX, mouseY, partialTicks);
