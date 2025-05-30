@@ -3,7 +3,7 @@
  * Implementation code for SophisticatedCore.
  */
 @ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
-package net.p3pp3rf1y.porting_lib.transfer.items;
+package net.p3pp3rf1y.sophisticatedcore.compat.trinkets;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

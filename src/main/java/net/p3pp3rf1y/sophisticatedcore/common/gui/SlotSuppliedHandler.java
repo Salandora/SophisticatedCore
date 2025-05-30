@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.common.gui;
 import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.p3pp3rf1y.porting_lib.transfer.items.SlotItemHandler;
 
 import java.util.function.Supplier;
 
@@ -16,11 +15,6 @@ public class SlotSuppliedHandler extends SlotItemHandler {
 
 		this.itemHandlerSupplier = itemHandlerSupplier;
 		this.slot = slot;
-	}
-
-	@Override
-	public SlottedStackStorage getItemHandler() {
-		return itemHandlerSupplier.get();
 	}
 
 	@Override
