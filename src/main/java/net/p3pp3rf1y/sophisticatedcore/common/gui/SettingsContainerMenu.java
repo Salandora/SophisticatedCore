@@ -4,6 +4,8 @@ import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -21,7 +23,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.AbstractContainerMenuAccessor;
@@ -302,9 +303,9 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		templatePersistanceContainer.refreshTemplateSlots();
 	}
 
-	private class ViewOnlyStorageInventorySlot extends SCSlotItemHandler {
+	private class ViewOnlyStorageInventorySlot<T extends SlottedStorage<ItemVariant>> extends SlotItemHandler<T> {
 		public ViewOnlyStorageInventorySlot(SlottedStackStorage inventoryHandler, int slotIndex) {
-			super(inventoryHandler, slotIndex, 0, 0);
+			super((T) inventoryHandler, slotIndex, 0, 0);
 		}
 
 		@Override
