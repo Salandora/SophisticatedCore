@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,7 +12,6 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
@@ -92,12 +90,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 				stack.shrink(1);
 				inventory.setStackInSlot(slot, stack);
 
-				InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND);
-				ItemStack resultItem = result.getObject();
-				if (result.getResult() == InteractionResult.PASS) {
-					resultItem = singleItemCopy.getItem().finishUsingItem(singleItemCopy, level, player);
-				}
-
+				ItemStack resultItem = singleItemCopy.getItem().finishUsingItem(singleItemCopy, level, player);
 				if (!resultItem.isEmpty()) {
 					ItemStack insertResult = inventory.insertItem(resultItem, false);
 					if (!insertResult.isEmpty()) {
