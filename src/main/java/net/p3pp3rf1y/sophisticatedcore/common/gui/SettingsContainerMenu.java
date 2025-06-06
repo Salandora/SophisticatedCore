@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -24,6 +25,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.mixin.common.accessor.AbstractContainerMenuAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
@@ -43,6 +46,7 @@ import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsContainer;
 import net.p3pp3rf1y.sophisticatedcore.settings.nosort.NoSortSettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.nosort.NoSortSettingsContainer;
+import net.p3pp3rf1y.sophisticatedcore.util.DummySlot;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -89,6 +93,11 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		addStorageInventorySlots();
 		addSettingsContainers();
 		templatePersistanceContainer = new TemplatePersistanceContainer(this);
+
+		// Workaround for EMI to show on settings screen - remove once API for arbitrary screens is available
+		if (FabricLoader.getInstance().isModLoaded(CompatModIds.EMI)) {
+			this.slots.add(DummySlot.INSTANCE);
+		}
 	}
 
 	public int getNumberOfStorageInventorySlots() {
