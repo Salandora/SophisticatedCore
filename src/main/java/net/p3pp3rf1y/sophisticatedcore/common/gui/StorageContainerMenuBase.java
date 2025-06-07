@@ -20,7 +20,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.p3pp3rf1y.porting_lib.transfer.items.SCSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
@@ -1689,7 +1688,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		PacketHandler.sendToServer(new TransferItemsMessage(false, filterByContents));
 	}
 
-	public class StorageUpgradeSlot extends SCSlotItemHandler {
+	public class StorageUpgradeSlot extends SlotItemHandler<UpgradeHandler> {
 		private boolean wasEmpty = true;
 		private final int slotIndex;
 
