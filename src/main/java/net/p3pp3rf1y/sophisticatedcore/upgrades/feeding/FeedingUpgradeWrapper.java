@@ -1,18 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.feeding;
 
-import io.github.fabricators_of_create.porting_lib.core.PortingLib;
-import net.blay09.mods.balm.api.event.UseItemEvent;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
@@ -27,9 +22,9 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrapper, FeedingUpgradeItem> implements ITickableUpgrade, IFilteredUpgrade {
 	private static final int COOLDOWN = 100;
@@ -93,12 +88,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 				stack.shrink(1);
 				inventory.setStackInSlot(slot, stack);
 
-				InteractionResultHolder<ItemStack> result = UseItemCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND);
-				ItemStack resultItem = result.getObject();
-				if (result.getResult() == InteractionResult.PASS) {
-					resultItem = singleItemCopy.getItem().finishUsingItem(singleItemCopy, level, player);
-				}
-
+				ItemStack resultItem = singleItemCopy.getItem().finishUsingItem(singleItemCopy, level, player);
 				if (!resultItem.isEmpty()) {
 					long inserted;
 					try (Transaction ctx = Transaction.openOuter()) {
