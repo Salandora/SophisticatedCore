@@ -687,7 +687,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	private boolean shouldShiftClickIntoOpenTabFirst() {
-		MainSettingsCategory category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
+		MainSettingsCategory<?> category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
 		return SettingsManager.getSettingValue(player, category.getPlayerSettingsTagName(), category, SettingsManager.SHIFT_CLICK_INTO_OPEN_TAB_FIRST);
 	}
 
@@ -797,7 +797,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	protected void removeOpenTabIfKeepOff() {
-		MainSettingsCategory category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
+		MainSettingsCategory<?> category = storageWrapper.getSettingsHandler().getGlobalSettingsCategory();
 		if (Boolean.FALSE.equals(SettingsManager.getSettingValue(player, category.getPlayerSettingsTagName(), category, SettingsManager.KEEP_TAB_OPEN))) {
 			storageWrapper.removeOpenTabId();
 		}

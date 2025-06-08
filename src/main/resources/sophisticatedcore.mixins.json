@@ -16,6 +16,7 @@
     "common.MobMixin",
     "common.PersistentEntitySectionManagerMixin",
     "common.PlayerMixin",
+    "common.ResultSlotMixin",
     "common.ServerLevelMixin",
     "common.ServerPlayerMixin",
     "common.ShapedRecipeMixin",

@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -8,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.extensions.entity.SophisticatedEntity;
 import net.p3pp3rf1y.sophisticatedcore.util.MixinHelper;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 @Mixin(Entity.class)
@@ -26,7 +27,8 @@ public class EntityMixin implements SophisticatedEntity {
 	@Unique
 	private static final String SOPHISTICATEDCOREDATA_NBT_KEY = "SophisticatedCoreData";
 
-    @Shadow public Level level;
+    @Shadow
+	private Level level;
 
 	@Unique
 	private Collection<ItemEntity> sophisticatedCore$captureDrops = null;
@@ -39,8 +41,8 @@ public class EntityMixin implements SophisticatedEntity {
 			)
 	)
 	public boolean sophisticatedCore$captureDrops(Level level, Entity entity) {
-		if (sophisticatedCaptureDrops() != null && entity instanceof ItemEntity item) {
-			sophisticatedCaptureDrops().add(item);
+		if (sophisticatedCore$captureDrops() != null && entity instanceof ItemEntity item) {
+			sophisticatedCore$captureDrops().add(item);
 			return false;
 		}
 		return true;
@@ -48,13 +50,13 @@ public class EntityMixin implements SophisticatedEntity {
 
 	@Unique
 	@Override
-	public Collection<ItemEntity> sophisticatedCaptureDrops() {
+	public @Nullable Collection<ItemEntity> sophisticatedCore$captureDrops() {
 		return this.sophisticatedCore$captureDrops;
 	}
 
 	@Unique
 	@Override
-	public Collection<ItemEntity> sophisticatedCaptureDrops(Collection<ItemEntity> value) {
+	public @Nullable Collection<ItemEntity> sophisticatedCore$captureDrops(Collection<ItemEntity> value) {
 		Collection<ItemEntity> ret = this.sophisticatedCore$captureDrops;
 		this.sophisticatedCore$captureDrops = value;
 		return ret;
@@ -63,15 +65,15 @@ public class EntityMixin implements SophisticatedEntity {
 	@Unique
 	private CompoundTag sophisticatedCore$customData;
 
-    @Inject(method = "spawnSprintParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getRenderShape()Lnet/minecraft/world/level/block/RenderShape;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void sophisticatedCore$addRunningEffects(CallbackInfo ci, BlockPos blockPos, BlockState blockState) {
+    @Inject(method = "spawnSprintParticle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getRenderShape()Lnet/minecraft/world/level/block/RenderShape;"), cancellable = true)
+    private void sophisticatedCore$addRunningEffects(CallbackInfo ci, @Local BlockPos blockPos, @Local BlockState blockState) {
         if (blockState.addRunningEffects(level, blockPos, MixinHelper.cast(this))) {
             ci.cancel();
         }
     }
 
 	@Override
-	public CompoundTag getSophisticatedCustomData() {
+	public CompoundTag sophisticatedCore$getCustomData() {
 		if (this.sophisticatedCore$customData == null) {
 			this.sophisticatedCore$customData = new CompoundTag();
 		}

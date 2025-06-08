@@ -6,7 +6,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackSto
 
 import java.util.function.Supplier;
 
-public class SlotSuppliedHandler extends SlotItemHandler {
+public class SlotSuppliedHandler extends SlotItemHandler<SlottedStackStorage> {
 	private final Supplier<? extends SlottedStackStorage> itemHandlerSupplier;
 	private final int slot;
 

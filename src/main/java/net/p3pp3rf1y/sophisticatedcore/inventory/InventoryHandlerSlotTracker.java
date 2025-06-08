@@ -91,7 +91,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 			@Nullable
 			Set<Integer> partialSlots = partiallyFilledStackSlots.get(stackKey);
 			if (partialSlots == null) {
-				SophisticatedCore.LOGGER.error("Unstable ItemStack detected in slot tracking: {}", stackKey != null ? stackKey.stack().toString() : "null");
+				SophisticatedCore.LOGGER.error("(Partial) Unstable ItemStack detected in slot tracking: {}", stackKey != null ? stackKey.stack().toString() : "null");
 			} else {
 				partialSlots.remove(slot);
 			}
@@ -110,7 +110,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 			@Nullable
 			Set<Integer> fullSlots = fullStackSlots.get(stackKey);
 			if (fullSlots == null) {
-				SophisticatedCore.LOGGER.error("Unstable ItemStack detected in slot tracking: {}", stackKey != null ? stackKey.stack().toString() : "null");
+				SophisticatedCore.LOGGER.error("(Full) Unstable ItemStack detected in slot tracking: {}", stackKey != null ? stackKey.stack().toString() : "null");
 			} else {
 				fullSlots.remove(slot);
 			}

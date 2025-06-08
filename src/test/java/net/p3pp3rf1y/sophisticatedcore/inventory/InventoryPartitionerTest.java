@@ -10,8 +10,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import net.minecraft.nbt.CompoundTag;
-
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -52,7 +50,7 @@ class InventoryPartitionerTest {
 		partitioner.addInventoryPart(0, 9, dummyPartHandler);
 
 		Assertions.assertEquals(partitioner.getPartBySlot(0), dummyPartHandler);
-		Assertions.assertTrue(partitioner.getPartBySlot(9) instanceof IInventoryPartHandler.Default);
+		Assertions.assertInstanceOf(IInventoryPartHandler.Default.class, partitioner.getPartBySlot(9));
 	}
 
 	@Test
@@ -67,7 +65,7 @@ class InventoryPartitionerTest {
 		partitioner.removeInventoryPart(9);
 
 		Assertions.assertEquals(dummyPartHandler, partitioner.getPartBySlot(0));
-		Assertions.assertTrue(partitioner.getPartBySlot(9) instanceof IInventoryPartHandler.Default);
+		Assertions.assertInstanceOf(IInventoryPartHandler.Default.class, partitioner.getPartBySlot(9));
 		Assertions.assertEquals(partitioner.getPartBySlot(9), partitioner.getPartBySlot(80));
 		Assertions.assertEquals(72, partitioner.getPartBySlot(9).getSlots());
 	}
@@ -85,7 +83,7 @@ class InventoryPartitionerTest {
 
 		Optional<SlotRange> firstSpace = partitioner.getFirstSpace(9);
 		Assertions.assertTrue(firstSpace.isPresent());
-		Assertions.assertEquals(firstSpace.get().firstSlot(), 9);
+		Assertions.assertEquals(9, firstSpace.get().firstSlot());
 	}
 
 	@Test
@@ -116,7 +114,7 @@ class InventoryPartitionerTest {
 
 		Optional<SlotRange> firstSpace = partitioner.getFirstSpace(9);
 		Assertions.assertTrue(firstSpace.isPresent());
-		Assertions.assertEquals(firstSpace.get().firstSlot(), 0);
+		Assertions.assertEquals(0, firstSpace.get().firstSlot());
 		Assertions.assertEquals(partitioner.getPartBySlot(0), partitioner.getPartBySlot(80));
 		Assertions.assertEquals(81, partitioner.getPartBySlot(0).getSlots());
 	}
@@ -131,8 +129,8 @@ class InventoryPartitionerTest {
 		partitioner.addInventoryPart(0, 81, dummyPartHandler);
 		partitioner.removeInventoryPart(0);
 
-		Assertions.assertTrue(partitioner.getPartBySlot(0) instanceof IInventoryPartHandler.Default);
-		Assertions.assertTrue(partitioner.getPartBySlot(80) instanceof IInventoryPartHandler.Default);
+		Assertions.assertInstanceOf(IInventoryPartHandler.Default.class, partitioner.getPartBySlot(0));
+		Assertions.assertInstanceOf(IInventoryPartHandler.Default.class, partitioner.getPartBySlot(80));
 		Assertions.assertEquals(partitioner.getPartBySlot(0), partitioner.getPartBySlot(80));
 		Assertions.assertEquals(81, partitioner.getPartBySlot(0).getSlots());
 	}

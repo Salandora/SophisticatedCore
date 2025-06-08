@@ -59,9 +59,10 @@ public class SCPlayerManager {
 				return connection.isDisabled();
 			}
 			return true;
-		}).stream().map(Player::getPlayer).map(ServerPlayer.class::cast).forEach(player -> {
-			player.displayClientMessage(Component.literal("You need to enable voice chat to hear custom audio"), true);
-		});
+		}).stream()
+				.map(Player::getPlayer)
+				.map(ServerPlayer.class::cast)
+				.forEach(player -> player.displayClientMessage(Component.literal("You need to enable voice chat to hear custom audio"), true));
 
 		AtomicBoolean stopped = new AtomicBoolean();
 		AtomicReference<de.maxhenkel.voicechat.api.audiochannel.AudioPlayer> player = new AtomicReference<>();
@@ -82,9 +83,7 @@ public class SCPlayerManager {
 				players.remove(channelID);
 				return;
 			}
-			audioPlayer.setOnStopped(() -> {
-				players.remove(channelID);
-			});
+			audioPlayer.setOnStopped(() -> players.remove(channelID));
 			synchronized (stopped) {
 				if (!stopped.get()) {
 					player.set(audioPlayer);
@@ -111,9 +110,10 @@ public class SCPlayerManager {
 				return connection.isDisabled();
 			}
 			return true;
-		}).stream().map(Player::getPlayer).map(ServerPlayer.class::cast).forEach(player -> {
-			player.displayClientMessage(Component.literal("You need to enable voice chat to hear custom audio"), true);
-		});
+		}).stream()
+				.map(Player::getPlayer)
+				.map(ServerPlayer.class::cast)
+				.forEach(player -> player.displayClientMessage(Component.literal("You need to enable voice chat to hear custom audio"), true));
 
 		StaticAudioPlayer staticAudioPlayer = StaticAudioPlayer.create(api, level, sound, p, maxLengthSeconds, category, pos, channelID, distance);
 
@@ -135,9 +135,7 @@ public class SCPlayerManager {
 				players.remove(channelID);
 				return;
 			}
-			staticAudioPlayer.setOnStopped(() -> {
-				players.remove(channelID);
-			});
+			staticAudioPlayer.setOnStopped(() -> players.remove(channelID));
 			synchronized (stopped) {
 				if (!stopped.get()) {
 					player.set(staticAudioPlayer);

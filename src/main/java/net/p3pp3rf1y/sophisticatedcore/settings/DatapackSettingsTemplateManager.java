@@ -83,7 +83,7 @@ public class DatapackSettingsTemplateManager {
 
 				try (
 						InputStream inputstream = resource.open();
-						Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
+						Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))
 				) {
 					String fileContents = IOUtils.toString(reader);
 

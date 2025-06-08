@@ -40,7 +40,7 @@ public abstract class LivingEntityMixin extends Entity {
 			at = @At("HEAD")
 	)
     private void sophisticatedcore$captureDrops(DamageSource damageSource, CallbackInfo ci) {
-        sophisticatedCaptureDrops(new ArrayList<>());
+        sophisticatedCore$captureDrops(new ArrayList<>());
     }
 
     @Inject(
@@ -48,7 +48,7 @@ public abstract class LivingEntityMixin extends Entity {
 			at = @At(value = "RETURN")
 	)
     private void sophisticatedcore$dropCapturedDrops(DamageSource damageSource, CallbackInfo ci) {
-        Collection<ItemEntity> drops = this.sophisticatedCaptureDrops(null);
+        Collection<ItemEntity> drops = this.sophisticatedCore$captureDrops(null);
 
 		Entity entity = damageSource.getEntity();
 		int lootingLevel = 0;

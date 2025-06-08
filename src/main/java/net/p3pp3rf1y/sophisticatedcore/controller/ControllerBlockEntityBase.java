@@ -613,9 +613,6 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 		int handlerIndex = getIndexForSlot(slot);
 		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		if (handler == null) {
-			throw new IndexOutOfBoundsException("HandlerIndex out of range: " + handlerIndex);
-		}
 
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {

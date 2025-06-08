@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,9 +21,9 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgradeWrapper, CraftingUpgradeContainer> implements ICraftingContainer {
 	private static final String DATA_SHIFT_CLICK_INTO_STORAGE = "shiftClickIntoStorage";
@@ -101,7 +100,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 						player.drop(remaining, false);
 					}
 				}
-				SophisticatedCore.LOGGER.error("Recipe " + (lastRecipe != null ? lastRecipe.getId() : "[unknown]") + " returned more than 9 remaining items, dropping the rest!");
+				SophisticatedCore.LOGGER.error("Recipe {} returned more than 9 remaining items, dropping the rest!", lastRecipe != null ? lastRecipe.getId() : "[unknown]");
 			}
 
 			@Override

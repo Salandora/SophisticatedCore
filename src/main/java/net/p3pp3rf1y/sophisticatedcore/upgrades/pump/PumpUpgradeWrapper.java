@@ -228,12 +228,11 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	private boolean fillContainerInHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
-		boolean ret = fillFluidHandler(itemFluidHandler, storageFluidHandler);
 		// No need to do that with fabric
 		/*if (ret) {
 			player.setItemInHand(hand, itemFluidHandler.getContainer());
 		}*/
-		return ret;
+		return fillFluidHandler(itemFluidHandler, storageFluidHandler);
 	}
 
 	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {

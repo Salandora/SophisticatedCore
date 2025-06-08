@@ -47,16 +47,16 @@ public class SettingsManager {
 	}
 
 	public static CompoundTag getPlayerSettingsTag(Player player, String playerSettingsTagName) {
-		return player.getSophisticatedCustomData().getCompound(playerSettingsTagName);
+		return player.sophisticatedCore$getCustomData().getCompound(playerSettingsTagName);
 	}
 
 	public static void setPlayerSettingsTag(Player player, String playerSettingsTagName, CompoundTag settingsNbt) {
-		player.getSophisticatedCustomData().put(playerSettingsTagName, settingsNbt);
+		player.sophisticatedCore$getCustomData().put(playerSettingsTagName, settingsNbt);
 	}
 
 	public static <T> void setPlayerSetting(Player player, String playerSettingsTagName, MainSetting<T> setting, T value) {
-		if (!player.getSophisticatedCustomData().contains(playerSettingsTagName)) {
-			player.getSophisticatedCustomData().put(playerSettingsTagName, new CompoundTag());
+		if (!player.sophisticatedCore$getCustomData().contains(playerSettingsTagName)) {
+			player.sophisticatedCore$getCustomData().put(playerSettingsTagName, new CompoundTag());
 		}
 		if (value != setting.getDefaultValue()) {
 			setting.setValue(getPlayerSettingsTag(player, playerSettingsTagName), value);

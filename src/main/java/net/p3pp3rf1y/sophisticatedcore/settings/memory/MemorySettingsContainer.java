@@ -1,15 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.memory;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.settings.SettingsTemplateStorage;
-import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
-
-import java.util.Map;
 
 public class MemorySettingsContainer extends SettingsContainerBase<MemorySettingsCategory> {
 	private static final String ACTION_TAG = "action";

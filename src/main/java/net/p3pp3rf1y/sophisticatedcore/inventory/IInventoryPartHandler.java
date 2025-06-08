@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.mojang.datafixers.util.Function4;
 import com.mojang.datafixers.util.Pair;
-
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +17,6 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
