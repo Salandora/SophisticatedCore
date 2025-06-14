@@ -37,8 +37,7 @@
         ]
     },
     "mixins": [
-        "sophisticatedcore.mixins.json",
-        "compat/litematica.mixins.json"
+        "sophisticatedcore.mixins.json"
     ],
     "accessWidener": "sophisticatedcore.accesswidener",
     "depends": {

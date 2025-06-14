@@ -185,17 +185,10 @@ dependencies {
 
     modCompileOnly("curse.maven:jade-324717:${project.jade_version}")
 
-    modCompileOnly("curse.maven:litematica-308892:$project.litematica_cf_file_id")
-    modCompileOnly("curse.maven:malilib-303119:$project.malilib_cf_file_id")
-
     modCompileOnly("curse.maven:craftingtweaks-502516:${project.crafting_tweaks_cf_file_id}")
     modCompileOnly("curse.maven:balm-500525:${project.balm_cf_file_id}")
 
     modCompileOnly("earth.terrarium.chipped:Chipped-fabric-${minecraft_version}:${project.chipped_version}")
-
-    modCompileOnly("maven.modrinth:admiral:${admiral_version}")
-    modCompileOnly("maven.modrinth:simple-voice-chat:${simple_voice_chat_version}")
-    modCompileOnly("maven.modrinth:audioplayer:${audioplayer_version}")
 
     modCompileOnly("dev.emi:trinkets:$project.trinkets_version")
 
@@ -235,8 +228,8 @@ java {
 }
 
 jar {
-    from('/') {
-        include 'LICENSE'
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
     }
 
     manifest {

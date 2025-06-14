@@ -12,7 +12,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.config.ModConfig;
 import net.p3pp3rf1y.sophisticatedcore.common.CapabilityWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.network.LitematicaPacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
@@ -43,13 +42,11 @@ public class SophisticatedCore implements ModInitializer {
 		Config.COMMON.initListeners();
 		PacketHandler.init();
 		ModCompat.initCompats();
-		LitematicaPacketHandler.init();
 		CapabilityWrapper.register();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setLevel(server.getLevel(Level.OVERWORLD)));
 		PacketHandler.getChannel().initServerListener();
-		LitematicaPacketHandler.getChannel().initServerListener();
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
 	}
 

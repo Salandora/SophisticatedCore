@@ -4,11 +4,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.audioplayer.AudioPlayerCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingTweaksCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.emi.EmiCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.trinkets.TrinketsCompat;
 
@@ -33,8 +31,6 @@ public class ModCompat {
 		// Fabric additions
 		compatFactories.put(CompatModIds.EMI, () -> EmiCompat::new);
 		compatFactories.put(CompatModIds.REI, () -> REICompat::new);
-		compatFactories.put(CompatModIds.LITEMATICA, () -> LitematicaCompat::new);
-		compatFactories.put(CompatModIds.AUDIOPLAYER, () -> AudioPlayerCompat::new);
 		compatFactories.put(CompatModIds.TRINKETS, () -> TrinketsCompat::new);
 	}
 
