@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ScreenEffectRendererMixin {
 
     @Redirect(method = "renderScreenEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/BlockModelShaper;getParticleIcon(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"))
-    private static TextureAtlasSprite sophisticatedcore$renderEffectScreen$getParticleIcon(BlockModelShaper instance, BlockState state, @Share("pos") LocalRef<BlockPos> pos) {
+    private static TextureAtlasSprite sophisticatedCore$renderEffectScreen$getParticleIcon(BlockModelShaper instance, BlockState state, @Share("pos") LocalRef<BlockPos> pos) {
         if (pos.get() != null && instance.getBlockModel(state) instanceof CustomParticleIcon model) {
             ModelData data = model.getModelData(Minecraft.getInstance().level, pos.get(), state, ModelData.EMPTY);
             return model.getParticleIcon(data);
@@ -31,7 +31,7 @@ public class ScreenEffectRendererMixin {
     }
 
     @Inject(method = "getViewBlockingState", at = @At(value = "RETURN", ordinal = 0))
-    private static void sophisticatedcore$getViewBlockingState(Player player, CallbackInfoReturnable<BlockState> cir, @Local BlockPos.MutableBlockPos mutableBlockPos, @Share("pos") LocalRef<BlockPos> pos) {
+    private static void sophisticatedCore$getViewBlockingState(Player player, CallbackInfoReturnable<BlockState> cir, @Local BlockPos.MutableBlockPos mutableBlockPos, @Share("pos") LocalRef<BlockPos> pos) {
 		pos.set(mutableBlockPos);
     }
 }

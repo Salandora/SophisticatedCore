@@ -20,7 +20,7 @@ public abstract class ItemEntityMixin {
     public abstract ItemStack getItem();
 
     @Inject(method = "playerTouch", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getCount()I"), cancellable = true)
-    private void sophisticatedcore$playerTouch(Player player, CallbackInfo ci, @Share("cachedStack") LocalRef<ItemStack> cachedStack) {
+    private void sophisticatedCore$playerTouch(Player player, CallbackInfo ci, @Share("cachedStack") LocalRef<ItemStack> cachedStack) {
         cachedStack.set(getItem().copy());
         var canPickup = ItemEntityEvents.CAN_PICKUP.invoker().canPickup(player, MixinHelper.cast(this), getItem());
         if (canPickup != InteractionResult.PASS) {
@@ -29,7 +29,7 @@ public abstract class ItemEntityMixin {
     }
 
     @Inject(method = "playerTouch", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;take(Lnet/minecraft/world/entity/Entity;I)V"))
-    private void sophisticatedcore$playerTouchPickup(Player player, CallbackInfo ci, @Share("cachedStack") LocalRef<ItemStack> cachedStack) {
+    private void sophisticatedCore$playerTouchPickup(Player player, CallbackInfo ci, @Share("cachedStack") LocalRef<ItemStack> cachedStack) {
         if (cachedStack.get() != null) {
             ItemEntityEvents.POST_PICKUP.invoker().postPickup(player, MixinHelper.cast(this), cachedStack.get());
         }

@@ -18,39 +18,38 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 import javax.annotation.Nullable;
 
 public interface SophisticatedItem {
-	default float getXpRepairRatio(ItemStack stack) {
+	default float sophisticatedCore_getXpRepairRatio(ItemStack stack) {
 		return 1.0F;
 	}
 
-	default boolean onDroppedByPlayer(ItemStack stack, Player player) {
+	default boolean sophisticatedCore_onDroppedByPlayer(ItemStack stack, Player player) {
 		return true;
 	}
 
 	@OverrideOnly
-	default int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
+	default int sophisticatedCore_getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
 		Integer burnTime = FuelRegistry.INSTANCE.get(stack.getItem());
 		return burnTime != null ? burnTime : 0;
 	}
 
-    default InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context)
-    {
+    default InteractionResult sophisticatedCore_onItemUseFirst(ItemStack stack, UseOnContext context) {
         return InteractionResult.PASS;
     }
 
-	default @Nullable FoodProperties getFoodProperties(ItemStack stack,  @Nullable LivingEntity entity) {
+	default @Nullable FoodProperties sophisticatedCore_getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
 		return stack.get(DataComponents.FOOD);
 	}
 
 	@OverrideOnly
-	default int getEnchantmentLevel(ItemStack stack, Holder<Enchantment> enchantment) {
+	default int sophisticatedCore_getEnchantmentLevel(ItemStack stack, Holder<Enchantment> enchantment) {
 		return stack.getEnchantments().getLevel(enchantment);
 	}
 
-	default boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+	default boolean sophisticatedCore_shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
 		return !oldStack.equals(newStack);
 	}
 
-	default boolean makesPiglinsNeutral(ItemStack stack, LivingEntity wearer) {
+	default boolean sophisticatedCore_makesPiglinsNeutral(ItemStack stack, LivingEntity wearer) {
 		return stack.getItem() instanceof ArmorItem && ((ArmorItem)stack.getItem()).getMaterial() == ArmorMaterials.GOLD;
 	}
 }

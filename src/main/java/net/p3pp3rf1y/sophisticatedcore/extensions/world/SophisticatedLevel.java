@@ -1,3 +1,4 @@
+/*
 package net.p3pp3rf1y.sophisticatedcore.extensions.world;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -9,3 +10,4 @@ public interface SophisticatedLevel {
 		throw new RuntimeException("Should have been overriden by mixin.");
 	}
 }
+*/

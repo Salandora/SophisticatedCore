@@ -39,8 +39,8 @@ public class EntityMixin implements SophisticatedEntity {
 			)
 	)
 	public boolean sophisticatedCore$captureDrops(Level level, Entity entity) {
-		if (sophisticatedCaptureDrops() != null && entity instanceof ItemEntity item) {
-			sophisticatedCaptureDrops().add(item);
+		if (sophisticatedCore_captureDrops() != null && entity instanceof ItemEntity item) {
+			sophisticatedCore_captureDrops().add(item);
 			return false;
 		}
 		return true;
@@ -48,13 +48,13 @@ public class EntityMixin implements SophisticatedEntity {
 
 	@Unique
 	@Override
-	public Collection<ItemEntity> sophisticatedCaptureDrops() {
+	public Collection<ItemEntity> sophisticatedCore_captureDrops() {
 		return this.sophisticatedCore$captureDrops;
 	}
 
 	@Unique
 	@Override
-	public Collection<ItemEntity> sophisticatedCaptureDrops(Collection<ItemEntity> value) {
+	public Collection<ItemEntity> sophisticatedCore_captureDrops(Collection<ItemEntity> value) {
 		Collection<ItemEntity> ret = this.sophisticatedCore$captureDrops;
 		this.sophisticatedCore$captureDrops = value;
 		return ret;
@@ -71,7 +71,7 @@ public class EntityMixin implements SophisticatedEntity {
     }
 
 	@Override
-	public CompoundTag getSophisticatedCustomData() {
+	public CompoundTag sophisticatedCore_getCustomData() {
 		if (this.sophisticatedCore$customData == null) {
 			this.sophisticatedCore$customData = new CompoundTag();
 		}

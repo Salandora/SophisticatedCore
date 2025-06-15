@@ -21,13 +21,13 @@ public class ParticleEngineMixin {
     protected ClientLevel level;
 
     @Redirect(method = "destroy", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;shouldSpawnTerrainParticles()Z"))
-    private boolean sophisticatedcore$addDestroyEffects(BlockState blockState, BlockPos pos) {
+    private boolean sophisticatedCore$addDestroyEffects(BlockState blockState, BlockPos pos) {
         return !blockState.sophisticatedCore_addDestroyEffects(level, pos, MixinHelper.cast(this));
     }
 
 	// lambda inside destroy
 	@ModifyArgs(method = "method_34020", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/particle/ParticleEngine;add(Lnet/minecraft/client/particle/Particle;)V"))
-	private void sophisticatedcore$updateSprite(Args args, BlockPos pos, BlockState state, double i, double j, double k, double l, double m, double n) {
+	private void sophisticatedCore$updateSprite(Args args, BlockPos pos, BlockState state, double i, double j, double k, double l, double m, double n) {
 		Particle p = args.get(0);
 		if (p instanceof TerrainParticle tp) {
 			tp.sophisticatedCore_updateSprite(state, pos);

@@ -24,20 +24,20 @@ public interface SophisticatedItemStack {
         return (ItemStack)this;
     }
 
-	default float getXpRepairRatio() {
-		return this.self().getItem().getXpRepairRatio(this.self());
+	default float sophisticatedCore_getXpRepairRatio() {
+		return this.self().getItem().sophisticatedCore_getXpRepairRatio(this.self());
 	}
 
-	default boolean onDroppedByPlayer(Player player) {
-		return self().getItem().onDroppedByPlayer(self(), player);
+	default boolean sophisticatedCore_onDroppedByPlayer(Player player) {
+		return self().getItem().sophisticatedCore_onDroppedByPlayer(self(), player);
 	}
 
-	default int getBurnTime(@Nullable RecipeType<?> recipeType) {
+	default int sophisticatedCore_getBurnTime(@Nullable RecipeType<?> recipeType) {
 		if (this.self().isEmpty()) {
 			return 0;
 		}
 
-		int burnTime = this.self().getItem().getBurnTime(this.self(), recipeType);
+		int burnTime = this.self().getItem().sophisticatedCore_getBurnTime(this.self(), recipeType);
 		if (burnTime < 0) {
 			String itemId = String.valueOf(BuiltInRegistries.ITEM.getKey(this.self().getItem()));
 			throw new IllegalStateException("Stack of item " + itemId + " has a negative burn time");
@@ -46,14 +46,14 @@ public interface SophisticatedItemStack {
 		return burnTime;
 	}
 
-    default InteractionResult onItemUseFirst(UseOnContext context) {
+    default InteractionResult sophisticatedCore_onItemUseFirst(UseOnContext context) {
         Player player = context.getPlayer();
         BlockPos pos = context.getClickedPos();
         if (!player.getAbilities().mayBuild && !self().canPlaceOnBlockInAdventureMode(new BlockInWorld(context.getLevel(), pos, false))) {
             return InteractionResult.PASS;
         } else {
             Item item = self().getItem();
-            InteractionResult result = item.onItemUseFirst(self(), context);
+            InteractionResult result = item.sophisticatedCore_onItemUseFirst(self(), context);
             if (result == InteractionResult.SUCCESS) {
                 player.awardStat(Stats.ITEM_USED.get(item));
             }
@@ -63,11 +63,11 @@ public interface SophisticatedItemStack {
     }
 
 	@ApiStatus.OverrideOnly
-	default int getEnchantmentLevel(Holder<Enchantment> enchantment) {
-		return self().getItem().getEnchantmentLevel(self(), enchantment);
+	default int sophisticatedCore_getEnchantmentLevel(Holder<Enchantment> enchantment) {
+		return self().getItem().sophisticatedCore_getEnchantmentLevel(self(), enchantment);
 	}
 
-	default boolean makesPiglinsNeutral(LivingEntity wearer) {
-		return self().getItem().makesPiglinsNeutral(self(), wearer);
+	default boolean sophisticatedCore_makesPiglinsNeutral(LivingEntity wearer) {
+		return self().getItem().sophisticatedCore_makesPiglinsNeutral(self(), wearer);
 	}
 }

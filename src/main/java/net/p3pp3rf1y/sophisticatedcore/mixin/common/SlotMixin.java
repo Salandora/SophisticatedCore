@@ -23,7 +23,7 @@ public class SlotMixin implements SophisticatedSlot {
     private Pair<ResourceLocation, ResourceLocation> sophisticatedCore_background;
 
     @Inject(method = "getNoItemIcon", at = @At("HEAD"), cancellable = true)
-    private void sophisticatedcore$background(CallbackInfoReturnable<Pair<ResourceLocation, ResourceLocation>> cir) {
+    private void sophisticatedCore$background(CallbackInfoReturnable<Pair<ResourceLocation, ResourceLocation>> cir) {
         if (sophisticatedCore_background != null) {
             cir.setReturnValue(sophisticatedCore_background);
         }

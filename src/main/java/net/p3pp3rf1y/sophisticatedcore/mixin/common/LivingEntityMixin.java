@@ -37,7 +37,7 @@ public abstract class LivingEntityMixin extends Entity {
 			method = "dropAllDeathLoot",
 			at = @At("HEAD")
 	)
-    private void sophisticatedcore$captureDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
+    private void sophisticatedCore$captureDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
         sophisticatedCaptureDrops(new ArrayList<>());
     }
 
@@ -45,8 +45,8 @@ public abstract class LivingEntityMixin extends Entity {
 			method = "dropAllDeathLoot",
 			at = @At(value = "RETURN")
 	)
-    private void sophisticatedcore$dropCapturedDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
-        Collection<ItemEntity> drops = this.sophisticatedCaptureDrops(null);
+    private void sophisticatedCore$dropCapturedDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
+        Collection<ItemEntity> drops = this.sophisticatedCore_captureDrops(null);
         if (!LivingEntityEvents.DROPS.invoker().onLivingEntityDrops(MixinHelper.cast(this), damageSource, drops,lastHurtByPlayerTime > 0))
             drops.forEach(level::addFreshEntity);
     }
@@ -58,7 +58,7 @@ public abstract class LivingEntityMixin extends Entity {
 					target = "Lnet/minecraft/world/entity/Entity;tick()V"
 			)
 	)
-    private void sophisticatedcore$tick(CallbackInfo ci) {
+    private void sophisticatedCore$tick(CallbackInfo ci) {
         LivingEntityEvents.TICK.invoker().onLivingEntityTick(MixinHelper.cast(this));
     }
 
@@ -69,7 +69,7 @@ public abstract class LivingEntityMixin extends Entity {
 					target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"
 			)
 	)
-	public <T extends ParticleOptions> int sophisticatedcore$addLandingEffects(ServerLevel level, T type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed, Operation<Integer> original, @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) BlockPos pos) {
+	public <T extends ParticleOptions> int sophisticatedCore$addLandingEffects(ServerLevel level, T type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed, Operation<Integer> original, @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) BlockPos pos) {
 		if (!state.sophisticatedCore_addLandingEffects(level, pos, state, MixinHelper.cast(this), particleCount)) {
 			return original.call(level, type, posX, posY, posZ, particleCount, xOffset, yOffset, zOffset, speed);
 		}

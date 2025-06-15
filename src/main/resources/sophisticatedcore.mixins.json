@@ -6,7 +6,6 @@
   "package": "net.p3pp3rf1y.sophisticatedcore.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "common.BlockEntityMixin",
     "common.BlockMixin",
     "common.BlockStateMixin",
     "common.DataComponentHolderMixin",
@@ -16,8 +15,6 @@
     "common.ItemEntityMixin",
     "common.ItemMixin",
     "common.ItemStackMixin",
-    "common.LevelChunkMixin",
-    "common.LevelMixin",
     "common.LivingEntityMixin",
     "common.MobMixin",
     "common.PersistentEntitySectionManagerMixin",

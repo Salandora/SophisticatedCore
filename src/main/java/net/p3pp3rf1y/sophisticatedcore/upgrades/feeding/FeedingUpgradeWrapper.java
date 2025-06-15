@@ -113,12 +113,12 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 		if (!stack.has(DataComponents.FOOD)) {
 			return false;
 		}
-		FoodProperties foodProperties = stack.getItem().getFoodProperties(stack, player);
+		FoodProperties foodProperties = stack.getItem().sophisticatedCore_getFoodProperties(stack, player);
 		return foodProperties != null && foodProperties.nutrition() >= 1;
 	}
 
 	private boolean isHungryEnoughForFood(int hungerLevel, ItemStack stack, Player player) {
-		FoodProperties foodProperties = stack.getItem().getFoodProperties(stack, player);
+		FoodProperties foodProperties = stack.getItem().sophisticatedCore_getFoodProperties(stack, player);
 		if (foodProperties == null) {
 			return false;
 		}

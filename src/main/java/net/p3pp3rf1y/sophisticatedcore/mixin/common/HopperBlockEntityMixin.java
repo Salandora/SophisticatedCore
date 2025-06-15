@@ -33,7 +33,7 @@ public class HopperBlockEntityMixin {
 			at = @At(value = "HEAD"),
 			cancellable = true
 	)
-	private static void sophisticatedCore_ejectItems(Level world, BlockPos pos, HopperBlockEntity blockEntity, CallbackInfoReturnable<Boolean> cir) {
+	private static void sophisticatedCore$ejectItems(Level world, BlockPos pos, HopperBlockEntity blockEntity, CallbackInfoReturnable<Boolean> cir) {
 		Direction direction = ((HopperBlockEntityMixin) (Object) blockEntity).facing;
 		Vec3 searchPos = new Vec3(pos.getX() + direction.getStepX() + 0.5, pos.getY() + direction.getStepY() + 0.5, pos.getZ() + direction.getStepZ() + 0.5);
 		List<Entity> list = world.getEntities(
@@ -70,7 +70,7 @@ public class HopperBlockEntityMixin {
 			at = @At(value = "HEAD"),
 			cancellable = true
 	)
-	private static void sophisticatedCore_suckInItems(Level world, Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
+	private static void sophisticatedCore$suckInItems(Level world, Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
 		Vec3 searchPos = new Vec3(hopper.getLevelX(), hopper.getLevelY() + 1.0F, hopper.getLevelZ());
 		List<Entity> list = world.getEntities(
 				(Entity)null,

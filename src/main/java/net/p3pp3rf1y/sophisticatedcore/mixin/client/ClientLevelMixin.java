@@ -29,12 +29,12 @@ public class ClientLevelMixin {
     private Minecraft minecraft;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void sophisticatedcore$construct(ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, int i, int j, Supplier<ProfilerFiller> supplier, LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci) {
+    private void sophisticatedCore$construct(ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, int i, int j, Supplier<ProfilerFiller> supplier, LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci) {
         ClientLifecycleEvents.CLIENT_LEVEL_LOAD.invoker().onWorldLoad(minecraft, MixinHelper.cast(this));
     }
 
     @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
-    public void sophisticatedcore$addEntityEvent(Entity entity, CallbackInfo ci) {
+    public void sophisticatedCore$addEntityEvent(Entity entity, CallbackInfo ci) {
         if (EntityEvents.ON_JOIN_WORLD.invoker().onJoinWorld(entity, MixinHelper.cast(this), false))
             ci.cancel();
     }

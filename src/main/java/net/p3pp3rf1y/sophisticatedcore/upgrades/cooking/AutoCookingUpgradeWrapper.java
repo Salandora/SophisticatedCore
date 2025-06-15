@@ -46,12 +46,12 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 		inputFilterLogic = new FilterLogic(upgrade, upgradeSaveHandler, autoCookingUpgradeConfig.inputFilterSlots.get(),
 				s -> RecipeHelper.getCookingRecipe(s, recipeType).isPresent(), ModCoreDataComponents.INPUT_FILTER_ATTRIBUTES);
 		fuelFilterLogic = new FilterLogic(upgrade, upgradeSaveHandler, autoCookingUpgradeConfig.fuelFilterSlots.get(),
-				s -> s.getBurnTime(recipeType) > 0, ModCoreDataComponents.FUEL_FILTER_ATTRIBUTES);
+				s -> s.sophisticatedCore_getBurnTime(recipeType) > 0, ModCoreDataComponents.FUEL_FILTER_ATTRIBUTES);
 		fuelFilterLogic.setAllowByDefault(true);
 		fuelFilterLogic.setEmptyAllowListMatchesEverything();
 
 		isValidInput = s -> RecipeHelper.getCookingRecipe(s, recipeType).isPresent() && inputFilterLogic.matchesFilter(s);
-		isValidFuel = s -> s.getBurnTime(recipeType) > 0 && fuelFilterLogic.matchesFilter(s);
+		isValidFuel = s -> s.sophisticatedCore_getBurnTime(recipeType) > 0 && fuelFilterLogic.matchesFilter(s);
 		cookingLogic = new CookingLogic<>(upgrade, upgradeSaveHandler, isValidFuel, isValidInput, autoCookingUpgradeConfig, recipeType, burnTimeModifier);
 	}
 
@@ -90,7 +90,7 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 		}
 
 		ItemStack fuel = cookingLogic.getFuel();
-		if (!fuel.isEmpty() && fuel.getBurnTime(recipeType) <= 0 && inventory.insertItem(fuel, true).getCount() < fuel.getCount()) {
+		if (!fuel.isEmpty() && fuel.sophisticatedCore_getBurnTime(recipeType) <= 0 && inventory.insertItem(fuel, true).getCount() < fuel.getCount()) {
 			ItemStack ret = inventory.insertItem(fuel, false);
 			cookingLogic.getCookingInventory().extractItem(CookingLogic.FUEL_SLOT, fuel.getCount() - ret.getCount(), false);
 		}

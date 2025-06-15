@@ -11,11 +11,11 @@ public interface SophisticatedBlockEntity {
 
 	default void sophisticatedCore_invalidateCapabilities() {
 		BlockEntity be = self();
-		if (!(be.getLevel() instanceof ServerLevel serverLevel)) {
+		if (!(be.getLevel() instanceof ServerWorldCache serverWorldCache)) {
 			return;
 		}
 
-		((ServerWorldCache) serverLevel).fabric_invalidateCache(be.getBlockPos());
+		serverWorldCache.fabric_invalidateCache(be.getBlockPos());
 	}
 
 	default void sophisticatedCore_onLoad() {

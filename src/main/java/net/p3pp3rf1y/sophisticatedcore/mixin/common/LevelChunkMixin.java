@@ -1,3 +1,4 @@
+/*
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
 import net.minecraft.core.Registry;
@@ -23,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class LevelChunkMixin extends ChunkAccess {
 	@Shadow
 	@Final
-	private Level level;
+	Level level;
 
 	public LevelChunkMixin(ChunkPos chunkPos, UpgradeData upgradeData, LevelHeightAccessor levelHeightAccessor, Registry<Biome> biomeRegistry, long inhabitedTime, @Nullable LevelChunkSection[] sections, @Nullable BlendingData blendingData) {
 		super(chunkPos, upgradeData, levelHeightAccessor, biomeRegistry, inhabitedTime, sections, blendingData);
@@ -44,3 +45,4 @@ abstract class LevelChunkMixin extends ChunkAccess {
 		this.level.sophisticatedCore_addFreshBlockEntities(this.blockEntities.values());
 	}
 }
+*/
