@@ -1,9 +1,7 @@
-package net.p3pp3rf1y.sophisticatedcore.client.render;
+package net.p3pp3rf1y.sophisticatedcore.client.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.github.fabricators_of_create.porting_lib.models.MeshBakedModel;
-import io.github.fabricators_of_create.porting_lib.models.geometry.IGeometryBakingContext;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
@@ -21,6 +19,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.p3pp3rf1y.sophisticatedcore.api.client.model.loading.IGeometryBakingContext;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -67,12 +66,7 @@ public class CompositeModel {
 
 		@Override
 		public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
-			List<BakedQuad> quadList = new ArrayList<>();
-			for (Map.Entry<String, BakedModel> entry : children.entrySet()) {
-				quadList.addAll(entry.getValue().getQuads(state, side, rand));
-			}
-
-			return Collections.unmodifiableList(quadList);
+			return List.of();
 		}
 
 		@Override
@@ -167,11 +161,6 @@ public class CompositeModel {
 				this.particle = particle;
 				this.overrides = overrides;
 				this.transforms = transforms;
-			}
-
-			public void addLayer(BakedModel model) {
-				flushQuads(null);
-				children.add(model);
 			}
 
 			private void addLayer(RenderType renderType, List<BakedQuad> quads) {

@@ -1,8 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
+import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
@@ -10,30 +16,41 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
+import net.p3pp3rf1y.sophisticatedcore.api.client.model.loading.IUnbakedGeometry;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
+import net.p3pp3rf1y.sophisticatedcore.client.model.BlockModelWrapper;
+import net.p3pp3rf1y.sophisticatedcore.client.model.RegisterGeometryLoadersCallback;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static net.p3pp3rf1y.sophisticatedcore.init.ModFluids.XP_FLOWING;
 import static net.p3pp3rf1y.sophisticatedcore.init.ModFluids.XP_STILL;
@@ -60,6 +77,66 @@ public class ClientEventHandler implements ClientModInitializer {
 
 			ScreenEvents.afterRender(screen).register(ClientEventHandler::onDrawScreen);
 		});
+
+		PreparableModelLoadingPlugin.register((resourceManager, executor) ->
+				CompletableFuture.supplyAsync(() -> ModelBakery.MODEL_LISTER.listMatchingResources(resourceManager), executor).thenCompose(models -> {
+					List<CompletableFuture<Pair<ResourceLocation, IUnbakedGeometry>>> list = Lists.newArrayList();
+					for (Map.Entry<ResourceLocation, Resource> entry : models.entrySet()) {
+						list.add(CompletableFuture.supplyAsync(() -> {
+							try (Reader reader = entry.getValue().openAsReader()) {
+								ResourceLocation id = ModelBakery.MODEL_LISTER.fileToId(entry.getKey());
+								JsonObject element = JsonParser.parseReader(reader).getAsJsonObject();
+								JsonElement loaderElement = element.get("loader");
+								if (loaderElement == null) {
+									return null;
+								}
+
+								ResourceLocation loaderLocation = ResourceLocation.parse(loaderElement.getAsString());
+								var loader = RegisterGeometryLoadersCallback.get(loaderLocation);
+								if (loader != null) {
+									if (element.has("transform")) {
+										SophisticatedCore.LOGGER.info("Found transform element in " + entry.getKey());
+									}
+									if (element.has("visibility")) {
+										SophisticatedCore.LOGGER.info("Found visibility element in " + entry.getKey());
+									}
+
+									return Pair.of(id, loader.read(element));
+								}
+							} catch(IOException e) {
+								SophisticatedCore.LOGGER.error("Failed to load model " + entry.getKey(), e);
+							}
+							return null;
+						}, executor));
+					}
+
+					return Util.sequence(list).thenApply((list2) -> list2.stream().filter(Objects::nonNull).collect(Collectors.toUnmodifiableMap(Pair::getFirst, Pair::getSecond)));
+				}), (data, context) -> {
+					context.modifyModelBeforeBake().register((model, ctx) -> {
+						if (model instanceof BlockModelWrapper) {
+							return model;
+						}
+
+						if (model instanceof BlockModel blockModel && blockModel.parent instanceof BlockModelWrapper wrapper) {
+							// We need to replace the model of BlockModelWrapper wrapped models with the BlockModelWrapper model
+							// or else they will not be visible
+							return wrapper;
+						}
+						return model;
+					});
+					context.modifyModelOnLoad().register((model, ctx) -> {
+						ResourceLocation id = ctx.resourceId();
+						if (id != null) {
+							var customModel = data.get(id);
+							if (customModel != null && model instanceof BlockModel blockModel) {
+								return new BlockModelWrapper(blockModel, customModel);
+							}
+						}
+
+						return model;
+					});
+				}
+		);
 	}
 
 	private static void onDrawScreen(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
