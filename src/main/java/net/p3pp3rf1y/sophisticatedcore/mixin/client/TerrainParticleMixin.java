@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
+import com.github.salandora.sophisticatedlibrary.model.util.ModelData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -10,10 +11,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.client.render.CustomParticleIcon;
 import net.p3pp3rf1y.sophisticatedcore.extensions.client.particle.SophisticatedTerrainParticle;
-import net.p3pp3rf1y.sophisticatedcore.util.model.ModelData;
-import org.spongepowered.asm.mixin.Mixin;
-
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(TerrainParticle.class)
 public abstract class TerrainParticleMixin extends TextureSheetParticle implements SophisticatedTerrainParticle {
