@@ -10,8 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.config.ModConfig;
-import net.p3pp3rf1y.sophisticatedcore.client.model.DynamicFluidContainerModel;
-import net.p3pp3rf1y.sophisticatedcore.client.model.RegisterGeometryLoadersCallback;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
@@ -63,8 +61,6 @@ public class SophisticatedCore implements ModInitializer {
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
 
 		CompatRegistry.getRegistry(MOD_ID).setupCompats();
-
-		RegisterGeometryLoadersCallback.register(loaders -> loaders.put(SophisticatedCore.getRL("fluid_container"), DynamicFluidContainerModel.Loader.INSTANCE));
 	}
 
 	private static void serverStarted(MinecraftServer server) {

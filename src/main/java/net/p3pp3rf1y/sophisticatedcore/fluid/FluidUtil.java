@@ -318,18 +318,4 @@ public class FluidUtil {
 
 		return FluidActionResult.FAILURE;
 	}
-
-	/**
-	 * Helper method to get the fluid contained in an itemStack
-	 */
-	public static Optional<ResourceAmount<FluidVariant>> getFluidContained(ItemStack container) {
-		if (!container.isEmpty()) {
-			container = container.copyWithCount(1);
-			Optional<ResourceAmount<FluidVariant>> fluidContained = Optional.ofNullable(ContainerItemContext.withConstant(container).find(FluidStorage.ITEM))
-					.map(handler -> StorageUtil.findExtractableContent(handler, null));
-
-			return fluidContained.filter(f -> !f.resource().isBlank());
-		}
-		return Optional.empty();
-	}
 }
