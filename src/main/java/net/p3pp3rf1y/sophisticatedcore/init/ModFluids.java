@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
+import com.github.salandora.sophisticatedlibrary.util.DeferredRegister;
 import io.github.fabricators_of_create.porting_lib.fluids.BaseFlowingFluid;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidType;
 import io.github.fabricators_of_create.porting_lib.fluids.PortingLibFluids;
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalFluidTags;
 import net.minecraft.core.registries.Registries;

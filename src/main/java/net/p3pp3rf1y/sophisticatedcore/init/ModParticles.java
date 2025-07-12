@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
+import com.github.salandora.sophisticatedlibrary.util.DeferredRegister;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
