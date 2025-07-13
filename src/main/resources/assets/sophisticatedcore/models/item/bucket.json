@@ -1,7 +1,0 @@
-{
-  "parent": "sophisticatedcore:item/default",
-  "textures": {
-    "base": "item/bucket",
-    "fluid": "sophisticatedcore:item/mask/bucket_fluid"
-  }
-}

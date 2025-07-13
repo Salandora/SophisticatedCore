@@ -1,1 +1,1 @@
-{"parent":"sophisticatedcore:item/bucket","fluid":"sophisticatedcore:xp_still","loader":"sophisticatedcore:fluid_container"}
+{"parent":"sophisticatedlibrary:item/bucket","fluid":"sophisticatedcore:xp_still","loader":"sophisticatedlibrary:fluid_container"}
