@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.voiding;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -7,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 
@@ -30,7 +30,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
+	public ItemStack onBeforeInsert(SlottedStackStorage inventoryHandler, int slot, ItemStack stack, boolean simulate) {
 		if (shouldVoidOverflow && inventoryHandler.getStackInSlot(slot).isEmpty() && (!filterLogic.shouldMatchComponents() || !filterLogic.shouldMatchDurability() || filterLogic.getPrimaryMatch() != PrimaryMatch.ITEM) && filterLogic.matchesFilter(stack)) {
 			for (int s = 0; s < inventoryHandler.getSlotCount(); s++) {
 				if (s == slot) {
@@ -47,7 +47,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot) {
+	public void onAfterInsert(SlottedStackStorage inventoryHandler, int slot) {
 		//noop
 	}
 
@@ -84,7 +84,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public void onSlotChange(IItemHandlerSimpleInserter inventoryHandler, int slot) {
+	public void onSlotChange(SlottedStackStorage inventoryHandler, int slot) {
 		if (!shouldWorkInGUI() || shouldVoidOverflow()) {
 			return;
 		}

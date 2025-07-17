@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.util.Iterator;
 import java.util.List;
 
-public class InventoryStorageWrapper implements SlottedStackStorage, IInventoryHandlerHelper {
+public class InventoryStorageWrapper implements SlottedStackStorage {
 	public static InventoryStorageWrapper of(Player player) {
 		return new InventoryStorageWrapper(player.getInventory());
 	}

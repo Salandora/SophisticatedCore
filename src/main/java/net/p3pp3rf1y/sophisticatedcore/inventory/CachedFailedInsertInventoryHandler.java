@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
@@ -13,13 +14,13 @@ import java.util.Set;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public class CachedFailedInsertInventoryHandler implements IItemHandlerSimpleInserter {
-	private final Supplier<IItemHandlerSimpleInserter> wrappedHandlerGetter;
+public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
+	private final Supplier<SlottedStackStorage> wrappedHandlerGetter;
 	private final LongSupplier timeSupplier;
 	private long currentCacheTime = 0;
 	private final Set<ItemStack> failedInsertStacks = new HashSet<>();
 
-	public CachedFailedInsertInventoryHandler(Supplier<IItemHandlerSimpleInserter> wrappedHandlerGetter, LongSupplier timeSupplier) {
+	public CachedFailedInsertInventoryHandler(Supplier<SlottedStackStorage> wrappedHandlerGetter, LongSupplier timeSupplier) {
 		this.wrappedHandlerGetter = wrappedHandlerGetter;
 		this.timeSupplier = timeSupplier;
 	}
@@ -128,11 +129,6 @@ public class CachedFailedInsertInventoryHandler implements IItemHandlerSimpleIns
 	@Override
 	public boolean isItemValid(int slot, @NotNull ItemStack stack) {
 		return wrappedHandlerGetter.get().isItemValid(slot, stack);
-	}
-
-	@Override
-	public boolean isItemValid(int slot, @NotNull ItemVariant resource, int count) {
-		return wrappedHandlerGetter.get().isItemValid(slot, resource, count);
 	}
 
 	@Override

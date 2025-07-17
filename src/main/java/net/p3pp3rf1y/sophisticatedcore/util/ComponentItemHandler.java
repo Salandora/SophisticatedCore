@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.google.common.base.Preconditions;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -12,10 +12,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.p3pp3rf1y.sophisticatedcore.extensions.component.SophisticatedMutableDataComponentHolder;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter {
+public abstract class ComponentItemHandler implements SlottedStackStorage {
 	protected final SophisticatedMutableDataComponentHolder parent;
 	protected final DataComponentType<ItemContainerContents> component;
 	protected final int size;

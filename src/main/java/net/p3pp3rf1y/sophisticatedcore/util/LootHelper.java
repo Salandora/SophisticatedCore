@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -15,7 +16,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class LootHelper {
 		return lootStacks;
 	}
 
-	public static void fillWithLoot(RandomSource rand, List<ItemStack> loot, IItemHandlerSimpleInserter inventory) {
+	public static void fillWithLoot(RandomSource rand, List<ItemStack> loot, SlottedStackStorage inventory) {
 		List<Integer> slots = InventoryHelper.getEmptySlotsRandomized(inventory);
 		InventoryHelper.shuffleItems(loot, slots.size(), rand);
 

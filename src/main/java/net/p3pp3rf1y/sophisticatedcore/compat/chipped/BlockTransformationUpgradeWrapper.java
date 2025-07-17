@@ -1,10 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;

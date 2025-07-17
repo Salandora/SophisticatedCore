@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
+import com.github.salandora.sophisticatedlibrary.fluid.SimpleFluidContent;
 import com.github.salandora.sophisticatedlibrary.util.DeferredHolder;
 import com.github.salandora.sophisticatedlibrary.util.DeferredRegister;
 import com.mojang.serialization.Codec;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.SimpleFluidContent;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;

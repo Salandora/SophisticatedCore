@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 
 import java.util.function.Supplier;
 
-public class SlotSuppliedHandler extends SlotItemHandler {
+public class SlotSuppliedHandler extends SlotItemHandler<SlottedStackStorage> {
 	private final Supplier<? extends SlottedStackStorage> itemHandlerSupplier;
 	private final int slot;
 

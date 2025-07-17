@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
+import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
 import net.minecraft.nbt.CompoundTag;
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
 import javax.annotation.Nullable;

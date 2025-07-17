@@ -1,17 +1,16 @@
 package net.p3pp3rf1y.sophisticatedcore.fluid;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.impl.transfer.DebugMessages;
 import net.minecraft.CrashReport;
@@ -34,12 +33,10 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.Optional;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
@@ -242,7 +239,7 @@ public class FluidUtil {
 		return FluidActionResult.FAILURE;
 	}
 
-	public static FluidActionResult tryFillContainerAndStow(ItemStack container, Storage<FluidVariant> fluidSource, IInventoryHandlerHelper inventory, long maxAmount, @Nullable Player player, boolean doFill) {
+	public static FluidActionResult tryFillContainerAndStow(ItemStack container, Storage<FluidVariant> fluidSource, SlottedStackStorage inventory, long maxAmount, @Nullable Player player, boolean doFill) {
 		if (container.isEmpty()) {
 			return FluidActionResult.FAILURE;
 		}
@@ -280,7 +277,7 @@ public class FluidUtil {
 
 		return FluidActionResult.FAILURE;
 	}
-	public static FluidActionResult tryEmptyContainerAndStow(ItemStack container, Storage<FluidVariant> fluidDestination, IInventoryHandlerHelper inventory, long maxAmount, @Nullable Player player, boolean doDrain) {
+	public static FluidActionResult tryEmptyContainerAndStow(ItemStack container, Storage<FluidVariant> fluidDestination, SlottedStackStorage inventory, long maxAmount, @Nullable Player player, boolean doDrain) {
 		if (container.isEmpty()) {
 			return FluidActionResult.FAILURE;
 		}

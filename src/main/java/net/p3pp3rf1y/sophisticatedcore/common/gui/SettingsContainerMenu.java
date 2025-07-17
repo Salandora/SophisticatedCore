@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.loader.api.FabricLoader;
@@ -17,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoPayload;
@@ -290,8 +290,8 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		templatePersistanceContainer.refreshTemplateSlots();
 	}
 
-	private class ViewOnlyStorageInventorySlot extends SlotItemHandler {
-		public ViewOnlyStorageInventorySlot(IItemHandlerSimpleInserter inventoryHandler, int slotIndex) {
+	private class ViewOnlyStorageInventorySlot extends SlotItemHandler<SlottedStackStorage> {
+		public ViewOnlyStorageInventorySlot(SlottedStackStorage inventoryHandler, int slotIndex) {
 			super(inventoryHandler, slotIndex, 0, 0);
 		}
 

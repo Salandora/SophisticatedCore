@@ -1,11 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.fabric.constants.FabricTypes;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.minecraft.client.renderer.Rect2i;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;

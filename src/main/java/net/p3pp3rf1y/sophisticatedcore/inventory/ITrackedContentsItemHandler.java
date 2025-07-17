@@ -1,9 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+
 import java.util.Set;
 import java.util.function.Consumer;
 
-public interface ITrackedContentsItemHandler extends IItemHandlerSimpleInserter {
+public interface ITrackedContentsItemHandler extends SlottedStackStorage {
 
 	Set<ItemStackKey> getTrackedStacks();
 

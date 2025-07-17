@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.api;
 
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 
 public interface ISlotChangeResponseUpgrade {
-	void onSlotChange(IItemHandlerSimpleInserter inventoryHandler, int slot);
+	void onSlotChange(SlottedStackStorage inventoryHandler, int slot);
 }

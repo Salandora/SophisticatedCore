@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
@@ -20,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
@@ -28,7 +26,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CapabilityHelper {
-	public static void runOnItemHandler(Entity entity, Consumer<IInventoryHandlerHelper> run) {
+	public static void runOnItemHandler(Entity entity, Consumer<SlottedStorage<ItemVariant>> run) {
 		runOnCapability(entity, Capabilities.ItemHandler.ENTITY, null, run);
 	}
 

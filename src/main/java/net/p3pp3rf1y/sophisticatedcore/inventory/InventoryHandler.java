@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.mojang.datafixers.util.Pair;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.HolderLookup;
@@ -394,13 +392,13 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return ret;
 	}
 
-	private void runOnAfterInsert(int slot, boolean simulate, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+	private void runOnAfterInsert(int slot, boolean simulate, SlottedStackStorage handler, IStorageWrapper storageWrapper) {
 		if (!simulate) {
 			storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(IInsertResponseUpgrade.class).forEach(u -> u.onAfterInsert(handler, slot));
 		}
 	}
 
-	private ItemStack runOnBeforeInsert(int slot, ItemStack stack, boolean simulate, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+	private ItemStack runOnBeforeInsert(int slot, ItemStack stack, boolean simulate, SlottedStackStorage handler, IStorageWrapper storageWrapper) {
 		List<IInsertResponseUpgrade> wrappers = storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(IInsertResponseUpgrade.class);
 		ItemStack remaining = stack;
 		for (IInsertResponseUpgrade upgrade : wrappers) {

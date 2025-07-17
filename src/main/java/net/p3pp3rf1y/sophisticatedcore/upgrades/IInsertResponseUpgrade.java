@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 
 public interface IInsertResponseUpgrade {
-	ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate);
+	ItemStack onBeforeInsert(SlottedStackStorage inventoryHandler, int slot, ItemStack stack, boolean simulate);
 
-	void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot);
+	void onAfterInsert(SlottedStackStorage inventoryHandler, int slot);
 }

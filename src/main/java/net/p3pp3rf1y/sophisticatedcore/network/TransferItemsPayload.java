@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
@@ -17,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
@@ -147,7 +147,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 	}
 
-	private static class FilteredStorageItemHandler extends TransferItemsPayload.FilteredItemHandler<ITrackedContentsItemHandler> implements IItemHandlerSimpleInserter {
+	private static class FilteredStorageItemHandler extends TransferItemsPayload.FilteredItemHandler<ITrackedContentsItemHandler> implements SlottedStackStorage {
 		private final IStorageWrapper storageWrapper;
 
 		public FilteredStorageItemHandler(IStorageWrapper storageWrapper, boolean smart) {
@@ -181,7 +181,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 	}
 
-	private static class FilteredItemHandler<T extends IItemHandlerSimpleInserter> implements IItemHandlerSimpleInserter {
+	private static class FilteredItemHandler<T extends SlottedStackStorage> implements SlottedStackStorage {
 		protected final T itemHandler;
 		protected final boolean matchContents;
 		private final Set<ItemStackKey> uniqueStacks;
@@ -287,7 +287,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 	}
 
-	private static class RangedWrapper implements IItemHandlerSimpleInserter {
+	private static class RangedWrapper implements SlottedStackStorage {
 		private final InventoryStorageImpl inventoryStorage;
 
 		public RangedWrapper(Inventory inv, int start, int end) {

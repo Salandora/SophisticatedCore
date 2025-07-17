@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 
 public class StorageInventorySlot extends SlotSuppliedHandler {
 	private final boolean isClientSide;
@@ -34,7 +34,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 		processSlotChangeResponse(slotIndex, storageWrapper.getInventoryHandler(), storageWrapper);
 	}
 
-	private void processSlotChangeResponse(int slot, IItemHandlerSimpleInserter handler, IStorageWrapper storageWrapper) {
+	private void processSlotChangeResponse(int slot, SlottedStackStorage handler, IStorageWrapper storageWrapper) {
 		if (!isClientSide) {
 			storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(ISlotChangeResponseUpgrade.class).forEach(u -> u.onSlotChange(handler, slot));
 		}

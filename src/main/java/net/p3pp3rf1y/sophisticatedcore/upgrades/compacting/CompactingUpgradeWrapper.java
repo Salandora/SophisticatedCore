@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.compacting;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -8,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
-import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
@@ -35,16 +34,16 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	@Override
-	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
+	public ItemStack onBeforeInsert(SlottedStackStorage inventoryHandler, int slot, ItemStack stack, boolean simulate) {
 		return stack;
 	}
 
 	@Override
-	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot) {
+	public void onAfterInsert(SlottedStackStorage inventoryHandler, int slot) {
 		compactSlot(inventoryHandler, slot);
 	}
 
-	private void compactSlot(IItemHandlerSimpleInserter inventoryHandler, int slot) {
+	private void compactSlot(SlottedStackStorage inventoryHandler, int slot) {
 		ItemStack slotStack = inventoryHandler.getStackInSlot(slot);
 
 		if (slotStack.isEmpty() || !filterLogic.matchesFilter(slotStack)) {
@@ -60,7 +59,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		}
 	}
 
-	private void tryCompacting(IItemHandlerSimpleInserter inventoryHandler, ItemStack stack, int width, int height) {
+	private void tryCompacting(SlottedStackStorage inventoryHandler, ItemStack stack, int width, int height) {
 		int totalCount = width * height;
 		RecipeHelper.CompactingResult compactingResult = RecipeHelper.getCompactingResult(stack, width, height);
 		if (!compactingResult.getResult().isEmpty()) {
@@ -84,7 +83,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		}
 	}
 
-	private boolean fitsResultAndRemainingItems(IItemHandlerSimpleInserter inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
+	private boolean fitsResultAndRemainingItems(SlottedStackStorage inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
 		if (!remainingItems.isEmpty()) {
 			ItemStackHandler clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
 			return InventoryHelper.insertIntoInventory(result, clonedHandler, false).isEmpty()
@@ -108,7 +107,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	@Override
-	public void onSlotChange(IItemHandlerSimpleInserter inventoryHandler, int slot) {
+	public void onSlotChange(SlottedStackStorage inventoryHandler, int slot) {
 		if (shouldWorkInGUI()) {
 			slotsToCompact.add(slot);
 		}

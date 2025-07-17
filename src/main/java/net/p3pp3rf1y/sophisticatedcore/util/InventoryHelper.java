@@ -1,10 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
@@ -138,7 +136,7 @@ public class InventoryHelper {
 
 	/// Do not call from an open transaction
 	public static ItemStack insertIntoInventory(ItemStack stack, SlottedStorage<ItemVariant> inventory, boolean simulate) {
-		if (inventory instanceof IItemHandlerSimpleInserter itemHandlerSimpleInserter) {
+		if (inventory instanceof SlottedStackStorage itemHandlerSimpleInserter) {
 			return itemHandlerSimpleInserter.insertItem(stack, simulate);
 		}
 
@@ -153,11 +151,11 @@ public class InventoryHelper {
 	}
 
 	/// Do not call from an open transaction
-	public static ItemStack extractFromInventory(Item item, int count, IItemHandlerSimpleInserter inventory, boolean simulate) {
+	public static ItemStack extractFromInventory(Item item, int count, SlottedStackStorage inventory, boolean simulate) {
 		return extractFromInventory(stack -> stack.getItem() == item, count, inventory, simulate);
 	}
 
-	public static ItemStack extractFromInventory(Predicate<ItemStack> stackMatcher, int count, IItemHandlerSimpleInserter inventory, boolean simulate) {
+	public static ItemStack extractFromInventory(Predicate<ItemStack> stackMatcher, int count, SlottedStackStorage inventory, boolean simulate) {
 		ItemStack ret = ItemStack.EMPTY;
 		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
@@ -176,7 +174,7 @@ public class InventoryHelper {
 	}
 
 	/// Do not call from an open transaction
-	public static ItemStack extractFromInventory(ItemStack stack, IItemHandlerSimpleInserter inventory, boolean simulate) {
+	public static ItemStack extractFromInventory(ItemStack stack, SlottedStackStorage inventory, boolean simulate) {
 		int extractedCount = 0;
 		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && extractedCount < stack.getCount(); slot++) {
@@ -265,7 +263,7 @@ public class InventoryHelper {
 		}
 	}
 
-	public static int getCountMissingInHandler(IInventoryHandlerHelper itemHandler, ItemStack filter, int expectedCount) {
+	public static int getCountMissingInHandler(SlottedStackStorage itemHandler, ItemStack filter, int expectedCount) {
 		MutableInt missingCount = new MutableInt(expectedCount);
 		iterate(itemHandler, (slot, stack) -> {
 			if (ItemStack.isSameItemSameComponents(stack, filter)) {
@@ -302,7 +300,7 @@ public class InventoryHelper {
 	}*/
 
 	/// Do not call from an open transaction
-	public static void transfer(IItemHandlerSimpleInserter handlerA, IItemHandlerSimpleInserter handlerB, Consumer<Supplier<ItemStack>> onInserted) {
+	public static void transfer(SlottedStackStorage handlerA, SlottedStackStorage handlerB, Consumer<Supplier<ItemStack>> onInserted) {
 		int slotsA = handlerA.getSlotCount();
 		for (int slot = 0; slot < slotsA; slot++) {
 			ItemStack slotStack = handlerA.getStackInSlot(slot);
