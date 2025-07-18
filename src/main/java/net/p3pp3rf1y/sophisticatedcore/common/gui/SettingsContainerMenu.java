@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.gui.SlotItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;

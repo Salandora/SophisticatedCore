@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
+// TODO: Revisit
 public class SlottedStackStorageContainerItemContext implements ContainerItemContext {
 	public static SlottedStackStorageContainerItemContext of(SlottedStackStorage storage, int slot) {
 		return new SlottedStackStorageContainerItemContext(storage, slot);

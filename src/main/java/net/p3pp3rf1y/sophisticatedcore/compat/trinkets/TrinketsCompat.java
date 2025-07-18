@@ -1,9 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.trinkets;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.items.EmptyItemHandler;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -12,10 +13,12 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
-import net.p3pp3rf1y.sophisticatedcore.util.EmptyItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class TrinketsCompat implements ICompat {
 	@Override
@@ -32,11 +35,11 @@ public class TrinketsCompat implements ICompat {
 									.map(Wrapper::new)
 									.toList()
 						)
-						.map(list -> (SlottedStackStorage) new CombinedWrapper<>(list))
+						.map(list -> (SlottedStorage<ItemVariant>) new CombinedWrapper<>(list))
 						.orElse(EmptyItemHandler.INSTANCE));
 	}
 
-	private static class CombinedWrapper<S extends SlottedStackStorage> extends CombinedSlottedStorage<ItemVariant, S> implements SlottedStackStorage {
+	private static class CombinedWrapper<S extends SlottedStorage<ItemVariant>> extends CombinedSlottedStorage<ItemVariant, S> {
 		protected final int[] baseIndex;
 		protected final int slotCount;
 
@@ -52,110 +55,13 @@ public class TrinketsCompat implements ICompat {
 			this.slotCount = index;
 		}
 
-		// returns the handler index for the slot
-		protected int getIndexForSlot(int slot) {
-			if (slot < 0)
-				return -1;
-
-			for (int i = 0; i < baseIndex.length; i++)
-			{
-				if (slot - baseIndex[i] < 0)
-				{
-					return i;
-				}
-			}
-			return -1;
-		}
-
-		protected Optional<S> getHandlerFromIndex(int index) {
-			if (index < 0 || index >= parts.size())
-			{
-				return Optional.empty();
-			}
-			return Optional.of(parts.get(index));
-		}
-
-		protected int getSlotFromIndex(int slot, int index) {
-			if (index <= 0 || index >= baseIndex.length)
-			{
-				return slot;
-			}
-			return slot - baseIndex[index - 1];
-		}
-
 		@Override
 		public int getSlotCount() {
 			return slotCount;
 		}
-
-		@Override
-		public void setStackInSlot(int slot, ItemStack stack) {
-			int index = getIndexForSlot(slot);
-			Optional<S> handler = getHandlerFromIndex(index);
-			if (handler.isEmpty()) {
-				return;
-			}
-			slot = getSlotFromIndex(slot, index);
-			handler.get().setStackInSlot(slot, stack);
-		}
-
-		@Override
-		public ItemStack getStackInSlot(int slot) {
-			int index = getIndexForSlot(slot);
-			Optional<S> handler = getHandlerFromIndex(index);
-			if (handler.isEmpty()) {
-				return ItemStack.EMPTY;
-			}
-			slot = getSlotFromIndex(slot, index);
-			return handler.get().getStackInSlot(slot);
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			int index = getIndexForSlot(slot);
-			Optional<S> handler = getHandlerFromIndex(index);
-			if (handler.isEmpty()) {
-				return 0;
-			}
-			int localSlot = getSlotFromIndex(slot, index);
-			return handler.get().getSlotLimit(localSlot);
-		}
-
-		@Override
-		public boolean isItemValid(int slot, ItemVariant resource, int count) {
-			int index = getIndexForSlot(slot);
-			Optional<S> handler = getHandlerFromIndex(index);
-			if (handler.isEmpty()) {
-				return false;
-			}
-			int localSlot = getSlotFromIndex(slot, index);
-			return handler.get().isItemValid(localSlot, resource, count);
-		}
-
-		@Override
-		public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-			int index = getIndexForSlot(slot);
-			Optional<S> handler = getHandlerFromIndex(index);
-			if (handler.isEmpty()) {
-				return 0;
-			}
-			slot = getSlotFromIndex(slot, index);
-			return handler.get().insertSlot(slot, resource, maxAmount, ctx);
-		}
-
-		@Override
-		public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-			int index = getIndexForSlot(slot);
-			Optional<S> handler = getHandlerFromIndex(index);
-			if (handler.isEmpty()) {
-				return 0;
-			}
-			slot = getSlotFromIndex(slot, index);
-			return handler.get().extractSlot(slot, resource, maxAmount, ctx);
-		}
 	}
 
-	private static class Wrapper extends CombinedSlottedStorage<ItemVariant, SingleSlotStorage<ItemVariant>> implements SlottedStackStorage {
+	private static class Wrapper extends CombinedSlottedStorage<ItemVariant, SingleSlotStorage<ItemVariant>> {
 		private final Container inventory;
 
 		private final List<SingleStackStorage> backingList;
@@ -182,21 +88,6 @@ public class TrinketsCompat implements ICompat {
 				// Update the public-facing list.
 				parts = Collections.unmodifiableList(backingList.subList(0, inventorySize));
 			}
-		}
-
-		@Override
-		public ItemStack getStackInSlot(int slot) {
-			return inventory.getItem(slot);
-		}
-
-		@Override
-		public void setStackInSlot(int slot, ItemStack stack) {
-			inventory.setItem(slot, stack);
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			return (int) getSlot(slot).getCapacity();
 		}
 
 		class MarkDirtyParticipant extends SnapshotParticipant<Boolean> {

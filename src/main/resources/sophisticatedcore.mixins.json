@@ -8,10 +8,8 @@
   "mixins": [
     "common.BlockMixin",
     "common.BlockStateMixin",
-    "common.DataComponentHolderMixin",
     "common.EntityMixin",
     "common.HopperBlockEntityMixin",
-    "common.ItemContainerContentsMixin",
     "common.ItemEntityMixin",
     "common.ItemMixin",
     "common.ItemStackMixin",

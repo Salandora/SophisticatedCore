@@ -18,7 +18,7 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeWrapper;
 import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
-import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
 import javax.annotation.Nullable;

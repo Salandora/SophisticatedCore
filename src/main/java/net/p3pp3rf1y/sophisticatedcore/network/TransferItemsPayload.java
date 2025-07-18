@@ -5,6 +5,9 @@ import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.impl.transfer.item.InventoryStorageImpl;
@@ -18,13 +21,16 @@ import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -97,38 +103,6 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			ItemStack rest = super.insertItem(slot, stack, simulate);
-			if (rest.getCount() != stack.getCount()) {
-				ItemStack inSlot = this.getStackInSlot(slot);
-				if (!inSlot.isEmpty()) {
-					if (this.getInventoryPlayer().player.level().isClientSide) {
-						inSlot.setPopTime(5);
-					} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-						this.getInventoryPlayer().player.containerMenu.broadcastChanges();
-					}
-				}
-			}
-
-			return rest;
-		}
-		@Override
-		public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insertSlot(slot, resource, maxAmount, transaction);
-			if (inserted != maxAmount) {
-				ItemStack inSlot = this.getStackInSlot(slot);
-				if (!inSlot.isEmpty()) {
-					if (this.getInventoryPlayer().player.level().isClientSide) {
-						inSlot.setPopTime(5);
-					} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-						this.getInventoryPlayer().player.containerMenu.broadcastChanges();
-					}
-				}
-			}
-
-			return 0;
-		}
-		@Override
 		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 			long inserted = super.insert(resource, maxAmount, transaction);
 			if (inserted != maxAmount) {
@@ -147,7 +121,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 	}
 
-	private static class FilteredStorageItemHandler extends TransferItemsPayload.FilteredItemHandler<ITrackedContentsItemHandler> implements SlottedStackStorage {
+	private static class FilteredStorageItemHandler extends TransferItemsPayload.FilteredItemHandler<ITrackedContentsItemHandler> implements IItemHandlerSimpleInserter {
 		private final IStorageWrapper storageWrapper;
 
 		public FilteredStorageItemHandler(IStorageWrapper storageWrapper, boolean smart) {
@@ -210,11 +184,6 @@ public record TransferItemsPayload(boolean transferToInventory,
 		@Override
 		public ItemStack getStackInSlot(int slot) {
 			return itemHandler.getStackInSlot(slot);
-		}
-
-		@Override
-		public void setStackInSlot(int slot, ItemStack stack) {
-			// noop
 		}
 
 		@Nonnull
@@ -287,7 +256,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 	}
 
-	private static class RangedWrapper implements SlottedStackStorage {
+	private static class RangedWrapper implements SlottedStorage<ItemVariant> {
 		private final InventoryStorageImpl inventoryStorage;
 
 		public RangedWrapper(Inventory inv, int start, int end) {
@@ -311,23 +280,6 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 
 		@Override
-		public ItemStack getStackInSlot(int slot) {
-			var s = getSlot(slot);
-			return s.getResource().toStack((int) s.getAmount());
-		}
-
-		@Override
-		public void setStackInSlot(int slot, ItemStack stack) {
-			// noop
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			// noop
-			return 0;
-		}
-
-		@Override
 		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 			return inventoryStorage.insert(resource, maxAmount, transaction);
 		}
@@ -335,6 +287,12 @@ public record TransferItemsPayload(boolean transferToInventory,
 		@Override
 		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 			return inventoryStorage.extract(resource, maxAmount, transaction);
+		}
+
+		@Override
+		public Iterator<StorageView<ItemVariant>> iterator() {
+			//noinspection unchecked,rawtypes
+			return (Iterator) getSlots().iterator();
 		}
 	}
 }

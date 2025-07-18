@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
 import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
@@ -17,12 +18,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class CraftingItemHandler extends TransientCraftingContainer {
-	private final Supplier<SlottedStackStorage> supplyInventory;
+	private final Supplier<SlottedStackStorageModifiable> supplyInventory;
 	private final Consumer<Container> onCraftingMatrixChanged;
 	private boolean itemsInitialized = false;
 	private List<ItemStack> items = List.of();
 
-	public CraftingItemHandler(Supplier<SlottedStackStorage> supplyInventory, Consumer<Container> onCraftingMatrixChanged) {
+	public CraftingItemHandler(Supplier<SlottedStackStorageModifiable> supplyInventory, Consumer<Container> onCraftingMatrixChanged) {
 		super(new AbstractContainerMenu(null, -1) {
 			@Override
 			public ItemStack quickMoveStack(Player player, int index) {

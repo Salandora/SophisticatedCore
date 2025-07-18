@@ -1,8 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
+import com.github.salandora.sophisticatedlibrary.fluid.BaseFlowingFluid;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidType;
+import com.github.salandora.sophisticatedlibrary.fluid.SophisticatedFluid;
 import com.github.salandora.sophisticatedlibrary.util.DeferredRegister;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalFluidTags;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
@@ -29,7 +33,7 @@ public class ModFluids {
 	public static final TagKey<Fluid> EXPERIENCE_TAG = ConventionalFluidTags.EXPERIENCE;
 	public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, SophisticatedCore.MOD_ID);
 
-	public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(PortingLibFluids.FLUID_TYPES, SophisticatedCore.MOD_ID);
+	public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(SophisticatedFluid.FLUID_TYPES, SophisticatedCore.MOD_ID);
 	public static final Supplier<FlowingFluid> XP_STILL = FLUIDS.register("xp_still", () -> new BaseFlowingFluid.Source(fluidProperties()));
 
 	public static final Supplier<FlowingFluid> XP_FLOWING = FLUIDS.register("xp_flowing", () -> new BaseFlowingFluid.Flowing(fluidProperties()));
@@ -50,5 +54,8 @@ public class ModFluids {
 		FLUID_TYPES.register();
 		ITEMS.register();
 		CREATIVE_MODE_TABS.register();
+
+		FluidVariantAttributes.register(XP_STILL.get(), XP_FLUID_TYPE.get());
+		FluidVariantAttributes.register(XP_FLOWING.get(), XP_FLUID_TYPE.get());
 	}
 }

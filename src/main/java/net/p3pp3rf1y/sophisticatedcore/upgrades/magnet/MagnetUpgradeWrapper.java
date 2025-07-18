@@ -20,6 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
@@ -205,20 +206,20 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	public void setPickupItems(boolean pickupItems) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
 		save();
 	}
 
 	public boolean shouldPickupItems() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
 	}
 
 	public void setPickupXp(boolean pickupXp) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.PICKUP_XP, pickupXp);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.PICKUP_XP, pickupXp);
 		save();
 	}
 
 	public boolean shouldPickupXp() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
 	}
 }

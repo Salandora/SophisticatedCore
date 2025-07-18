@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -13,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpgradeWrapper, StonecutterUpgradeItem> {
-	private final SlottedStackStorage inputInventory;
+	private final SlottedStackStorageModifiable inputInventory;
 
 	protected StonecutterUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
@@ -23,29 +25,29 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
-					upgrade.sophisticatedCore_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
+					upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
 				}
 				save();
 			}
 		};
-		inputInventory.setStackInSlot(0, upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
+		inputInventory.setStackInSlot(0, upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
 	}
 
-	public SlottedStackStorage getInputInventory() {
+	public SlottedStackStorageModifiable getInputInventory() {
 		return inputInventory;
 	}
 
 	public void setRecipeId(@Nullable ResourceLocation recipeId) {
 		if (recipeId == null) {
-			upgrade.sophisticatedCore_remove(ModCoreDataComponents.RECIPE_ID);
+			upgrade.sophisticatedLibrary_remove(ModCoreDataComponents.RECIPE_ID);
 			return;
 		}
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.RECIPE_ID, recipeId);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.RECIPE_ID, recipeId);
 		save();
 	}
 
 	public Optional<ResourceLocation> getRecipeId() {
-		return Optional.ofNullable(upgrade.sophisticatedCore_get(ModCoreDataComponents.RECIPE_ID));
+		return Optional.ofNullable(upgrade.sophisticatedLibrary_get(ModCoreDataComponents.RECIPE_ID));
 	}
 
 	@Override
@@ -54,11 +56,11 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 	}
 
 	public boolean shouldShiftClickIntoStorage() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
 		save();
 	}
 }

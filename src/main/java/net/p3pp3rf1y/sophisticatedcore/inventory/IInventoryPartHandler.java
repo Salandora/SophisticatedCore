@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.mojang.datafixers.util.Pair;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -9,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
-import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
 import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
@@ -47,12 +45,9 @@ public interface IInventoryPartHandler {
 		//noop
 	}
 
-	default boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
+	default boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
 		return false;
 	}
-	/*default boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
-		return false;
-	}*/
 
 	default ItemStack getStackInSlot(int slot, IntFunction<ItemStack> getStackInSlotSuper) {
 		return ItemStack.EMPTY;
@@ -139,14 +134,9 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
-			return true;
-		}
-
-		/*@Override
 		public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
 			return true;
-		}*/
+		}
 
 		@Override
 		public ItemStack getStackInSlot(int slot, IntFunction<ItemStack> getStackInSlotSuper) {

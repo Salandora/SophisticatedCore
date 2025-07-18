@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
 import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -13,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockTransformationUpgradeWrapper, BlockTransformationUpgradeItem> {
-	private final SlottedStackStorage inputInventory;
+	private final SlottedStackStorageModifiable inputInventory;
 	private final RecipeType<ChippedRecipe> recipeType;
 
 	protected BlockTransformationUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
@@ -24,31 +26,31 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
-					upgrade.sophisticatedCore_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
+					upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
 				}
 				save();
 			}
 		};
-		inputInventory.setStackInSlot(0, upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
+		inputInventory.setStackInSlot(0, upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
 		recipeType = upgradeItem.getRecipeType();
 	}
 
-	public SlottedStackStorage getInputInventory() {
+	public SlottedStackStorageModifiable getInputInventory() {
 		return inputInventory;
 	}
 
 	public void setResult(ItemStack result) {
 		if (result.isEmpty()) {
-			upgrade.sophisticatedCore_remove(ModCoreDataComponents.RESULT_ITEM);
+			upgrade.sophisticatedLibrary_remove(ModCoreDataComponents.RESULT_ITEM);
 			return;
 		}
 
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.RESULT_ITEM, SimpleItemContent.copyOf(result));
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.RESULT_ITEM, SimpleItemContent.copyOf(result));
 		save();
 	}
 
 	public Optional<SimpleItemContent> getResult() {
-		return Optional.ofNullable(upgrade.sophisticatedCore_get(ModCoreDataComponents.RESULT_ITEM));
+		return Optional.ofNullable(upgrade.sophisticatedLibrary_get(ModCoreDataComponents.RESULT_ITEM));
 	}
 
 	@Override
@@ -57,11 +59,11 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 	}
 
 	public boolean shouldShiftClickIntoStorage() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
 		save();
 	}
 

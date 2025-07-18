@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -20,7 +21,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 public class UpgradeHandler extends ItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
@@ -57,11 +57,6 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
-	/// Do not override, override {@link #isItemValid(int, ItemStack)} instead
-	public final boolean isItemValid(int slot, ItemVariant resource, int count) {
-		return isItemValid(slot, resource.toStack(count));
-	}
-
 	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
 		return stack.isEmpty() || stack.getItem() instanceof IUpgradeItem;
 	}
@@ -134,7 +129,18 @@ public class UpgradeHandler extends ItemStackHandler {
 		initRenderInfoCallbacks(false);
 	}
 
+	@Nonnull
 	@Override
+	public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+		ItemStack result = super.insertItem(slot, stack, simulate);
+		if (SophisticatedCore.isLogicalServerThread() && result.isEmpty() && !stack.isEmpty()) {
+			onUpgradeAdded(slot);
+		}
+
+		return result;
+	}
+
+	/*@Override
 	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
 		long inserted = 0;
@@ -161,7 +167,7 @@ public class UpgradeHandler extends ItemStackHandler {
 		}
 
 		return inserted;
-	}
+	}*/
 
 	private void onUpgradeAdded(int slot) {
 		Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
@@ -197,6 +203,20 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		if (!simulate && SophisticatedCore.isLogicalServerThread()) {
+			ItemStack slotStack = getStackInSlot(slot);
+			if (persistent && !slotStack.isEmpty() && amount == 1) {
+				Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
+				if (wrappers.containsKey(slot)) {
+					wrappers.get(slot).onBeforeRemoved();
+				}
+			}
+		}
+		return super.extractItem(slot, amount, simulate);
+	}
+
+	/*@Override
 	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
 		Item item = resource.getItem();
@@ -232,7 +252,7 @@ public class UpgradeHandler extends ItemStackHandler {
 			inner.commit();
 		}
 		return extracted;
-	}
+	}*/
 
 	private void initializeTypeWrappers() {
 		if (typeWrappersInitialized) {
@@ -381,11 +401,10 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	public void increaseSize(int diff) {
-		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, IntStream.range(0, getSlotCount()).mapToObj(this::getStackInSlot).toArray(ItemStack[]::new));
-
-		super.setSize(previousStacks.size() + diff);
+		NonNullList<ItemStack> previousStacks = stacks;
+		stacks = NonNullList.withSize(previousStacks.size() + diff, ItemStack.EMPTY);
 		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
-			((UpgradeHandlerSlot) this.getSlot(slot)).setInternalNewStack(previousStacks.get(slot));
+			stacks.set(slot, previousStacks.get(slot));
 		}
 		saveInventory();
 		setRenderUpgradeItems();
@@ -423,7 +442,7 @@ public class UpgradeHandler extends ItemStackHandler {
 		}
 	}
 
-	@Override
+	/*@Override
 	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
 		return new UpgradeHandlerSlot(index, this, stack);
 	}
@@ -449,6 +468,6 @@ public class UpgradeHandler extends ItemStackHandler {
 		public void setInternalNewStack(ItemStack stack) {
 			super.setStack(stack);
 		}
-	}
+	}*/
 }
 

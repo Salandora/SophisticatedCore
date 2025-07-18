@@ -16,7 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedBatteryUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
-import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
+import com.github.salandora.sophisticatedlibrary.items.ComponentItemHandler;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.EnergyStorageUtil;
 import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
@@ -60,7 +60,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	public static long getEnergyStored(ItemStack upgrade) {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0L);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0L);
 	}
 
 	public EnergyStorage getSideEnergyStorage(@Nullable Direction side) {
@@ -89,7 +89,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}*/
 
 	private void serializeEnergyStored() {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.ENERGY_STORED, energyStorage.amount);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.ENERGY_STORED, energyStorage.amount);
 		save();
 		forceUpdateBatteryRenderInfo();
 	}

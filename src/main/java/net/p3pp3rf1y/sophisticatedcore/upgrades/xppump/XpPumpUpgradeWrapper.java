@@ -150,47 +150,47 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	public AutomationDirection getDirection() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.AUTOMATION_DIRECTION, AutomationDirection.INPUT);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.AUTOMATION_DIRECTION, AutomationDirection.INPUT);
 	}
 
 	public void setDirection(AutomationDirection direction) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.AUTOMATION_DIRECTION, direction);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.AUTOMATION_DIRECTION, direction);
 		save();
 	}
 
 	public void setLevel(int level) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.LEVEL, level);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.LEVEL, level);
 		save();
 	}
 
 	public int getLevel() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.LEVEL, DEFAULT_LEVEL);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.LEVEL, DEFAULT_LEVEL);
 	}
 
 	public void setLevelsToStore(int levelsToStore) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.LEVELS_TO_STORE, levelsToStore);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.LEVELS_TO_STORE, levelsToStore);
 		save();
 	}
 
 	public int getLevelsToStore() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.LEVELS_TO_STORE, 1);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.LEVELS_TO_STORE, 1);
 	}
 
 	public void setLevelsToTake(int levelsToTake) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.LEVELS_TO_TAKE, levelsToTake);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.LEVELS_TO_TAKE, levelsToTake);
 		save();
 	}
 
 	public int getLevelsToTake() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.LEVELS_TO_TAKE, 1);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.LEVELS_TO_TAKE, 1);
 	}
 
 	public boolean shouldMendItems() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.MEND_ITEMS, true);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.MEND_ITEMS, true);
 	}
 
 	public void setMendItems(boolean mendItems) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.MEND_ITEMS, mendItems);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.MEND_ITEMS, mendItems);
 		save();
 	}
 }

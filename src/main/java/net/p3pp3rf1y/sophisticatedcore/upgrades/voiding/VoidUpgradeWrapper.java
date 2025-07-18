@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
+import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 
@@ -30,7 +31,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public ItemStack onBeforeInsert(SlottedStackStorage inventoryHandler, int slot, ItemStack stack, boolean simulate) {
+	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
 		if (shouldVoidOverflow && inventoryHandler.getStackInSlot(slot).isEmpty() && (!filterLogic.shouldMatchComponents() || !filterLogic.shouldMatchDurability() || filterLogic.getPrimaryMatch() != PrimaryMatch.ITEM) && filterLogic.matchesFilter(stack)) {
 			for (int s = 0; s < inventoryHandler.getSlotCount(); s++) {
 				if (s == slot) {
@@ -47,7 +48,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public void onAfterInsert(SlottedStackStorage inventoryHandler, int slot) {
+	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot) {
 		//noop
 	}
 
@@ -57,12 +58,12 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	public void setShouldWorkdInGUI(boolean shouldWorkdInGUI) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
 		save();
 	}
 
 	public boolean shouldWorkInGUI() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
 	}
 
 	public void setShouldVoidOverflow(boolean shouldVoidOverflow) {
@@ -71,12 +72,12 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		}
 
 		this.shouldVoidOverflow = shouldVoidOverflow;
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflow);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflow);
 		save();
 	}
 
 	public void setShouldVoidOverflowDefaultOrLoadFromNbt(boolean shouldVoidOverflowDefault) {
-		shouldVoidOverflow = !upgradeItem.isVoidAnythingEnabled() || upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflowDefault);
+		shouldVoidOverflow = !upgradeItem.isVoidAnythingEnabled() || upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflowDefault);
 	}
 
 	public boolean shouldVoidOverflow() {

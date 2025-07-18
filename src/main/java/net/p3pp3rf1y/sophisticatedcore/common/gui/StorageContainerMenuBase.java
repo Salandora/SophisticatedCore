@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.gui.SlotItemHandler;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.IntComparators;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
@@ -1708,7 +1708,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
+			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, stack)) {
 				return false;
 			}
 			UpgradeSlotChangeResult result;

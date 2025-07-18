@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.transfer.MutableContainerItemContext;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
@@ -8,7 +10,6 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CapabilityHelper {
-	public static void runOnItemHandler(Entity entity, Consumer<SlottedStorage<ItemVariant>> run) {
+	public static void runOnItemHandler(Entity entity, Consumer<SlottedStackStorage> run) {
 		runOnCapability(entity, Capabilities.ItemHandler.ENTITY, null, run);
 	}
 

@@ -9,7 +9,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeItem;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeItem;
-import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;

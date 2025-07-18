@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.ItemStack;
@@ -14,11 +15,13 @@ public class FilterItemStackHandler extends ItemStackHandler {
 		return 1;
 	}
 
+	// TODO: Revisit
 	@Override
 	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		return 0;
 	}
 
+	// TODO: Revisit
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		return 0;
@@ -45,11 +48,4 @@ public class FilterItemStackHandler extends ItemStackHandler {
 	public boolean hasOnlyEmptyFilters() {
 		return onlyEmptyFilters;
 	}
-
-	@Override
-	public boolean isItemValid(int slot, ItemVariant resource, int count) {
-		return this.isItemValid(slot, resource.toStack(count));
-	}
-
-	public boolean isItemValid(int slot, ItemStack stack) { return true; }
 }

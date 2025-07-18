@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
 import com.github.salandora.sophisticatedlibrary.fluid.SimpleFluidContent;
 import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.TransactionCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -25,8 +26,8 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
-import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
-import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.items.ComponentItemHandler;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,7 +50,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	public static SimpleFluidContent getContents(ItemStack upgrade) {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.EMPTY);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.EMPTY);
 	}
 
 	private boolean isValidFluidItem(ItemStack stack, boolean isOutput) {
@@ -149,7 +150,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private void serializeContents() {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
 		save();
 		forceUpdateTankRenderInfo();
 	}

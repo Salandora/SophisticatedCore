@@ -110,7 +110,7 @@ public class FilterLogic {
 	}
 
 	protected FilterAttributes getAttributes() {
-		return upgrade.sophisticatedCore_getOrDefault(filterAttributesComponent, getEmptyAttributes());
+		return upgrade.sophisticatedLibrary_getOrDefault(filterAttributesComponent, getEmptyAttributes());
 	}
 
 	private FilterAttributes getEmptyAttributes() {
@@ -121,7 +121,7 @@ public class FilterLogic {
 	}
 
 	protected void setAttributes(Function<FilterAttributes, FilterAttributes> setter) {
-		upgrade.sophisticatedCore_set(filterAttributesComponent, setter.apply(getAttributes()));
+		upgrade.sophisticatedLibrary_set(filterAttributesComponent, setter.apply(getAttributes()));
 	}
 
 	public void setAllowByDefault(boolean allowListDefault) {

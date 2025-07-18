@@ -15,7 +15,7 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
-import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
+import com.github.salandora.sophisticatedlibrary.items.ComponentItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -63,26 +63,26 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 				return stack.isEmpty() || stack.has(DataComponents.JUKEBOX_PLAYABLE);
 			}
 		};
-		isPlaying = upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
+		isPlaying = upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
 	}
 
 	public boolean isShuffleEnabled() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHUFFLE, false);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHUFFLE, false);
 	}
 
 	public void setShuffleEnabled(boolean shuffleEnabled) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHUFFLE, shuffleEnabled);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHUFFLE, shuffleEnabled);
 		save();
 
 		initPlaylist(true);
 	}
 
 	public RepeatMode getRepeatMode() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.REPEAT_MODE, RepeatMode.NO);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.REPEAT_MODE, RepeatMode.NO);
 	}
 
 	public void setRepeatMode(RepeatMode repeatMode) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.REPEAT_MODE, repeatMode);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.REPEAT_MODE, repeatMode);
 		save();
 	}
 
@@ -91,11 +91,11 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public int getDiscSlotActive() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.DISC_SLOT_ACTIVE, -1);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.DISC_SLOT_ACTIVE, -1);
 	}
 
 	private void setDiscSlotActive(int discSlotActive) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.DISC_SLOT_ACTIVE, discSlotActive);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.DISC_SLOT_ACTIVE, discSlotActive);
 		save();
 	}
 
@@ -132,7 +132,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 			} else {
 				ServerStorageSoundHandler.startPlayingDisc(serverLevel, posPlaying, storageUuid, song, onFinishedCallback);
 			}
-			upgrade.sophisticatedCore_set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
+			upgrade.sophisticatedLibrary_set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
 		}));
 		setIsPlaying(true);
 	}
@@ -153,7 +153,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 	private void setIsPlaying(boolean playing) {
 		isPlaying = playing;
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.IS_PLAYING, playing);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.IS_PLAYING, playing);
 		if (isPlaying) {
 			storageWrapper.getRenderInfo().setUpgradeRenderData(JukeboxUpgradeRenderData.TYPE, new JukeboxUpgradeRenderData(true));
 		} else {
@@ -175,7 +175,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 				ServerStorageSoundHandler.stopPlayingDisc(entity.level(), entity.position(), storageUuid)
 		);
 		setIsPlaying(false);
-		upgrade.sophisticatedCore_remove(ModCoreDataComponents.DISC_FINISH_TIME);
+		upgrade.sophisticatedLibrary_remove(ModCoreDataComponents.DISC_FINISH_TIME);
 		setDiscSlotActive(-1);
 		playlist.clear();
 		history.clear();
@@ -284,6 +284,6 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public long getDiscFinishTime() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.DISC_FINISH_TIME, 0L);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.DISC_FINISH_TIME, 0L);
 	}
 }

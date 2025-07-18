@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -9,12 +10,13 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class InventoryStorageWrapper implements SlottedStackStorage {
+public class InventoryStorageWrapper implements SlottedStackStorageModifiable {
 	public static InventoryStorageWrapper of(Player player) {
 		return new InventoryStorageWrapper(player.getInventory());
 	}
@@ -53,6 +55,18 @@ public class InventoryStorageWrapper implements SlottedStackStorage {
 	@Override
 	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 		return wrapped.extract(resource, maxAmount, transaction);
+	}
+
+	// TODO: Revisit
+	@Override
+	public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+		return stack;
+	}
+
+	// TODO: Revisit
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		return ItemStack.EMPTY;
 	}
 
 	@Override

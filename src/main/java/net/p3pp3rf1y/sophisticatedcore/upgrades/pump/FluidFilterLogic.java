@@ -25,7 +25,7 @@ public class FluidFilterLogic {
 	}
 
 	private void deserializeFluidFilters() {
-		List<SimpleFluidContent> deserializedFilters = upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.FLUID_FILTERS, Collections.emptyList());
+		List<SimpleFluidContent> deserializedFilters = upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.FLUID_FILTERS, Collections.emptyList());
 		for (int i = 0; i < deserializedFilters.size() && i < fluidFilters.size(); i++) {
 			fluidFilters.set(i, deserializedFilters.get(i).copy());
 		}
@@ -74,6 +74,6 @@ public class FluidFilterLogic {
 	}
 
 	private void serializeFluidFilters() {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.FLUID_FILTERS, fluidFilters.stream().map(SimpleFluidContent::copyOf).toList());
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.FLUID_FILTERS, fluidFilters.stream().map(SimpleFluidContent::copyOf).toList());
 	}
 }

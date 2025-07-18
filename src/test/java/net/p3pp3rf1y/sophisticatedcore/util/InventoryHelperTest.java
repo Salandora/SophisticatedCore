@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.NonNullList;
@@ -8,8 +10,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,20 +36,20 @@ class InventoryHelperTest {
 	}
 
 	private SlottedStackStorage getItemHandler(NonNullList<ItemStack> stacks, int stackLimitMultiplier, BiPredicate<Integer, ItemStack> isStackValidForSlot) {
-		return new ItemStackHandler(stacks.toArray(new ItemStack[0])) {
+		return new ItemStackHandler(stacks) {
 			@Override
 			public int getSlotLimit(int slot) {
 				return super.getSlotLimit(slot) * stackLimitMultiplier;
 			}
 
 			@Override
-			protected int getStackLimit(int slot, @Nonnull ItemVariant resource) {
-				return super.getStackLimit(slot, resource) * stackLimitMultiplier;
+			public int getStackLimit(int slot, ItemStack stack) {
+				return super.getStackLimit(slot, stack) * stackLimitMultiplier;
 			}
 
-            @Override
-            public boolean isItemValid(int slot, ItemVariant resource, int count) {
-				return isStackValidForSlot.test(slot, resource.toStack(count));
+			@Override
+			public boolean isItemValid(int slot, ItemStack stack) {
+				return isStackValidForSlot.test(slot, stack);
 			}
 		};
 	}

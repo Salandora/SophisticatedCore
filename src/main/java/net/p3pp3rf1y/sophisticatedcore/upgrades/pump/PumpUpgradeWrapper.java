@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
@@ -279,12 +279,12 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setIsInput(boolean input) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.IS_INPUT, input);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.IS_INPUT, input);
 		save();
 	}
 
 	public boolean isInput() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.IS_INPUT, true);
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.IS_INPUT, true);
 	}
 
 	public FluidFilterLogic getFluidFilterLogic() {
@@ -292,20 +292,20 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setInteractWithHand(boolean interactWithHand) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
 		save();
 	}
 
 	public boolean shouldInteractWithHand() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.INTERACT_WITH_HAND, upgradeItem.getInteractWithHandDefault());
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INTERACT_WITH_HAND, upgradeItem.getInteractWithHandDefault());
 	}
 
 	public void setInteractWithWorld(boolean interactWithWorld) {
-		upgrade.sophisticatedCore_set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
+		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
 		save();
 	}
 
 	public boolean shouldInteractWithWorld() {
-		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.INTERACT_WITH_WORLD, upgradeItem.getInteractWithWorldDefault());
+		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INTERACT_WITH_WORLD, upgradeItem.getInteractWithWorldDefault());
 	}
 }
