@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.battery;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -242,7 +242,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 		}
 	}*/
 
-	public SlottedStackStorage getInventory() {
+	public IItemHandler getInventory() {
 		return inventory;
 	}
 

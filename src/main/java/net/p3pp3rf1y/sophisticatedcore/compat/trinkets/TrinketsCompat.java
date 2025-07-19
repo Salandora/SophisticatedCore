@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.trinkets;
 
 import com.github.salandora.sophisticatedlibrary.items.EmptyItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.FabricStorageWrapper;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
@@ -36,7 +37,7 @@ public class TrinketsCompat implements ICompat {
 									.toList()
 						)
 						.map(list -> (SlottedStorage<ItemVariant>) new CombinedWrapper<>(list))
-						.orElse(EmptyItemHandler.INSTANCE));
+						.orElse(FabricStorageWrapper.of(EmptyItemHandler.INSTANCE)));
 	}
 
 	private static class CombinedWrapper<S extends SlottedStorage<ItemVariant>> extends CombinedSlottedStorage<ItemVariant, S> {

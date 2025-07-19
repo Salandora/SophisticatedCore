@@ -1,8 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
 import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -15,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockTransformationUpgradeWrapper, BlockTransformationUpgradeItem> {
-	private final SlottedStackStorageModifiable inputInventory;
+	private final IItemHandlerModifiable inputInventory;
 	private final RecipeType<ChippedRecipe> recipeType;
 
 	protected BlockTransformationUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
@@ -35,7 +34,7 @@ public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockT
 		recipeType = upgradeItem.getRecipeType();
 	}
 
-	public SlottedStackStorageModifiable getInputInventory() {
+	public IItemHandlerModifiable getInputInventory() {
 		return inputInventory;
 	}
 

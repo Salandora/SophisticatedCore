@@ -164,16 +164,12 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 			toExtract.setCount(stack.getMaxStackSize() - stack.getCount());
 		}
 
-		try (Transaction ctx = Transaction.openOuter()) {
-			long extracted = inventory.extract(ItemVariant.of(toExtract), toExtract.getCount(), ctx);
-			if (extracted > 0) {
-				ItemStack toSet = toExtract.copyWithCount((int) extracted);
-				toSet.grow(stack.getCount());
-				setSlot.accept(toSet);
-				ctx.commit();
-			} else {
-				return true;
-			}
+		if (InventoryHelper.extractFromInventory(toExtract, inventory, true).getCount() > 0) {
+			ItemStack toSet = InventoryHelper.extractFromInventory(toExtract, inventory, false);
+			toSet.grow(stack.getCount());
+			setSlot.accept(toSet);
+		} else {
+			return true;
 		}
 		return false;
 	}

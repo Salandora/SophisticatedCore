@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.memory;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
@@ -115,7 +114,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	public void selectSlots(int minSlot, int maxSlot) {
 		for (int slot = minSlot; slot < maxSlot; slot++) {
 			InventoryHandler inventoryHandler = getInventoryHandler();
-			if (slot < inventoryHandler.getSlotCount()) {
+			if (slot < inventoryHandler.getSlots()) {
 				ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
 				if (!stackInSlot.isEmpty()) {
 					if (ignoreNbt) {
@@ -271,7 +270,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void overwriteFilterStacks(MemorySettingsCategory otherCategory) {
 		InventoryHandler inventoryHandler = getInventoryHandler();
 		otherCategory.slotFilterStacks.forEach((slot, isk) -> {
-			if(slot >= inventoryHandler.getSlotCount()) {
+			if(slot >= inventoryHandler.getSlots()) {
 				return;
 			}
 
@@ -284,7 +283,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void overwriteFilterItems(MemorySettingsCategory otherCategory) {
 		InventoryHandler inventoryHandler = getInventoryHandler();
 		otherCategory.slotFilterItems.forEach((slot, item) -> {
-			if(slot >= inventoryHandler.getSlotCount()) {
+			if(slot >= inventoryHandler.getSlots()) {
 				return;
 			}
 
@@ -328,7 +327,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 
 	public void setFilter(int slot, ItemStack filter) {
 		InventoryHandler inventoryHandler = getInventoryHandler();
-		if (slot < inventoryHandler.getSlotCount()) {
+		if (slot < inventoryHandler.getSlots()) {
 			ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
 			if (stackInSlot.isEmpty()) {
 				if (ignoreNbt) {

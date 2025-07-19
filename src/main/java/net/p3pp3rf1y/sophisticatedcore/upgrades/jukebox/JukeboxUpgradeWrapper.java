@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -181,7 +181,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 		history.clear();
 	}
 
-	public SlottedStackStorage getDiscInventory() {
+	public IItemHandler getDiscInventory() {
 		return discInventory;
 	}
 
@@ -238,7 +238,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 		}
 		if (getDiscSlotActive() != -1) {
 			history.add(getDiscSlotActive());
-			if (history.size() > discInventory.getSlotCount()) {
+			if (history.size() > discInventory.getSlots()) {
 				history.poll();
 			}
 		}
@@ -253,7 +253,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 	private void initPlaylist(boolean excludeActive) {
 		playlist.clear();
-		for (int i = 0; i < discInventory.getSlotCount(); i++) {
+		for (int i = 0; i < discInventory.getSlots(); i++) {
 			if (!discInventory.getStackInSlot(i).isEmpty() && (!excludeActive || !isPlaying || i != getDiscSlotActive())) {
 				playlist.add(i);
 			}

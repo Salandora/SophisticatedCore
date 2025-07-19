@@ -20,7 +20,7 @@ public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgrade
 
 	public JukeboxUpgradeContainer(Player player, int upgradeContainerId, JukeboxUpgradeWrapper upgradeWrapper, UpgradeContainerType<JukeboxUpgradeWrapper, JukeboxUpgradeContainer> type) {
 		super(player, upgradeContainerId, upgradeWrapper, type);
-		for (int slot = 0; slot < upgradeWrapper.getDiscInventory().getSlotCount(); slot++) {
+		for (int slot = 0; slot < upgradeWrapper.getDiscInventory().getSlots(); slot++) {
 			slots.add(new SlotItemHandler(upgradeWrapper.getDiscInventory(), slot, -100, -100) {
 				@Override
 				public void setChanged() {

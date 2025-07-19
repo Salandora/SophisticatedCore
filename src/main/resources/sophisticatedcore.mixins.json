@@ -9,7 +9,6 @@
     "common.BlockMixin",
     "common.BlockStateMixin",
     "common.EntityMixin",
-    "common.HopperBlockEntityMixin",
     "common.ItemEntityMixin",
     "common.ItemMixin",
     "common.ItemStackMixin",

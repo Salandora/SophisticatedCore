@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
 import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
 import com.github.salandora.sophisticatedlibrary.fluid.SimpleFluidContent;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.TransactionCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -93,7 +93,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		return upgradeItem.getTankCapacity(storageWrapper);
 	}
 
-	public SlottedStackStorage getInventory() {
+	public IItemHandler getInventory() {
 		return inventory;
 	}
 

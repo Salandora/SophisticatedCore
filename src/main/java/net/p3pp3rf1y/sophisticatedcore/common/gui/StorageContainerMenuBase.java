@@ -134,7 +134,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	private void addUpgradeSlots() {
 		UpgradeHandler upgradeHandler = storageWrapper.getUpgradeHandler();
 
-		int numberOfSlots = upgradeHandler.getSlotCount();
+		int numberOfSlots = upgradeHandler.getSlots();
 
 		if (numberOfSlots == 0) {
 			return;
@@ -142,7 +142,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		int slotIndex = 0;
 
-		while (slotIndex < upgradeHandler.getSlotCount()) {
+		while (slotIndex < upgradeHandler.getSlots()) {
 			addUpgradeSlot(instantiateUpgradeSlot(upgradeHandler, slotIndex));
 
 			slotIndex++;
@@ -202,11 +202,11 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	public int getNumberOfStorageInventorySlots() {
-		return storageWrapper.getInventoryHandler().getSlotCount();
+		return storageWrapper.getInventoryHandler().getSlots();
 	}
 
 	public int getNumberOfUpgradeSlots() {
-		return storageWrapper.getUpgradeHandler().getSlotCount();
+		return storageWrapper.getUpgradeHandler().getSlots();
 	}
 
 	public Map<Integer, UpgradeContainerBase<?, ?>> getUpgradeContainers() {
@@ -218,7 +218,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		int slotIndex = 0;
 
 		Set<Integer> noSortSlotIndexes = getNoSortSlotIndexes();
-		while (slotIndex < inventoryHandler.getSlotCount()) {
+		while (slotIndex < inventoryHandler.getSlots()) {
 			int finalSlotIndex = slotIndex;
 			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide, storageWrapper, finalSlotIndex, player) {
 				@Override
@@ -299,7 +299,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	public boolean hasSomethingMessedWithStorage() {
-		return !isClientSide() && (storageItemHasChanged() || realInventorySlots.size() != storageWrapper.getInventoryHandler().getSlotCount() + NUMBER_OF_PLAYER_SLOTS);
+		return !isClientSide() && (storageItemHasChanged() || realInventorySlots.size() != storageWrapper.getInventoryHandler().getSlots() + NUMBER_OF_PLAYER_SLOTS);
 	}
 
 	protected boolean isClientSide() {
@@ -874,7 +874,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			return;
 		}
 		Map<ResourceLocation, Set<Integer>> noItemSlotTextures = new HashMap<>();
-		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlotCount(); slot++) {
+		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlots(); slot++) {
 			Pair<ResourceLocation, ResourceLocation> noItemIcon = storageWrapper.getInventoryHandler().getNoItemIcon(slot);
 			if (noItemIcon != null) {
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);
@@ -892,7 +892,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		Set<Integer> infiniteSlots = new HashSet<>();
 		InventoryHandler inventoryHandler = storageWrapper.getInventoryHandler();
 		Map<Integer, Holder<Item>> slotFilterItems = new HashMap<>();
-		for (int slot = 0; slot < inventoryHandler.getSlotCount(); slot++) {
+		for (int slot = 0; slot < inventoryHandler.getSlots(); slot++) {
 			if (!inventoryHandler.isSlotAccessible(slot)) {
 				inaccessibleSlots.add(slot);
 			}
@@ -1674,7 +1674,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		PacketDistributor.sendToServer(new TransferItemsPayload(false, filterByContents));
 	}
 
-	public class StorageUpgradeSlot extends SlotItemHandler<UpgradeHandler> {
+	public class StorageUpgradeSlot extends SlotItemHandler {
 		private boolean wasEmpty = true;
 		private final int slotIndex;
 

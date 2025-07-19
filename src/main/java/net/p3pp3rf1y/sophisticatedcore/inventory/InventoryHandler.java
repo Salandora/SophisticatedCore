@@ -1,10 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
 import com.mojang.datafixers.util.Pair;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -422,7 +419,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		nbtTagList.addAll(stackNbts.values());
 		CompoundTag nbt = new CompoundTag();
 		nbt.put("Items", nbtTagList);
-		nbt.putInt("Size", getSlotCount());
+		nbt.putInt("Size", getSlots());
 		return nbt;
 	}
 

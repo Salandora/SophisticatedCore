@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.compacting;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -85,7 +85,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 		}
 	}
 
-	private boolean fitsResultAndRemainingItems(SlottedStackStorage inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
+	private boolean fitsResultAndRemainingItems(IItemHandler inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
 		if (!remainingItems.isEmpty()) {
 			ItemStackHandler clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
 			return InventoryHelper.insertIntoInventory(result, clonedHandler, false).isEmpty()
@@ -109,7 +109,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	@Override
-	public void onSlotChange(SlottedStackStorage inventoryHandler, int slot) {
+	public void onSlotChange(IItemHandler inventoryHandler, int slot) {
 		if (shouldWorkInGUI()) {
 			slotsToCompact.add(slot);
 		}

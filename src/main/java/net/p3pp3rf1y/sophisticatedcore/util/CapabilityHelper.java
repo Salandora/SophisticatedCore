@@ -1,7 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.github.salandora.sophisticatedlibrary.transfer.MutableContainerItemContext;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
@@ -27,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CapabilityHelper {
-	public static void runOnItemHandler(Entity entity, Consumer<SlottedStackStorage> run) {
+	public static void runOnItemHandler(Entity entity, Consumer<IItemHandler> run) {
 		runOnCapability(entity, Capabilities.ItemHandler.ENTITY, null, run);
 	}
 

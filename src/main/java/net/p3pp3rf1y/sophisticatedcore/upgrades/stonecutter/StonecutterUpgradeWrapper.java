@@ -1,8 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -15,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpgradeWrapper, StonecutterUpgradeItem> {
-	private final SlottedStackStorageModifiable inputInventory;
+	private final IItemHandlerModifiable inputInventory;
 
 	protected StonecutterUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
@@ -33,7 +32,7 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 		inputInventory.setStackInSlot(0, upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
 	}
 
-	public SlottedStackStorageModifiable getInputInventory() {
+	public IItemHandlerModifiable getInputInventory() {
 		return inputInventory;
 	}
 

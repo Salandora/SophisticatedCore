@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -64,7 +64,7 @@ public class CookingLogicContainer<T extends AbstractCookingRecipe> {
 	}
 
 	private static class CookingSlot extends SlotSuppliedHandler {
-		public CookingSlot(Supplier<SlottedStackStorage> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
+		public CookingSlot(Supplier<IItemHandler> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
 			super(itemHandlerSupplier, slot, xPosition, yPosition);
 		}
 

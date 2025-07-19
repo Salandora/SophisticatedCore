@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.controller;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorageModifiable;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
@@ -215,7 +215,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 	private void addStorageData(BlockPos storagePos) {
 		storagePositions.add(storagePos);
-		totalSlots += getInventoryHandlerValueFromHolder(storagePos, SlottedStackStorage::getSlotCount).orElse(0);
+		totalSlots += getInventoryHandlerValueFromHolder(storagePos, IItemHandler::getSlots).orElse(0);
 		baseIndexes.add(totalSlots);
 		addStorageStacksAndRegisterListeners(storagePos);
 
@@ -272,7 +272,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		storageMemorizedStacks.remove(storagePos);
 	}
 
-	private <T> Optional<T> getInventoryHandlerValueFromHolder(BlockPos storagePos, Function<SlottedStackStorage, T> valueGetter) {
+	private <T> Optional<T> getInventoryHandlerValueFromHolder(BlockPos storagePos, Function<IItemHandlerSimpleInserter, T> valueGetter) {
 		return getWrapperValueFromHolder(storagePos, wrapper -> valueGetter.apply(wrapper.getInventoryForInputOutput()));
 	}
 
@@ -510,7 +510,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public int getSlotCount() {
+	public int getSlots() {
 		return totalSlots;
 	}
 
@@ -527,15 +527,15 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return -1;
 	}
 
-	protected SlottedStackStorageModifiable getHandlerFromIndex(int index) {
+	protected IItemHandlerModifiable getHandlerFromIndex(int index) {
 		if (index < 0 || index >= storagePositions.size()) {
 			return EmptyItemHandler.INSTANCE;
 		}
 		return getHandlerFromBlockPos(storagePositions.get(index));
 	}
 
-	private SlottedStackStorageModifiable getHandlerFromBlockPos(BlockPos pos) {
-		return getWrapperValueFromHolder(pos, wrapper -> (SlottedStackStorageModifiable) wrapper.getInventoryForInputOutput()).orElse(EmptyItemHandler.INSTANCE);
+	private IItemHandlerModifiable getHandlerFromBlockPos(BlockPos pos) {
+		return getWrapperValueFromHolder(pos, wrapper -> (IItemHandlerModifiable) wrapper.getInventoryForInputOutput()).orElse(EmptyItemHandler.INSTANCE);
 	}
 
 	protected int getSlotFromIndex(int slot, int index) {
@@ -552,7 +552,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			return ItemStack.EMPTY;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
+		IItemHandler handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
 			return handler.getStackInSlot(slot);
@@ -564,8 +564,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return slot < 0 || slot >= totalSlots;
 	}
 
-	private boolean validateHandlerSlotIndex(SlottedStackStorage handler, int handlerIndex, int slot, String methodName) {
-		if (slot >= 0 && slot < handler.getSlotCount()) {
+	private boolean validateHandlerSlotIndex(IItemHandler handler, int handlerIndex, int slot, String methodName) {
+		if (slot >= 0 && slot < handler.getSlots()) {
 			return true;
 		}
 		if (handlerIndex < 0 || handlerIndex >= storagePositions.size()) {
@@ -577,7 +577,126 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return false;
 	}
 
-	// TODO: Revisit
+	@Nonnull
+	@Override
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		if (isSlotIndexInvalid(slot)) {
+			return stack;
+		}
+
+		return insertItem(stack, simulate, true);
+	}
+
+	@Override
+	public ItemStack insertItem(ItemStack stack, boolean simulate) {
+		return insertItem(stack, simulate, true);
+	}
+
+	protected ItemStack insertItem(ItemStack stack, boolean simulate, boolean insertIntoAnyEmpty) {
+		ItemStackKey stackKey = ItemStackKey.of(stack);
+		ItemStack remaining = stack;
+
+		remaining = insertIntoStoragesThatMatchStack(remaining, stackKey, simulate);
+		if (remaining.isEmpty()) {
+			return remaining;
+		}
+
+		remaining = insertIntoStoragesThatMatchItem(remaining, simulate);
+		if (remaining.isEmpty()) {
+			return remaining;
+		}
+
+		if (memorizedItemStorages.containsKey(stack.getItem())) {
+			remaining = insertIntoStorages(memorizedItemStorages.get(stack.getItem()), remaining, simulate, false);
+			if (remaining.isEmpty()) {
+				return remaining;
+			}
+		}
+		int stackHash = stackKey.hashCode();
+		if (memorizedStackStorages.containsKey(stackHash)) {
+			remaining = insertIntoStorages(memorizedStackStorages.get(stackHash), remaining, simulate, false);
+			if (remaining.isEmpty()) {
+				return remaining;
+			}
+		}
+
+		if (filterItemStorages.containsKey(stack.getItem())) {
+			remaining = insertIntoStorages(filterItemStorages.get(stack.getItem()), remaining, simulate, false);
+			if (remaining.isEmpty()) {
+				return remaining;
+			}
+		}
+
+		return insertIntoAnyEmpty ? insertIntoStorages(emptySlotsStorages, remaining, simulate, false) : remaining;
+	}
+
+	private ItemStack insertIntoStoragesThatMatchStack(ItemStack remaining, ItemStackKey stackKey, boolean simulate) {
+		if (stackStorages.containsKey(stackKey)) {
+			Set<BlockPos> positions = stackStorages.get(stackKey);
+			remaining = insertIntoStorages(positions, remaining, simulate, false);
+		}
+		return remaining;
+	}
+
+	private ItemStack insertIntoStoragesThatMatchItem(ItemStack remaining, boolean simulate) {
+		if (!emptySlotsStorages.isEmpty() && itemStackKeys.containsKey(remaining.getItem())) {
+			Set<ItemStackKey> matchingStackKeys = itemStackKeys.get(remaining.getItem());
+			if (remaining.getCount() > remaining.getMaxStackSize()) {
+				matchingStackKeys = new LinkedHashSet<>(matchingStackKeys); //to prevent CME when larger than maxStackSize stack causes new key to be added to set which then continues to be iterated on
+			}
+
+			for (ItemStackKey key : matchingStackKeys) {
+				if (stackStorages.containsKey(key)) {
+					Set<BlockPos> positions = stackStorages.get(key);
+					remaining = insertIntoStorages(positions, remaining, simulate, true);
+					if (remaining.isEmpty()) {
+						return ItemStack.EMPTY;
+					}
+				}
+			}
+		}
+		return remaining;
+	}
+
+	private ItemStack insertIntoStorages(Set<BlockPos> positions, ItemStack stack, boolean simulate, boolean checkHasEmptySlotFirst) {
+		ItemStack remaining = stack;
+		Set<BlockPos> positionsCopy = new LinkedHashSet<>(positions); //to prevent CME if stack insertion actually causes set of positions to change
+		for (BlockPos storagePos : positionsCopy) {
+			if (checkHasEmptySlotFirst && !emptySlotsStorages.contains(storagePos)) {
+				continue;
+			}
+			remaining = insertIntoStorage(storagePos, remaining, simulate);
+			if (remaining.isEmpty()) {
+				return ItemStack.EMPTY;
+			}
+		}
+		return remaining;
+	}
+
+	private ItemStack insertIntoStorage(BlockPos storagePos, ItemStack remaining, boolean simulate) {
+		ItemStack finalRemaining = remaining;
+		remaining = getInventoryHandlerValueFromHolder(storagePos, ins -> ins.insertItem(finalRemaining, simulate)).orElse(remaining);
+		return remaining;
+	}
+
+	@Nonnull
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		if (isSlotIndexInvalid(slot)) {
+			return ItemStack.EMPTY;
+		}
+
+		int handlerIndex = getIndexForSlot(slot);
+		IItemHandlerModifiable handler = getHandlerFromIndex(handlerIndex);
+		slot = getSlotFromIndex(slot, handlerIndex);
+		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "extractItem(int slot, int amount, boolean simulate)")) {
+			return handler.extractItem(slot, amount, simulate);
+		}
+
+		return ItemStack.EMPTY;
+	}
+
+	/*// TODO: Revisit
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		if (isItemValid(slot, resource.toStack((int) maxAmount))) {
@@ -731,7 +850,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		}
 
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
+		IItemHandler handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "extractItem(int slot, int amount, boolean simulate)")) {
 			return handler.extractItem(slot, amount, simulate);
@@ -748,7 +867,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		}
 
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
+		IItemHandler handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "extractItem(int slot, int amount, boolean simulate)")) {
 			return handler.extractSlot(slot, resource, maxAmount, ctx);
@@ -762,14 +881,14 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	public long extract(ItemVariant resource, long maxAmount, TransactionContext ctx) {
 		long remaining = maxAmount;
 		for (int i = 0; i < storagePositions.size(); i++) {
-			SlottedStackStorage handler = getHandlerFromIndex(i);
+			IItemHandler handler = getHandlerFromIndex(i);
 			remaining -= handler.extract(resource, remaining, ctx);
 			if (remaining == 0) {
 				return maxAmount;
 			}
 		}
 		return maxAmount - remaining;
-	}
+	}*/
 
 	@Override
 	public int getSlotLimit(int slot) {
@@ -777,7 +896,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			return 0;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
+		IItemHandler handler = getHandlerFromIndex(handlerIndex);
 		int localSlot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, localSlot, "getSlotLimit(int slot)")) {
 			return handler.getSlotLimit(localSlot);
@@ -791,7 +910,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			return false;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
+		IItemHandler handler = getHandlerFromIndex(handlerIndex);
 		int localSlot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, localSlot, "isItemValid(int slot, ItemStack stack)")) {
 			return handler.isItemValid(localSlot, stack);
@@ -805,7 +924,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			return;
 		}
 		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorageModifiable handler = getHandlerFromIndex(handlerIndex);
+		IItemHandlerModifiable handler = getHandlerFromIndex(handlerIndex);
 		slot = getSlotFromIndex(slot, handlerIndex);
 		if (validateHandlerSlotIndex(handler, handlerIndex, slot, "setStackInSlot(int slot, ItemStack stack)")) {
 			handler.setStackInSlot(slot, stack);
@@ -892,71 +1011,5 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 			filterItemStorages.computeIfAbsent(item, stackKey -> new LinkedHashSet<>()).add(storagePos);
 		}
 		storageFilterItems.put(storagePos, new LinkedHashSet<>(filterItems));
-	}
-
-	@Nonnull
-	@Override
-	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-		if (isSlotIndexInvalid(slot)) {
-			throw new IndexOutOfBoundsException(slot);
-		}
-
-		int handlerIndex = getIndexForSlot(slot);
-		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
-		slot = getSlotFromIndex(slot, handlerIndex);
-		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
-			throw new IndexOutOfBoundsException("Slot in handler out of range: " + slot);
-		}
-
-		return handler.getSlot(slot);
-	}
-
-	@Override
-	public Iterator<StorageView<ItemVariant>> iterator() {
-		return new CombinedIterator();
-	}
-
-	/**
-	 * The combined iterator for multiple storages.
-	 */
-	private class CombinedIterator implements Iterator<StorageView<ItemVariant>> {
-		final Iterator<BlockPos> positionIterator = storagePositions.iterator();
-		// Always holds the next StorageView<T>, except during next() while the iterator is being advanced.
-		Iterator<? extends StorageView<ItemVariant>> currentHandlerIterator = null;
-
-		CombinedIterator() {
-			advanceCurrentPartIterator();
-		}
-
-		@Override
-		public boolean hasNext() {
-			return currentHandlerIterator != null && currentHandlerIterator.hasNext();
-		}
-
-		@Override
-		public StorageView<ItemVariant> next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			}
-
-			StorageView<ItemVariant> returned = currentHandlerIterator.next();
-
-			// Advance the current part iterator
-			if (!currentHandlerIterator.hasNext()) {
-				advanceCurrentPartIterator();
-			}
-
-			return returned;
-		}
-
-		private void advanceCurrentPartIterator() {
-			while (positionIterator.hasNext()) {
-				this.currentHandlerIterator = getHandlerFromBlockPos(positionIterator.next()).iterator();
-
-				if (this.currentHandlerIterator.hasNext()) {
-					break;
-				}
-			}
-		}
 	}
 }

@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.voiding;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +33,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	@Override
 	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
 		if (shouldVoidOverflow && inventoryHandler.getStackInSlot(slot).isEmpty() && (!filterLogic.shouldMatchComponents() || !filterLogic.shouldMatchDurability() || filterLogic.getPrimaryMatch() != PrimaryMatch.ITEM) && filterLogic.matchesFilter(stack)) {
-			for (int s = 0; s < inventoryHandler.getSlotCount(); s++) {
+			for (int s = 0; s < inventoryHandler.getSlots(); s++) {
 				if (s == slot) {
 					continue;
 				}
@@ -85,7 +85,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public void onSlotChange(SlottedStackStorage inventoryHandler, int slot) {
+	public void onSlotChange(IItemHandler inventoryHandler, int slot) {
 		if (!shouldWorkInGUI() || shouldVoidOverflow()) {
 			return;
 		}

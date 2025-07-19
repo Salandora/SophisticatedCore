@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.battery;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -53,7 +53,7 @@ public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgrade
 	private static class BatteryIOSlot extends SlotSuppliedHandler implements INameableEmptySlot {
 		private final Component emptyTooltip;
 
-		public BatteryIOSlot(Supplier<SlottedStackStorage> itemHandlerSupplier, int slot, int xPosition, int yPosition, Component emptyTooltip) {
+		public BatteryIOSlot(Supplier<IItemHandler> itemHandlerSupplier, int slot, int xPosition, int yPosition, Component emptyTooltip) {
 			super(itemHandlerSupplier, slot, xPosition, yPosition);
 			this.emptyTooltip = emptyTooltip;
 		}

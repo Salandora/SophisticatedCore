@@ -1,12 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 
@@ -16,58 +10,66 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class FilteredItemHandler<T extends Storage<ItemVariant>> extends FilteringStorage<ItemVariant> {
+public class FilteredItemHandler<T extends IItemHandler> implements IItemHandler {
+	protected final T inventoryHandler;
 	protected final List<FilterLogic> inputFilters;
 	protected final List<FilterLogic> outputFilters;
 
 	public FilteredItemHandler(T inventoryHandler, List<FilterLogic> inputFilters, List<FilterLogic> outputFilters) {
-		super(inventoryHandler);
-
+		this.inventoryHandler = inventoryHandler;
 		this.inputFilters = inputFilters;
 		this.outputFilters = outputFilters;
 	}
 
-	public ItemStack getStackInSlot(int slot) {
-		return ((ITrackedContentsItemHandler) backingStorage.get()).getStackInSlot(slot);
+	@Override
+	public int getSlots() {
+		return inventoryHandler.getSlots();
 	}
 
+	@Nonnull
 	@Override
-	protected boolean canInsert(ItemVariant resource) {
+	public ItemStack getStackInSlot(int slot) {
+		return inventoryHandler.getStackInSlot(slot);
+	}
+
+	@Nonnull
+	@Override
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		if (inputFilters.isEmpty()) {
-			return true;
+			return inventoryHandler.insertItem(slot, stack, simulate);
 		}
 
-		ItemStack stack = resource.toStack();
 		for (FilterLogic filter : inputFilters) {
 			if (filter.matchesFilter(stack)) {
-				return true;
+				return inventoryHandler.insertItem(slot, stack, simulate);
 			}
 		}
-		return false;
+		return stack;
+	}
+
+	@Nonnull
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		if (outputFilters.isEmpty()) {
+			return inventoryHandler.extractItem(slot, amount, simulate);
+		}
+
+		for (FilterLogic filter : outputFilters) {
+			if (filter.matchesFilter(getStackInSlot(slot))) {
+				return inventoryHandler.extractItem(slot, amount, simulate);
+			}
+		}
+		return ItemStack.EMPTY;
 	}
 
 	@Override
-	protected boolean canExtract(ItemVariant resource) {
-		if (outputFilters.isEmpty()) {
-			return true;
-		}
-
-		ItemStack stack = resource.toStack();
-		for (FilterLogic filter : outputFilters) {
-			if (filter.matchesFilter(stack)) {
-				return true;
-			}
-		}
-
-		return false;
+	public int getSlotLimit(int slot) {
+		return inventoryHandler.getSlotLimit(slot);
 	}
 
-	public int getSlotCount() {
-		return ((SlottedStorage<ItemVariant>) backingStorage.get()).getSlotCount();
-	}
-
-	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-		return new FilteredSingleSlotStorage(((SlottedStorage<ItemVariant>) backingStorage.get()).getSlot(slot));
+	@Override
+	public boolean isItemValid(int slot, ItemStack stack) {
+		return inventoryHandler.isItemValid(slot, stack);
 	}
 
 	public static class Modifiable extends FilteredItemHandler<ITrackedContentsItemHandler> implements ITrackedContentsItemHandler {
@@ -76,47 +78,29 @@ public class FilteredItemHandler<T extends Storage<ItemVariant>> extends Filteri
 		}
 
 		@Override
-		public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
-			((ITrackedContentsItemHandler) backingStorage.get()).setStackInSlot(slot, stack);
+		public void setStackInSlot(int slot, ItemStack stack) {
+			inventoryHandler.setStackInSlot(slot, stack);
 		}
 
 		@Override
 		public ItemStack insertItem(ItemStack stack, boolean simulate) {
 			if (inputFilters.isEmpty()) {
-				return ((ITrackedContentsItemHandler) backingStorage.get()).insertItem(stack, simulate);
+				return inventoryHandler.insertItem(stack, simulate);
 			}
 
 			for (FilterLogic filter : inputFilters) {
 				if (filter.matchesFilter(stack)) {
-					return ((ITrackedContentsItemHandler) backingStorage.get()).insertItem(stack, simulate);
+					return inventoryHandler.insertItem(stack, simulate);
 				}
 			}
 			return stack;
-		}
-
-		@Nonnull
-		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			if (canInsert(ItemVariant.of(stack))) {
-				return ((ITrackedContentsItemHandler) backingStorage.get()).insertItem(slot, stack, simulate);
-			}
-			return stack;
-		}
-
-		@Nonnull
-		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			if (canExtract(ItemVariant.of(getStackInSlot(slot)))) {
-				return ((ITrackedContentsItemHandler) backingStorage.get()).extractItem(slot, amount, simulate);
-			}
-			return ItemStack.EMPTY;
 		}
 
 		@Override
 		public Set<ItemStackKey> getTrackedStacks() {
 			Set<ItemStackKey> ret = new HashSet<>();
 
-			((ITrackedContentsItemHandler) backingStorage.get()).getTrackedStacks().forEach(ts -> {
+			inventoryHandler.getTrackedStacks().forEach(ts -> {
 				if (inputFiltersMatchStack(ts.stack())) {
 					ret.add(ts);
 				}
@@ -136,7 +120,7 @@ public class FilteredItemHandler<T extends Storage<ItemVariant>> extends Filteri
 
 		@Override
 		public void registerTrackingListeners(Consumer<ItemStackKey> onAddStackKey, Consumer<ItemStackKey> onRemoveStackKey, Runnable onAddFirstEmptySlot, Runnable onRemoveLastEmptySlot) {
-			((ITrackedContentsItemHandler) backingStorage.get()).registerTrackingListeners(
+			inventoryHandler.registerTrackingListeners(
 					isk -> {
 						if (inputFiltersMatchStack(isk.stack())) {
 							onAddStackKey.accept(isk);
@@ -154,67 +138,17 @@ public class FilteredItemHandler<T extends Storage<ItemVariant>> extends Filteri
 
 		@Override
 		public void unregisterStackKeyListeners() {
-			((ITrackedContentsItemHandler) backingStorage.get()).unregisterStackKeyListeners();
+			inventoryHandler.unregisterStackKeyListeners();
 		}
 
 		@Override
 		public boolean hasEmptySlots() {
-			return ((ITrackedContentsItemHandler) backingStorage.get()).hasEmptySlots();
+			return inventoryHandler.hasEmptySlots();
 		}
 
 		@Override
 		public int getInternalSlotLimit(int slot) {
-			return ((ITrackedContentsItemHandler) backingStorage.get()).getInternalSlotLimit(slot);
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			return ((ITrackedContentsItemHandler) backingStorage.get()).getSlotLimit(slot);
-		}
-	}
-
-	public class FilteredSingleSlotStorage implements SingleSlotStorage<ItemVariant> {
-		private final SingleSlotStorage<ItemVariant> backingSlot;
-		public FilteredSingleSlotStorage(SingleSlotStorage<ItemVariant> backingSlot) {
-			this.backingSlot = backingSlot;
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			if (canInsert(resource)) {
-				return backingSlot.insert(resource, maxAmount, transaction);
-			} else {
-				return 0;
-			}
-		}
-
-		@Override
-		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			if (canExtract(resource)) {
-				return backingSlot.extract(resource, maxAmount, transaction);
-			} else {
-				return 0;
-			}
-		}
-
-		@Override
-		public boolean isResourceBlank() {
-			return backingSlot.isResourceBlank();
-		}
-
-		@Override
-		public ItemVariant getResource() {
-			return backingSlot.getResource();
-		}
-
-		@Override
-		public long getAmount() {
-			return backingSlot.getAmount();
-		}
-
-		@Override
-		public long getCapacity() {
-			return backingSlot.getSlotCount();
+			return inventoryHandler.getInternalSlotLimit(slot);
 		}
 	}
 }

@@ -1,16 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.items.wrapper.PlayerMainInvWrapper;
+import com.github.salandora.sophisticatedlibrary.items.wrapper.RangedWrapper;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.impl.transfer.item.InventoryStorageImpl;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -23,15 +20,12 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
+import com.github.salandora.sophisticatedlibrary.items.wrapper.InvWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 public record TransferItemsPayload(boolean transferToInventory,
@@ -77,7 +71,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 	}
 
 	private static void mergeToPlayersInventoryFiltered(Player player, IStorageWrapper storageWrapper) {
-		Set<ItemStackKey> uniqueStacks = InventoryHelper.getUniqueStacks(new PlayerMainInvWrapper(player.getInventory()));
+		Set<ItemStackKey> uniqueStacks = InventoryHelper.getUniqueStacks(PlayerMainInvWrapper.of(player.getInventory()));
 		InventoryHelper.iterate(storageWrapper.getInventoryHandler(), (slot, stack) -> {
 			if (stack.isEmpty() || !uniqueStacks.contains(ItemStackKey.of(stack))) {
 				return;
@@ -98,22 +92,25 @@ public record TransferItemsPayload(boolean transferToInventory,
 		private final Inventory inventoryPlayer;
 
 		public PlayerMainInvWithoutHotbarWrapper(Inventory inv) {
-			super(inv, 9, inv.items.size());
+			super(InvWrapper.of(inv), 9, inv.items.size());
 			this.inventoryPlayer = inv;
 		}
 
 		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(resource, maxAmount, transaction);
-			if (inserted != maxAmount) {
-				if (this.getInventoryPlayer().player.level().isClientSide) {
-					// resource.toStack((int) (maxAmount - inserted)).setPopTime(5);
-				} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-					this.getInventoryPlayer().player.containerMenu.broadcastChanges();
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			ItemStack rest = super.insertItem(slot, stack, simulate);
+			if (rest.getCount() != stack.getCount()) {
+				ItemStack inSlot = this.getStackInSlot(slot);
+				if (!inSlot.isEmpty()) {
+					if (this.getInventoryPlayer().player.level().isClientSide) {
+						inSlot.setPopTime(5);
+					} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
+						this.getInventoryPlayer().player.containerMenu.broadcastChanges();
+					}
 				}
 			}
 
-			return inserted;
+			return rest;
 		}
 
 		public Inventory getInventoryPlayer() {
@@ -155,7 +152,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 	}
 
-	private static class FilteredItemHandler<T extends SlottedStackStorage> implements SlottedStackStorage {
+	private static class FilteredItemHandler<T extends IItemHandler> implements IItemHandler {
 		protected final T itemHandler;
 		protected final boolean matchContents;
 		private final Set<ItemStackKey> uniqueStacks;
@@ -171,13 +168,8 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 
 		@Override
-		public int getSlotCount() {
-			return itemHandler.getSlotCount();
-		}
-
-		@Override
-		public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-			return itemHandler.getSlot(slot);
+		public int getSlots() {
+			return itemHandler.getSlots();
 		}
 
 		@Nonnull
@@ -214,85 +206,6 @@ public record TransferItemsPayload(boolean transferToInventory,
 		@Override
 		public boolean isItemValid(int slot, ItemStack stack) {
 			return itemHandler.isItemValid(slot, stack);
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			// noop
-			return 0;
-		}
-
-		@Override
-		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			// noop
-			return 0;
-		}
-	}
-
-	private static class PlayerMainInvWrapper extends RangedWrapper {
-		private final Inventory inventoryPlayer;
-
-		public PlayerMainInvWrapper(Inventory inv) {
-			super(inv, 0, inv.items.size());
-			this.inventoryPlayer = inv;
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(resource, maxAmount, transaction);
-			if (inserted != maxAmount) {
-				if (this.getInventoryPlayer().player.level().isClientSide) {
-					// resource.toStack((int) (maxAmount - inserted)).setPopTime(5);
-				} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-					this.getInventoryPlayer().player.containerMenu.broadcastChanges();
-				}
-			}
-
-			return inserted;
-		}
-
-		public Inventory getInventoryPlayer() {
-			return this.inventoryPlayer;
-		}
-	}
-
-	private static class RangedWrapper implements SlottedStorage<ItemVariant> {
-		private final InventoryStorageImpl inventoryStorage;
-
-		public RangedWrapper(Inventory inv, int start, int end) {
-			this.inventoryStorage = (InventoryStorageImpl) InventoryStorage.of(inv, null);
-			this.inventoryStorage.parts = Collections.unmodifiableList(inventoryStorage.parts.subList(start, end));
-		}
-
-		@Override
-		public int getSlotCount() {
-			return inventoryStorage.getSlotCount();
-		}
-
-		@Override
-		public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-			return inventoryStorage.getSlot(slot);
-		}
-
-		@Override
-		public List<SingleSlotStorage<ItemVariant>> getSlots() {
-			return inventoryStorage.parts;
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			return inventoryStorage.insert(resource, maxAmount, transaction);
-		}
-
-		@Override
-		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			return inventoryStorage.extract(resource, maxAmount, transaction);
-		}
-
-		@Override
-		public Iterator<StorageView<ItemVariant>> iterator() {
-			//noinspection unchecked,rawtypes
-			return (Iterator) getSlots().iterator();
 		}
 	}
 }

@@ -19,7 +19,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IFilteredUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
-import net.p3pp3rf1y.sophisticatedcore.util.Capabilities;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 

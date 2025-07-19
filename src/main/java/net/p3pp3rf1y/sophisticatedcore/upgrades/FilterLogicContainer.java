@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.SlottedStackStorage;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.FilterSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IServerUpdater;
@@ -24,7 +24,7 @@ public class FilterLogicContainer<T extends FilterLogic> extends FilterLogicCont
 	public static class FilterLogicSlot extends FilterSlotItemHandler {
 		private boolean enabled = true;
 
-		public FilterLogicSlot(Supplier<SlottedStackStorage> filterHandler, Integer slot) {
+		public FilterLogicSlot(Supplier<IItemHandler> filterHandler, Integer slot) {
 			super(filterHandler, slot, -100, -100);
 		}
 

@@ -106,7 +106,7 @@ public class StackUpgradeItem extends UpgradeItemBase<StackUpgradeItem.Wrapper> 
 	private UpgradeSlotChangeResult isMultiplierHighEnough(IStorageWrapper storageWrapper, double multiplier) {
 		Set<Integer> slotsOverMultiplier = new HashSet<>();
 
-		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlotCount(); slot++) {
+		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlots(); slot++) {
 			ItemStack stack = storageWrapper.getInventoryHandler().getSlotStack(slot);
 			if (stack.getCount() <= 1) {
 				continue;

@@ -1,13 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -47,7 +42,7 @@ public class UpgradeHandler extends ItemStackHandler {
 		this.contentsSaveHandler = contentsSaveHandler;
 		this.onInvalidateUpgradeCaches = onInvalidateUpgradeCaches;
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> deserializeNBT(registryAccess, contentsNbt.getCompound(UPGRADE_INVENTORY_TAG)));
-		if (SophisticatedCore.isLogicalServerThread() && storageWrapper.getRenderInfo().getUpgradeItems().size() != this.getSlotCount()) {
+		if (SophisticatedCore.isLogicalServerThread() && storageWrapper.getRenderInfo().getUpgradeItems().size() != this.getSlots()) {
 			setRenderUpgradeItems();
 		}
 	}
@@ -82,7 +77,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public void setSize(int size) {
-		super.setSize(getSlotCount());
+		super.setSize(getSlots());
 	}
 
 	public void saveInventory() {
@@ -379,7 +374,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	private void initTankRenderInfoCallbacks(boolean forceUpdateRenderInfo, RenderInfo renderInfo) {
 		AtomicBoolean singleTankRight = new AtomicBoolean(false);
 		List<IRenderedTankUpgrade> tankRenderWrappers = new ArrayList<>();
-		int minRightSlot = getSlotCount() / 2;
+		int minRightSlot = getSlots() / 2;
 		getSlotWrappers().forEach((slot, wrapper) -> {
 			if (wrapper instanceof IRenderedTankUpgrade tankUpgrade) {
 				tankRenderWrappers.add(tankUpgrade);
@@ -403,7 +398,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	public void increaseSize(int diff) {
 		NonNullList<ItemStack> previousStacks = stacks;
 		stacks = NonNullList.withSize(previousStacks.size() + diff, ItemStack.EMPTY);
-		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
+		for (int slot = 0; slot < previousStacks.size() && slot < getSlots(); slot++) {
 			stacks.set(slot, previousStacks.get(slot));
 		}
 		saveInventory();
