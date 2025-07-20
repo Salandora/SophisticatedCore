@@ -42,7 +42,7 @@ public class UpgradeHandler extends ItemStackHandler {
 		this.contentsSaveHandler = contentsSaveHandler;
 		this.onInvalidateUpgradeCaches = onInvalidateUpgradeCaches;
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> deserializeNBT(registryAccess, contentsNbt.getCompound(UPGRADE_INVENTORY_TAG)));
-		if (SophisticatedCore.isLogicalServerThread() && storageWrapper.getRenderInfo().getUpgradeItems().size() != this.getSlots()) {
+		if (SophisticatedCore.isLogicalServerThread() && storageWrapper.getRenderInfo().getUpgradeItems().size() != this.getSlotCount()) {
 			setRenderUpgradeItems();
 		}
 	}
@@ -77,7 +77,7 @@ public class UpgradeHandler extends ItemStackHandler {
 
 	@Override
 	public void setSize(int size) {
-		super.setSize(getSlots());
+		super.setSize(stacks.size());
 	}
 
 	public void saveInventory() {
@@ -135,35 +135,6 @@ public class UpgradeHandler extends ItemStackHandler {
 		return result;
 	}
 
-	/*@Override
-	public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-		long inserted = 0;
-		for (int slot = 0; slot < getSlotCount(); slot++) {
-			inserted += insertSlot(slot, resource, maxAmount - inserted, transaction);
-			if (inserted >= maxAmount)
-				return inserted;
-		}
-		return inserted;
-	}
-
-	@Override
-	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long inserted;
-		try (Transaction inner = Transaction.openNested(ctx)) {
-			inserted = super.insertSlot(slot, resource, maxAmount, inner);
-			// ctx is on purpose here, we want the inner callbacks to be called first so we need to add them AFTER this callback
-			TransactionCallback.onSuccess(ctx, () -> {
-				if (SophisticatedCore.isLogicalServerThread() && inserted > 0 && maxAmount > 0) {
-					onUpgradeAdded(slot);
-				}
-			});
-			inner.commit();
-		}
-
-		return inserted;
-	}*/
-
 	private void onUpgradeAdded(int slot) {
 		Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
 		if (wrappers.containsKey(slot)) {
@@ -210,44 +181,6 @@ public class UpgradeHandler extends ItemStackHandler {
 		}
 		return super.extractItem(slot, amount, simulate);
 	}
-
-	/*@Override
-	public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-		Item item = resource.getItem();
-		SortedSet<ItemStackHandlerSlot> slots = getSlotsContaining(item);
-		if (slots.isEmpty())
-			return 0; // no slots hold this item
-		long extracted = 0;
-		for (ItemStackHandlerSlot slot : slots) {
-			extracted += extractSlot(slot.getIndex(), resource, maxAmount - extracted, transaction);
-			if (extracted >= maxAmount)
-				return extracted;
-		}
-		return extracted;
-	}
-
-	@Override
-	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		long extracted;
-		try (Transaction inner = Transaction.openNested(ctx)) {
-			extracted = super.extractSlot(slot, resource, maxAmount, inner);
-			// ctx is on purpose here, we want the inner callbacks to be called first so we need to add them AFTER this callback
-			TransactionCallback.onSuccess(ctx, () -> {
-				if (SophisticatedCore.isLogicalServerThread()) {
-					ItemStack slotStack = getStackInSlot(slot);
-					if (persistent && !slotStack.isEmpty() && maxAmount == 1) {
-						Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
-						if (wrappers.containsKey(slot)) {
-							wrappers.get(slot).onBeforeRemoved();
-						}
-					}
-				}
-			});
-			inner.commit();
-		}
-		return extracted;
-	}*/
 
 	private void initializeTypeWrappers() {
 		if (typeWrappersInitialized) {
@@ -374,7 +307,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	private void initTankRenderInfoCallbacks(boolean forceUpdateRenderInfo, RenderInfo renderInfo) {
 		AtomicBoolean singleTankRight = new AtomicBoolean(false);
 		List<IRenderedTankUpgrade> tankRenderWrappers = new ArrayList<>();
-		int minRightSlot = getSlots() / 2;
+		int minRightSlot = getSlotCount() / 2;
 		getSlotWrappers().forEach((slot, wrapper) -> {
 			if (wrapper instanceof IRenderedTankUpgrade tankUpgrade) {
 				tankRenderWrappers.add(tankUpgrade);
@@ -398,7 +331,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	public void increaseSize(int diff) {
 		NonNullList<ItemStack> previousStacks = stacks;
 		stacks = NonNullList.withSize(previousStacks.size() + diff, ItemStack.EMPTY);
-		for (int slot = 0; slot < previousStacks.size() && slot < getSlots(); slot++) {
+		for (int slot = 0; slot < previousStacks.size(); slot++) {
 			stacks.set(slot, previousStacks.get(slot));
 		}
 		saveInventory();
@@ -436,33 +369,5 @@ public class UpgradeHandler extends ItemStackHandler {
 			interfaceWrappers.clear();
 		}
 	}
-
-	/*@Override
-	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
-		return new UpgradeHandlerSlot(index, this, stack);
-	}
-
-	private static class UpgradeHandlerSlot extends ItemStackHandlerSlot {
-		public UpgradeHandlerSlot(int index, UpgradeHandler handler, ItemStack initial) {
-			super(index, handler, initial);
-		}
-
-		@Override
-		public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext ctx) {
-			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
-			return super.insert(insertedVariant, maxAmount, ctx);
-		}
-
-		@Override
-		public long extract(ItemVariant variant, long maxAmount, TransactionContext ctx) {
-			long extracted = super.extract(variant, maxAmount, ctx);
-			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
-			return extracted;
-		}
-
-		public void setInternalNewStack(ItemStack stack) {
-			super.setStack(stack);
-		}
-	}*/
 }
 

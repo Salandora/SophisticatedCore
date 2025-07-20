@@ -12,7 +12,6 @@ import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

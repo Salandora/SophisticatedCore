@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
+import com.github.salandora.sophisticatedlibrary.fluid.BucketPickupHandlerWrapper;
 import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
 import com.github.salandora.sophisticatedlibrary.transfer.TransferUtil;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -106,7 +107,6 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 							return fillFluidHandler(fluidHandler, storageFluidHandler, getMaxInOut());
 						}
 					}, false)).orElse(false);
-
 			if (successful) {
 				return Optional.of(FLUID_HANDLER_INTERACTION_COOLDOWN_TIME);
 			}
@@ -186,8 +186,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 			Block block = state.getBlock();
 			Storage<FluidVariant> targetFluidHandler = null;
 			if (block instanceof BucketPickup bucketPickup) {
-				// TODO: Implement
-				//targetFluidHandler = new BucketPickupHandlerWrapper(/*player, */bucketPickup, level, pos);
+				targetFluidHandler = new BucketPickupHandlerWrapper(/*player, */bucketPickup, level, pos);
 			} else {
 				// TODO: Implement?
 				/*Optional<IFluidHandler> fluidHandler = FluidUtil.getFluidHandler(level, pos, null);
@@ -221,7 +220,6 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		if (itemInHand.getCount() != 1 || itemInHand == storageWrapper.getWrappedStorageStack()) {
 			return false;
 		}
-
 		return CapabilityHelper.getFromFluidHandler(player, hand, itemFluidHandler -> {
 			if (isInput()) {
 				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);

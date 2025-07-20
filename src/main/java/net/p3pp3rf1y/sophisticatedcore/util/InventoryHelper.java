@@ -1,9 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
-import com.github.salandora.sophisticatedlibrary.transfer.TransactionCallback;
+import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -91,8 +90,8 @@ public class InventoryHelper {
 	}
 
 	public static void copyTo(IItemHandlerModifiable handlerA, IItemHandlerModifiable handlerB) {
-		int slotsA = handlerA.getSlots();
-		int slotsB = handlerB.getSlots();
+		int slotsA = handlerA.getSlotCount();
+		int slotsB = handlerB.getSlotCount();
 		for (int slot = 0; slot < slotsA && slot < slotsB; slot++) {
 			ItemStack slotStack = handlerA.getStackInSlot(slot);
 			if (!slotStack.isEmpty()) {
@@ -120,10 +119,10 @@ public class InventoryHelper {
 		return remaining;
 	}
 
-	public static ItemStackHandler cloneInventory(IItemHandler inventory) {
-		ItemStackHandler cloned = new ItemStackHandler(inventory.getSlots());
-		for (int slot = 0; slot < inventory.getSlots(); slot++) {
-			cloned.setStackInSlot(slot, inventory.getStackInSlot(slot).copy());
+	public static IItemHandler cloneInventory(IItemHandler inventory) {
+		IItemHandler cloned = new ItemStackHandler(inventory.getSlotCount());
+		for (int slot = 0; slot < inventory.getSlotCount(); slot++) {
+			cloned.insertItem(slot, inventory.getStackInSlot(slot).copy(), false);
 		}
 		return cloned;
 	}
@@ -134,7 +133,7 @@ public class InventoryHelper {
 		}
 
 		ItemStack remainingStack = stack.copy();
-		int slots = inventory.getSlots();
+		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && !remainingStack.isEmpty(); slot++) {
 			remainingStack = inventory.insertItem(slot, remainingStack, simulate);
 		}
@@ -147,7 +146,7 @@ public class InventoryHelper {
 
 	public static ItemStack extractFromInventory(Predicate<ItemStack> stackMatcher, int count, IItemHandler inventory, boolean simulate) {
 		ItemStack ret = ItemStack.EMPTY;
-		int slots = inventory.getSlots();
+		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && ret.getCount() < count; slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
 			if (stackMatcher.test(slotStack) && (ret.isEmpty() || ItemStack.isSameItemSameComponents(ret, slotStack))) {
@@ -165,7 +164,7 @@ public class InventoryHelper {
 
 	public static ItemStack extractFromInventory(ItemStack stack, IItemHandler inventory, boolean simulate) {
 		int extractedCount = 0;
-		int slots = inventory.getSlots();
+		int slots = inventory.getSlotCount();
 		for (int slot = 0; slot < slots && extractedCount < stack.getCount(); slot++) {
 			ItemStack slotStack = inventory.getStackInSlot(slot);
 			if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
@@ -222,7 +221,7 @@ public class InventoryHelper {
 	}
 
 	public static void iterate(IItemHandler handler, BiConsumer<Integer, ItemStack> actOn, BooleanSupplier shouldExit, boolean getVirtualCounts) {
-		int slots = handler.getSlots();
+		int slots = handler.getSlotCount();
 		for (int slot = 0; slot < slots; slot++) {
 			ItemStack stack = !getVirtualCounts && handler instanceof InventoryHandler inventoryHandler ? inventoryHandler.getSlotStack(slot) : handler.getStackInSlot(slot);
 			actOn.accept(slot, stack);
@@ -257,7 +256,7 @@ public class InventoryHelper {
 
 	public static <T> T iterate(IItemHandler handler, BiFunction<Integer, ItemStack, T> getFromSlotStack, Supplier<T> supplyDefault, Predicate<T> shouldExit) {
 		T ret = supplyDefault.get();
-		int slots = handler.getSlots();
+		int slots = handler.getSlotCount();
 		for (int slot = 0; slot < slots; slot++) {
 			ItemStack stack = handler.getStackInSlot(slot);
 			ret = getFromSlotStack.apply(slot, stack);
@@ -269,7 +268,7 @@ public class InventoryHelper {
 	}
 
 	public static void transfer(IItemHandler handlerA, IItemHandler handlerB, Consumer<Supplier<ItemStack>> onInserted) {
-		int slotsA = handlerA.getSlots();
+		int slotsA = handlerA.getSlotCount();
 		for (int slot = 0; slot < slotsA; slot++) {
 			ItemStack slotStack = handlerA.getStackInSlot(slot);
 			if (slotStack.isEmpty()) {
@@ -337,7 +336,7 @@ public class InventoryHelper {
 	}
 
 	public static boolean isEmpty(IItemHandler itemHandler) {
-		int slots = itemHandler.getSlots();
+		int slots = itemHandler.getSlotCount();
 		for (int slot = 0; slot < slots; slot++) {
 			if (!itemHandler.getStackInSlot(slot).isEmpty()) {
 				return false;
@@ -347,7 +346,7 @@ public class InventoryHelper {
 	}
 
 	public static ItemStack getAndRemove(IItemHandler itemHandler, int slot) {
-		if (slot >= itemHandler.getSlots()) {
+		if (slot >= itemHandler.getSlotCount()) {
 			return ItemStack.EMPTY;
 		}
 		return itemHandler.extractItem(slot, itemHandler.getStackInSlot(slot).getCount(), false);
@@ -458,7 +457,7 @@ public class InventoryHelper {
 	public static List<Integer> getEmptySlotsRandomized(IItemHandler inventory) {
 		List<Integer> list = Lists.newArrayList();
 
-		for (int i = 0; i < inventory.getSlots(); ++i) {
+		for (int i = 0; i < inventory.getSlotCount(); ++i) {
 			if (inventory.getStackInSlot(i).isEmpty()) {
 				list.add(i);
 			}
@@ -503,15 +502,15 @@ public class InventoryHelper {
 		Collections.shuffle(stacks, new Random());
 	}
 
-	public static void dropItems(IItemHandlerModifiable inventoryHandler, Level level, BlockPos pos) {
+	public static void dropItems(ItemStackHandler inventoryHandler, Level level, BlockPos pos) {
 		dropItems(inventoryHandler, level, pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static void dropItems(IItemHandlerModifiable inventoryHandler, Level level, double x, double y, double z) {
+	public static void dropItems(ItemStackHandler inventoryHandler, Level level, double x, double y, double z) {
 		iterate(inventoryHandler, (slot, stack) -> dropItem(inventoryHandler, level, x, y, z, slot, stack), () -> false, false);
 	}
 
-	public static void dropItem(IItemHandlerModifiable handler, Level level, double x, double y, double z, Integer slot, ItemStack stack) {
+	public static void dropItem(ItemStackHandler handler, Level level, double x, double y, double z, Integer slot, ItemStack stack) {
 		if (stack.isEmpty()) {
 			return;
 		}
@@ -543,7 +542,7 @@ public class InventoryHelper {
 				isEmpty.set(false);
 			}
 		});
-		double percentFilled = totalFilled.get() / handler.getSlots();
+		double percentFilled = totalFilled.get() / handler.getSlotCount();
 		return Mth.floor(percentFilled * 14.0F) + (isEmpty.get() ? 0 : 1);
 	}
 

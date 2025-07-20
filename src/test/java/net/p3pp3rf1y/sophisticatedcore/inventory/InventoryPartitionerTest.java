@@ -23,7 +23,7 @@ class InventoryPartitionerTest {
 
 	private InventoryHandler getInventoryHandler(int slots) {
 		InventoryHandler inventoryHandler = Mockito.mock(InventoryHandler.class);
-		when(inventoryHandler.getSlots()).thenReturn(slots);
+		when(inventoryHandler.getSlotCount()).thenReturn(slots);
 		return inventoryHandler;
 	}
 

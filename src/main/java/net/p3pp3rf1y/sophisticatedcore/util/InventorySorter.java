@@ -79,7 +79,7 @@ public class InventorySorter {
 		List<Map.Entry<ItemStackKey, Integer>> sortedList = new ArrayList<>(compactedStacks.entrySet());
 		sortedList.sort(comparator);
 
-		int slots = handler.getSlots();
+		int slots = handler.getSlotCount();
 
 		sortIntoNoSortSlots(handler, noSortSlots, sortedList);
 

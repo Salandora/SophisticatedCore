@@ -238,7 +238,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 		}
 		if (getDiscSlotActive() != -1) {
 			history.add(getDiscSlotActive());
-			if (history.size() > discInventory.getSlots()) {
+			if (history.size() > discInventory.getSlotCount()) {
 				history.poll();
 			}
 		}
@@ -253,7 +253,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 	private void initPlaylist(boolean excludeActive) {
 		playlist.clear();
-		for (int i = 0; i < discInventory.getSlots(); i++) {
+		for (int i = 0; i < discInventory.getSlotCount(); i++) {
 			if (!discInventory.getStackInSlot(i).isEmpty() && (!excludeActive || !isPlaying || i != getDiscSlotActive())) {
 				playlist.add(i);
 			}

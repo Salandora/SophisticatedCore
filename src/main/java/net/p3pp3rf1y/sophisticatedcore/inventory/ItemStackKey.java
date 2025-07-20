@@ -56,10 +56,6 @@ public final class ItemStackKey {
 		return hash;
 	}
 
-	public boolean matches(ItemVariant resource) {
-		return hashCode() == ItemStack.hashItemAndComponents(resource.toStack());
-	}
-
 	public boolean matches(ItemStack stack) {
 		return hashCode() == ItemStack.hashItemAndComponents(stack);
 	}

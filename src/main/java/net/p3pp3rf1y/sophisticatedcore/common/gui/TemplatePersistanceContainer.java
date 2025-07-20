@@ -320,7 +320,7 @@ public class TemplatePersistanceContainer {
 
 	public boolean templateHasTooManySlots() {
 		return selectedTemplate != null && selectedTemplate.getSettingsCategories().values().stream()
-				.anyMatch(category -> category.isLargerThanNumberOfSlots(settingsContainer.getStorageWrapper().getInventoryHandler().getSlots()));
+				.anyMatch(category -> category.isLargerThanNumberOfSlots(settingsContainer.getStorageWrapper().getInventoryHandler().getSlotCount()));
 	}
 
 

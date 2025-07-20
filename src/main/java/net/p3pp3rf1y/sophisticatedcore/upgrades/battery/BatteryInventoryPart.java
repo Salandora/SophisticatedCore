@@ -88,6 +88,7 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 
 	private void renderCharge(GuiGraphics guiGraphics) {
 		long energyStored = container.getAmount();
+
 		long maxEnergyStored = container.getCapacity();
 
 		int segmentHeight = CHARGE_SEGMENT.getHeight();

@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -143,7 +142,7 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 
 	private boolean tryPullingGetUnsucessful(ItemStack stack, Consumer<ItemStack> setSlot, Predicate<ItemStack> isItemValid) {
 		ItemStack toExtract;
-		IItemHandlerSimpleInserter inventory = storageWrapper.getInventoryForUpgradeProcessing();
+		IItemHandlerModifiable inventory = storageWrapper.getInventoryForUpgradeProcessing();
 		if (stack.isEmpty()) {
 			AtomicReference<ItemStack> ret = new AtomicReference<>(ItemStack.EMPTY);
 			InventoryHelper.iterate(inventory, (slot, st) -> {

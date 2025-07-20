@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class FilteredItemHandler<T extends IItemHandler> implements IItemHandler {
 	protected final T inventoryHandler;
 	protected final List<FilterLogic> inputFilters;
-	protected final List<FilterLogic> outputFilters;
+	private final List<FilterLogic> outputFilters;
 
 	public FilteredItemHandler(T inventoryHandler, List<FilterLogic> inputFilters, List<FilterLogic> outputFilters) {
 		this.inventoryHandler = inventoryHandler;
@@ -22,14 +22,19 @@ public class FilteredItemHandler<T extends IItemHandler> implements IItemHandler
 	}
 
 	@Override
-	public int getSlots() {
-		return inventoryHandler.getSlots();
+	public int getSlotCount() {
+		return inventoryHandler.getSlotCount();
 	}
 
 	@Nonnull
 	@Override
 	public ItemStack getStackInSlot(int slot) {
 		return inventoryHandler.getStackInSlot(slot);
+	}
+
+	@Override
+	public void setStackInSlot(int slot, ItemStack stack) {
+		inventoryHandler.setStackInSlot(slot, stack);
 	}
 
 	@Nonnull

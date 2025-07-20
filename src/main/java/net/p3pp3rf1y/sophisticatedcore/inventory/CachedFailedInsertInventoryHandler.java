@@ -26,8 +26,8 @@ public class CachedFailedInsertInventoryHandler implements IItemHandlerModifiabl
 	}
 
 	@Override
-	public int getSlots() {
-		return wrappedHandlerGetter.get().getSlots();
+	public int getSlotCount() {
+		return wrappedHandlerGetter.get().getSlotCount();
 	}
 
 	@NotNull
@@ -62,6 +62,7 @@ public class CachedFailedInsertInventoryHandler implements IItemHandlerModifiabl
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		return wrappedHandlerGetter.get().extractItem(slot, amount, simulate);
 	}
+
 	@Override
 	public int getSlotLimit(int slot) {
 		return wrappedHandlerGetter.get().getSlotLimit(slot);

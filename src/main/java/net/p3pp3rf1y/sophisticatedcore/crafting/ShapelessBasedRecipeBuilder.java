@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
-import com.google.common.base.Preconditions;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
 import net.minecraft.advancements.Advancement;
@@ -65,7 +64,6 @@ public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 	}
 
 	protected RecipeOutput withConditions(final RecipeOutput exporter, final ResourceCondition... conditions) {
-		Preconditions.checkArgument(conditions.length > 0, "Must add at least one condition.");
 		return new RecipeOutput() {
 			public void accept(ResourceLocation identifier, Recipe<?> recipe, @Nullable AdvancementHolder advancementEntry) {
 				FabricDataGenHelper.addConditions(recipe, conditions);

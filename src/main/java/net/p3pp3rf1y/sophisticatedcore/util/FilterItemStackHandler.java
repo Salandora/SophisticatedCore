@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
+import net.minecraft.world.item.ItemStack;
 
 public class FilterItemStackHandler extends ItemStackHandler {
 	private boolean onlyEmptyFilters = true;
@@ -10,6 +11,16 @@ public class FilterItemStackHandler extends ItemStackHandler {
 	@Override
 	public int getSlotLimit(int slot) {
 		return 1;
+	}
+
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		return ItemStack.EMPTY;
 	}
 
 	@Override

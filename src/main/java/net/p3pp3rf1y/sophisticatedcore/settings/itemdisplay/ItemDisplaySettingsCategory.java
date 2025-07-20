@@ -96,11 +96,11 @@ public class ItemDisplaySettingsCategory implements ISettingsCategory<ItemDispla
 			List<Float> previousSlotFillRatios = renderInfoSupplier.get().getItemDisplayRenderInfo().getSlotFillRatios();
 			List<Integer> previousInfiniteSlots = renderInfoSupplier.get().getItemDisplayRenderInfo().getInfiniteSlots();
 
-			if (previousSlotCounts.size() != inventoryHandler.getSlots() || previousSlotFillRatios.size() != inventoryHandler.getSlots()) {
+			if (previousSlotCounts.size() != inventoryHandler.getSlotCount() || previousSlotFillRatios.size() != inventoryHandler.getSlotCount()) {
 				return true;
 			}
 
-			for (int slotIndex = 0; slotIndex < inventoryHandler.getSlots(); slotIndex++) {
+			for (int slotIndex = 0; slotIndex < inventoryHandler.getSlotCount(); slotIndex++) {
 				int previousSlotCount = previousSlotCounts.get(slotIndex);
 				float previousSlotFillRatio = previousSlotFillRatios.get(slotIndex);
 				ItemStack stack = inventoryHandler.getStackInSlot(slotIndex);
@@ -132,7 +132,7 @@ public class ItemDisplaySettingsCategory implements ISettingsCategory<ItemDispla
 		List<Integer> infiniteSlots = new ArrayList<>();
 
 		if (renderInfoSupplier.get().showsCountsAndFillRatios()) {
-			for (int slotIndex = 0; slotIndex < inventoryHandler.getSlots(); slotIndex++) {
+			for (int slotIndex = 0; slotIndex < inventoryHandler.getSlotCount(); slotIndex++) {
 				ItemStack stack = inventoryHandler.getStackInSlot(slotIndex);
 				slotCounts.add(stack.getCount());
 				slotFillRatios.add(calculateSlotFillRatio(stack, inventoryHandler, slotIndex));

@@ -218,7 +218,7 @@ public class InventoryHandlerSlotTracker implements ISlotTracker {
 		emptySlots.clear();
 		onRemoveLastEmptySlot.run();
 
-		for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+		for (int slot = 0; slot < itemHandler.getSlotCount(); slot++) {
 			ItemStack stack = itemHandler.getStackInSlot(slot);
 			set(itemHandler, slot, stack);
 		}

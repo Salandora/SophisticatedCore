@@ -96,9 +96,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {
-				// Porting-Lib and Architectury API are incompatible, therefore we can not use porting-libs version to get the hover name
-				// tooltip.add(contents.getHoverName());
-				tooltip.add(FluidVariantAttributes.getName(contents.getVariant()));
+				tooltip.add(contents.getHoverName());
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
 			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);

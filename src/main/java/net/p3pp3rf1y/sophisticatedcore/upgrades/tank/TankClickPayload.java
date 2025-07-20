@@ -39,23 +39,25 @@ public record TankClickPayload(int upgradeSlot) implements CustomPacketPayload {
 		if (!(upgradeContainer instanceof TankUpgradeContainer tankContainer)) {
 			return;
 		}
-
 		ContainerItemContext cic = ContainerItemContext.ofPlayerCursor(serverPlayer, containerMenu);
 		Storage<FluidVariant> storage = cic.find(FluidStorage.ITEM);
-		if (storage != null) {
-			TankUpgradeWrapper tankWrapper = tankContainer.getUpgradeWrapper();
-			FluidStack tankContents = tankWrapper.getContents();
-			if (tankContents.isEmpty()) {
+		if (storage == null) {
+			return;
+		}
+
+		TankUpgradeWrapper tankWrapper = tankContainer.getUpgradeWrapper();
+		FluidStack tankContents = tankWrapper.getContents();
+		if (tankContents.isEmpty()) {
+			drainHandler(serverPlayer, containerMenu, cic, storage, tankWrapper);
+		} else {
+			if (!tankWrapper.fillHandler(cic, storage, itemStackIn -> {
+				containerMenu.setCarried(itemStackIn);
+				serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(-1, containerMenu.incrementStateId(), -1, containerMenu.getCarried()));
+			})) {
 				drainHandler(serverPlayer, containerMenu, cic, storage, tankWrapper);
-			} else {
-				if (!tankWrapper.fillHandler(cic, storage, itemStackIn -> {
-					containerMenu.setCarried(itemStackIn);
-					serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(-1, containerMenu.incrementStateId(), -1, containerMenu.getCarried()));
-				})) {
-					drainHandler(serverPlayer, containerMenu, cic, storage, tankWrapper);
-				}
 			}
 		}
+
 	}
 
 	private static void drainHandler(ServerPlayer player, AbstractContainerMenu containerMenu, ContainerItemContext cic, Storage<FluidVariant> fluidHandler, TankUpgradeWrapper tankWrapper) {

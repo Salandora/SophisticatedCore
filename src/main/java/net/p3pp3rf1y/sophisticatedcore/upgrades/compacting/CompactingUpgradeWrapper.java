@@ -87,7 +87,7 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 
 	private boolean fitsResultAndRemainingItems(IItemHandler inventoryHandler, List<ItemStack> remainingItems, ItemStack result) {
 		if (!remainingItems.isEmpty()) {
-			ItemStackHandler clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
+			IItemHandler clonedHandler = InventoryHelper.cloneInventory(inventoryHandler);
 			return InventoryHelper.insertIntoInventory(result, clonedHandler, false).isEmpty()
 					&& InventoryHelper.insertIntoInventory(remainingItems, clonedHandler, false).isEmpty();
 		}

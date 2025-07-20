@@ -184,7 +184,7 @@ class InventoryHelperTest {
 	}
 
 	private static void assertHandlerState(IItemHandler handler, Map<Integer, ItemStack> expectedStacksInHandler) {
-		for (int slot = 0; slot < handler.getSlots(); slot++) {
+		for (int slot = 0; slot < handler.getSlotCount(); slot++) {
 			ItemStack stackInSlot = handler.getStackInSlot(slot);
 			if (expectedStacksInHandler.containsKey(slot)) {
 				assertStackEquals(expectedStacksInHandler.get(slot), stackInSlot, "Expected different stack in handler");

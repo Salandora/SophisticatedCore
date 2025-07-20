@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CapabilityHelper {
+
 	public static void runOnItemHandler(Entity entity, Consumer<IItemHandler> run) {
 		runOnCapability(entity, Capabilities.ItemHandler.ENTITY, null, run);
 	}

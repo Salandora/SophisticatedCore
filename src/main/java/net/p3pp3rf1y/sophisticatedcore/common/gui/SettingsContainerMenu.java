@@ -85,7 +85,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	public int getNumberOfStorageInventorySlots() {
-		return storageWrapper.getInventoryHandler().getSlots();
+		return storageWrapper.getInventoryHandler().getSlotCount();
 	}
 
 	public S getStorageWrapper() {
@@ -102,7 +102,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		int slotIndex = 0;
 
-		while (slotIndex < inventoryHandler.getSlots()) {
+		while (slotIndex < inventoryHandler.getSlotCount()) {
 			int finalSlotIndex = slotIndex;
 			storageInventorySlots.add(addSlot(new ViewOnlyStorageInventorySlot(inventoryHandler, finalSlotIndex)));
 
@@ -180,7 +180,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	public int getNumberOfSlots() {
-		return storageWrapper.getInventoryHandler().getSlots();
+		return storageWrapper.getInventoryHandler().getSlotCount();
 	}
 
 	@Override
@@ -349,7 +349,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		Set<Integer> inaccessibleSlots = new HashSet<>();
 		InventoryHandler inventoryHandler = storageWrapper.getInventoryHandler();
 		Map<Integer, Holder<Item>> slotFilterItems = new HashMap<>();
-		for (int slot = 0; slot < inventoryHandler.getSlots(); slot++) {
+		for (int slot = 0; slot < inventoryHandler.getSlotCount(); slot++) {
 			if (!inventoryHandler.isSlotAccessible(slot)) {
 				inaccessibleSlots.add(slot);
 			}
@@ -391,7 +391,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 			return;
 		}
 		Map<ResourceLocation, Set<Integer>> noItemSlotTextures = new HashMap<>();
-		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlots(); slot++) {
+		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlotCount(); slot++) {
 			Pair<ResourceLocation, ResourceLocation> noItemIcon = storageWrapper.getInventoryHandler().getNoItemIcon(slot);
 			if (noItemIcon != null) {
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);

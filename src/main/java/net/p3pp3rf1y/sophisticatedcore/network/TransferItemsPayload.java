@@ -1,13 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import com.github.salandora.sophisticatedlibrary.items.wrapper.InvWrapper;
 import com.github.salandora.sophisticatedlibrary.items.wrapper.PlayerMainInvWrapper;
 import com.github.salandora.sophisticatedlibrary.items.wrapper.RangedWrapper;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -20,7 +18,6 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
-import com.github.salandora.sophisticatedlibrary.items.wrapper.InvWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
@@ -168,14 +165,19 @@ public record TransferItemsPayload(boolean transferToInventory,
 		}
 
 		@Override
-		public int getSlots() {
-			return itemHandler.getSlots();
+		public int getSlotCount() {
+			return itemHandler.getSlotCount();
 		}
 
 		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
 			return itemHandler.getStackInSlot(slot);
+		}
+
+		@Override
+		public void setStackInSlot(int slot, ItemStack stack) {
+			itemHandler.setStackInSlot(slot, stack);
 		}
 
 		@Nonnull

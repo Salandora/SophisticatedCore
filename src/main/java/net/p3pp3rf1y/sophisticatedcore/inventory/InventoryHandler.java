@@ -419,7 +419,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		nbtTagList.addAll(stackNbts.values());
 		CompoundTag nbt = new CompoundTag();
 		nbt.put("Items", nbtTagList);
-		nbt.putInt("Size", getSlots());
+		nbt.putInt("Size", getSlotCount());
 		return nbt;
 	}
 
@@ -527,61 +527,4 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	public boolean isInfinite(int slot) {
 		return inventoryPartitioner.isInfinite(slot);
 	}
-
-	// Fabric
-	/*private List<InventoryHandlerSlot> backingList;
-
-	@Override
-	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
-		if (backingList == null) {
-			this.backingList = new ArrayList<>();
-		}
-		while (backingList.size() <= index) {
-			backingList.add(new InventoryHandlerSlot(index, this, ItemStack.EMPTY));
-		}
-
-		InventoryHandlerSlot slot = backingList.get(index);
-		slot.setInternalNewStack(stack);
-		return slot;
-	}
-
-	private class InventoryHandlerSlot extends ItemStackHandlerSlot {
-		public InventoryHandlerSlot(int index, InventoryHandler handler, ItemStack initial) {
-			super(index, handler, initial);
-		}
-
-		// Make the "get stack" functions return a copy of the item due to how the insertion and extraction is handled in the part inventory handler implementations.
-		protected ItemStack getInternalStack() {
-			return super.getStack().copy();
-		}
-
-		protected void setInternalNewStack(ItemStack stack) {
-			super.setStack(stack);
-			onStackChange();
-		}
-
-		@Override
-		public long insert(ItemVariant variant, long maxAmount, TransactionContext ctx) {
-			if (variant.isBlank() || maxAmount < 0) {
-				return 0;
-			}
-
-			return InventoryHandler.this.insertSlot(getIndex(), variant, maxAmount, ctx);
-		}
-
-		@Override
-		public long extract(ItemVariant variant, long maxAmount, TransactionContext ctx) {
-			if (variant.isBlank() || maxAmount < 0) {
-				return 0;
-			}
-
-			return InventoryHandler.this.extractSlot(getIndex(), variant, maxAmount, ctx);
-		}
-
-		@Override
-		public void load(HolderLookup.Provider provider, CompoundTag tag) {
-			getStackFromNbt(tag, provider).ifPresent(this::setStack);
-			onStackChange();
-		}
-	}*/
 }

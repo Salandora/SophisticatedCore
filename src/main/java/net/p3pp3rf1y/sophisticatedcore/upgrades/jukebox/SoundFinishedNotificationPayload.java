@@ -5,7 +5,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.UUID;

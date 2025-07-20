@@ -44,7 +44,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 		super(player, upgradeContainerId, upgradeWrapper, type);
 
 		int slot;
-		for (slot = 0; slot < upgradeWrapper.getInventory().getSlots(); slot++) {
+		for (slot = 0; slot < upgradeWrapper.getInventory().getSlotCount(); slot++) {
 			slots.add(new SlotSuppliedHandler(upgradeWrapper::getInventory, slot, -100, -100) {
 				@Override
 				public void setChanged() {

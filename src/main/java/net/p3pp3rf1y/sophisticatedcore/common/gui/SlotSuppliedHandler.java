@@ -7,14 +7,19 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.Supplier;
 
 public class SlotSuppliedHandler extends SlotItemHandler {
-	private final Supplier<? extends IItemHandler> itemHandlerSupplier;
+	private final Supplier<IItemHandler> itemHandlerSupplier;
 	private final int slot;
 
-	public SlotSuppliedHandler(Supplier<? extends IItemHandler> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
+	public SlotSuppliedHandler(Supplier<IItemHandler> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
 		super(itemHandlerSupplier.get(), slot, xPosition, yPosition);
 
 		this.itemHandlerSupplier = itemHandlerSupplier;
 		this.slot = slot;
+	}
+
+	@Override
+	public IItemHandler getItemHandler() {
+		return itemHandlerSupplier.get();
 	}
 
 	@Override

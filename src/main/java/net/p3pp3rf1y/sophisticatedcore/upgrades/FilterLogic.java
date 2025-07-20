@@ -248,7 +248,7 @@ public class FilterLogic {
 		@Override
 		protected void onContentsChanged(int slot) {
 			super.onContentsChanged(slot);
-			setAttributes(contents -> contents.setFilterItem(slot, getStackInSlot(slot)));
+			setAttributes(contents -> contents.setFilterItem(slot, stacks.get(slot)));
 			save();
 			onSlotChange.accept(slot);
 		}

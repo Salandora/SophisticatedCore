@@ -33,7 +33,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	@Override
 	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
 		if (shouldVoidOverflow && inventoryHandler.getStackInSlot(slot).isEmpty() && (!filterLogic.shouldMatchComponents() || !filterLogic.shouldMatchDurability() || filterLogic.getPrimaryMatch() != PrimaryMatch.ITEM) && filterLogic.matchesFilter(stack)) {
-			for (int s = 0; s < inventoryHandler.getSlots(); s++) {
+			for (int s = 0; s < inventoryHandler.getSlotCount(); s++) {
 				if (s == slot) {
 					continue;
 				}

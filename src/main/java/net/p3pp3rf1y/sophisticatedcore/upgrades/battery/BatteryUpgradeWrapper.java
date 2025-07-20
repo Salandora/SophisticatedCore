@@ -144,6 +144,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 
 	private boolean isValidEnergyItem(ItemStack stack, boolean isOutput) {
 		EnergyStorage energyStorage = ContainerItemContext.withConstant(stack).find(EnergyStorage.ITEM);
+
 		if (energyStorage == null) {
 			return false;
 		}
@@ -170,21 +171,20 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	@Override
 	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
 		if (getAmount() < getCapacity()) {
-			EnergyStorageUtil.move(
-					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(INPUT_SLOT)).find(EnergyStorage.ITEM),
-					getSideEnergyStorage(null),
-					Long.MAX_VALUE,
-					null
-			);
+			EnergyStackWrapper energyContainer = new EnergyStackWrapper(INPUT_SLOT);
+			EnergyStorage energyStorage = ContainerItemContext.ofSingleSlot(energyContainer).find(EnergyStorage.ITEM);
+			if (energyStorage != null) {
+				receiveFromStorage(energyContainer, energyStorage);
+
+			}
 		}
 
 		if (getAmount() > 0) {
-			EnergyStorageUtil.move(
-					getSideEnergyStorage(null),
-					ContainerItemContext.ofSingleSlot(new EnergyStackWrapper(OUTPUT_SLOT)).find(EnergyStorage.ITEM),
-					Long.MAX_VALUE,
-					null
-			);
+			EnergyStackWrapper energyContainer = new EnergyStackWrapper(OUTPUT_SLOT);
+			EnergyStorage energyStorage = ContainerItemContext.ofSingleSlot(energyContainer).find(EnergyStorage.ITEM);
+			if (energyStorage != null) {
+				extractToStorage(energyContainer, energyStorage);
+			}
 
 			// TeamReborns energy system is push based so we need to add this code here
 			for (Direction side : Direction.values()) {
@@ -198,27 +198,16 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 		}
 	}
 
-	/*@Override
-	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
-		if (energyStored < getMaxEnergyStored()) {
-			ItemStack energyContainer = inventory.getStackInSlot(INPUT_SLOT);
-			IEnergyStorage energyStorage = energyContainer.getCapability(Capabilities.EnergyStorage.ITEM);
-			if (energyStorage != null) {
-				receiveFromStorage(energyContainer, energyStorage);
-
-			}
-		}
-
-		if (energyStored > 0) {
-			ItemStack energyContainer = inventory.getStackInSlot(OUTPUT_SLOT);
-			IEnergyStorage energyStorage = energyContainer.getCapability(Capabilities.EnergyStorage.ITEM);
-			if (energyStorage != null) {
-				extractToStorage(energyContainer, energyStorage);
-			}
-		}
+	private void extractToStorage(EnergyStackWrapper energyContainer, EnergyStorage energyStorage) {
+		EnergyStorageUtil.move(
+				getSideEnergyStorage(null),
+				energyStorage,
+				Long.MAX_VALUE,
+				null
+		);
 	}
 
-	private void extractToStorage(ItemStack energyContainer, IEnergyStorage energyStorage) {
+	/*private void extractToStorage(ItemStack energyContainer, IEnergyStorage energyStorage) {
 		int toExtract = innerExtractEnergy(getMaxInOut(), true);
 		if (toExtract > 0) {
 			toExtract = energyStorage.receiveEnergy(toExtract, true);
@@ -228,9 +217,18 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 				inventory.setStackInSlotWithoutValidation(OUTPUT_SLOT, energyContainer);
 			}
 		}
+	}*/
+
+	private void receiveFromStorage(EnergyStackWrapper energyContainer, EnergyStorage energyStorage) {
+		EnergyStorageUtil.move(
+				energyStorage,
+				getSideEnergyStorage(null),
+				Long.MAX_VALUE,
+				null
+		);
 	}
 
-	private void receiveFromStorage(IEnergyStorage energyStorage) {
+	/*private void receiveFromStorage(ItemStack energyContainer, IEnergyStorage energyStorage) {
 		int toReceive = innerReceiveEnergy(getMaxInOut(), true);
 		if (toReceive > 0) {
 			toReceive = energyStorage.extractEnergy(toReceive, true);

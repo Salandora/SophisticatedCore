@@ -5,7 +5,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
@@ -57,7 +56,7 @@ public class NoopStorageWrapper implements IStorageWrapper {
             }, 64, new StackUpgradeConfig(new ModConfigSpec.Builder())) {
                 @Override
                 protected boolean isAllowed(ItemStack stack) {
-                    return false;
+                    return true;
                 }
             };
         }

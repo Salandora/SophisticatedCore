@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Function9;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
