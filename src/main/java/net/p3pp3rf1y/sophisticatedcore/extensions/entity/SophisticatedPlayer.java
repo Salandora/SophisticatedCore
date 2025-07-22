@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.entity;
 
 import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -10,12 +11,11 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused") // used in fabric.mod.json for interface injection
 public interface SophisticatedPlayer {
 	private Player self() {
 		return (Player)this;
@@ -51,5 +51,15 @@ public interface SophisticatedPlayer {
 		};
 
 		return this.self().openMenu(screenHandlerFactory);
+	}
+
+	@Nullable
+	default <T> T sophisticatedCore_getCapability(EntityApiLookup<T, ?> lookup) {
+		return sophisticatedCore_getCapability(lookup, null);
+	}
+
+	@Nullable
+	default <T, C> T sophisticatedCore_getCapability(EntityApiLookup<T, C> lookup, @Nullable C context) {
+		return lookup.find(self(), context);
 	}
 }

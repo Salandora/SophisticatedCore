@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import com.github.salandora.sophisticatedlibrary.items.wrapper.InvWrapper;
-import com.github.salandora.sophisticatedlibrary.items.wrapper.PlayerMainInvWrapper;
-import com.github.salandora.sophisticatedlibrary.items.wrapper.RangedWrapper;
+import com.github.salandora.sophisticatedlibrary.transfer.wrapper.InvWrapper;
+import com.github.salandora.sophisticatedlibrary.transfer.wrapper.PlayerMainInvWrapper;
+import com.github.salandora.sophisticatedlibrary.transfer.wrapper.RangedWrapper;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

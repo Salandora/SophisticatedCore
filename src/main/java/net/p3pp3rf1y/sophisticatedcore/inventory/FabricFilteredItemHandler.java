@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import com.github.salandora.sophisticatedlibrary.transfer.FabricStorageWrapper;
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.FilteringStorage;
@@ -10,7 +8,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 
 import java.util.List;
 
-public class FabricFilteredItemHandler<T extends IItemHandler> extends FilteringStorage<ItemVariant> {
+public class FabricFilteredItemHandler extends FilteringStorage<ItemVariant> {
 	protected final List<FilterLogic> inputFilters;
 	protected final List<FilterLogic> outputFilters;
 
@@ -20,10 +18,6 @@ public class FabricFilteredItemHandler<T extends IItemHandler> extends Filtering
 		this.inputFilters = inputFilters;
 		this.outputFilters = outputFilters;
 
-	}
-
-	public FabricFilteredItemHandler(T inventoryHandler, List<FilterLogic> inputFilters, List<FilterLogic> outputFilters) {
-		this(FabricStorageWrapper.of(inventoryHandler), inputFilters, outputFilters);
 	}
 
 	public ItemStack getStackInSlot(int slot) {

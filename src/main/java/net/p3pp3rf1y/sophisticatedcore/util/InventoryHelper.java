@@ -3,12 +3,12 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
 import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -49,8 +49,7 @@ public class InventoryHelper {
 	private static final List<Function<Player, SlottedStorage<ItemVariant>>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
 
 	static {
-		//registerPlayerInventoryProvider(player -> player.getCapability(Capabilities.ItemHandler.ENTITY));
-		registerPlayerInventoryProvider(PlayerInventoryStorage::of);
+		registerPlayerInventoryProvider(player -> player.sophisticatedCore_getCapability(Capabilities.ItemHandler.ENTITY));
 	}
 
 	public static void registerPlayerInventoryProvider(Function<Player, SlottedStorage<ItemVariant>> provider) {
@@ -138,6 +137,15 @@ public class InventoryHelper {
 			remainingStack = inventory.insertItem(slot, remainingStack, simulate);
 		}
 		return remainingStack;
+	}
+
+	public static ItemStack insertIntoInventory(ItemStack stack, Storage<ItemVariant> inventory, @Nullable Transaction maybeParent) {
+		long inserted;
+		try (Transaction insertTransaction = Transaction.openNested(maybeParent)) {
+			inserted = inventory.insert(ItemVariant.of(stack), stack.getCount(), insertTransaction);
+			insertTransaction.commit();
+		}
+		return stack.copyWithCount(stack.getCount() - (int) inserted);
 	}
 
 	public static ItemStack extractFromInventory(Item item, int count, IItemHandler inventory, boolean simulate) {
@@ -352,10 +360,16 @@ public class InventoryHelper {
 		return itemHandler.extractItem(slot, itemHandler.getStackInSlot(slot).getCount(), false);
 	}
 
-	public static void insertOrDropItem(Player player, ItemStack stack, IItemHandler... inventories) {
+	@SafeVarargs
+	public static void insertOrDropItem(Player player, ItemStack stack, Storage<ItemVariant>... inventories) {
+		insertOrDropItem(player, stack, null, inventories);
+	}
+
+	@SafeVarargs
+	public static void insertOrDropItem(Player player, ItemStack stack, @Nullable Transaction maybeParent, Storage<ItemVariant>... inventories) {
 		ItemStack ret = stack;
-		for (IItemHandler inventory : inventories) {
-			ret = insertIntoInventory(ret, inventory, false);
+		for (Storage<ItemVariant> inventory : inventories) {
+			ret = insertIntoInventory(ret, inventory, maybeParent);
 			if (ret.isEmpty()) {
 				return;
 			}
@@ -428,18 +442,6 @@ public class InventoryHelper {
 			ret.add(stackCopy);
 		});
 		return ret;
-	}
-
-	public static Set<ItemStackKey> getUniqueStacks(IItemHandler handler) {
-		Set<ItemStackKey> uniqueStacks = new HashSet<>();
-		iterate(handler, (slot, stack) -> {
-			if (stack.isEmpty()) {
-				return;
-			}
-			ItemStackKey itemStackKey = ItemStackKey.of(stack);
-			uniqueStacks.add(itemStackKey);
-		});
-		return uniqueStacks;
 	}
 
 	public static Set<ItemStackKey> getUniqueStacks(Storage<ItemVariant> handler) {
