@@ -46,6 +46,11 @@ public abstract class InfinityInventoryPart implements IInventoryPartHandler {
 	}
 
 	@Override
+	public ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
+		return ItemVariant.of(parent.getSlotStack(slot));
+	}
+
+	@Override
 	public boolean isSlotAccessible(int slot) {
 		return true;
 	}
