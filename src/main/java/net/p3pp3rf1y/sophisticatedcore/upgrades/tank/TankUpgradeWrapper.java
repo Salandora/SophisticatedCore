@@ -19,6 +19,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluids;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedTankUpgrade;
@@ -288,7 +289,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 
 	@Override
 	public FluidVariant getResource() {
-		return contents.getVariant();
+		return contents.isEmpty() ? FluidVariant.blank() : contents.getVariant();
 	}
 
 	@Override
