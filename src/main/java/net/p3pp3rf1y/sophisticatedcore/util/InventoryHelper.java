@@ -101,6 +101,16 @@ public class InventoryHelper {
 		}
 
 		List<ItemStack> remaining = new ArrayList<>();
+		if (inventory instanceof IItemHandlerSimpleInserter itemHandlerSimpleInserter) {
+			for (ItemStack stack : stacks) {
+				ItemStack remainingStack = itemHandlerSimpleInserter.insertItem(stack.copy(), simulate);
+				if (!remainingStack.isEmpty()) {
+					remaining.add(remainingStack);
+				}
+			}
+			return remaining;
+		}
+
 		try (Transaction ctx = Transaction.openOuter()) {
 			for (ItemStack stack : stacks) {
 				ItemVariant resource = ItemVariant.of(stack);
@@ -119,7 +129,7 @@ public class InventoryHelper {
 	}
 
 	public static ItemStackHandler cloneInventory(SlottedStackStorage inventory) {
-		ItemStackHandler cloned = new ItemStackHandler(inventory.getSlotCount());
+		ItemStackHandler cloned = new SimpleItemStackHandler(inventory.getSlotCount());
 		for (int slot = 0; slot < inventory.getSlotCount(); slot++) {
 			cloned.setStackInSlot(slot, inventory.getStackInSlot(slot).copy());
 		}

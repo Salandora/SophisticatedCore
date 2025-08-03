@@ -63,7 +63,7 @@ public class FluidFilterContainer {
 			return;
 		}
 
-		CapabilityHelper.runOnCapability(carried, FluidStorage.ITEM, null, itemFluidHandler -> {
+		CapabilityHelper.runOnFluidHandler(carried, (cic, itemFluidHandler) -> {
 			FluidStack containedFluid = TransferUtil.simulateExtractAnyFluid(itemFluidHandler, FluidConstants.BUCKET);
 			if (!containedFluid.isEmpty()) {
 				setFluid(index, containedFluid);
