@@ -53,7 +53,7 @@ public class TankUpgradeItem extends UpgradeItemBase<TankUpgradeWrapper> {
 
 	@Override
 	public UpgradeSlotChangeResult checkExtraInsertConditions(ItemStack upgradeStack, IStorageWrapper storageWrapper, boolean isClientSide, @Nullable IUpgradeItem<?> upgradeInSlot) {
-		int capacityAfter = (int) (getTankCapacity(storageWrapper) / (upgradeInSlot instanceof StackUpgradeItem stackUpgrade ? stackUpgrade.getStackSizeMultiplier() : 1));
+		long capacityAfter = (long) ((getTankCapacity(storageWrapper)) / (upgradeInSlot instanceof StackUpgradeItem stackUpgrade ? stackUpgrade.getStackSizeMultiplier() : 1));
 		double multiplierRequired = (double) TankUpgradeWrapper.getContents(upgradeStack).getAmount() / capacityAfter;
 		if (multiplierRequired > 1) {
 			DecimalFormat multiplierFormat = new DecimalFormat("0.#");
