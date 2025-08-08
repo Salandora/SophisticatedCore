@@ -81,17 +81,4 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 
 		return original.call(instance, i);
     }
-
-	@WrapWithCondition(
-			method = "render",
-			at = @At(
-					value = "FIELD",
-					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;hoveredSlot:Lnet/minecraft/world/inventory/Slot;",
-					opcode = Opcodes.PUTFIELD,
-					ordinal = 0
-			)
-	)
-	private boolean sophisticatedCore$bypassHoveredSlotReset(AbstractContainerScreen<T> instance, Slot newSlot) {
-		return !sophisticatedCore$isStorageScreen;
-	}
 }
