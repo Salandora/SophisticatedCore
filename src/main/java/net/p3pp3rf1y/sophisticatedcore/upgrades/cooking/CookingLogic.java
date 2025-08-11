@@ -44,6 +44,8 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	private long remainingCookTime = 0;
 	private long remainingBurnTime = 0;
 
+	private boolean inPause = false;
+
 	public CookingLogic(ItemStack upgrade, Consumer<ItemStack> saveHandler, CookingUpgradeConfig cookingUpgradeConfig, RecipeType<T> recipeType, float burnTimeModifier) {
 		this(upgrade, saveHandler, s -> getBurnTime(s, burnTimeModifier) > 0, s -> RecipeHelper.getCookingRecipe(s, recipeType).isPresent(), cookingUpgradeConfig, recipeType, burnTimeModifier);
 	}
@@ -204,10 +206,18 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public void pause() {
-		paused = true;
-		setCookTimeFinish(0);
-		setIsCooking(false);
-		setBurnTimeFinish(0);
+		if (inPause) {
+			return;
+		}
+		inPause = true;
+		try {
+			paused = true;
+			setCookTimeFinish(0, false);
+			setIsCooking(false);
+			setBurnTimeFinish(0);
+		} finally {
+			inPause = false;
+		}
 	}
 
 	private void updateFuel(Level level, T cookingRecipe) {
@@ -311,8 +321,14 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private void setCookTimeFinish(long cookTimeFinish) {
+		setCookTimeFinish(cookTimeFinish, true);
+	}
+
+	private void setCookTimeFinish(long cookTimeFinish, boolean shouldSave) {
 		upgrade.sophisticatedCore_set(ModCoreDataComponents.COOK_TIME_FINISH, cookTimeFinish);
-		save();
+		if (shouldSave) {
+			save();
+		}
 	}
 
 	public int getCookTimeTotal() {
