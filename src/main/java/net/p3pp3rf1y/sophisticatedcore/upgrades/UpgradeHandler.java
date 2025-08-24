@@ -5,6 +5,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandle
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.stream.IntStream;
 
 public class UpgradeHandler extends ItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
@@ -340,14 +342,11 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	public void increaseSize(int diff) {
-		var previousSlots = new ArrayList<>(getSlots());
+		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, IntStream.range(0, getSlotCount()).mapToObj(this::getStackInSlot).toArray(ItemStack[]::new));
 
-		super.setSize(previousSlots.size() + diff);
-		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
-			if (tag != null) {
-				getSlot(i).load(tag);
-			}
+		super.setSize(previousStacks.size() + diff);
+		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
+			((UpgradeHandlerSlot) this.getSlot(slot)).setInternalNewStack(previousStacks.get(slot));
 		}
 		saveInventory();
 		setRenderUpgradeItems();
@@ -429,6 +428,10 @@ public class UpgradeHandler extends ItemStackHandler {
 				}
 			});
 			return extracted;
+		}
+
+		public void setInternalNewStack(ItemStack stack) {
+			super.setStack(stack);
 		}
 	}
 }
