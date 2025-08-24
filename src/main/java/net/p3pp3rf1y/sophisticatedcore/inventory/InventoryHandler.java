@@ -7,6 +7,7 @@ import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandle
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 public abstract class InventoryHandler extends ItemStackHandler implements ITrackedContentsItemHandler {
 	public static final String INVENTORY_TAG = "inventory";
@@ -414,14 +416,10 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	public void changeSlots(int diff) {
-		var previousSlots = new ArrayList<>(getSlots());
-
-		super.setSize(previousSlots.size() + diff);
-		for (int i = 0; i < previousSlots.size() && i < getSlotCount(); i++) {
-			CompoundTag tag = ((ItemStackHandlerSlot) previousSlots.get(i)).save();
-			if (tag != null) {
-				getSlot(i).load(tag);
-			}
+		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, IntStream.range(0, getSlotCount()).mapToObj(this::getStackInSlot).toArray(ItemStack[]::new));
+		super.setSize(previousStacks.size() + diff);
+		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
+			((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(previousStacks.get(slot));
 		}
 		initStackNbts();
 		saveInventory();
