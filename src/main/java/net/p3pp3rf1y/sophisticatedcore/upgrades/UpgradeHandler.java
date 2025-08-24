@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 public class UpgradeHandler extends ItemStackHandler {
 	public static final String UPGRADE_INVENTORY_TAG = "upgradeInventory";
@@ -383,7 +384,8 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	public void increaseSize(int diff) {
-		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, getSlots().stream().map(s -> s.getResource().toStack((int)s.getAmount())).toArray(ItemStack[]::new));
+		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, IntStream.range(0, getSlotCount()).mapToObj(this::getStackInSlot).toArray(ItemStack[]::new));
+
 		super.setSize(previousStacks.size() + diff);
 		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
 			((UpgradeHandlerSlot) this.getSlot(slot)).setInternalNewStack(previousStacks.get(slot));
