@@ -37,8 +37,13 @@ public class SophisticatedCore implements ModInitializer {
 	}
 
 	public static boolean isLogicalServerThread() {
-		String name = Thread.currentThread().getName();
-		return name.startsWith("Server") || name.startsWith("Netty");
+		Thread currentThread = Thread.currentThread();
+		if (currentServer != null && currentServer.getRunningThread() == currentThread) {
+			return true;
+		}
+
+		String name = currentThread.getName();
+		return name.startsWith("Netty Server IO") || name.startsWith("Netty Epoll Server IO");
 	}
 
 	@Override

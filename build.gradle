@@ -25,7 +25,7 @@ apply plugin: SophisticatedCoreBuildPlugin
 idea {
     module {
         downloadJavadoc = true
-        downloadSources = true
+        // downloadSources = true
     }
 }
 

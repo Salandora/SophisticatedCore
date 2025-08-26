@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 public abstract class InventoryHandler extends ItemStackHandler implements ITrackedContentsItemHandler {
 	public static final String INVENTORY_TAG = "inventory";
@@ -527,7 +528,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	public void changeSlots(int diff) {
-		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, getSlots().stream().map(s -> s.getResource().toStack((int) s.getAmount())).toArray(ItemStack[]::new));
+		NonNullList<ItemStack> previousStacks = NonNullList.of(ItemStack.EMPTY, IntStream.range(0, getSlotCount()).mapToObj(this::getStackInSlot).toArray(ItemStack[]::new));
 		super.setSize(previousStacks.size() + diff);
 		for (int slot = 0; slot < previousStacks.size() && slot < getSlotCount(); slot++) {
 			((InventoryHandlerSlot) this.getSlot(slot)).setInternalNewStack(previousStacks.get(slot));
