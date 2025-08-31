@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
 
 public abstract class InventoryHandler extends ItemStackHandler implements ITrackedContentsItemHandler {
 	public static final String INVENTORY_TAG = "inventory";

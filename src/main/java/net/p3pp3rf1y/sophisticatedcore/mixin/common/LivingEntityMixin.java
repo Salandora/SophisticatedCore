@@ -38,7 +38,7 @@ public abstract class LivingEntityMixin extends Entity {
 			at = @At("HEAD")
 	)
     private void sophisticatedCore$captureDrops(ServerLevel level, DamageSource damageSource, CallbackInfo ci) {
-        sophisticatedCaptureDrops(new ArrayList<>());
+        sophisticatedCore_captureDrops(new ArrayList<>());
     }
 
     @Inject(
