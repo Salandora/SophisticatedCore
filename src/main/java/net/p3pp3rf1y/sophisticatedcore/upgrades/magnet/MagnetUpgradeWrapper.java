@@ -183,7 +183,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			return true;
 		}
 
-		CompoundTag data = pickedUpEntity.sophisticatedCore_getCustomData();
+		CompoundTag data = pickedUpEntity.sophisticatedLibrary_getCustomData();
 		return entity != null ? data.contains(PREVENT_REMOTE_MOVEMENT) : data.contains(PREVENT_REMOTE_MOVEMENT) && !data.contains(ALLOW_MACHINE_MOVEMENT);
 	}
 
