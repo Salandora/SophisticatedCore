@@ -65,8 +65,8 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 		EnchantmentHelper.getRandomItemWith(EnchantmentEffectComponents.REPAIR_WITH_XP, player, ItemStack::isDamaged)
 				.ifPresent(item -> {
 					ItemStack itemStack = item.itemStack();
-					if (!itemStack.isEmpty() && itemStack.isDamaged() && itemStack.sophisticatedCore_getXpRepairRatio() > 0) {
-						float xpToTryDrain = Math.min(xpPumpUpgradeConfig.maxXpPointsPerMending.get(), itemStack.getDamageValue() / itemStack.sophisticatedCore_getXpRepairRatio());
+					if (!itemStack.isEmpty() && itemStack.isDamaged() && itemStack.sophisticatedLibrary_getXpRepairRatio() > 0) {
+						float xpToTryDrain = Math.min(xpPumpUpgradeConfig.maxXpPointsPerMending.get(), itemStack.getDamageValue() / itemStack.sophisticatedLibrary_getXpRepairRatio());
 						if (xpToTryDrain > 0) {
 							storageWrapper.getFluidHandler().ifPresent(fluidHandler -> {
 								FluidStack drained;
@@ -76,7 +76,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 								}
 
 								float xpDrained = XpHelper.liquidToExperience((int) drained.getAmount());
-								int durationToRepair = (int) (xpDrained * itemStack.sophisticatedCore_getXpRepairRatio());
+								int durationToRepair = (int) (xpDrained * itemStack.sophisticatedLibrary_getXpRepairRatio());
 								itemStack.setDamageValue(itemStack.getDamageValue() - durationToRepair);
 							});
 						}

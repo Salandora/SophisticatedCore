@@ -61,6 +61,7 @@ public class PacketDistributor {
 				.forEach(player -> player.connection.send(packet));
 	}
 
+	@SafeVarargs
 	private static <T extends CustomPacketPayload> Packet<?> makeClientboundPacket(T payload, T... payloads) {
 		if (payloads.length > 0) {
 			List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>(payloads.length + 1);

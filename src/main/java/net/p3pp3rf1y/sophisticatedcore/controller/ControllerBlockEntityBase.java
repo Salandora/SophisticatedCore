@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
-import net.p3pp3rf1y.sophisticatedcore.extensions.block.entity.SophisticatedBlockEntity;
+import com.github.salandora.sophisticatedlibrary.common.extensions.block.entity.SophisticatedBlockEntity;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IItemHandlerSimpleInserter;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
@@ -82,7 +82,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedCore_onLoad() {
+	public void sophisticatedLibrary_onLoad() {
 		// super.sophisticatedCore_onLoad();
 		if (level != null && !level.isClientSide()) {
 			stackStorages.clear();
@@ -729,7 +729,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedCore_onChunkUnloaded() {
+	public void sophisticatedLibrary_onChunkUnloaded() {
 		// super.sophisticatedCore_onChunkUnloaded();
 		detachFromStoragesAndUnlinkBlocks();
 	}

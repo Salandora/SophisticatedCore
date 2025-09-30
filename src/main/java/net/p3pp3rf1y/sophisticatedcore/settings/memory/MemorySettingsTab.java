@@ -83,10 +83,10 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	@Override
 	public void drawSlotStackOverlay(GuiGraphics guiGraphics, Slot slot, boolean templateLoadHovered) {
 		if (templateLoadHovered) {
-			if (!getSettingsContainer().getSelectedTemplatesMemorizedStack(slot.sophisticatedCore_getSlotIndex()).isEmpty()) {
+			if (!getSettingsContainer().getSelectedTemplatesMemorizedStack(slot.sophisticatedLibrary_getSlotIndex()).isEmpty()) {
 				drawMemorizedStackOverlay(guiGraphics, slot);
 			}
-		} else if (getSettingsContainer().isSlotSelected(slot.sophisticatedCore_getSlotIndex())) {
+		} else if (getSettingsContainer().isSlotSelected(slot.sophisticatedLibrary_getSlotIndex())) {
 			drawMemorizedStackOverlay(guiGraphics, slot);
 		}
 	}

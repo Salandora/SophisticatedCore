@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -63,8 +62,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 	@Override
 	public boolean handleMouseReleased(double mouseX, double mouseY, int button) {
-		if (mouseX < screen.sophisticatedCore_getGuiLeft() + getTankLeft() || mouseX >= screen.sophisticatedCore_getGuiLeft() + getTankLeft() + 18 ||
-				mouseY < screen.sophisticatedCore_getGuiTop() + pos.y() || mouseY >= screen.sophisticatedCore_getGuiTop() + pos.y() + height) {
+		if (mouseX < screen.sophisticatedLibrary_getGuiLeft() + getTankLeft() || mouseX >= screen.sophisticatedLibrary_getGuiLeft() + getTankLeft() + 18 ||
+				mouseY < screen.sophisticatedLibrary_getGuiTop() + pos.y() || mouseY >= screen.sophisticatedLibrary_getGuiTop() + pos.y() + height) {
 			return false;
 		}
 
@@ -91,8 +90,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 			contents = FluidStack.EMPTY;
 		}
 
-		int screenX = screen.sophisticatedCore_getGuiLeft() + pos.x() + 10;
-		int screenY = screen.sophisticatedCore_getGuiTop() + pos.y() + 1;
+		int screenX = screen.sophisticatedLibrary_getGuiLeft() + pos.x() + 10;
+		int screenY = screen.sophisticatedLibrary_getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {

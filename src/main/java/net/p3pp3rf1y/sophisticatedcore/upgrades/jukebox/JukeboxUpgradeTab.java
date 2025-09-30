@@ -74,8 +74,8 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 	protected void moveSlotsToTab() {
 		int slotIndex = 0;
 		for (Slot discSlot : getContainer().getSlots()) {
-			discSlot.x = x - screen.sophisticatedCore_getGuiLeft() + 4 + (slotIndex % slotsInRow) * 18;
-			discSlot.y = y - screen.sophisticatedCore_getGuiTop() + TOP_Y + 1 + (slotIndex / slotsInRow) * 18;
+			discSlot.x = x - screen.sophisticatedLibrary_getGuiLeft() + 4 + (slotIndex % slotsInRow) * 18;
+			discSlot.y = y - screen.sophisticatedLibrary_getGuiTop() + TOP_Y + 1 + (slotIndex / slotsInRow) * 18;
 			slotIndex++;
 		}
 	}

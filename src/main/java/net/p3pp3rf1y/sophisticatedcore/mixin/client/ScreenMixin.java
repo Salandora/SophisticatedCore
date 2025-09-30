@@ -18,6 +18,7 @@ public class ScreenMixin {
 			cancellable = true
 	)
 	private void sophisticatedCore$renderHead(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+		//noinspection ConstantValue
 		if ((Object) this instanceof StorageScreenBase<?> || (Object) this instanceof SettingsScreen) {
 			ci.cancel();
 		}

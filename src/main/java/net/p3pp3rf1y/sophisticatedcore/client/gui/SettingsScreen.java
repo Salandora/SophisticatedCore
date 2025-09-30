@@ -72,7 +72,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, sophisticatedCore_getGuiTop() + 17, sophisticatedCore_getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, sophisticatedLibrary_getGuiTop() + 17, sophisticatedLibrary_getGuiLeft() + 7);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsPosition();
 		} else {
@@ -184,7 +184,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore_getSlotColor(slotId));
+				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedLibrary_getSlotColor(slotId));
 			}
 
 			settingsTabControl.renderSlotExtra(guiGraphics, slot);
@@ -193,7 +193,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.sophisticatedCore_getSlotIndex(), isTemplateLoadHovered());
+		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.sophisticatedLibrary_getSlotIndex(), isTemplateLoadHovered());
 
 		RenderSystem.enableDepthTest();
 		PoseStack poseStack = guiGraphics.pose();
@@ -303,12 +303,12 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public int getTopY() {
-		return sophisticatedCore_getGuiTop();
+		return sophisticatedLibrary_getGuiTop();
 	}
 
 	@Override
 	public int getLeftX() {
-		return sophisticatedCore_getGuiLeft();
+		return sophisticatedLibrary_getGuiLeft();
 	}
 
 	@Override

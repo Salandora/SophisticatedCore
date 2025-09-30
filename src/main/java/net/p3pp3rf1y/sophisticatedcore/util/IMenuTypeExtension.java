@@ -8,7 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
-public interface IMenuTypeExtension<T> {
+public interface IMenuTypeExtension {
 	static <T extends AbstractContainerMenu> MenuType<T> create(ExtendedFactory<T, FriendlyByteBuf> factory) {
 		return new ExtendedScreenHandlerType<>((windowId, inventory, data) -> {
 			FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
