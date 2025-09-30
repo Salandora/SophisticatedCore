@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
 import com.github.salandora.sophisticatedlibrary.gui.SlotItemHandler;
+import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncAdditionalSlotInfoPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncEmptySlotIconsPayload;

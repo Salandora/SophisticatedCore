@@ -1,13 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import com.google.common.collect.Lists;
 import dev.emi.emi.runtime.EmiLog;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -34,13 +33,13 @@ public record EmiFillRecipePacket(int syncId, int action, List<Integer> slots, L
 		return TYPE;
 	}
 
-	public static void handlePayload(EmiFillRecipePacket payload, ServerPlayNetworking.Context context) {
+	public static void handlePayload(EmiFillRecipePacket payload, IPayloadContext context) {
 		if (payload.slots == null || payload.crafting == null) {
 			EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
 			return;
 		}
 
-		ServerPlayer player = context.player();
+		Player player = context.player();
 		AbstractContainerMenu handler = player.containerMenu;
 		if (handler == null || handler.containerId != payload.syncId || !(handler instanceof StorageContainerMenuBase<?> container)) {
 			EmiLog.warn("Client requested fill but screen handler has changed, aborting");

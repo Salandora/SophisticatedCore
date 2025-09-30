@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import me.shedaniel.rei.api.client.registry.transfer.TransferHandler;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.entry.EntryStack;
@@ -12,7 +13,6 @@ import me.shedaniel.rei.impl.common.transfer.InputSlotCrafter;
 import me.shedaniel.rei.impl.common.transfer.NewInputSlotCrafter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -61,11 +61,10 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 		return TYPE;
 	}
 
-	public static void handlePayload(REIMoveItemsPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayer player = context.player();
+	public static void handlePayload(REIMoveItemsPayload payload, IPayloadContext context) {
+		Player player = context.player();
 		AbstractContainerMenu container = player.containerMenu;
 		try {
-			boolean shift = payload.shiftDown;
 			try {
 				CompoundTag nbt = payload.tag;
 				int version = nbt.getInt("Version");
@@ -102,7 +101,7 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 						}
 					}
 				};
-				crafter.fillInputSlots(player, shift);
+				crafter.fillInputSlots((ServerPlayer) player, payload.shiftDown);
 			} catch (InputSlotCrafter.NotEnoughMaterialsException e) {
 				if (!(container instanceof RecipeBookMenu)) {
 					return;

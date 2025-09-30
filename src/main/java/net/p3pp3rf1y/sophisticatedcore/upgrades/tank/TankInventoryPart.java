@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
 import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,9 +14,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeInventoryPartBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
-import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
 import java.util.ArrayList;

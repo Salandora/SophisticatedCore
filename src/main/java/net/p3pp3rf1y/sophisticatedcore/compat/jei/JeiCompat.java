@@ -1,13 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import com.github.salandora.sophisticatedlibrary.network.PayloadRegistrar;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
-import net.p3pp3rf1y.sophisticatedcore.init.ModPayloads;
 
 public class JeiCompat implements ICompat {
 	@Override
 	public void setup() {
-		ModPayloads.registerC2S(TransferRecipePayload.TYPE, TransferRecipePayload.STREAM_CODEC, TransferRecipePayload::handlePayload);
-		ModPayloads.registerC2S(SetGhostSlotPayload.TYPE, SetGhostSlotPayload.STREAM_CODEC, SetGhostSlotPayload::handlePayload);
-		ModPayloads.registerC2S(SetMemorySlotPayload.TYPE, SetMemorySlotPayload.STREAM_CODEC, SetMemorySlotPayload::handlePayload);
+		final PayloadRegistrar registrar = PayloadRegistrar.registrar();
+		registrar.playToServer(TransferRecipePayload.TYPE, TransferRecipePayload.STREAM_CODEC, TransferRecipePayload::handlePayload);
+		registrar.playToServer(SetGhostSlotPayload.TYPE, SetGhostSlotPayload.STREAM_CODEC, SetGhostSlotPayload::handlePayload);
+		registrar.playToServer(SetMemorySlotPayload.TYPE, SetMemorySlotPayload.STREAM_CODEC, SetMemorySlotPayload::handlePayload);
 	}
 }

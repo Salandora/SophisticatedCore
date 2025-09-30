@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -21,7 +21,7 @@ public record SoundFinishedNotificationPayload(UUID storageUuid) implements Cust
 		return TYPE;
 	}
 
-	public static void handlePayload(SoundFinishedNotificationPayload payload, ServerPlayNetworking.Context context) {
+	public static void handlePayload(SoundFinishedNotificationPayload payload, IPayloadContext context) {
 		ServerStorageSoundHandler.onSoundFinished(context.player().level(), payload.storageUuid);
 	}
 }

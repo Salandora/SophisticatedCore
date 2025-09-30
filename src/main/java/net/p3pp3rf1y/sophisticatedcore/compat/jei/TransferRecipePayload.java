@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -39,7 +39,7 @@ public record TransferRecipePayload(ResourceLocation recipeId, ResourceLocation 
 		return TYPE;
 	}
 
-	public static void handlePayload(TransferRecipePayload payload, ServerPlayNetworking.Context context) {
+	public static void handlePayload(TransferRecipePayload payload, IPayloadContext context) {
 		RecipeType<?> recipeType = BuiltInRegistries.RECIPE_TYPE.get(payload.recipeTypeId);
 		if (recipeType == null) {
 			return;

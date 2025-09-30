@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,7 +23,7 @@ public record SetGhostSlotPayload(ItemStack stack, int slotNumber) implements Cu
 		return TYPE;
 	}
 
-	public static void handlePayload(SetGhostSlotPayload payload, ServerPlayNetworking.Context context) {
+	public static void handlePayload(SetGhostSlotPayload payload, IPayloadContext context) {
 		if (!(context.player().containerMenu instanceof StorageContainerMenuBase<?>)) {
 			return;
 		}

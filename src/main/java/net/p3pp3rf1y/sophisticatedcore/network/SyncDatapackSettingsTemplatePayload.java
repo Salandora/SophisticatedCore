@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,8 +29,7 @@ public record SyncDatapackSettingsTemplatePayload(String datapack, String templa
 		return TYPE;
 	}
 
-	@Environment(EnvType.CLIENT)
-	public static void handlePayload(SyncDatapackSettingsTemplatePayload payload, ClientPlayNetworking.Context context) {
+	public static void handlePayload(SyncDatapackSettingsTemplatePayload payload, IPayloadContext context) {
 		if (payload.settingsNbt == null) {
 			return;
 		}

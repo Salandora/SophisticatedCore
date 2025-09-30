@@ -1,9 +1,7 @@
 
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -40,8 +38,7 @@ public record SyncAdditionalSlotInfoPayload(Set<Integer> inaccessibleSlots, Map<
 		return TYPE;
 	}
 
-	@Environment(EnvType.CLIENT)
-	public static void handlePayload(SyncAdditionalSlotInfoPayload payload, ClientPlayNetworking.Context context) {
+	public static void handlePayload(SyncAdditionalSlotInfoPayload payload, IPayloadContext context) {
 		if (!(context.player().containerMenu instanceof IAdditionalSlotInfoMenu menu)) {
 			return;
 		}

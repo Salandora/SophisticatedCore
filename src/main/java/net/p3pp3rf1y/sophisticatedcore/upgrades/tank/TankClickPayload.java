@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
 import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
@@ -29,12 +30,12 @@ public record TankClickPayload(int upgradeSlot) implements CustomPacketPayload {
 		return TYPE;
 	}
 
-	public static void handlePayload(TankClickPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayer serverPlayer = context.player();
-		if (!(serverPlayer.containerMenu instanceof StorageContainerMenuBase<?> storageContainerMenu)) {
+	public static void handlePayload(TankClickPayload payload, IPayloadContext context) {
+		Player player = context.player();
+		if (!(player instanceof ServerPlayer serverPlayer) || !(player.containerMenu instanceof StorageContainerMenuBase<?> storageContainerMenu)) {
 			return;
 		}
-		AbstractContainerMenu containerMenu = serverPlayer.containerMenu;
+		AbstractContainerMenu containerMenu = player.containerMenu;
 		UpgradeContainerBase<?, ?> upgradeContainer = storageContainerMenu.getUpgradeContainers().get(payload.upgradeSlot);
 		if (!(upgradeContainer instanceof TankUpgradeContainer tankContainer)) {
 			return;

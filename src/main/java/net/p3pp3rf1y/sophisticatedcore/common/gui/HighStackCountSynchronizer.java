@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerStacksPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncSlotStackPayload;
 

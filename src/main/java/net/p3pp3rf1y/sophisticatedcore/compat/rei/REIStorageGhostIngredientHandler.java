@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
+import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
 import me.shedaniel.math.Point;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.gui.drag.DraggableStack;
@@ -14,7 +15,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.SetGhostSlotPayload;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;

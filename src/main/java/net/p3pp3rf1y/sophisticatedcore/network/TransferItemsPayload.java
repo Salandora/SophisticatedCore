@@ -1,11 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
+import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.wrapper.InvWrapper;
 import com.github.salandora.sophisticatedlibrary.transfer.wrapper.PlayerMainInvWrapper;
 import com.github.salandora.sophisticatedlibrary.transfer.wrapper.RangedWrapper;
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -35,7 +35,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			TransferItemsPayload::filterByContents,
 			TransferItemsPayload::new);
 
-	public static void handlePayload(TransferItemsPayload payload, ServerPlayNetworking.Context context) {
+	public static void handlePayload(TransferItemsPayload payload, IPayloadContext context) {
 		Player player = context.player();
 
 		if (!(player.containerMenu instanceof StorageContainerMenuBase<?> storageMenu)) {

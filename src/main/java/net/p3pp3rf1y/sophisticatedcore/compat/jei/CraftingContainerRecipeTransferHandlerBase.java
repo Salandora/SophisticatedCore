@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
@@ -24,7 +25,6 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.*;

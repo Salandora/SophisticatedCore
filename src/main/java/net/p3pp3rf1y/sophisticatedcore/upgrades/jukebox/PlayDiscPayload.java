@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
@@ -44,8 +42,7 @@ public record PlayDiscPayload(boolean blockStorage, UUID storageUuid, Holder<Juk
 		return TYPE;
 	}
 
-	@Environment(EnvType.CLIENT)
-	public static void handlePayload(PlayDiscPayload payload, ClientPlayNetworking.Context context) {
+	public static void handlePayload(PlayDiscPayload payload, IPayloadContext context) {
 		SoundEvent soundEvent = payload.song().value().soundEvent().value();
 		if (payload.blockStorage) {
 			StorageSoundHandler.playStorageSound(soundEvent, payload.storageUuid, payload.pos);

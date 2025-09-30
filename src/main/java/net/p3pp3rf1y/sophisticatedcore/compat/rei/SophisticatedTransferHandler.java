@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
+import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.shedaniel.rei.api.client.ClientHelper;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
 import java.util.List;
 

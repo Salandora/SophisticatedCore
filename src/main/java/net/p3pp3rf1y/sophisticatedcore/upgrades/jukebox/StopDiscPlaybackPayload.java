@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -24,8 +22,7 @@ public record StopDiscPlaybackPayload(UUID storageUuid) implements CustomPacketP
 		return TYPE;
 	}
 
-	@Environment(EnvType.CLIENT)
-	public static void handlePayload(StopDiscPlaybackPayload payload, ClientPlayNetworking.Context context) {
+	public static void handlePayload(StopDiscPlaybackPayload payload, IPayloadContext context) {
 		StorageSoundHandler.stopStorageSound(payload.storageUuid);
 	}
 }

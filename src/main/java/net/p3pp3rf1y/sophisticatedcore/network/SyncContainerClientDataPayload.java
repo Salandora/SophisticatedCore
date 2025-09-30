@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -24,7 +24,7 @@ public record SyncContainerClientDataPayload(@Nullable CompoundTag data) impleme
 		return TYPE;
 	}
 
-	public static void handlePayload(SyncContainerClientDataPayload payload, ServerPlayNetworking.Context context) {
+	public static void handlePayload(SyncContainerClientDataPayload payload, IPayloadContext context) {
 		if (payload.data == null) {
 			return;
 		}

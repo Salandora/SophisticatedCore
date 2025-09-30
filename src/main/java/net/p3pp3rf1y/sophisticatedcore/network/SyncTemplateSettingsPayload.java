@@ -1,9 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
+import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
 import io.netty.buffer.ByteBuf;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,8 +30,7 @@ public record SyncTemplateSettingsPayload(Map<Integer, CompoundTag> playerTempla
 		return TYPE;
 	}
 
-	@Environment(EnvType.CLIENT)
-	public static void handlePayload(SyncTemplateSettingsPayload payload, ClientPlayNetworking.Context context) {
+	public static void handlePayload(SyncTemplateSettingsPayload payload, IPayloadContext context) {
 		Player player = context.player();
 		SettingsTemplateStorage settingsTemplateStorage = SettingsTemplateStorage.get();
 		settingsTemplateStorage.clearPlayerTemplates(player);
