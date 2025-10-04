@@ -2,13 +2,14 @@ package net.p3pp3rf1y.sophisticatedcore.settings;
 
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
-import net.p3pp3rf1y.sophisticatedcore.util.SimpleIdentifiablePrepareableReloadListener;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -57,14 +58,15 @@ public class DatapackSettingsTemplateManager {
 	}
 
 	@SuppressWarnings("java:S6548")
-	public static class Loader extends SimpleIdentifiablePrepareableReloadListener<Map<ResourceLocation, CompoundTag>> {
+	public static class Loader extends SimplePreparableReloadListener<Map<ResourceLocation, CompoundTag>> implements IdentifiableResourceReloadListener {
 		public static final Loader INSTANCE = new Loader();
 		private static final String DIRECTORY = "sophisticated_settingstemplates";
 		private static final String SUFFIX = ".snbt";
 		private static final int PATH_SUFFIX_LENGTH = SUFFIX.length();
 
-		private Loader() {
-			super(SophisticatedCore.getRL("datapack_settings_template_manager"));
+		@Override
+		public ResourceLocation getFabricId() {
+			return SophisticatedCore.getRL("datapack_settings_template_manager");
 		}
 
 		@Override
