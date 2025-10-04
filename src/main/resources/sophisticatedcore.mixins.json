@@ -2,7 +2,6 @@
   "required": true,
   "priority": 1100,
   "minVersion": "0.8",
-  "minMixinExtrasVersion": "0.5.0-beta.3",
   "package": "net.p3pp3rf1y.sophisticatedcore.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
