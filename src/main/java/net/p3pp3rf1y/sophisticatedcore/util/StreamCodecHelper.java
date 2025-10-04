@@ -174,7 +174,17 @@ public class StreamCodecHelper {
 		};
 	}
 
-	public static <T extends Enum<T>> EnumStreamCodec<T> enumCodec(Class<T> enumClass) {
-		return new EnumStreamCodec<>(enumClass);
+	public static <T extends Enum<T>> StreamCodec<FriendlyByteBuf, T> enumCodec(Class<T> enumClass) {
+		return new StreamCodec<>() {
+			@Override
+			public T decode(FriendlyByteBuf buf) {
+				return buf.readEnum(enumClass);
+			}
+
+			@Override
+			public void encode(FriendlyByteBuf buf, T value) {
+				buf.writeEnum(value);
+			}
+		};
 	}
 }
