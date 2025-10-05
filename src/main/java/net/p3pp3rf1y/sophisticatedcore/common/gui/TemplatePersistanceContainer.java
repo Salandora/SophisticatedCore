@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.CachedOutput;

@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
-import com.github.salandora.sophisticatedlibrary.gui.SlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;

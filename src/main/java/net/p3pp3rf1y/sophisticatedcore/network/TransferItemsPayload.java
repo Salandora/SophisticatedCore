@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.IPayloadContext;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.wrapper.InvWrapper;
 import com.github.salandora.sophisticatedlibrary.transfer.wrapper.PlayerMainInvWrapper;

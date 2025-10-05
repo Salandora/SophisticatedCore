@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
-import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.fabric.constants.FabricTypes;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;

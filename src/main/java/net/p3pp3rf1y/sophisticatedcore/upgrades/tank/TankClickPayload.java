@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
-import com.github.salandora.sophisticatedlibrary.network.handling.IPayloadContext;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.IPayloadContext;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;

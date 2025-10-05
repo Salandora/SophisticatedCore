@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
-import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
 import com.google.common.collect.Maps;
 import dev.emi.emi.api.EmiDragDropHandler;
 import dev.emi.emi.api.stack.EmiIngredient;

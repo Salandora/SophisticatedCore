@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
-import com.github.salandora.sophisticatedlibrary.fluid.SimpleFluidContent;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.SimpleFluidContent;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;

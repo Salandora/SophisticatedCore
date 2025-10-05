@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.trinkets;
 
-import com.github.salandora.sophisticatedlibrary.items.EmptyItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.EmptyItemHandler;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

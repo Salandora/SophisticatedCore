@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ComponentItemHandler;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -11,7 +12,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
-import com.github.salandora.sophisticatedlibrary.items.ComponentItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import javax.annotation.Nullable;

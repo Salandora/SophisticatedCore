@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import com.github.salandora.sophisticatedlibrary.fluid.BaseFlowingFluid;
-import com.github.salandora.sophisticatedlibrary.fluid.FluidType;
 import com.github.salandora.sophisticatedlibrary.fluid.SophisticatedFluid;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.BaseFlowingFluid;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidType;
 import com.github.salandora.sophisticatedlibrary.util.DeferredRegister;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalFluidTags;

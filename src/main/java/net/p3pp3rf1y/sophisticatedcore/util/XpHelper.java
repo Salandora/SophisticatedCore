@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
 import net.minecraft.world.entity.player.Player;
-import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 
 public class XpHelper {
 	private XpHelper() {}

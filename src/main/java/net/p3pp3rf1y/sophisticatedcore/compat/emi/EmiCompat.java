@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import com.github.salandora.sophisticatedlibrary.network.PayloadRegistrar;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PayloadRegistrar;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;

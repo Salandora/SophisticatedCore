@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import com.github.salandora.sophisticatedlibrary.network.PayloadRegistrar;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PayloadRegistrar;
 import net.p3pp3rf1y.sophisticatedcore.network.*;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.PlayDiscPayload;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.SoundFinishedNotificationPayload;

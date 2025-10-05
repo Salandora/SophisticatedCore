@@ -1,7 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import com.github.salandora.sophisticatedlibrary.fluid.FluidStack;
-import com.github.salandora.sophisticatedlibrary.fluid.SimpleFluidContent;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.SimpleFluidContent;
+import com.github.salandora.sophisticatedlibrary.transfer.ComponentItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.TransactionCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -18,7 +20,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluids;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedTankUpgrade;
@@ -26,8 +27,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
-import com.github.salandora.sophisticatedlibrary.items.ComponentItemHandler;
-import com.github.salandora.sophisticatedlibrary.fluid.FluidUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

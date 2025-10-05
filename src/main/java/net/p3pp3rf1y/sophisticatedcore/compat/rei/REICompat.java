@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
-import com.github.salandora.sophisticatedlibrary.network.PayloadRegistrar;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PayloadRegistrar;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
 
 public class REICompat implements ICompat {

@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
-import com.github.salandora.sophisticatedlibrary.network.PacketDistributor;
+import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
 import net.minecraft.nbt.CompoundTag;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerClientDataPayload;

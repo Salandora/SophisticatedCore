@@ -1,11 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
+import com.github.salandora.sophisticatedlibrary.transfer.ComponentItemHandler;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
-import com.github.salandora.sophisticatedlibrary.items.ComponentItemHandler;
 
 import java.util.function.Consumer;
 
