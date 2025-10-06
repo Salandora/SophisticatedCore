@@ -45,7 +45,8 @@
         "fabricloader": ">=${loader_version}",
         "fabric-api": ">=${fabric_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
-        "team_reborn_energy": ">=${energy_version}"
+        "team_reborn_energy": ">=${energy_version}",
+        "sophisticatedlibrary": "${sl_version}"
     },
     "suggests": {
         "modmenu": "*"

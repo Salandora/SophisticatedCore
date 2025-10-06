@@ -71,6 +71,17 @@ repositories {
     }
     maven { url = "https://maven.fabricmc.net/" } // FAPI, Loader
     maven { url = "https://maven.quiltmc.org/repository/release" } // QM
+    maven {
+        name = "SophisticatedLibrary GitHubPackages"
+        url = "https://maven.pkg.github.com/Salandora/SophisticatedLibrary"
+        credentials {
+            username = System.getenv("USERNAME")
+            password = System.getenv("READ_PACKAGES_TOKEN")
+        }
+        content {
+            includeGroupAndSubgroups "sophisticatedlibrary"
+        }
+    }
     maven { // Forge Config API Port
         url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
         content {
@@ -219,15 +230,14 @@ dependencies {
 
     if (findProject(":SophisticatedLibrary") != null) {
         implementation project(path: ":SophisticatedLibrary", configuration: "namedElements")
-        include(project(path: ":SophisticatedLibrary"))
     } else {
-        modImplementation(include("com.github.salandora.sophisticatedlibrary:${minecraft_version}-${sophisticatedlibrary_version}"))
+        modImplementation("com.github.salandora.sophisticatedlibrary:${project.sl_version}")
     }
 
     // EMI
-    modCompileOnly("dev.emi:emi-fabric:$emi_version")
+    modCompileOnly("dev.emi:emi-fabric:${project.emi_version}")
     // JEI
-    modCompileOnly("mezz.jei:jei-$minecraft_version-fabric:$jei_version") { transitive = false }
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-fabric:${project.jei_version}") { transitive = false }
     // REI
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${project.rei_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}")
@@ -318,7 +328,8 @@ processResources {
             fabric_version      : project.fabric_version,
             forge_config_version: project.forge_config_api_port_version,
             energy_version      : project.energy_version,
-            jei_version         : project.jei_version
+            jei_version         : project.jei_version,
+            sl_version          : mavenVersionToFabric(project.sl_version)
     ]
 
     inputs.properties replaceProperties
@@ -349,6 +360,24 @@ tasks.register('fixIntelliJResources', Copy) {
 
     from processResources
     into ideaModuleCompileOutputPath[1]
+}
+
+static def mavenVersionToFabric(String version) {
+    StringBuilder builder = new StringBuilder()
+    if (version.startsWith("[")) {
+        builder.append(">=")
+    } else {
+        builder.append(">")
+    }
+    builder.append(version.substring(1, version.lastIndexOf(',')))
+
+    if (version.endsWith(')')) {
+        builder.append(" <")
+    } else {
+        builder.append(" <=")
+    }
+    builder.append(version.substring(version.lastIndexOf(',') + 1, version.length() - 1))
+    return builder.toString()
 }
 
 static def getBuildNumber() {
