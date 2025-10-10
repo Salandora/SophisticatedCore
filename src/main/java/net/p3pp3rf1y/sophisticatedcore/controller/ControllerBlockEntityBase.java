@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public abstract class ControllerBlockEntityBase extends BlockEntity implements SlottedStackStorage {
+public abstract class ControllerBlockEntityBase extends BlockEntity implements IItemHandlerSimpleInserter {
 	public static final int SEARCH_RANGE = 15;
 	private List<BlockPos> storagePositions = new ArrayList<>();
 	private List<Integer> baseIndexes = new ArrayList<>();
