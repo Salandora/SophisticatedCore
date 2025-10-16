@@ -2,12 +2,10 @@ package net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks;
 
 import net.blay09.mods.craftingtweaks.CraftingTweaksProviderManager;
 import net.blay09.mods.craftingtweaks.api.CraftingTweaksClientAPI;
+import net.blay09.mods.craftingtweaks.api.TweakType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.blay09.mods.craftingtweaks.api.TweakType;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
@@ -28,7 +26,9 @@ public class CraftingUpgradeTweakUIPart implements ICraftingUIPart {
     @Environment(EnvType.CLIENT)
 	private void addButton(AbstractWidget button) {
 		buttons.add(button);
-		storageScreen.addRenderableWidget(button);
+		// Fabric: Changed to fix an incompatibility with RecipeEssentials
+		storageScreen.addRenderableOnly(button);
+		storageScreen.addWidget(button);
 	}
 
 	@Override
