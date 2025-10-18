@@ -150,7 +150,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		settingsTabControl.renderTooltip(this, matrixStack, mouseX, mouseY);
 		templatePersistanceControl.renderTooltip(this, matrixStack, mouseX, mouseY);
 		renderTooltip(matrixStack, mouseX, mouseY);
-		matrixStack.popPose();
 	}
 
 	@Override
