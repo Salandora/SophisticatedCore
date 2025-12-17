@@ -1,7 +1,7 @@
+import com.github.salandora.sophisticatedcorebuild.SophisticatedCoreBuildPlugin
 import net.fabricmc.loom.task.ValidateMixinNameTask
 import net.fabricmc.loom.util.gradle.SourceSetHelper
 import net.fabricmc.loom.util.gradle.SourceSetReference
-import com.github.salandora.sophisticatedcorebuild.SophisticatedCoreBuildPlugin;
 
 buildscript {
     repositories {
@@ -516,7 +516,7 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
 
     // Dependencies
     mainFile.addRequirement('fabric-api')
-    mainFile.addRequirement('forge-config-api-port-fabric')
+    mainFile.addRequirement('forge-config-api-port')
     mainFile.addEmbedded('porting-lib')
     onlyIf { !project.ext.changelog.isEmpty() }
 }

@@ -618,13 +618,25 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		slotTracker.setShouldInsertIntoEmpty(shouldInsertIntoEmpty);
 	}
 
-	@Override
-	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
-		return new InventoryHandlerSlot(index, this, stack);
-	}
-
 	public boolean isInfinite(int slot) {
 		return inventoryPartitioner.isInfinite(slot);
+	}
+
+	// Fabric
+	private List<InventoryHandlerSlot> backingList;
+
+	@Override
+	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {
+		if (backingList == null) {
+			this.backingList = new ArrayList<>();
+		}
+		while (backingList.size() <= index) {
+			backingList.add(new InventoryHandlerSlot(index, this, ItemStack.EMPTY));
+		}
+
+		InventoryHandlerSlot slot = backingList.get(index);
+		slot.setInternalNewStack(stack);
+		return slot;
 	}
 
 	private class InventoryHandlerSlot extends ItemStackHandlerSlot {
