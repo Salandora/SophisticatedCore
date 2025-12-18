@@ -1,20 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.SimpleFluidContent;
-import com.github.salandora.sophisticatedlibrary.transfer.ComponentItemHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.TransactionCallback;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.*;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ComponentItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
@@ -34,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, TankUpgradeItem>
-		implements IRenderedTankUpgrade, ITickableUpgrade, IStackableContentsUpgrade, SingleSlotStorage<FluidVariant> {
+		implements IRenderedTankUpgrade, ITickableUpgrade, IStackableContentsUpgrade {
 	public static final int INPUT_SLOT = 0;
 	public static final int OUTPUT_SLOT = 1;
 	private Consumer<TankRenderInfo> updateTankRenderInfoCallback;
@@ -56,12 +44,12 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		return CapabilityHelper.getFromFluidHandler(stack, fluidHandler -> isValidFluidHandler(fluidHandler, isOutput), false);
 	}
 
-	private boolean isValidFluidHandler(Storage<FluidVariant> storage, boolean isOutput) {
+	private boolean isValidFluidHandler(IFluidHandlerItem fluidHandler, boolean isOutput) {
 		boolean tankEmpty = contents.isEmpty();
-		for (StorageView<FluidVariant> view : storage) {
-			FluidStack fluidInTank = new FluidStack(view);
-			if ((isOutput && (view.isResourceBlank() || (!tankEmpty && FluidStack.isSameFluidSameComponents(fluidInTank, contents))))
-				|| (!isOutput && (!view.isResourceBlank() && (tankEmpty || FluidStack.isSameFluidSameComponents(contents, fluidInTank))))
+		for (int tank = 0; tank < fluidHandler.getTanks(); tank++) {
+			FluidStack fluidInTank = fluidHandler.getFluidInTank(tank);
+			if ((isOutput && (fluidInTank.isEmpty() || (!tankEmpty && FluidStack.isSameFluidSameComponents(fluidInTank, contents))))
+					|| (!isOutput && !fluidInTank.isEmpty() && (tankEmpty || FluidStack.isSameFluidSameComponents(contents, fluidInTank)))
 			) {
 				return true;
 			}
@@ -88,6 +76,12 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		return contents;
 	}
 
+	// Fabric: Added for internal use to reset the content when a Transaction was cancelled
+	public void setContents(FluidStack fluidStack) {
+		this.contents = fluidStack;
+		serializeContents();
+	}
+
 	public long getTankCapacity() {
 		return upgradeItem.getTankCapacity(storageWrapper);
 	}
@@ -97,17 +91,17 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private long getMaxInOut() {
-		return (int) Math.max(FluidConstants.BUCKET, upgradeItem.getTankUpgradeConfig().maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * upgradeItem.getAdjustedStackMultiplier(storageWrapper) * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS);
+		return (int) Math.max(FluidType.BUCKET_VOLUME, upgradeItem.getTankUpgradeConfig().maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * upgradeItem.getAdjustedStackMultiplier(storageWrapper) * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS);
 	}
 
-	/*public int fill(FluidStack resource, IFluidHandler.FluidAction action, boolean ignoreInOutLimit) {
-		int capacity = getTankCapacity();
+	public long fill(FluidStack resource, IFluidHandler.FluidAction action, boolean ignoreInOutLimit) {
+		long capacity = getTankCapacity();
 
 		if (contents.getAmount() >= capacity || (!contents.isEmpty() && !FluidStack.isSameFluidSameComponents(resource, contents))) {
 			return 0;
 		}
 
-		int toFill = Math.min(capacity - contents.getAmount(), resource.getAmount());
+		long toFill = Math.min(capacity - contents.getAmount(), resource.getAmount());
 		if (!ignoreInOutLimit) {
 			toFill = Math.min(getMaxInOut(), toFill);
 		}
@@ -122,30 +116,6 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		return toFill;
-	}*/
-
-	public long fill(FluidVariant resource, long maxFill, TransactionContext ctx, boolean ignoreInOutLimit) {
-		long capacity = getTankCapacity();
-		if (contents.getAmount() >= capacity || (!contents.isEmpty() && !resource.isOf(contents.getFluid()))) {
-			return 0;
-		}
-
-		long toFill = Math.min(capacity - contents.getAmount(), maxFill);
-		if (!ignoreInOutLimit) {
-			toFill = Math.min(getMaxInOut(), toFill);
-		}
-
-		long finalToFill = toFill;
-		TransactionCallback.onSuccess(ctx, () -> {
-			if (contents.isEmpty()) {
-				contents = new FluidStack(resource, finalToFill);
-			} else {
-				contents.setAmount(contents.getAmount() + finalToFill);
-			}
-			serializeContents();
-		});
-
-		return toFill;
 	}
 
 	private void serializeContents() {
@@ -154,7 +124,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		forceUpdateTankRenderInfo();
 	}
 
-	/*public FluidStack drain(int maxDrain, IFluidHandler.FluidAction action, boolean ignoreInOutLimit) {
+	public FluidStack drain(long maxDrain, IFluidHandler.FluidAction action, boolean ignoreInOutLimit) {
 		if (contents.isEmpty()) {
 			return FluidStack.EMPTY;
 		}
@@ -175,29 +145,6 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		return ret;
-	}*/
-
-	public long drain(long maxDrain, TransactionContext ctx, boolean ignoreInOutLimit) {
-		if (contents.isEmpty()) {
-			return 0;
-		}
-
-		long toDrain = Math.min(maxDrain, contents.getAmount());
-		if (!ignoreInOutLimit) {
-			toDrain = Math.min(getMaxInOut(), toDrain);
-		}
-
-		long finalToDrain = toDrain;
-		TransactionCallback.onSuccess(ctx, () -> {
-			if (finalToDrain == contents.getAmount()) {
-				contents = FluidStack.EMPTY;
-			} else {
-				contents.setAmount(contents.getAmount() - finalToDrain);
-			}
-			serializeContents();
-		});
-
-		return toDrain;
 	}
 
 	@Override
@@ -207,11 +154,11 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		AtomicBoolean didSomething = new AtomicBoolean(false);
-		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(INPUT_SLOT), (cic, fluidHandler) ->
-				didSomething.set(drainHandler(cic, fluidHandler, stack -> inventory.setStackInSlotWithoutValidation(INPUT_SLOT, stack)))
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(INPUT_SLOT), fluidHandler ->
+				didSomething.set(drainHandler(fluidHandler, stack -> inventory.setStackInSlotWithoutValidation(INPUT_SLOT, stack)))
 		);
-		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(OUTPUT_SLOT), (cic, fluidHandler) ->
-				didSomething.set(fillHandler(cic, fluidHandler, stack -> inventory.setStackInSlotWithoutValidation(OUTPUT_SLOT, stack)))
+		CapabilityHelper.runOnFluidHandler(inventory.getStackInSlot(OUTPUT_SLOT), fluidHandler ->
+				didSomething.set(fillHandler(fluidHandler, stack -> inventory.setStackInSlotWithoutValidation(OUTPUT_SLOT, stack)))
 		);
 
 		if (didSomething.get()) {
@@ -219,38 +166,32 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 	}
 
-	public boolean fillHandler(ContainerItemContext cic, Storage<FluidVariant> fluidHandler, Consumer<ItemStack> updateContainerStack) {
+	public boolean fillHandler(IFluidHandlerItem fluidHandler, Consumer<ItemStack> updateContainerStack) {
 		if (!contents.isEmpty() && isValidFluidHandler(fluidHandler, true)) {
-			long filled = StorageUtil.simulateInsert(fluidHandler, contents.getVariant(), Math.min(FluidConstants.BUCKET, contents.getAmount()), null);
+			long filled = fluidHandler.fill(new FluidStack(contents.getFluid(), Math.min(FluidType.BUCKET_VOLUME, contents.getAmount())), IFluidHandler.FluidAction.SIMULATE);
 			if (filled <= 0) { //checking for less than as well because some mods have incorrect fill logic
 				return false;
 			}
-			try (Transaction ctx = Transaction.openOuter()) {
-				long drained = drain(filled, ctx, false);
-				fluidHandler.insert(contents.getVariant(), drained, ctx);
-				ctx.commit();
-			}
-			updateContainerStack.accept(cic.getItemVariant().toStack((int) cic.getAmount()));
+			FluidStack drained = drain(filled, IFluidHandler.FluidAction.EXECUTE, false);
+			fluidHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+			updateContainerStack.accept(fluidHandler.getContainer());
 			return true;
 		}
 		return false;
 	}
 
-	public boolean drainHandler(ContainerItemContext cic, Storage<FluidVariant> fluidHandler, Consumer<ItemStack> updateContainerStack) {
+	public boolean drainHandler(IFluidHandlerItem fluidHandler, Consumer<ItemStack> updateContainerStack) {
 		if (isValidFluidHandler(fluidHandler, false)) {
-			FluidVariant resource = contents.isEmpty() ? StorageUtil.findStoredResource(fluidHandler) : contents.getVariant();
-			long extracted = contents.isEmpty() ?
-					StorageUtil.simulateExtract(fluidHandler, resource, FluidConstants.BUCKET, null) :
-					StorageUtil.simulateExtract(fluidHandler, resource, Math.min(FluidConstants.BUCKET, getTankCapacity() - contents.getAmount()), null);
-			if (extracted <= 0) {
+			FluidStack extracted = contents.isEmpty() ?
+					fluidHandler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE) :
+					fluidHandler.drain(new FluidStack(contents.getFluid(), Math.min(FluidType.BUCKET_VOLUME, getTankCapacity() - contents.getAmount())), IFluidHandler.FluidAction.SIMULATE);
+			if (extracted.isEmpty()) {
 				return false;
 			}
-			try (Transaction ctx = Transaction.openOuter()) {
-				long filled = fill(resource, extracted, ctx, false);
-				fluidHandler.extract(resource, filled, ctx);
-				ctx.commit();
-			}
-			updateContainerStack.accept(cic.getItemVariant().toStack((int) cic.getAmount()));
+			long filled = fill(extracted, IFluidHandler.FluidAction.EXECUTE, false);
+			FluidStack toExtract = filled == extracted.getAmount() ? extracted : new FluidStack(extracted.getFluid(), filled);
+			fluidHandler.drain(toExtract, IFluidHandler.FluidAction.EXECUTE);
+			updateContainerStack.accept(fluidHandler.getContainer());
 			return true;
 		}
 		return false;
@@ -264,40 +205,6 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	@Override
 	public boolean canBeDisabled() {
 		return false;
-	}
-
-	@Override
-	public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-		return fill(resource, maxAmount, transaction, false);
-	}
-
-	@Override
-	public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-		if (contents == null || !resource.isOf(contents.getFluid())) {
-			return 0;
-		}
-
-		return drain(maxAmount, transaction, false);
-	}
-
-	@Override
-	public boolean isResourceBlank() {
-		return contents == null || contents.isEmpty();
-	}
-
-	@Override
-	public FluidVariant getResource() {
-		return contents.isEmpty() ? FluidVariant.blank() : contents.getVariant();
-	}
-
-	@Override
-	public long getAmount() {
-		return contents.getAmount();
-	}
-
-	@Override
-	public long getCapacity() {
-		return getMaxInOut();
 	}
 
 	private class TankComponentItemHandler extends ComponentItemHandler {

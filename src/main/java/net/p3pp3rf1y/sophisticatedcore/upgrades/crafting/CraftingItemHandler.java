@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;

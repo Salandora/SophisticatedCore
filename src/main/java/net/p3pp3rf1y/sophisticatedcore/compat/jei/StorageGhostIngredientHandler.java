@@ -1,12 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
 import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandler;
 import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.fabric.constants.FabricTypes;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.minecraft.client.renderer.Rect2i;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
@@ -28,7 +28,7 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 			StorageContainerMenuBase<?> container = gui.getMenu();
 			ingredient.getItemStack().ifPresent(ghostStack -> {
 						FluidStack fluidStack = CapabilityHelper.getFromFluidHandler(ghostStack,
-								fluidHandler -> Optional.ofNullable(StorageUtil.findExtractableContent(fluidHandler, null)).map(FluidStack::new).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
+								fluidHandler -> Optional.of(fluidHandler.drain(Long.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE)).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
 						if (!fluidStack.isEmpty()) {
 							gui.getUpgradeSettingsControl().getOpenTab().filter(tab -> tab instanceof PumpUpgradeTab.Advanced).map(PumpUpgradeTab.Advanced.class::cast).ifPresent(pumpUpgradeTab -> {
 								addFluidTargets(pumpUpgradeTab, fluidStack, targets);

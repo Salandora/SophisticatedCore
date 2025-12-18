@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
 import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
 import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.gui.GuiGraphics;
@@ -68,7 +69,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		}
 
 		ItemStack cursorStack = screen.getMenu().getCarried();
-		if (cursorStack.getCount() > 1 || !FluidUtil.isFluidStorage(cursorStack)) {
+		if (cursorStack.getCount() > 1 || cursorStack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM) == null) {
 			return false;
 		}
 

@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 

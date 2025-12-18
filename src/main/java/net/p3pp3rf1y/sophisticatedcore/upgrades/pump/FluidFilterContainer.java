@@ -1,8 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
 import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
-import com.github.salandora.sophisticatedlibrary.transfer.TransferUtil;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidType;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandler;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -62,8 +63,8 @@ public class FluidFilterContainer {
 			return;
 		}
 
-		CapabilityHelper.runOnFluidHandler(carried, (cic, itemFluidHandler) -> {
-			FluidStack containedFluid = TransferUtil.simulateExtractAnyFluid(itemFluidHandler, FluidConstants.BUCKET);
+		CapabilityHelper.runOnCapability(carried, Capabilities.FluidHandler.ITEM, null, itemFluidHandler -> {
+			FluidStack containedFluid = itemFluidHandler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
 			if (!containedFluid.isEmpty()) {
 				setFluid(index, containedFluid);
 			}

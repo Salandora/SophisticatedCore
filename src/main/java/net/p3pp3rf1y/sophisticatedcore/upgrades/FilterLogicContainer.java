@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.FilterSlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IServerUpdater;

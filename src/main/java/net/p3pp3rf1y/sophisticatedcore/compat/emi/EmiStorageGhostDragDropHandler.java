@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
 import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandler;
 import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
 import com.google.common.collect.Maps;
 import dev.emi.emi.api.EmiDragDropHandler;
@@ -8,7 +9,6 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.runtime.EmiDrawContext;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -38,7 +38,7 @@ public class EmiStorageGhostDragDropHandler<T extends StorageScreenBase<?>> impl
             ItemStack ghostStack = ingredient.getEmiStacks().getFirst().getItemStack();
             if (!ghostStack.isEmpty()) {
                 FluidStack fluidStack = CapabilityHelper.getFromFluidHandler(ghostStack,
-                        fluidHandler -> Optional.ofNullable(StorageUtil.findExtractableContent(fluidHandler, null)).map(FluidStack::new).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
+                        fluidHandler -> Optional.of(fluidHandler.drain(Long.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE)).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
 
                 if (!fluidStack.isEmpty()) {
                     screen.getUpgradeSettingsControl().getOpenTab().filter(tab -> tab instanceof PumpUpgradeTab.Advanced).map(PumpUpgradeTab.Advanced.class::cast).ifPresent(pumpUpgradeTab -> {

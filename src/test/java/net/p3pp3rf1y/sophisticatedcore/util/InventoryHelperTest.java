@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.NonNullList;

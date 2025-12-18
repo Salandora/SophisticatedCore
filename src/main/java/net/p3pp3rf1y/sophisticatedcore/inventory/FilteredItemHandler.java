@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import com.github.salandora.sophisticatedlibrary.transfer.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 

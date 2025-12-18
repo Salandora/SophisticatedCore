@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import com.github.salandora.sophisticatedlibrary.transfer.ItemStackHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
 import net.minecraft.world.item.ItemStack;
 
 public class FilterItemStackHandler extends ItemStackHandler {

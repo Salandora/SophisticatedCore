@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.magnet;
 
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -84,7 +83,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	private boolean canFillStorageWithXp() {
-		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.simulateInsert(ModFluids.EXPERIENCE_TAG, FluidConstants.BUCKET, ModFluids.XP_STILL.get(), null) > 0).orElse(false);
+		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.fill(ModFluids.EXPERIENCE_TAG, 1, ModFluids.XP_STILL.get(), IFluidHandler.FluidAction.SIMULATE) > 0).orElse(false);
 	}
 
 	private int pickupXpOrbs(@Nullable Entity entity, Level level, BlockPos pos) {
@@ -108,11 +107,8 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		long amountToTransfer = XpHelper.experienceToLiquid(xpOrb.getValue());
 
 		return storageWrapper.getFluidHandler().map(fluidHandler -> {
-			long amountAdded;
-			try (Transaction outer = Transaction.openOuter()) {
-				amountAdded = fluidHandler.insert(ModFluids.EXPERIENCE_TAG, amountToTransfer, ModFluids.XP_STILL.get(), outer);
-				outer.commit();
-			}
+			long amountAdded = fluidHandler.fill(ModFluids.EXPERIENCE_TAG, amountToTransfer, ModFluids.XP_STILL.get(), IFluidHandler.FluidAction.EXECUTE);
+
 			if (amountAdded > 0) {
 				Vec3 pos = xpOrb.position();
 				// TODO: Is this necessary?
