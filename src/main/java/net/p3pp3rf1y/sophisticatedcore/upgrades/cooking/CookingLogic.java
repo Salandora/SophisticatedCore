@@ -1,8 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -13,12 +12,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 
 public class CookingLogic<T extends AbstractCookingRecipe> {
 	private final ItemStack upgrade;
@@ -291,10 +290,10 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 				}
 
 				@Override
-				public boolean isItemValid(int slot, ItemVariant resource, int count) {
+				public boolean isItemValid(int slot, ItemStack stack) {
 					return switch (slot) {
-						case COOK_INPUT_SLOT -> isInput.test(resource.toStack(count));
-						case FUEL_SLOT -> isFuel.test(resource.toStack(count));
+						case COOK_INPUT_SLOT -> isInput.test(stack);
+						case FUEL_SLOT -> isFuel.test(stack);
 						default -> true;
 					};
 				}

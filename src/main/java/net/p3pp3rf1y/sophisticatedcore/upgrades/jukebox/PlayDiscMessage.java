@@ -1,15 +1,16 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.RecordItem;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
-public class PlayDiscMessage extends SimplePacketBase {
+public class PlayDiscMessage {
 	private final boolean blockStorage;
 	private final UUID storageUuid;
 	private final int musicDiscItemId;
@@ -30,49 +31,41 @@ public class PlayDiscMessage extends SimplePacketBase {
 		this.entityId = entityId;
 	}
 
-	@Override
-	public void write(FriendlyByteBuf packetBuffer) {
-		packetBuffer.writeBoolean(this.blockStorage);
-		packetBuffer.writeUUID(this.storageUuid);
-		packetBuffer.writeInt(this.musicDiscItemId);
-		if (this.blockStorage) {
-			packetBuffer.writeBlockPos(this.pos);
+	public static void encode(PlayDiscMessage msg, FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeBoolean(msg.blockStorage);
+		packetBuffer.writeUUID(msg.storageUuid);
+		packetBuffer.writeInt(msg.musicDiscItemId);
+		if (msg.blockStorage) {
+			packetBuffer.writeBlockPos(msg.pos);
 		} else {
-			packetBuffer.writeInt(this.entityId);
+			packetBuffer.writeInt(msg.entityId);
 		}
 	}
 
-	public PlayDiscMessage(FriendlyByteBuf packetBuffer) {
-		this.blockStorage = packetBuffer.readBoolean();
-		this.storageUuid = packetBuffer.readUUID();
-		this.musicDiscItemId = packetBuffer.readInt();
-		if (blockStorage) {
-			this.pos = packetBuffer.readBlockPos();
-		} else {
-			this.entityId = packetBuffer.readInt();
+	public static PlayDiscMessage decode(FriendlyByteBuf packetBuffer) {
+		if (packetBuffer.readBoolean()) {
+			return new PlayDiscMessage(packetBuffer.readUUID(), packetBuffer.readInt(), packetBuffer.readBlockPos());
 		}
+		return new PlayDiscMessage(packetBuffer.readUUID(), packetBuffer.readInt(), packetBuffer.readInt());
 	}
 
-	@Override
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			Item discItem = Item.byId(musicDiscItemId);
-			if (!(discItem instanceof RecordItem)) {
-				return;
-			}
+	public static void onMessage(PlayDiscMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(msg));
+		context.setPacketHandled(true);
+	}
 
-			SoundEvent soundEvent = ((RecordItem) discItem).getSound();
-			if (soundEvent == null) {
-				return;
-			}
-
-			UUID storageUuid1 = storageUuid;
-			if (blockStorage) {
-				StorageSoundHandler.playStorageSound(soundEvent, storageUuid1, pos);
-			} else {
-				StorageSoundHandler.playStorageSound(soundEvent, storageUuid1, entityId);
-			}
-		});
-		return true;
+	private static void handleMessage(PlayDiscMessage msg) {
+		Item discItem = Item.byId(msg.musicDiscItemId);
+		if (!(discItem instanceof RecordItem)) {
+			return;
+		}
+		SoundEvent soundEvent = ((RecordItem) discItem).getSound();
+		UUID storageUuid = msg.storageUuid;
+		if (msg.blockStorage) {
+			StorageSoundHandler.playStorageSound(soundEvent, storageUuid, msg.pos);
+		} else {
+			StorageSoundHandler.playStorageSound(soundEvent, storageUuid, msg.entityId);
+		}
 	}
 }

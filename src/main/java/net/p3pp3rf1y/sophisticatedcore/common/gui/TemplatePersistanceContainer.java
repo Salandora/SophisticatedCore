@@ -26,6 +26,7 @@ import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NoopStorageWrapper;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +38,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
 public class TemplatePersistanceContainer {
 	private static final Pattern EXPORT_FILE_NAME_PATTERN = Pattern.compile("[A-Za-z0-9/._\\-\\s]+");
@@ -291,7 +291,7 @@ public class TemplatePersistanceContainer {
 
 			DatapackSettingsTemplateManager.putTemplate(playersFolder, fileName, settingsNbt);
 
-			PacketHandler.sendToClient(serverPlayer, new SyncDatapackSettingsTemplateMessage(playersFolder, fileName, settingsNbt));
+			PacketHandler.INSTANCE.sendToClient(serverPlayer, new SyncDatapackSettingsTemplateMessage(playersFolder, fileName, settingsNbt));
 
 			initSlots();
 

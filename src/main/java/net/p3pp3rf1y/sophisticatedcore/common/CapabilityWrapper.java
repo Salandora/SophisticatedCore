@@ -7,7 +7,7 @@ public class CapabilityWrapper {
     public static void register() {
         ItemStorage.SIDED.registerFallback((level, pos, state, entity, dir) -> {
             if (entity instanceof ControllerBlockEntityBase) {
-				return ((ControllerBlockEntityBase) entity).getCapability(ItemStorage.SIDED, null).getValueUnsafer();
+				return ((ControllerBlockEntityBase) entity).getCapability(ItemStorage.SIDED, null).orElse(null);
             }
 
             return null;

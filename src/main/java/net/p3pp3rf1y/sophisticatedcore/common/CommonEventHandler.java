@@ -40,6 +40,6 @@ public class CommonEventHandler {
 		}
 
 		UseOnContext context = new UseOnContext(player, hand, hitResult);
-		return stack.onItemUseFirst(context);
+		return stack.sophisticatedLibrary_onItemUseFirst(context);
 	}
 }

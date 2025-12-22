@@ -1,10 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
@@ -13,7 +11,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 public class ServerStorageSoundHandler {
 	private ServerStorageSoundHandler() {}
@@ -90,12 +87,12 @@ public class ServerStorageSoundHandler {
 
 	public static void startPlayingDisc(ServerLevel serverWorld, BlockPos position, UUID storageUuid, int discItemId, Runnable onFinishedHandler) {
 		Vec3 pos = Vec3.atCenterOf(position);
-		PacketHandler.sendToAllNear(serverWorld, pos, 128, new PlayDiscMessage(storageUuid, discItemId, position));
+		PacketHandler.INSTANCE.sendToAllNear(serverWorld, serverWorld.dimension(), pos, 128, new PlayDiscMessage(storageUuid, discItemId, position));
 		putKeepAliveInfo(serverWorld, storageUuid, onFinishedHandler, pos);
 	}
 
 	public static void startPlayingDisc(ServerLevel serverWorld, Vec3 position, UUID storageUuid, int entityId, int discItemId, Runnable onFinishedHandler) {
-		PacketHandler.sendToAllNear(serverWorld, position, 128, new PlayDiscMessage(storageUuid, discItemId, entityId));
+		PacketHandler.INSTANCE.sendToAllNear(serverWorld, serverWorld.dimension(), position, 128, new PlayDiscMessage(storageUuid, discItemId, entityId));
 		putKeepAliveInfo(serverWorld, storageUuid, onFinishedHandler, position);
 	}
 
@@ -119,6 +116,6 @@ public class ServerStorageSoundHandler {
 	}
 
 	private static void sendStopMessage(ServerLevel serverWorld, Vec3 position, UUID storageUuid) {
-		PacketHandler.sendToAllNear(serverWorld, position, 128, new StopDiscPlaybackMessage(storageUuid));
+		PacketHandler.INSTANCE.sendToAllNear(serverWorld, serverWorld.dimension(), position, 128, new StopDiscPlaybackMessage(storageUuid));
 	}
 }

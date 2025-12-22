@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.ISlotChangeResponseUpgrade;
@@ -23,7 +22,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 
 	@Override
 	public boolean mayPlace(ItemStack stack) {
-		return storageWrapper.getInventoryHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount(), player);
+		return storageWrapper.getInventoryHandler().isItemValid(slotIndex, stack, player);
 	}
 
 	@Override
@@ -35,7 +34,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 		processSlotChangeResponse(slotIndex, storageWrapper.getInventoryHandler(), storageWrapper);
 	}
 
-	private void processSlotChangeResponse(int slot, SlottedStackStorage handler, IStorageWrapper storageWrapper) {
+	private void processSlotChangeResponse(int slot, IItemHandler handler, IStorageWrapper storageWrapper) {
 		if (!isClientSide) {
 			storageWrapper.getUpgradeHandler().getWrappersThatImplementFromMainStorage(ISlotChangeResponseUpgrade.class).forEach(u -> u.onSlotChange(handler, slot));
 		}
@@ -43,7 +42,7 @@ public class StorageInventorySlot extends SlotSuppliedHandler {
 
 	@Override
 	public int getMaxStackSize(ItemStack stack) {
-		return storageWrapper.getInventoryHandler().getStackLimit(slotIndex, ItemVariant.of(stack));
+		return storageWrapper.getInventoryHandler().getStackLimit(slotIndex, stack);
 	}
 
 	@Override

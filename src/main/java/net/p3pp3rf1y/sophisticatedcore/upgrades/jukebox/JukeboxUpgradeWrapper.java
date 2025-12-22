@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -64,8 +64,8 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 			}
 
 			@Override
-			public boolean isItemValid(int slot, ItemVariant resource, int count) {
-				return resource.getItem() instanceof RecordItem;
+			public boolean isItemValid(int slot, ItemStack stack) {
+				return stack.getItem() instanceof RecordItem;
 			}
 		};
 		NBTHelper.getCompound(upgrade, "discInventory").ifPresent(discInventory::deserializeNBT);
@@ -188,7 +188,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 		history.clear();
 	}
 
-	public ItemStackHandler getDiscInventory() {
+	public IItemHandler getDiscInventory() {
 		return discInventory;
 	}
 

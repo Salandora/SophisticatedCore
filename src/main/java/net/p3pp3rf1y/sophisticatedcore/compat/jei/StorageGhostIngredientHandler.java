@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
-
 import net.minecraft.client.renderer.Rect2i;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IFilterSlot;
@@ -34,7 +33,7 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 
 							@Override
 							public void accept(I i) {
-								PacketHandler.sendToServer(new SetGhostSlotMessage(ghostStack, s.index));
+								PacketHandler.INSTANCE.sendToServer(new SetGhostSlotMessage(ghostStack, s.index));
 							}
 						});
 					}

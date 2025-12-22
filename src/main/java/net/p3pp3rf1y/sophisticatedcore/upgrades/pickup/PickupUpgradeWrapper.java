@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pickup;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -23,14 +21,12 @@ public class PickupUpgradeWrapper extends UpgradeWrapperBase<PickupUpgradeWrappe
 	}
 
 	@Override
-	public ItemStack pickup(Level world, ItemStack stack, TransactionContext ctx) {
+	public ItemStack pickup(Level world, ItemStack stack, boolean simulate) {
 		if (!filterLogic.matchesFilter(stack)) {
 			return stack;
 		}
 
-		ItemVariant resource = ItemVariant.of(stack);
-		long inserted = storageWrapper.getInventoryForUpgradeProcessing().insert(resource, stack.getCount(), ctx);
-		return resource.toStack(stack.getCount() - (int) inserted);
+		return storageWrapper.getInventoryForUpgradeProcessing().insertItem(stack, simulate);
 	}
 
 	@Override

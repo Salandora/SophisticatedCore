@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
-
 import net.minecraft.client.renderer.Rect2i;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.SetMemorySlotMessage;
@@ -40,7 +39,7 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 
 									@Override
 									public void accept(I i) {
-										PacketHandler.sendToServer(new SetMemorySlotMessage(ghostStack, s.index));
+										PacketHandler.INSTANCE.sendToServer(new SetMemorySlotMessage(ghostStack, s.index));
 									}
 								});
 							}

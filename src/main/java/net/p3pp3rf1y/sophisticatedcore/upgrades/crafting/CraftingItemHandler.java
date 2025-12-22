@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
@@ -17,12 +15,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class CraftingItemHandler extends TransientCraftingContainer {
-	private final Supplier<SlottedStackStorage> supplyInventory;
+	private final Supplier<IItemHandlerModifiable> supplyInventory;
 	private final Consumer<Container> onCraftingMatrixChanged;
 	private boolean itemsInitialized = false;
 	private List<ItemStack> items = List.of();
 
-	public CraftingItemHandler(Supplier<SlottedStackStorage> supplyInventory, Consumer<Container> onCraftingMatrixChanged) {
+	public CraftingItemHandler(Supplier<IItemHandlerModifiable> supplyInventory, Consumer<Container> onCraftingMatrixChanged) {
 		super(new AbstractContainerMenu(null, -1) {
 			@Override
 			public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
@@ -50,7 +48,7 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 
 	@Override
 	public ItemStack getItem(int index) {
-		SlottedStackStorage itemHandler = supplyInventory.get();
+		IItemHandlerModifiable itemHandler = supplyInventory.get();
 		return index >= itemHandler.getSlotCount() ? ItemStack.EMPTY : itemHandler.getStackInSlot(index);
 	}
 
@@ -73,19 +71,13 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 
 	@Override
 	public ItemStack removeItem(int index, int count) {
-		ItemVariant resource = ItemVariant.of(supplyInventory.get().getStackInSlot(index));
-
-		long amount;
-		try (Transaction ctx = Transaction.openOuter()) {
-			amount = supplyInventory.get().extractSlot(index, resource, count, ctx);
-			ctx.commit();
-		}
-		if (amount > 0) {
+		ItemStack itemstack = supplyInventory.get().extractItem(index, count, false);
+		if (!itemstack.isEmpty()) {
 			itemsInitialized = false;
 			onCraftingMatrixChanged.accept(this);
 		}
 
-		return resource.toStack((int) amount);
+		return itemstack;
 	}
 
 	@Override
@@ -103,10 +95,7 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 
 	@Override
 	public void fillStackedContents(StackedContents helper) {
-		for (var view : supplyInventory.get().nonEmptyViews()) {
-			ItemStack stack = view.getResource().toStack((int) view.getAmount());
-			helper.accountSimpleStack(stack);
-		}
+		InventoryHelper.iterate(supplyInventory.get(), (slot, stack) -> helper.accountSimpleStack(stack));
 	}
 
 }

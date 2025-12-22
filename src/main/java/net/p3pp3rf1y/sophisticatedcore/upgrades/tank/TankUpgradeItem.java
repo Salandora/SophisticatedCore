@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
@@ -9,7 +10,6 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IUpgradeItem;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeType;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.stack.StackUpgradeItem;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
@@ -28,7 +28,7 @@ public class TankUpgradeItem extends UpgradeItemBase<TankUpgradeWrapper> {
 	}
 
 	public long getBaseCapacity(IStorageWrapper storageWrapper) {
-		return (long) tankUpgradeConfig.capacityPerSlotRow.get() * storageWrapper.getNumberOfSlotRows() * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS;
+		return (long) tankUpgradeConfig.capacityPerSlotRow.get() * storageWrapper.getNumberOfSlotRows() * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS;
 	}
 
 	public double getAdjustedStackMultiplier(IStorageWrapper storageWrapper) {
@@ -38,7 +38,7 @@ public class TankUpgradeItem extends UpgradeItemBase<TankUpgradeWrapper> {
 	public long getTankCapacity(IStorageWrapper storageWrapper) {
 		double stackMultiplier = getAdjustedStackMultiplier(storageWrapper);
 		long baseCapacity = getBaseCapacity(storageWrapper);
-		long maxCapacity = Integer.MAX_VALUE * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS;
+		long maxCapacity = Integer.MAX_VALUE * FluidUtil.BUCKET_VOLUME_IN_MILLIBUCKETS;
 		return maxCapacity / stackMultiplier < baseCapacity ? maxCapacity : (int) (baseCapacity * stackMultiplier);
 	}
 

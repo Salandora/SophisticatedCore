@@ -1,16 +1,18 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsManager;
 
-import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
-public class SyncPlayerSettingsMessage extends SimplePacketBase {
+public class SyncPlayerSettingsMessage {
 	private final String playerTagName;
 	@Nullable
 	private final CompoundTag settingsNbt;
@@ -20,29 +22,28 @@ public class SyncPlayerSettingsMessage extends SimplePacketBase {
 		this.settingsNbt = settingsNbt;
 	}
 
-	public SyncPlayerSettingsMessage(FriendlyByteBuf buffer) {
-		this(buffer.readUtf(), buffer.readNbt());
+	public static void encode(SyncPlayerSettingsMessage msg, FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeUtf(msg.playerTagName);
+		packetBuffer.writeNbt(msg.settingsNbt);
 	}
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeUtf(playerTagName);
-		buffer.writeNbt(settingsNbt);
+	public static SyncPlayerSettingsMessage decode(FriendlyByteBuf packetBuffer) {
+		return new SyncPlayerSettingsMessage(packetBuffer.readUtf(), packetBuffer.readNbt());
 	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			Player player = context.getClientPlayer();
-			if (player == null || settingsNbt == null) {
-				return;
-			}
-			//need to call the static call indirectly otherwise this message class is class loaded during packethandler init and crashes on server due to missing ClientPlayerEntity
-			BiConsumer<Player, CompoundTag> setSettings = (p, settingsNbt1) -> SettingsManager.setPlayerSettingsTag(p, playerTagName, settingsNbt1);
-			setSettings.accept(player, settingsNbt);
-		});
-		return true;
+	public static void onMessage(SyncPlayerSettingsMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(msg));
+		context.setPacketHandled(true);
 	}
 
+	private static void handleMessage(SyncPlayerSettingsMessage msg) {
+		LocalPlayer localPlayer = Minecraft.getInstance().player;
+		if (localPlayer == null || msg.settingsNbt == null) {
+			return;
+		}
+		//need to call the static call indirectly otherwise this message class is class loaded during packethandler init and crashes on server due to missing ClientPlayerEntity
+		BiConsumer<Player, CompoundTag> setSettings = (player, settingsNbt) -> SettingsManager.setPlayerSettingsTag(player, msg.playerTagName, settingsNbt);
+		setSettings.accept(localPlayer, msg.settingsNbt);
+	}
 }

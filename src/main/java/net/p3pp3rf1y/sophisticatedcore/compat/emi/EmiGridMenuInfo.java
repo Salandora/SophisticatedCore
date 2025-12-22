@@ -6,7 +6,6 @@ import dev.emi.emi.api.recipe.handler.EmiCraftContext;
 import dev.emi.emi.api.recipe.handler.StandardRecipeHandler;
 import dev.emi.emi.platform.EmiClient;
 import dev.emi.emi.registry.EmiRecipeFiller;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -18,10 +17,10 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements StandardRecipeHandler<T> {
 	private final RecipeType<? extends Recipe<?>> recipeType;
@@ -108,6 +107,6 @@ public class EmiGridMenuInfo<T extends StorageContainerMenuBase<?>> implements S
         T screenHandler = screen.getMenu();
         List<Slot> crafting = handler.getCraftingSlots(recipe, screenHandler);
         Slot output = handler.getOutputSlot(screenHandler);
-        PacketHandler.sendToServer(new EmiFillRecipeC2SPacket(screenHandler, action, handler.getInputSources(screenHandler), crafting, output, stacks));
+        PacketHandler.INSTANCE.sendToServer(new EmiFillRecipeC2SPacket(screenHandler, action, handler.getInputSources(screenHandler), crafting, output, stacks));
     }
 }

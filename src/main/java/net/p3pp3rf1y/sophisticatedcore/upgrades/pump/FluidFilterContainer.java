@@ -1,12 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidType;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandler;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -65,12 +62,11 @@ public class FluidFilterContainer {
 			return;
 		}
 
-        Storage<FluidVariant> storage = ContainerItemContext.withConstant(carried).find(FluidStorage.ITEM);
-		if (storage != null) {
-			FluidStack containedFluid = TransferUtil.simulateExtractAnyFluid(storage, FluidConstants.BUCKET);
+		carried.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).ifPresent(itemFluidHandler -> {
+			FluidStack containedFluid = itemFluidHandler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
 			if (!containedFluid.isEmpty()) {
 				setFluid(index, containedFluid);
 			}
-		}
+		});
 	}
 }

@@ -1,16 +1,16 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import net.minecraft.world.item.ItemStack;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 
 import java.util.function.Supplier;
 
-public class SlotSuppliedHandler extends SlotItemHandler<SlottedStackStorage> {
-	private final Supplier<? extends SlottedStackStorage> itemHandlerSupplier;
+public class SlotSuppliedHandler extends SlotItemHandler {
+	private final Supplier<IItemHandler> itemHandlerSupplier;
 	private final int slot;
 
-	public SlotSuppliedHandler(Supplier<? extends SlottedStackStorage> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
+	public SlotSuppliedHandler(Supplier<IItemHandler> itemHandlerSupplier, int slot, int xPosition, int yPosition) {
 		super(itemHandlerSupplier.get(), slot, xPosition, yPosition);
 
 		this.itemHandlerSupplier = itemHandlerSupplier;
@@ -18,8 +18,13 @@ public class SlotSuppliedHandler extends SlotItemHandler<SlottedStackStorage> {
 	}
 
 	@Override
+	public IItemHandler getItemHandler() {
+		return itemHandlerSupplier.get();
+	}
+
+	@Override
 	public boolean mayPlace(ItemStack stack) {
-		return itemHandlerSupplier.get().isItemValid(slot, ItemVariant.of(stack), stack.getCount());
+		return itemHandlerSupplier.get().isItemValid(slot, stack);
 	}
 
 	@Override

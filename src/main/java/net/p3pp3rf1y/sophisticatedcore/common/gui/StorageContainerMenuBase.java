@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.IntComparators;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -527,7 +527,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected void sendToServer(Consumer<CompoundTag> addData) {
 		CompoundTag data = new CompoundTag();
 		addData.accept(data);
-		PacketHandler.sendToServer(new SyncContainerClientDataMessage(data));
+		PacketHandler.INSTANCE.sendToServer(new SyncContainerClientDataMessage(data));
 	}
 
 	public void setUpgradeEnabled(int upgradeSlot, boolean enabled) {
@@ -885,7 +885,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncEmptySlotIconsMessage(noItemSlotTextures));
+		PacketHandler.INSTANCE.sendToClient(serverPlayer, new SyncEmptySlotIconsMessage(noItemSlotTextures));
 	}
 
 	private void sendAdditionalSlotInfo() {
@@ -904,16 +904,16 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (inventoryHandler.isInfinite(slot)) {
 				infiniteSlots.add(slot);
 			}
-			ItemVariant variantInSlot = inventoryHandler.getVariantInSlot(slot);
-			int stackLimit = inventoryHandler.getStackLimit(slot, variantInSlot);
-			if (stackLimit != inventoryHandler.getBaseStackLimit(variantInSlot)) {
+			ItemStack stackInSlot = inventoryHandler.getStackInSlot(slot);
+			int stackLimit = inventoryHandler.getStackLimit(slot, stackInSlot);
+			if (stackLimit != inventoryHandler.getBaseStackLimit(stackInSlot)) {
 				slotLimitOverrides.put(slot, stackLimit);
 			}
 			if (inventoryHandler.getFilterItem(slot) != Items.AIR) {
 				slotFilterItems.put(slot, inventoryHandler.getFilterItem(slot));
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, slotLimitOverrides, infiniteSlots, slotFilterItems));
+		PacketHandler.INSTANCE.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, slotLimitOverrides, infiniteSlots, slotFilterItems));
 	}
 
 	@Override
@@ -1676,19 +1676,19 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		if (player.level().isClientSide()) {
 			errorResultExpirationTime = player.level().getGameTime() + 60;
 		} else {
-			PacketHandler.sendToClient((ServerPlayer) player, new SyncSlotChangeErrorMessage(errorUpgradeSlotChangeResult));
+			PacketHandler.INSTANCE.sendToClient((ServerPlayer) player, new SyncSlotChangeErrorMessage(errorUpgradeSlotChangeResult));
 		}
 	}
 
 	public void transferItemsToPlayerInventory(boolean filterByContents) {
-		PacketHandler.sendToServer(new TransferItemsMessage(true, filterByContents));
+		PacketHandler.INSTANCE.sendToServer(new TransferItemsMessage(true, filterByContents));
 	}
 
 	public void transferItemsToStorage(boolean filterByContents) {
-		PacketHandler.sendToServer(new TransferItemsMessage(false, filterByContents));
+		PacketHandler.INSTANCE.sendToServer(new TransferItemsMessage(false, filterByContents));
 	}
 
-	public class StorageUpgradeSlot extends SlotItemHandler<UpgradeHandler> {
+	public class StorageUpgradeSlot extends SlotItemHandler {
 		private boolean wasEmpty = true;
 		private final int slotIndex;
 
@@ -1711,7 +1711,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		}
 
 		@Override
-		public void set(@Nonnull ItemStack stack) {
+		public void set(ItemStack stack) {
 			super.set(stack);
 			wasEmpty = getItem().isEmpty();
 		}
@@ -1722,7 +1722,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
+			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, stack)) {
 				return false;
 			}
 			UpgradeSlotChangeResult result;

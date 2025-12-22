@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
 import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
-
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -16,10 +15,10 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
-
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 
 public class SophisticatedCore implements ModInitializer {
@@ -40,13 +39,13 @@ public class SophisticatedCore implements ModInitializer {
 		ForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, Config.COMMON_SPEC);
 		commonEventHandler.registerHandlers();
 		Config.COMMON.initListeners();
-		PacketHandler.init();
+		PacketHandler.INSTANCE.init();
+		PacketHandler.INSTANCE.initServerListener();
 		ModCompat.initCompats();
 		CapabilityWrapper.register();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> currentServer = server);
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> RecipeHelper.setLevel(server.getLevel(Level.OVERWORLD)));
-		PacketHandler.getChannel().initServerListener();
 		ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(DatapackSettingsTemplateManager.Loader.INSTANCE);
 	}
 

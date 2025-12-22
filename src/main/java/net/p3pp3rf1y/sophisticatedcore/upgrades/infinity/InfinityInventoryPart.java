@@ -1,19 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.infinity;
 
-import com.mojang.datafixers.util.Function4;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryPartHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
-import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
+import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 
 public abstract class InfinityInventoryPart implements IInventoryPartHandler {
@@ -39,13 +37,8 @@ public abstract class InfinityInventoryPart implements IInventoryPartHandler {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
-		return player != null && player.hasPermissions(permissionLevel) && parent.getSlotStack(slot).isEmpty() && isItemValidSuper.test(slot, resource, count);
-	}
-
-	@Override
-	public ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
-		return ItemVariant.of(parent.getSlotStack(slot));
+	public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
+		return player != null && player.hasPermissions(permissionLevel) && parent.getSlotStack(slot).isEmpty() && isItemValidSuper.test(slot, stack);
 	}
 
 	@Override
@@ -54,22 +47,22 @@ public abstract class InfinityInventoryPart implements IInventoryPartHandler {
 	}
 
 	@Override
-	public int getStackLimit(int slot, ItemVariant stack) {
+	public int getStackLimit(int slot, ItemStack stack) {
 		return Integer.MAX_VALUE;
 	}
 
 	@Override
-	public long extractItem(int slot, ItemVariant resource, long amount, @Nullable TransactionContext ctx) {
-		return parent.getSlotStack(slot).copyWithCount((int) amount).getCount();
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		return parent.getSlotStack(slot).copyWithCount(amount);
 	}
 
 	@Override
-	public long insertItem(int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
 		if (!parent.getSlotStack(slot).isEmpty()) {
-			return 0;
+			return stack;
 		}
 		cachedStacks.remove(slot);
-		return insertSuper.apply(slot, resource, maxAmount, ctx);
+		return insertSuper.apply(slot, stack, simulate);
 	}
 
 	@Override

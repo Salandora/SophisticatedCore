@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -100,7 +100,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		while (slotIndex < inventoryHandler.getSlotCount()) {
 			int finalSlotIndex = slotIndex;
-			storageInventorySlots.add(addSlot(new ViewOnlyStorageInventorySlot<>(inventoryHandler, finalSlotIndex)));
+			storageInventorySlots.add(addSlot(new ViewOnlyStorageInventorySlot(inventoryHandler, finalSlotIndex)));
 
 			slotIndex++;
 		}
@@ -194,7 +194,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		if (player instanceof ServerPlayer serverPlayer) {
 			SettingsTemplateStorage settingsTemplateStorage = SettingsTemplateStorage.get();
-			PacketHandler.sendToClient(serverPlayer,
+			PacketHandler.INSTANCE.sendToClient(serverPlayer,
 					new SyncTemplateSettingsMessage(settingsTemplateStorage.getPlayerTemplates(serverPlayer), settingsTemplateStorage.getPlayerNamedTemplates(serverPlayer))
 			);
 		}
@@ -292,8 +292,8 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		templatePersistanceContainer.refreshTemplateSlots();
 	}
 
-	private class ViewOnlyStorageInventorySlot<T extends SlottedStorage<ItemVariant>> extends SlotItemHandler<T> {
-		public ViewOnlyStorageInventorySlot(T inventoryHandler, int slotIndex) {
+	private class ViewOnlyStorageInventorySlot extends SlotItemHandler {
+		public ViewOnlyStorageInventorySlot(IItemHandler inventoryHandler, int slotIndex) {
 			super(inventoryHandler, slotIndex, 0, 0);
 		}
 
@@ -336,7 +336,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 			return;
 		}
 		CompoundTag data = supplyData.get();
-		PacketHandler.sendToServer(new SyncContainerClientDataMessage(data));
+		PacketHandler.INSTANCE.sendToServer(new SyncContainerClientDataMessage(data));
 	}
 
 	protected boolean isServer() {
@@ -359,7 +359,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 				slotFilterItems.put(slot, inventoryHandler.getFilterItem(slot));
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, Map.of(), Set.of(), slotFilterItems));
+		PacketHandler.INSTANCE.sendToClient(serverPlayer, new SyncAdditionalSlotInfoMessage(inaccessibleSlots, Map.of(), Set.of(), slotFilterItems));
 	}
 
 	@Override
@@ -398,7 +398,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);
 			}
 		}
-		PacketHandler.sendToClient(serverPlayer, new SyncEmptySlotIconsMessage(noItemSlotTextures));
+		PacketHandler.INSTANCE.sendToClient(serverPlayer, new SyncEmptySlotIconsMessage(noItemSlotTextures));
 	}
 
 	public ItemStack getSlotFilterItem(int slot) {

@@ -164,17 +164,10 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
 
-    if (port_lib_modules != 'none') {
-        for (def module in port_lib_modules.split(',')) {
-            modApi(include("io.github.fabricators_of_create.Porting-Lib:${module.trim()}:$port_lib_version+$minecraft_version"))
-        }
-    }
-
     if (findProject(":SophisticatedLibrary") != null) {
         implementation project(path: ":SophisticatedLibrary", configuration: "namedElements")
-        include(project(path: ":SophisticatedLibrary"))
     } else {
-        modImplementation(include("com.github.salandora.sophisticatedlibrary:${minecraft_version}-${sophisticatedlibrary_version}"))
+        modImplementation("com.github.salandora:sophisticatedlibrary:${project.sl_version}")
     }
 
     // EMI
@@ -269,9 +262,9 @@ processResources {
             minecraft_version   : project.minecraft_version,
             loader_version      : project.loader_version,
             fabric_version      : project.fabric_version,
+            sl_version          : mavenVersionToFabric(project.sl_version),
             forge_config_version: project.forge_config_api_port_version,
             energy_version      : project.energy_version,
-            port_lib_version    : project.port_lib_version,
             jei_version         : project.jei_version
     ]
 
@@ -303,6 +296,24 @@ tasks.register('fixIntelliJResources', Copy) {
 
     from processResources
     into ideaModuleCompileOutputPath[1]
+}
+
+static def mavenVersionToFabric(String version) {
+    StringBuilder builder = new StringBuilder()
+    if (version.startsWith("[")) {
+        builder.append(">=")
+    } else {
+        builder.append(">")
+    }
+    builder.append(version.substring(1, version.lastIndexOf(',')))
+
+    if (version.endsWith(')')) {
+        builder.append(" <")
+    } else {
+        builder.append(" <=")
+    }
+    builder.append(version.substring(version.lastIndexOf(',') + 1, version.length() - 1))
+    return builder.toString()
 }
 
 static def getBuildNumber() {
@@ -490,7 +501,8 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     // Dependencies
     mainFile.addRequirement('fabric-api')
     mainFile.addRequirement('forge-config-api-port')
-    mainFile.addEmbedded('porting-lib')
+    mainFile.addRequirement("sophisticatedlibrary")
+
     onlyIf { !project.ext.changelog.isEmpty() }
 }
 
@@ -504,7 +516,7 @@ modrinth {
     dependencies {
         required.project "fabric-api"
         required.project "forge-config-api-port"
-        embedded.project "porting_lib"
+        required.project "sophisticatedlibrary"
     }
     changelog = provider {
         project.ext.changelog

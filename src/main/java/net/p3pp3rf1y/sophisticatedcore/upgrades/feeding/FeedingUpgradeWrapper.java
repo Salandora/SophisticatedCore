@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.feeding;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.PlayerInvWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -90,14 +88,9 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 
 				ItemStack resultItem = singleItemCopy.getItem().finishUsingItem(singleItemCopy, level, player);
 				if (!resultItem.isEmpty()) {
-					long inserted;
-					try (Transaction ctx = Transaction.openOuter()) {
-						inserted = inventory.insert(ItemVariant.of(resultItem), resultItem.getCount(), ctx);
-						ctx.commit();
-					}
-					ItemStack insertResult = resultItem.copyWithCount(resultItem.getCount() - (int) inserted);
+					ItemStack insertResult = inventory.insertItem(resultItem, false);
 					if (!insertResult.isEmpty()) {
-						InventoryHelper.insertOrDropItem(player, insertResult, inventory, PlayerInventoryStorage.of(player));
+						InventoryHelper.insertOrDropItem(player, insertResult, inventory, PlayerInvWrapper.of(player));
 					}
 				}
 

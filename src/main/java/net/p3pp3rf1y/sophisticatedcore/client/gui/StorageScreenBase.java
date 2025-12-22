@@ -540,7 +540,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (canShowHover && ((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, sophisticatedcore_getSlotColor(slotId));
+				renderSlotOverlay(guiGraphics, slot, sophisticatedLibrary_getSlotColor(slotId));
 			}
 		}
 	}
@@ -557,7 +557,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, sophisticatedcore_getSlotColor(slotId));
+				renderSlotOverlay(guiGraphics, slot, sophisticatedLibrary_getSlotColor(slotId));
 			}
 		}
 	}
@@ -846,11 +846,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void tryQuickMoveSlot(int button, Slot slot, Slot slot2) {
 		//noinspection ConstantConditions - by this point minecraft isn't null
-		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.isSameInventory(slot)) {
+		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.sophisticatedLibrary_isSameInventory(slot)) {
 			ItemStack slotItem = slot2.getItem();
 			if (ItemStack.isSameItemSameTags(((AbstractContainerScreenAccessor) this).getLastQuickMoved(), slotItem)) {
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {
-					PacketHandler.sendToServer(new TransferFullSlotMessage(slot2.index));
+					PacketHandler.INSTANCE.sendToServer(new TransferFullSlotMessage(slot2.index));
 				} else {
 					slotClicked(slot2, slot2.index, button, ClickType.QUICK_MOVE);
 				}
@@ -924,7 +924,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		Slot slot = findSlot(mouseX, mouseY);
 		if (hasShiftDown() && hasControlDown() && slot instanceof StorageInventorySlot && button == 0) {
-			PacketHandler.sendToServer(new TransferFullSlotMessage(slot.index));
+			PacketHandler.INSTANCE.sendToServer(new TransferFullSlotMessage(slot.index));
 			return true;
 		}
 		GuiEventListener focused = getFocused();

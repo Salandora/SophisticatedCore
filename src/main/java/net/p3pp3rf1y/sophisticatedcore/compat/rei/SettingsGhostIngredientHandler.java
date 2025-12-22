@@ -6,7 +6,6 @@ import me.shedaniel.rei.api.client.gui.drag.DraggableStack;
 import me.shedaniel.rei.api.client.gui.drag.DraggableStackVisitor;
 import me.shedaniel.rei.api.client.gui.drag.DraggedAcceptorResult;
 import me.shedaniel.rei.api.client.gui.drag.DraggingContext;
-
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -89,7 +88,7 @@ public class SettingsGhostIngredientHandler<S extends SettingsScreen> implements
 		}
 
 		public void accept(I ingredient) {
-			PacketHandler.sendToServer(new SetMemorySlotMessage(stack, slot.index));
+			PacketHandler.INSTANCE.sendToServer(new SetMemorySlotMessage(stack, slot.index));
 		}
 
 		@Override

@@ -5,7 +5,6 @@ import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiCraftingRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
-
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.p3pp3rf1y.sophisticatedcore.compat.ICompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.common.ClientRecipeHelper;
@@ -27,8 +26,8 @@ public class EmiCompat implements EmiPlugin, ICompat {
 
     @Override
     public void setup() {
-        PacketHandler.registerC2SMessage(EmiFillRecipeC2SPacket.class, EmiFillRecipeC2SPacket::new);
-        PacketHandler.registerC2SMessage(SetGhostSlotMessage.class, SetGhostSlotMessage::new);
-        PacketHandler.registerC2SMessage(SetMemorySlotMessage.class, SetMemorySlotMessage::new);
+        PacketHandler.INSTANCE.registerMessage(EmiFillRecipeC2SPacket.class, EmiFillRecipeC2SPacket::encode, EmiFillRecipeC2SPacket::decode, EmiFillRecipeC2SPacket::onMessage);
+		PacketHandler.INSTANCE.registerMessage(SetGhostSlotMessage.class, SetGhostSlotMessage::encode, SetGhostSlotMessage::decode, SetGhostSlotMessage::onMessage);
+		PacketHandler.INSTANCE.registerMessage(SetMemorySlotMessage.class, SetMemorySlotMessage::encode, SetMemorySlotMessage::decode, SetMemorySlotMessage::onMessage);
     }
 }

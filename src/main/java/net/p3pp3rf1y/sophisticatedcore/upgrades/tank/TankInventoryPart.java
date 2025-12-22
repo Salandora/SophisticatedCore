@@ -1,9 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,6 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
 import java.util.ArrayList;
@@ -71,11 +71,11 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		}
 
 		ItemStack cursorStack = screen.getMenu().getCarried();
-		if (cursorStack.getCount() > 1 || !FluidHelper.isFluidStorage(cursorStack)) {
+		if (cursorStack.getCount() > 1 || cursorStack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM) == null) {
 			return false;
 		}
 
-		PacketHandler.sendToServer(new TankClickMessage(upgradeSlot));
+		PacketHandler.INSTANCE.sendToServer(new TankClickMessage(upgradeSlot));
 
 		return true;
 	}
@@ -98,9 +98,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {
-				// Porting-Lib and Architectury API are incompatible, therefore we can not use porting-libs version to get the hover name
-				// tooltip.add(contents.getDisplayName());
-				tooltip.add(FluidVariantAttributes.getName(contents.getType()));
+				tooltip.add(contents.getDisplayName());
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
 			guiGraphics.renderTooltip(((ScreenAccessor) screen).getFont(), tooltip, Optional.empty(), mouseX, mouseY);
@@ -114,7 +112,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 			return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.xp_contents_tooltip"), String.format("%.1f", contentsLevels), String.format("%.1f", tankCapacityLevels));
 		}
-		return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.contents_tooltip"), String.format("%,d", FluidHelper.toBuckets(contents.getAmount())), String.format("%,d", FluidHelper.toBuckets(capacity)));
+		return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.contents_tooltip"), String.format("%,d", FluidUtil.toBuckets(contents.getAmount())), String.format("%,d", FluidUtil.toBuckets(capacity)));
 	}
 
 	private void renderFluid(GuiGraphics guiGraphics) {

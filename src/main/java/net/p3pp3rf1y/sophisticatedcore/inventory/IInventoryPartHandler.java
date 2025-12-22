@@ -1,9 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import com.mojang.datafixers.util.Function4;
 import com.mojang.datafixers.util.Pair;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -11,12 +8,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
-import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
+import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
@@ -31,32 +29,24 @@ public interface IInventoryPartHandler {
 		return false;
 	}
 
-	default int getStackLimit(int slot, ItemVariant resource) {
+	default int getStackLimit(int slot, ItemStack stack) {
 		return 0;
 	}
 
-	default long extractItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-		return 0;
+	default ItemStack extractItem(int slot, int amount, boolean simulate) {
+		return ItemStack.EMPTY;
 	}
 
-	default long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
-		return maxAmount;
+	default ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
+		return stack;
 	}
 
 	default void setStackInSlot(int slot, ItemStack stack, BiConsumer<Integer, ItemStack> setStackInSlotSuper) {
 		//noop
 	}
 
-	@Deprecated
-	default boolean isItemValid(int slot, ItemVariant resource, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
-		return isItemValid(slot, resource, 1, player, isItemValidSuper);
-	}
-	default boolean isItemValid(int slot, ItemVariant resource, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
+	default boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
 		return false;
-	}
-
-	default ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
-		return ItemVariant.blank();
 	}
 
 	default ItemStack getStackInSlot(int slot, IntFunction<ItemStack> getStackInSlotSuper) {
@@ -124,18 +114,18 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public int getStackLimit(int slot, ItemVariant resource) {
-			return parent.getBaseStackLimit(resource);
+		public int getStackLimit(int slot, ItemStack stack) {
+			return parent.getBaseStackLimit(stack);
 		}
 
 		@Override
-		public long extractItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-			return parent.extractItemInternal(slot, resource, maxAmount, ctx);
+		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+			return parent.extractItemInternal(slot, amount, simulate);
 		}
 
 		@Override
-		public long insertItem(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx, Function4<Integer, ItemVariant, Long, TransactionContext, Long> insertSuper) {
-			return insertSuper.apply(slot, resource, maxAmount, ctx);
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate, TriFunction<Integer, ItemStack, Boolean, ItemStack> insertSuper) {
+			return insertSuper.apply(slot, stack, simulate);
 		}
 
 		@Override
@@ -144,13 +134,8 @@ public interface IInventoryPartHandler {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant stack, int count, @Nullable Player player, TriPredicate<Integer, ItemVariant, Integer> isItemValidSuper) {
+		public boolean isItemValid(int slot, ItemStack stack, @Nullable Player player, BiPredicate<Integer, ItemStack> isItemValidSuper) {
 			return true;
-		}
-
-		@Override
-		public ItemVariant getVariantInSlot(int slot, IntFunction<ItemVariant> getVariantInSlotSuper) {
-			return getVariantInSlotSuper.apply(slot);
 		}
 
 		@Override

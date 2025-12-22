@@ -1,10 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -20,11 +17,11 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 
 public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U, R>, U extends UpgradeItemBase<W> & IAutoCookingUpgradeItem, R extends AbstractCookingRecipe>
 		extends UpgradeWrapperBase<W, U>
@@ -84,25 +81,19 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 			return;
 		}
 
-		try (Transaction ctx = Transaction.openOuter()) {
-			ItemStack output = cookingLogic.getCookOutput();
-			ItemVariant outputResource = ItemVariant.of(output);
-			IItemHandlerSimpleInserter inventory = storageWrapper.getInventoryForUpgradeProcessing();
-			if (!output.isEmpty() && StorageUtil.simulateInsert(inventory, outputResource, output.getCount(), ctx) > 0) {
-				long ret = inventory.insert(outputResource, output.getCount(), ctx);
-				cookingLogic.getCookingInventory().extractSlot(CookingLogic.COOK_OUTPUT_SLOT, outputResource, ret, ctx);
-			} else {
-				outputCooldown = NO_INVENTORY_SPACE_COOLDOWN;
-			}
+		ItemStack output = cookingLogic.getCookOutput();
+		IItemHandlerSimpleInserter inventory = storageWrapper.getInventoryForUpgradeProcessing();
+		if (!output.isEmpty() && inventory.insertItem(output, true).getCount() < output.getCount()) {
+			ItemStack ret = inventory.insertItem(output, false);
+			cookingLogic.getCookingInventory().extractItem(CookingLogic.COOK_OUTPUT_SLOT, output.getCount() - ret.getCount(), false);
+		} else {
+			outputCooldown = NO_INVENTORY_SPACE_COOLDOWN;
+		}
 
-			ItemStack fuel = cookingLogic.getFuel();
-			ItemVariant fuelResource = ItemVariant.of(fuel);
-			if (!fuel.isEmpty() && Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(fuelResource.getItem()), 0) <= 0 && StorageUtil.simulateInsert(inventory, fuelResource, fuel.getCount(), ctx) > 0) {
-				long ret = inventory.insert(fuelResource, fuel.getCount(), ctx);
-				cookingLogic.getCookingInventory().extractSlot(CookingLogic.FUEL_SLOT, fuelResource, ret, ctx);
-			}
-
-			ctx.commit();
+		ItemStack fuel = cookingLogic.getFuel();
+		if (!fuel.isEmpty() && Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(fuel.getItem()), 0) <= 0 && inventory.insertItem(fuel, true).getCount() < fuel.getCount()) {
+			ItemStack ret = inventory.insertItem(fuel, false);
+			cookingLogic.getCookingInventory().extractItem(CookingLogic.FUEL_SLOT, fuel.getCount() - ret.getCount(), false);
 		}
 	}
 
@@ -153,7 +144,7 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 
 	private boolean tryPullingGetUnsucessful(ItemStack stack, Consumer<ItemStack> setSlot, Predicate<ItemStack> isItemValid) {
 		ItemStack toExtract;
-		SlottedStorage<ItemVariant> inventory = storageWrapper.getInventoryForUpgradeProcessing();
+		IItemHandlerModifiable inventory = storageWrapper.getInventoryForUpgradeProcessing();
 		if (stack.isEmpty()) {
 			AtomicReference<ItemStack> ret = new AtomicReference<>(ItemStack.EMPTY);
 			InventoryHelper.iterate(inventory, (slot, st) -> {
@@ -174,16 +165,12 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 			toExtract.setCount(stack.getMaxStackSize() - stack.getCount());
 		}
 
-		try (Transaction ctx = Transaction.openOuter()) {
-			long extracted = inventory.extract(ItemVariant.of(toExtract), toExtract.getCount(), ctx);
-			if (extracted > 0) {
-				ItemStack toSet = toExtract.copyWithCount((int) extracted);
-				toSet.grow(stack.getCount());
-				setSlot.accept(toSet);
-				ctx.commit();
-			} else {
-				return true;
-			}
+		if (InventoryHelper.extractFromInventory(toExtract, inventory, true).getCount() > 0) {
+			ItemStack toSet = InventoryHelper.extractFromInventory(toExtract, inventory, false);
+			toSet.grow(stack.getCount());
+			setSlot.accept(toSet);
+		} else {
+			return true;
 		}
 		return false;
 	}

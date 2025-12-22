@@ -61,7 +61,7 @@ public abstract class UpgradeContainerBase<W extends IUpgradeWrapper, C extends 
 		}
 		CompoundTag data = supplyData.get();
 		data.putInt("containerId", upgradeContainerId);
-		PacketHandler.sendToServer(new SyncContainerClientDataMessage(data));
+		PacketHandler.INSTANCE.sendToServer(new SyncContainerClientDataMessage(data));
 	}
 
 	public void onInit() {

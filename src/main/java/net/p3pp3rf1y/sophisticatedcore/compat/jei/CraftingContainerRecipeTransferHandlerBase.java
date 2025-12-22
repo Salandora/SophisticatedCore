@@ -112,7 +112,7 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 						craftingSlotIndexes,
 						inventorySlotIndexes,
 						maxTransfer);
-				PacketHandler.sendToServer(message);
+				PacketHandler.INSTANCE.sendToServer(message);
 			}
 		}
 

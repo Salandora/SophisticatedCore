@@ -1,59 +1,71 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandlerItem;
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
-public class TankClickMessage extends SimplePacketBase {
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
+
+public class TankClickMessage {
 	private final int upgradeSlot;
 
 	public TankClickMessage(int upgradeSlot) {
 		this.upgradeSlot = upgradeSlot;
 	}
 
-	public TankClickMessage(FriendlyByteBuf packetBuffer) {
-		this(packetBuffer.readInt());
+	public static void encode(TankClickMessage msg, FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeInt(msg.upgradeSlot);
 	}
 
-	@Override
-	public void write(FriendlyByteBuf packetBuffer) {
-		packetBuffer.writeInt(this.upgradeSlot);
+	public static TankClickMessage decode(FriendlyByteBuf packetBuffer) {
+		return new TankClickMessage(packetBuffer.readInt());
 	}
 
-	@Override
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			ServerPlayer sender = context.getSender();
-			if (sender == null || !(sender.containerMenu instanceof StorageContainerMenuBase)) {
-				return;
-			}
-			AbstractContainerMenu containerMenu = sender.containerMenu;
-			UpgradeContainerBase<?, ?> upgradeContainer = ((StorageContainerMenuBase<?>) containerMenu).getUpgradeContainers().get(upgradeSlot);
-			if (!(upgradeContainer instanceof TankUpgradeContainer tankContainer)) {
-				return;
-			}
-			ContainerItemContext cic = ContainerItemContext.ofPlayerCursor(sender, containerMenu);
-			Storage<FluidVariant> storage = cic.find(FluidStorage.ITEM);
-			if (storage != null) {
-				TankUpgradeWrapper tankWrapper = tankContainer.getUpgradeWrapper();
-				FluidStack tankContents = tankWrapper.getContents();
-				if (tankContents.isEmpty()) {
-					tankWrapper.drainHandler(storage);
-				} else {
-					if (!tankWrapper.fillHandler(storage)) {
-						tankWrapper.drainHandler(storage);
-					}
+	public static void onMessage(TankClickMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(context.getSender(), msg));
+		context.setPacketHandled(true);
+	}
+
+	private static void handleMessage(@Nullable ServerPlayer sender, TankClickMessage msg) {
+		if (sender == null || !(sender.containerMenu instanceof StorageContainerMenuBase)) {
+			return;
+		}
+		AbstractContainerMenu containerMenu = sender.containerMenu;
+		UpgradeContainerBase<?, ?> upgradeContainer = ((StorageContainerMenuBase<?>) containerMenu).getUpgradeContainers().get(msg.upgradeSlot);
+		if (!(upgradeContainer instanceof TankUpgradeContainer tankContainer)) {
+			return;
+		}
+		ItemStack cursorStack = containerMenu.getCarried();
+		cursorStack.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler -> {
+			TankUpgradeWrapper tankWrapper = tankContainer.getUpgradeWrapper();
+			FluidStack tankContents = tankWrapper.getContents();
+			if (tankContents.isEmpty()) {
+				drainHandler(sender, containerMenu, fluidHandler, tankWrapper);
+			} else {
+				if (!tankWrapper.fillHandler(fluidHandler, itemStackIn -> {
+					containerMenu.setCarried(itemStackIn);
+					sender.connection.send(new ClientboundContainerSetSlotPacket(-1, containerMenu.incrementStateId(), -1, containerMenu.getCarried()));
+				})) {
+					drainHandler(sender, containerMenu, fluidHandler, tankWrapper);
 				}
 			}
 		});
-		return true;
+	}
+
+	private static void drainHandler(ServerPlayer sender, AbstractContainerMenu containerMenu, IFluidHandlerItem fluidHandler, TankUpgradeWrapper tankWrapper) {
+		tankWrapper.drainHandler(fluidHandler, itemStackIn -> {
+			containerMenu.setCarried(itemStackIn);
+			sender.connection.send(new ClientboundContainerSetSlotPacket(-1, containerMenu.incrementStateId(), -1, containerMenu.getCarried()));
+		});
 	}
 }

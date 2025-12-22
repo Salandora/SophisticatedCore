@@ -1,10 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.impl.transfer.item.InventoryStorageImpl;
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.InvWrapper;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.PlayerMainInvWrapper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,12 +18,11 @@ import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
-public class TransferItemsMessage extends SimplePacketBase {
+public class TransferItemsMessage {
 	private final boolean transferToInventory;
 	private final boolean filterByContents;
 
@@ -33,33 +31,35 @@ public class TransferItemsMessage extends SimplePacketBase {
 		this.filterByContents = filterByContents;
 	}
 
-	public TransferItemsMessage(FriendlyByteBuf packetBuffer) {
-		this(packetBuffer.readBoolean(), packetBuffer.readBoolean());
+	public static TransferItemsMessage decode(FriendlyByteBuf packetBuffer) {
+		return new TransferItemsMessage(packetBuffer.readBoolean(), packetBuffer.readBoolean());
 	}
 
-	public void write(FriendlyByteBuf packetBuffer) {
-		packetBuffer.writeBoolean(this.transferToInventory);
-		packetBuffer.writeBoolean(this.filterByContents);
+	public static void encode(TransferItemsMessage msg, FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeBoolean(msg.transferToInventory);
+		packetBuffer.writeBoolean(msg.filterByContents);
 	}
 
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			ServerPlayer player = context.getSender();
-			if (!(player.containerMenu instanceof StorageContainerMenuBase<?> storageMenu)) {
-				return;
-			}
-			IStorageWrapper storageWrapper = storageMenu.getStorageWrapper();
-			if (this.transferToInventory) {
-				if (this.filterByContents) {
-					mergeToPlayersInventoryFiltered(player, storageWrapper);
-				} else {
-					mergeToPlayersInventory(storageWrapper, player);
-				}
+	public static void onMessage(TransferItemsMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(context.getSender(), msg));
+		context.setPacketHandled(true);
+	}
+
+	private static void handleMessage(ServerPlayer player, TransferItemsMessage msg) {
+		if (!(player.containerMenu instanceof StorageContainerMenuBase<?> storageMenu)) {
+			return;
+		}
+		IStorageWrapper storageWrapper = storageMenu.getStorageWrapper();
+		if (msg.transferToInventory) {
+			if (msg.filterByContents) {
+				mergeToPlayersInventoryFiltered(player, storageWrapper);
 			} else {
-				InventoryHelper.transfer(new PlayerMainInvWithoutHotbarWrapper(player.getInventory()), new FilteredStorageItemHandler(storageWrapper, this.filterByContents), s -> {}, null);
+				mergeToPlayersInventory(storageWrapper, player);
 			}
-		});
-		return true;
+		} else {
+			InventoryHelper.transfer(new PlayerMainInvWithoutHotbarWrapper(player.getInventory()), new FilteredStorageItemHandler(storageWrapper, msg.filterByContents), s -> {});
+		}
 	}
 
 	private static void mergeToPlayersInventory(IStorageWrapper storageWrapper, Player player) {
@@ -76,7 +76,7 @@ public class TransferItemsMessage extends SimplePacketBase {
 	}
 
 	private static void mergeToPlayersInventoryFiltered(Player player, IStorageWrapper storageWrapper) {
-		Set<ItemStackKey> uniqueStacks = InventoryHelper.getUniqueStacks(new PlayerMainInvWrapper(player.getInventory()));
+		Set<ItemStackKey> uniqueStacks = InventoryHelper.getUniqueStacks(PlayerMainInvWrapper.of(player));
 		InventoryHelper.iterate(storageWrapper.getInventoryHandler(), (slot, stack) -> {
 			if (stack.isEmpty() || !uniqueStacks.contains(ItemStackKey.of(stack))) {
 				return;
@@ -118,51 +118,75 @@ public class TransferItemsMessage extends SimplePacketBase {
 	}
 
 
-	private static class PlayerMainInvWithoutHotbarWrapper extends RangedWrapper {
+	private static class PlayerMainInvWithoutHotbarWrapper extends InvWrapper {
+		private final int minSlot;
+		private final int maxSlot;
+
 		private final Inventory inventoryPlayer;
 
 		public PlayerMainInvWithoutHotbarWrapper(Inventory inv) {
-			super(inv, 9, inv.items.size());
+			super(inv);
 			this.inventoryPlayer = inv;
+			this.minSlot = 9;
+			this.maxSlot = inv.items.size();
 		}
 
 		@Override
-		public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insertSlot(slot, resource, maxAmount, transaction);
-			if (inserted != maxAmount) {
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			ItemStack rest = super.insertItem(slot, stack, simulate);
+			if (rest.getCount() != stack.getCount()) {
 				ItemStack inSlot = this.getStackInSlot(slot);
 				if (!inSlot.isEmpty()) {
-					if (this.getInventoryPlayer().player.level().isClientSide) {
+					if (inventoryPlayer.player.level().isClientSide) {
 						inSlot.setPopTime(5);
-					} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-						this.getInventoryPlayer().player.containerMenu.broadcastChanges();
+					} else if (inventoryPlayer.player instanceof ServerPlayer) {
+						inventoryPlayer.player.containerMenu.broadcastChanges();
 					}
 				}
 			}
 
-			return 0;
+			return rest;
 		}
 
 		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(resource, maxAmount, transaction);
-			if (inserted != maxAmount) {
-				if (this.getInventoryPlayer().player.level().isClientSide) {
-					// resource.toStack((int) (maxAmount - inserted)).setPopTime(5);
-				} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-					this.getInventoryPlayer().player.containerMenu.broadcastChanges();
-				}
-			}
-
-			return inserted;
+		public int getSlotCount() {
+			return this.maxSlot - this.minSlot;
 		}
 
-		public Inventory getInventoryPlayer() {
-			return this.inventoryPlayer;
+		@Override
+		public ItemStack getStackInSlot(int slot) {
+			return this.checkSlot(slot) ? super.getStackInSlot(slot + this.minSlot) : ItemStack.EMPTY;
+		}
+
+		@Override
+		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+			return this.checkSlot(slot) ? super.extractItem(slot + this.minSlot, amount, simulate) : ItemStack.EMPTY;
+		}
+
+		@Override
+		public void setStackInSlot(int slot, ItemStack stack) {
+			if (this.checkSlot(slot)) {
+				super.setStackInSlot(slot + this.minSlot, stack);
+			}
+
+		}
+
+		@Override
+		public int getSlotLimit(int slot) {
+			return this.checkSlot(slot) ? super.getSlotLimit(slot + this.minSlot) : 0;
+		}
+
+		@Override
+		public boolean isItemValid(int slot, ItemStack stack) {
+			return this.checkSlot(slot) && super.isItemValid(slot + this.minSlot, stack);
+		}
+
+		private boolean checkSlot(int localSlot) {
+			return localSlot + this.minSlot < this.maxSlot;
 		}
 	}
 
-	private static class FilteredStorageItemHandler extends TransferItemsMessage.FilteredItemHandler<ITrackedContentsItemHandler> implements IItemHandlerSimpleInserter {
+	private static class FilteredStorageItemHandler extends FilteredItemHandler<ITrackedContentsItemHandler> implements IItemHandlerSimpleInserter {
 		private final IStorageWrapper storageWrapper;
 
 		public FilteredStorageItemHandler(IStorageWrapper storageWrapper, boolean smart) {
@@ -180,12 +204,13 @@ public class TransferItemsMessage extends SimplePacketBase {
 			return super.matchesFilter(stack) || storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(stack);
 		}
 
+		@Nonnull
 		@Override
-		public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			if (!matchContents || matchesFilter(resource.toStack((int) maxAmount))) {
-				return itemHandler.insert(resource, maxAmount, transaction);
+		public ItemStack insertItem(ItemStack stack, boolean simulate) {
+			if (!matchContents || matchesFilter(stack)) {
+				return itemHandler.insertItem(stack, simulate);
 			} else {
-				return 0;
+				return stack;
 			}
 		}
 
@@ -195,7 +220,7 @@ public class TransferItemsMessage extends SimplePacketBase {
 		}
 	}
 
-	private static class FilteredItemHandler<T extends IItemHandlerSimpleInserter> implements IItemHandlerSimpleInserter {
+	private static class FilteredItemHandler<T extends IItemHandler> implements IItemHandler {
 		protected final T itemHandler;
 		protected final boolean matchContents;
 		private final Set<ItemStackKey> uniqueStacks;
@@ -215,11 +240,6 @@ public class TransferItemsMessage extends SimplePacketBase {
 			return itemHandler.getSlotCount();
 		}
 
-		@Override
-		public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-			return itemHandler.getSlot(slot);
-		}
-
 		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
@@ -228,15 +248,16 @@ public class TransferItemsMessage extends SimplePacketBase {
 
 		@Override
 		public void setStackInSlot(int slot, ItemStack stack) {
-			// noop
+			itemHandler.setStackInSlot(slot, stack);
 		}
 
+		@Nonnull
 		@Override
-		public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			if (!matchContents || matchesFilter(resource.toStack((int) maxAmount))) {
-				return itemHandler.insertSlot(slot, resource, maxAmount, transaction);
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			if (!matchContents || matchesFilter(stack)) {
+				return itemHandler.insertItem(slot, stack, simulate);
 			} else {
-				return 0;
+				return stack;
 			}
 		}
 
@@ -244,9 +265,10 @@ public class TransferItemsMessage extends SimplePacketBase {
 			return uniqueStacks.contains(ItemStackKey.of(stack));
 		}
 
+		@Nonnull
 		@Override
-		public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			return itemHandler.extractSlot(slot, resource, maxAmount, transaction);
+		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+			return itemHandler.extractItem(slot, amount, simulate);
 		}
 
 		@Override
@@ -255,100 +277,8 @@ public class TransferItemsMessage extends SimplePacketBase {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant resource, int count) {
-			return itemHandler.isItemValid(slot, resource, count);
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			if (!matchContents || matchesFilter(resource.toStack((int) maxAmount))) {
-				return itemHandler.insert(resource, maxAmount, transaction);
-			} else {
-				return 0;
-			}
-		}
-
-		@Override
-		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			return itemHandler.extract(resource, maxAmount, transaction);
-		}
-	}
-
-	private static class PlayerMainInvWrapper extends RangedWrapper {
-		private final Inventory inventoryPlayer;
-
-		public PlayerMainInvWrapper(Inventory inv) {
-			super(inv, 0, inv.items.size());
-			this.inventoryPlayer = inv;
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			long inserted = super.insert(resource, maxAmount, transaction);
-			if (inserted != maxAmount) {
-				if (this.getInventoryPlayer().player.level().isClientSide) {
-					// resource.toStack((int) (maxAmount - inserted)).setPopTime(5);
-				} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
-					this.getInventoryPlayer().player.containerMenu.broadcastChanges();
-				}
-			}
-
-			return inserted;
-		}
-
-		public Inventory getInventoryPlayer() {
-			return this.inventoryPlayer;
-		}
-	}
-
-	private static class RangedWrapper implements IItemHandlerSimpleInserter {
-		private final InventoryStorageImpl inventoryStorage;
-
-		public RangedWrapper(Inventory inv, int start, int end) {
-			this.inventoryStorage = (InventoryStorageImpl) InventoryStorage.of(inv, null);
-			this.inventoryStorage.parts = Collections.unmodifiableList(inventoryStorage.parts.subList(start, end));
-		}
-
-		@Override
-		public int getSlotCount() {
-			return inventoryStorage.getSlotCount();
-		}
-
-		@Override
-		public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-			return inventoryStorage.getSlot(slot);
-		}
-
-		@Override
-		public List<SingleSlotStorage<ItemVariant>> getSlots() {
-			return inventoryStorage.parts;
-		}
-
-		@Override
-		public ItemStack getStackInSlot(int slot) {
-			var s = getSlot(slot);
-			return s.getResource().toStack((int) s.getAmount());
-		}
-
-		@Override
-		public void setStackInSlot(int slot, ItemStack stack) {
-			// noop
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			// noop
-			return 0;
-		}
-
-		@Override
-		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			return inventoryStorage.insert(resource, maxAmount, transaction);
-		}
-
-		@Override
-		public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-			return inventoryStorage.extract(resource, maxAmount, transaction);
+		public boolean isItemValid(int slot, ItemStack stack) {
+			return itemHandler.isItemValid(slot, stack);
 		}
 	}
 }

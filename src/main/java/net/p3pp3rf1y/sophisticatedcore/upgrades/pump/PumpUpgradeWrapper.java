@@ -1,15 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
-import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.*;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -25,15 +17,14 @@ import net.minecraft.world.phys.AABB;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
-import net.p3pp3rf1y.sophisticatedcore.util.FluidHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, PumpUpgradeItem> implements ITickableUpgrade {
 	private static final int DID_NOTHING_COOLDOWN_TIME = 40;
@@ -62,7 +53,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		setCooldown(world, storageWrapper.getFluidHandler().map(storageFluidHandler -> tick(storageFluidHandler, entity, world, pos)).orElse(DID_NOTHING_COOLDOWN_TIME));
 	}
 
-	private int tick(Storage<FluidVariant> storageFluidHandler, @Nullable Entity entity, Level level, BlockPos pos) {
+	private int tick(IFluidHandlerItem storageFluidHandler, @Nullable Entity entity, Level level, BlockPos pos) {
 		if (entity == null) {
 			Optional<Integer> newCooldown = handleInWorldInteractions(storageFluidHandler, level, pos);
 			if (newCooldown.isPresent()) {
@@ -81,7 +72,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return lastHandActionTime + 10 * HAND_INTERACTION_COOLDOWN_TIME > level.getGameTime() ? HAND_INTERACTION_COOLDOWN_TIME : DID_NOTHING_COOLDOWN_TIME;
 	}
 
-	private Optional<Integer> handleInWorldInteractions(Storage<FluidVariant> storageFluidHandler, Level world, BlockPos pos) {
+	private Optional<Integer> handleInWorldInteractions(IFluidHandlerItem storageFluidHandler, Level world, BlockPos pos) {
 		if (shouldInteractWithHand() && handleFluidContainersInHandsOfNearbyPlayers(world, pos, storageFluidHandler)) {
 			lastHandActionTime = world.getGameTime();
 			return Optional.of(HAND_INTERACTION_COOLDOWN_TIME);
@@ -97,18 +88,15 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return interactWithAttachedFluidHandlers(world, pos, storageFluidHandler);
 	}
 
-	private Optional<Integer> interactWithAttachedFluidHandlers(Level world, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
+	private Optional<Integer> interactWithAttachedFluidHandlers(Level world, BlockPos pos, IFluidHandler storageFluidHandler) {
 		for (Direction dir : Direction.values()) {
-            boolean successful = false;
-			Storage<FluidVariant> storage = FluidStorage.SIDED.find(world, pos.offset(dir.getNormal()), dir.getOpposite());
-			if (storage != null) {
-				if (isInput()) {
-					successful = fillFromFluidHandler(storage, storageFluidHandler, getMaxInOut());
-				} else {
-					successful = fillFluidHandler(storage, storageFluidHandler, getMaxInOut());
-				}
-			}
-
+            boolean successful = Optional.ofNullable(Capabilities.FluidHandler.SIDED.find(world, pos.offset(dir.getNormal()), dir.getOpposite())).map(fluidHandler -> {
+						if (isInput()) {
+							return fillFromFluidHandler(fluidHandler, storageFluidHandler, getMaxInOut());
+						} else {
+							return fillFluidHandler(fluidHandler, storageFluidHandler, getMaxInOut());
+						}
+					}).orElse(false);
 			if (successful) {
 				return Optional.of(FLUID_HANDLER_INTERACTION_COOLDOWN_TIME);
 			}
@@ -117,15 +105,15 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return Optional.empty();
 	}
 
-	private long getMaxInOut() {
-		return Math.max(FluidConstants.BUCKET, pumpUpgradeConfig.maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * getAdjustedStackMultiplier(storageWrapper) * FluidHelper.BUCKET_VOLUME_IN_MILLIBUCKETS);
+	private int getMaxInOut() {
+		return Math.max(FluidType.BUCKET_VOLUME, pumpUpgradeConfig.maxInputOutput.get() * storageWrapper.getNumberOfSlotRows() * getAdjustedStackMultiplier(storageWrapper));
 	}
 
 	public int getAdjustedStackMultiplier(IStorageWrapper storageWrapper) {
 		return 1 + (int) (pumpUpgradeConfig.stackMultiplierRatio.get() * (storageWrapper.getInventoryHandler().getStackSizeMultiplier() - 1));
 	}
 
-	private Optional<Integer> interactWithWorld(Level world, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
+	private Optional<Integer> interactWithWorld(Level world, BlockPos pos, IFluidHandler storageFluidHandler) {
 		if (isInput()) {
 			return fillFromBlockInRange(world, pos, storageFluidHandler);
 		} else {
@@ -139,12 +127,12 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return Optional.empty();
 	}
 
-    private boolean placeFluidInWorld(Level world, Storage<FluidVariant> storageFluidHandler, Direction dir, BlockPos offsetPos) {
+	private boolean placeFluidInWorld(Level world, IFluidHandler storageFluidHandler, Direction dir, BlockPos offsetPos) {
 		if (dir != Direction.UP) {
-            for (StorageView<FluidVariant> view : storageFluidHandler.nonEmptyViews()) {
-				FluidStack tankFluid = new FluidStack(view);
+			for (int tank = 0; tank < storageFluidHandler.getTanks(); tank++) {
+				FluidStack tankFluid = storageFluidHandler.getFluidInTank(tank);
 				if (!tankFluid.isEmpty() && fluidFilterLogic.fluidMatches(tankFluid)
-						&& isValidForFluidPlacement(world, offsetPos) && FluidHelper.placeFluid(null, world, offsetPos, storageFluidHandler, view.getResource(), view.getAmount())) {
+						&& isValidForFluidPlacement(world, offsetPos) && FluidUtil.tryPlaceFluid(null, world, InteractionHand.MAIN_HAND, offsetPos, storageFluidHandler, tankFluid)) {
 					return true;
 				}
 			}
@@ -157,7 +145,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return blockState.isAir() || (!blockState.getFluidState().isEmpty() && !blockState.getFluidState().isSource());
 	}
 
-	private Optional<Integer> fillFromBlockInRange(Level world, BlockPos basePos, Storage<FluidVariant> storageFluidHandler) {
+	private Optional<Integer> fillFromBlockInRange(Level world, BlockPos basePos, IFluidHandler storageFluidHandler) {
 		LinkedList<BlockPos> nextPositions = new LinkedList<>();
 		Set<BlockPos> searchedPositions = new HashSet<>();
 		nextPositions.add(basePos);
@@ -181,13 +169,15 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return Optional.empty();
 	}
 
-	private boolean fillFromBlock(Level world, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
+	private boolean fillFromBlock(Level world, BlockPos pos, IFluidHandler storageFluidHandler) {
 		FluidState fluidState = world.getFluidState(pos);
 		if (!fluidState.isEmpty()) {
 			BlockState state = world.getBlockState(pos);
 			Block block = state.getBlock();
-			Storage<FluidVariant> targetFluidHandler;
-			if (block instanceof BucketPickup bucketPickup) {
+			IFluidHandler targetFluidHandler;
+			/*if (block instanceof IFluidBlock fluidBlock) {
+				targetFluidHandler = new FluidBlockWrapper(fluidBlock, world, pos);
+			} else*/ if (block instanceof BucketPickup bucketPickup) {
 				targetFluidHandler = new BucketPickupHandlerWrapper(bucketPickup, world, pos);
 			} else {
 				return false;
@@ -197,7 +187,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return false;
 	}
 
-	private boolean handleFluidContainersInHandsOfNearbyPlayers(Level world, BlockPos pos, Storage<FluidVariant> storageFluidHandler) {
+	private boolean handleFluidContainersInHandsOfNearbyPlayers(Level world, BlockPos pos, IFluidHandler storageFluidHandler) {
 		AABB searchBox = new AABB(pos).inflate(PLAYER_SEARCH_RANGE);
 		for (Player player : world.players()) {
 			if (searchBox.contains(player.getX(), player.getY(), player.getZ()) && handleFluidContainerInHands(player, storageFluidHandler)) {
@@ -207,44 +197,42 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return false;
 	}
 
-	private boolean handleFluidContainerInHands(Player player, Storage<FluidVariant> storageFluidHandler) {
+	private boolean handleFluidContainerInHands(Player player, IFluidHandler storageFluidHandler) {
 		return handleFluidContainerInHand(storageFluidHandler, player, InteractionHand.MAIN_HAND) || handleFluidContainerInHand(storageFluidHandler, player, InteractionHand.OFF_HAND);
 	}
 
-	private boolean handleFluidContainerInHand(Storage<FluidVariant> storageFluidHandler, Player player, InteractionHand hand) {
+	private boolean handleFluidContainerInHand(IFluidHandler storageFluidHandler, Player player, InteractionHand hand) {
 		ItemStack itemInHand = player.getItemInHand(hand);
 		if (itemInHand.getCount() != 1 || itemInHand == storageWrapper.getWrappedStorageStack()) {
 			return false;
 		}
-
-		Storage<FluidVariant> handStorage = ContainerItemContext.ofPlayerHand(player, hand).find(FluidStorage.ITEM);
-		if (handStorage == null) return false;
-
-		if (isInput()) {
-			return fillFromHand(player, hand, handStorage, storageFluidHandler);
-		} else {
-			return fillContainerInHand(player, hand, handStorage, storageFluidHandler);
-		}
+		return itemInHand.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).map(itemFluidHandler -> {
+			if (isInput()) {
+				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);
+			} else {
+				return fillContainerInHand(player, hand, itemFluidHandler, storageFluidHandler);
+			}
+		}).orElse(false);
 	}
 
-	private boolean fillContainerInHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
-		// No need to do that with fabric
-		/*if (ret) {
+	private boolean fillContainerInHand(Player player, InteractionHand hand, IFluidHandlerItem itemFluidHandler, IFluidHandler storageFluidHandler) {
+		boolean ret = fillFluidHandler(itemFluidHandler, storageFluidHandler);
+		if (ret) {
 			player.setItemInHand(hand, itemFluidHandler.getContainer());
-		}*/
-		return fillFluidHandler(itemFluidHandler, storageFluidHandler);
+		}
+		return ret;
 	}
 
-	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {
-		return fillFluidHandler(fluidHandler, storageFluidHandler, FluidConstants.BUCKET);
+	private boolean fillFluidHandler(IFluidHandler fluidHandler, IFluidHandler storageFluidHandler) {
+		return fillFluidHandler(fluidHandler, storageFluidHandler, FluidType.BUCKET_VOLUME);
 	}
 
-	private boolean fillFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler, long maxFill) {
+	private boolean fillFluidHandler(IFluidHandler fluidHandler, IFluidHandler storageFluidHandler, int maxFill) {
 		boolean ret = false;
-		for (StorageView<FluidVariant> view : storageFluidHandler.nonEmptyViews()) {
-			FluidStack tankFluid = new FluidStack(view);
+		for (int tank = 0; tank < storageFluidHandler.getTanks(); tank++) {
+			FluidStack tankFluid = storageFluidHandler.getFluidInTank(tank);
 			if (!tankFluid.isEmpty() && fluidFilterLogic.fluidMatches(tankFluid)
-					&& StorageUtil.move(storageFluidHandler, fluidHandler, view.getResource()::equals, maxFill, null) == 0) {
+					&& !FluidUtil.tryFluidTransfer(fluidHandler, storageFluidHandler, new FluidStack(tankFluid, maxFill), true).isEmpty()) {
 				ret = true;
 				break;
 			}
@@ -252,23 +240,22 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		return ret;
 	}
 
-	private boolean fillFromHand(Player player, InteractionHand hand, Storage<FluidVariant> itemFluidHandler, Storage<FluidVariant> storageFluidHandler) {
+	private boolean fillFromHand(Player player, InteractionHand hand, IFluidHandlerItem itemFluidHandler, IFluidHandler storageFluidHandler) {
 		if (fillFromFluidHandler(itemFluidHandler, storageFluidHandler)) {
-			// No need to do that with fabric
-			// player.setItemInHand(hand, itemFluidHandler.getContainer());
+			player.setItemInHand(hand, itemFluidHandler.getContainer());
 			return true;
 		}
 		return false;
 	}
 
-	private boolean fillFromFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler) {
-		return fillFromFluidHandler(fluidHandler, storageFluidHandler, FluidConstants.BUCKET);
+	private boolean fillFromFluidHandler(IFluidHandler fluidHandler, IFluidHandler storageFluidHandler) {
+		return fillFromFluidHandler(fluidHandler, storageFluidHandler, FluidType.BUCKET_VOLUME);
 	}
 
-	private boolean fillFromFluidHandler(Storage<FluidVariant> fluidHandler, Storage<FluidVariant> storageFluidHandler, long maxDrain) {
-		FluidStack containedFluid = TransferUtil.simulateExtractAnyFluid(fluidHandler, maxDrain);
+	private boolean fillFromFluidHandler(IFluidHandler fluidHandler, IFluidHandler storageFluidHandler, int maxDrain) {
+		FluidStack containedFluid = fluidHandler.drain(maxDrain, IFluidHandler.FluidAction.SIMULATE);
 		if (!containedFluid.isEmpty() && fluidFilterLogic.fluidMatches(containedFluid)) {
-			return StorageUtil.move(fluidHandler, storageFluidHandler, fluidVariant -> fluidVariant.isOf(containedFluid.getFluid()), containedFluid.getAmount(), null) > 0;
+			return !FluidUtil.tryFluidTransfer(storageFluidHandler, fluidHandler, containedFluid, true).isEmpty();
 		}
 		return false;
 	}

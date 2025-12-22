@@ -44,7 +44,7 @@ public class StorageSoundHandler {
 			lastPlaybackChecked = level.getGameTime();
 			storageSounds.entrySet().removeIf(entry -> {
 				if (!Minecraft.getInstance().getSoundManager().isActive(entry.getValue())) {
-					PacketHandler.sendToServer(new SoundFinishedNotificationMessage(entry.getKey()));
+					PacketHandler.INSTANCE.sendToServer(new SoundFinishedNotificationMessage(entry.getKey()));
 					return true;
 				}
 				return false;

@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
+import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.p3pp3rf1y.sophisticatedcore.common.gui.SlotItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;
@@ -18,11 +18,11 @@ public class JukeboxUpgradeContainer extends UpgradeContainerBase<JukeboxUpgrade
 	public JukeboxUpgradeContainer(Player player, int upgradeContainerId, JukeboxUpgradeWrapper upgradeWrapper, UpgradeContainerType<JukeboxUpgradeWrapper, JukeboxUpgradeContainer> type) {
 		super(player, upgradeContainerId, upgradeWrapper, type);
 		for (int slot = 0; slot < upgradeWrapper.getDiscInventory().getSlotCount(); slot++) {
-			slots.add(new SlotItemHandler<>(upgradeWrapper.getDiscInventory(), slot, -100, -100) {
+			slots.add(new SlotItemHandler(upgradeWrapper.getDiscInventory(), slot, -100, -100) {
 				@Override
 				public void setChanged() {
 					super.setChanged();
-					if (upgradeWrapper.isPlaying() && getSlotIndex() == upgradeWrapper.getDiscSlotActive()) {
+					if (upgradeWrapper.isPlaying() && sophisticatedLibrary_getSlotIndex() == upgradeWrapper.getDiscSlotActive()) {
 						upgradeWrapper.stop(player);
 					}
 				}

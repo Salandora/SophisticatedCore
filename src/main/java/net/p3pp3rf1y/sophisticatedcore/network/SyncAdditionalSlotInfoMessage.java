@@ -1,10 +1,10 @@
 
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.IAdditionalSlotInfoMenu;
 
@@ -12,9 +12,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SyncAdditionalSlotInfoMessage extends SimplePacketBase {
+public class SyncAdditionalSlotInfoMessage {
 	private final Set<Integer> inaccessibleSlots;
 	private final Map<Integer, Integer> slotLimitOverrides;
 	private final Set<Integer> infiniteSlots;
@@ -26,72 +27,71 @@ public class SyncAdditionalSlotInfoMessage extends SimplePacketBase {
 		this.infiniteSlots = infiniteSlots;
 	}
 
-	public SyncAdditionalSlotInfoMessage(FriendlyByteBuf buffer) {
-		this(
-				Arrays.stream(buffer.readVarIntArray()).boxed().collect(Collectors.toSet()),
-				deserializeSlotLimitOverrides(buffer),
-				Arrays.stream(buffer.readVarIntArray()).boxed().collect(Collectors.toSet()),
-				deserializeSlotFilterItems(buffer)
-		);
+	public static void encode(SyncAdditionalSlotInfoMessage msg, FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeVarIntArray(msg.inaccessibleSlots.stream().mapToInt(i->i).toArray());
+		serializeSlotLimitOverrides(packetBuffer, msg.slotLimitOverrides);
+		packetBuffer.writeVarIntArray(msg.infiniteSlots.stream().mapToInt(i->i).toArray());
+		serializeSlotFilterItems(packetBuffer, msg.slotFilterItems);
 	}
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeVarIntArray(inaccessibleSlots.stream().mapToInt(i->i).toArray());
-		serializeSlotLimitOverrides(buffer, slotLimitOverrides);
-		buffer.writeVarIntArray(infiniteSlots.stream().mapToInt(i->i).toArray());
-		serializeSlotFilterItems(buffer, slotFilterItems);
+	public static SyncAdditionalSlotInfoMessage decode(FriendlyByteBuf packetBuffer) {
+		return new SyncAdditionalSlotInfoMessage(
+				Arrays.stream(packetBuffer.readVarIntArray()).boxed().collect(Collectors.toSet()),
+				deserializeSlotLimitOverrides(packetBuffer),
+				Arrays.stream(packetBuffer.readVarIntArray()).boxed().collect(Collectors.toSet()),
+				deserializeSlotFilterItems(packetBuffer));
 	}
 
-	private static void serializeSlotFilterItems(FriendlyByteBuf buffer, Map<Integer, Item> slotFilterItems) {
-		buffer.writeInt(slotFilterItems.size());
+	private static void serializeSlotFilterItems(FriendlyByteBuf packetBuffer, Map<Integer, Item> slotFilterItems) {
+		packetBuffer.writeInt(slotFilterItems.size());
 
 		slotFilterItems.forEach((slot, item) -> {
-			buffer.writeInt(slot);
-			buffer.writeInt(Item.getId(item));
+			packetBuffer.writeInt(slot);
+			packetBuffer.writeInt(Item.getId(item));
 		});
 	}
 
-	private static Map<Integer, Item> deserializeSlotFilterItems(FriendlyByteBuf buffer) {
+	private static Map<Integer, Item> deserializeSlotFilterItems(FriendlyByteBuf packetBuffer) {
 		Map<Integer, Item> ret = new HashMap<>();
-		int size = buffer.readInt();
+		int size = packetBuffer.readInt();
 
 		for (int i = 0; i < size; i++) {
-			ret.put(buffer.readInt(), Item.byId(buffer.readInt()));
+			ret.put(packetBuffer.readInt(), Item.byId(packetBuffer.readInt()));
 		}
 
 		return ret;
 	}
 
-	private static Map<Integer, Integer> deserializeSlotLimitOverrides(FriendlyByteBuf buffer) {
+	private static Map<Integer, Integer> deserializeSlotLimitOverrides(FriendlyByteBuf packetBuffer) {
 		Map<Integer, Integer> ret = new HashMap<>();
 
-		int size = buffer.readInt();
+		int size = packetBuffer.readInt();
 		for (int i = 0; i < size; i++) {
-			ret.put(buffer.readInt(), buffer.readInt());
+			ret.put(packetBuffer.readInt(), packetBuffer.readInt());
 		}
 
 		return ret;
 	}
 
-	private static void serializeSlotLimitOverrides(FriendlyByteBuf buffer, Map<Integer, Integer> slotLimitOverrides) {
-		buffer.writeInt(slotLimitOverrides.size());
+	private static void serializeSlotLimitOverrides(FriendlyByteBuf packetBuffer, Map<Integer, Integer> slotLimitOverrides) {
+		packetBuffer.writeInt(slotLimitOverrides.size());
 		slotLimitOverrides.forEach((slot, limit) -> {
-			buffer.writeInt(slot);
-			buffer.writeInt(limit);
+			packetBuffer.writeInt(slot);
+			packetBuffer.writeInt(limit);
 		});
 	}
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			Player player = context.getClientPlayer();
-			if (player == null || !(player.containerMenu instanceof IAdditionalSlotInfoMenu menu)) {
-				return;
-			}
-			menu.updateAdditionalSlotInfo(inaccessibleSlots, slotLimitOverrides, infiniteSlots, slotFilterItems);
-		});
-		return true;
+	public static void onMessage(SyncAdditionalSlotInfoMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(msg));
+		context.setPacketHandled(true);
+	}
+
+	private static void handleMessage(SyncAdditionalSlotInfoMessage msg) {
+		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null || !(player.containerMenu instanceof IAdditionalSlotInfoMenu menu)) {
+			return;
+		}
+		menu.updateAdditionalSlotInfo(msg.inaccessibleSlots, msg.slotLimitOverrides, msg.infiniteSlots, msg.slotFilterItems);
 	}
 }

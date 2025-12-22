@@ -1,9 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.magnet;
 
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -25,12 +22,12 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrapper, MagnetUpgradeItem>
 		implements IContentsFilteredUpgrade, ITickableUpgrade, IPickupResponseUpgrade {
@@ -58,14 +55,12 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	@Override
-	public ItemStack pickup(Level world, ItemStack stack, TransactionContext ctx) {
+	public ItemStack pickup(Level world, ItemStack stack, boolean simulate) {
 		if (!shouldPickupItems() || !filterLogic.matchesFilter(stack)) {
 			return stack;
 		}
 
-		ItemVariant resource = ItemVariant.of(stack);
-		long inserted = storageWrapper.getInventoryForUpgradeProcessing().insert(resource, stack.getCount(), ctx);
-		return resource.toStack(stack.getCount() - (int) inserted);
+		return storageWrapper.getInventoryForUpgradeProcessing().insertItem(stack, simulate);
 	}
 
 	@Override
@@ -84,7 +79,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	private boolean canFillStorageWithXp() {
-		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.simulateInsert(ModFluids.EXPERIENCE_TAG, FluidConstants.BUCKET, ModFluids.XP_STILL, null) > 0).orElse(false);
+		return storageWrapper.getFluidHandler().map(fluidHandler -> fluidHandler.fill(ModFluids.EXPERIENCE_TAG, 1, ModFluids.XP_STILL, IFluidHandler.FluidAction.SIMULATE) > 0).orElse(false);
 	}
 
 	private int pickupXpOrbs(@Nullable Entity entity, Level world, BlockPos pos) {
@@ -108,11 +103,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 		long amountToTransfer = XpHelper.experienceToLiquid(xpOrb.getValue());
 
 		return storageWrapper.getFluidHandler().map(fluidHandler -> {
-			long amountAdded;
-			try (Transaction outer = Transaction.openOuter()) {
-				amountAdded = fluidHandler.insert(ModFluids.EXPERIENCE_TAG, amountToTransfer, ModFluids.XP_STILL, outer);
-				outer.commit();
-			}
+			long amountAdded = fluidHandler.fill(ModFluids.EXPERIENCE_TAG, amountToTransfer, ModFluids.XP_STILL, IFluidHandler.FluidAction.EXECUTE);
 			if (amountAdded > 0) {
 				Vec3 pos = xpOrb.position();
 				// TODO: Is this necessary?
@@ -183,23 +174,21 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			return true;
 		}
 
-		CompoundTag data = pickedUpEntity.sophisticatedCore$getCustomData();
+		CompoundTag data = pickedUpEntity.sophisticatedLibrary_getCustomData();
 		return entity != null ? data.contains(PREVENT_REMOTE_MOVEMENT) : data.contains(PREVENT_REMOTE_MOVEMENT) && !data.contains(ALLOW_MACHINE_MOVEMENT);
 	}
 
 	private boolean tryToInsertItem(ItemEntity itemEntity) {
 		ItemStack stack = itemEntity.getItem();
-		ItemVariant resource = ItemVariant.of(stack);
 		IItemHandlerSimpleInserter inventory = storageWrapper.getInventoryForUpgradeProcessing();
-		try (Transaction ctx = Transaction.openOuter()) {
-			long inserted = inventory.insert(resource, stack.getCount(), ctx);
-			if (inserted > 0) {
-				itemEntity.setItem(resource.toStack(stack.getCount() - (int) inserted));
-				ctx.commit();
-				return true;
-			}
+		ItemStack remaining = inventory.insertItem(stack, true);
+		boolean insertedSomething = false;
+		if (remaining.getCount() != stack.getCount()) {
+			insertedSomething = true;
+			remaining = inventory.insertItem(stack, false);
+			itemEntity.setItem(remaining);
 		}
-		return false;
+		return insertedSomething;
 	}
 
 	public void setPickupItems(boolean pickupItems) {

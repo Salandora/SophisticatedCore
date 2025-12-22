@@ -1,27 +1,21 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
-import org.jetbrains.annotations.NotNull;
 
-public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
-	private final Supplier<SlottedStackStorage> wrappedHandlerGetter;
+public class CachedFailedInsertInventoryHandler implements IItemHandlerModifiable {
+	private final Supplier<IItemHandlerModifiable> wrappedHandlerGetter;
 	private final LongSupplier timeSupplier;
 	private long currentCacheTime = 0;
-	// TODO: Change to ItemStack just like in forge version?
-	private final Set<Integer> failedInsertStackHashes = new HashSet<>();
+	private final Set<ItemStack> failedInsertStacks = new HashSet<>();
 
-	public CachedFailedInsertInventoryHandler(Supplier<SlottedStackStorage> wrappedHandlerGetter, LongSupplier timeSupplier) {
+	public CachedFailedInsertInventoryHandler(Supplier<IItemHandlerModifiable> wrappedHandlerGetter, LongSupplier timeSupplier) {
 		this.wrappedHandlerGetter = wrappedHandlerGetter;
 		this.timeSupplier = timeSupplier;
 	}
@@ -36,63 +30,37 @@ public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 		return wrappedHandlerGetter.get().getSlotCount();
 	}
 
-	@Override
-	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-		return wrappedHandlerGetter.get().getSlot(slot);
-	}
-
 	@NotNull
 	@Override
 	public ItemStack getStackInSlot(int slot) {
 		return wrappedHandlerGetter.get().getStackInSlot(slot);
 	}
 
+	@NotNull
 	@Override
-	public long insert(ItemVariant resource, long maxAmount, TransactionContext ctx) {
+	public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
 		if (currentCacheTime != timeSupplier.getAsLong()) {
-			failedInsertStackHashes.clear();
+			failedInsertStacks.clear();
 			currentCacheTime = timeSupplier.getAsLong();
 		}
 
-		if (failedInsertStackHashes.contains(resource.hashCode())) {
-			return 0;
+		if (failedInsertStacks.contains(stack)) {
+			return stack;
 		}
 
-		long inserted = wrappedHandlerGetter.get().insert(resource, maxAmount, ctx);
-		if (inserted == 0) {
-			failedInsertStackHashes.add(resource.hashCode()); //only working with stack references because this logic is meant to handle the case where something tries to insert the same stack number of slots times
+		ItemStack result = wrappedHandlerGetter.get().insertItem(slot, stack, simulate);
+
+		if (result == stack) {
+			failedInsertStacks.add(stack); //only working with stack references because this logic is meant to handle the case where something tries to insert the same stack number of slots times
 		}
 
-		return inserted;
+		return result;
 	}
 
+	@NotNull
 	@Override
-	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		if (currentCacheTime != timeSupplier.getAsLong()) {
-			failedInsertStackHashes.clear();
-			currentCacheTime = timeSupplier.getAsLong();
-		}
-
-		if (failedInsertStackHashes.contains(resource.hashCode())) {
-			return 0;
-		}
-
-		long inserted = wrappedHandlerGetter.get().insertSlot(slot, resource, maxAmount, ctx);
-		if (inserted == 0) {
-			failedInsertStackHashes.add(resource.hashCode()); //only working with stack references because this logic is meant to handle the case where something tries to insert the same stack number of slots times
-		}
-
-		return inserted;
-	}
-
-	@Override
-	public long extract(ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		return wrappedHandlerGetter.get().extract(resource, maxAmount, ctx);
-	}
-
-	@Override
-	public long extractSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		return wrappedHandlerGetter.get().extractSlot(slot, resource, maxAmount, ctx);
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		return wrappedHandlerGetter.get().extractItem(slot, amount, simulate);
 	}
 
 	@Override
@@ -101,12 +69,7 @@ public class CachedFailedInsertInventoryHandler implements SlottedStackStorage {
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemVariant resource, int count) {
-		return wrappedHandlerGetter.get().isItemValid(slot, resource, count);
-	}
-
-	@Override
-	public Iterator<StorageView<ItemVariant>> iterator() {
-		return wrappedHandlerGetter.get().iterator();
+	public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+		return wrappedHandlerGetter.get().isItemValid(slot, stack);
 	}
 }

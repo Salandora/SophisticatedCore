@@ -1,9 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.voiding;
 
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -15,10 +12,10 @@ import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.*;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, VoidUpgradeItem>
 		implements IInsertResponseUpgrade, IFilteredUpgrade, ISlotChangeResponseUpgrade, ITickableUpgrade, IOverflowResponseUpgrade, ISlotLimitUpgrade {
@@ -34,25 +31,24 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public long onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemVariant resource, long maxAmount, @Nullable TransactionContext ctx) {
-		ItemStack stack = resource.toStack((int) maxAmount);
+	public ItemStack onBeforeInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, ItemStack stack, boolean simulate) {
 		if (shouldVoidOverflow && inventoryHandler.getStackInSlot(slot).isEmpty() && (!filterLogic.shouldMatchNbt() || !filterLogic.shouldMatchDurability() || filterLogic.getPrimaryMatch() != PrimaryMatch.ITEM) && filterLogic.matchesFilter(stack)) {
 			for (int s = 0; s < inventoryHandler.getSlotCount(); s++) {
 				if (s == slot) {
 					continue;
 				}
 				if (stackMatchesFilterStack(inventoryHandler.getStackInSlot(s), stack)) {
-					return 0;
+					return ItemStack.EMPTY;
 				}
 			}
-			return maxAmount;
+			return stack;
 		}
 
-		return !shouldVoidOverflow && filterLogic.matchesFilter(stack) ? 0 : maxAmount;
+		return !shouldVoidOverflow && filterLogic.matchesFilter(stack) ? ItemStack.EMPTY : stack;
 	}
 
 	@Override
-	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot, @Nullable TransactionContext ctx) {
+	public void onAfterInsert(IItemHandlerSimpleInserter inventoryHandler, int slot) {
 		//noop
 	}
 
@@ -89,13 +85,13 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	@Override
-	public void onSlotChange(SlottedStackStorage inventoryHandler, int slot) {
+	public void onSlotChange(IItemHandler inventoryHandler, int slot) {
 		if (!shouldWorkInGUI() || shouldVoidOverflow()) {
 			return;
 		}
 
 		ItemStack slotStack = inventoryHandler.getStackInSlot(slot);
-		if (!slotStack.isEmpty() && filterLogic.matchesFilter(slotStack)) {
+		if (filterLogic.matchesFilter(slotStack)) {
 			slotsToVoid.add(slot);
 		}
 	}
@@ -108,15 +104,7 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 
 		InventoryHandler storageInventory = storageWrapper.getInventoryHandler();
 		for (int slot : slotsToVoid) {
-			ItemStack stack = storageInventory.getStackInSlot(slot);
-			if (stack.isEmpty()) {
-				continue;
-			}
-
-			try (Transaction outer = Transaction.openOuter()) {
-				storageInventory.extractSlot(slot, ItemVariant.of(stack), stack.getCount(), outer);
-				outer.commit();
-			}
+			storageInventory.extractItem(slot, storageInventory.getStackInSlot(slot).getCount(), false);
 		}
 
 		slotsToVoid.clear();

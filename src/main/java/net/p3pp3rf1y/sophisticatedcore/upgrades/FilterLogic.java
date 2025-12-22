@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -126,16 +125,16 @@ public class FilterLogic extends FilterLogicBase {
 				CompoundTag itemTags = tagList.getCompound(i);
 				int slot = itemTags.getInt("Slot");
 
-				if (slot >= 0 && slot < getSlotCount()) {
-					this.getSlot(slot).load(itemTags);
+				if (slot >= 0 && slot < stacks.size()) {
+					ItemStack stack = ItemStack.of(itemTags);
+					stacks.set(slot, stack);
 				}
 			}
 			onLoad();
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemVariant resource, int count) {
-			ItemStack stack = resource.toStack(count);
+		public boolean isItemValid(int slot, ItemStack stack) {
 			return stack.isEmpty() || (doesNotContain(stack) && isItemValid.test(stack));
 		}
 

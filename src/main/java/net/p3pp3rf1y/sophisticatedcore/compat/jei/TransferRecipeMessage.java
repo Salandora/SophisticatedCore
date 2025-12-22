@@ -1,18 +1,20 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
-public class TransferRecipeMessage extends SimplePacketBase {
+public class TransferRecipeMessage {
 	private final ResourceLocation recipeTypeId;
 	private final Map<Integer, Integer> matchingItems;
 	private final List<Integer> craftingSlotIndexes;
@@ -29,18 +31,17 @@ public class TransferRecipeMessage extends SimplePacketBase {
 		this.maxTransfer = maxTransfer;
 	}
 
-	public TransferRecipeMessage(FriendlyByteBuf buffer) {
-		this(buffer.readResourceLocation(), buffer.readResourceLocation(), readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
+	public static void encode(TransferRecipeMessage msg, FriendlyByteBuf packetBuffer) {
+		packetBuffer.writeResourceLocation(msg.recipeId);
+		packetBuffer.writeResourceLocation(msg.recipeTypeId);
+		writeMap(packetBuffer, msg.matchingItems);
+		writeList(packetBuffer, msg.craftingSlotIndexes);
+		writeList(packetBuffer, msg.inventorySlotIndexes);
+		packetBuffer.writeBoolean(msg.maxTransfer);
 	}
 
-	@Override
-	public void write(FriendlyByteBuf packetBuffer) {
-		packetBuffer.writeResourceLocation(this.recipeId);
-		packetBuffer.writeResourceLocation(this.recipeTypeId);
-		writeMap(packetBuffer, this.matchingItems);
-		writeList(packetBuffer, this.craftingSlotIndexes);
-		writeList(packetBuffer, this.inventorySlotIndexes);
-		packetBuffer.writeBoolean(this.maxTransfer);
+	public static TransferRecipeMessage decode(FriendlyByteBuf buffer) {
+		return new TransferRecipeMessage(buffer.readResourceLocation(), buffer.readResourceLocation(), readMap(buffer), readList(buffer), readList(buffer), buffer.readBoolean());
 	}
 
 	private static void writeMap(FriendlyByteBuf packetBuffer, Map<Integer, Integer> map) {
@@ -74,20 +75,22 @@ public class TransferRecipeMessage extends SimplePacketBase {
 		return ret;
 	}
 
-	@Override
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			ServerPlayer sender = context.getSender();
-			if (sender == null) {
-				return;
-			}
 
-			RecipeType<?> recipeType = BuiltInRegistries.RECIPE_TYPE.get(this.recipeTypeId);
-			if (recipeType == null) {
-				return;
-			}
-			CraftingContainerRecipeTransferHandlerServer.setItems(sender, this.recipeId, recipeType, this.matchingItems, this.craftingSlotIndexes, this.inventorySlotIndexes, this.maxTransfer);
-		});
-		return true;
+	public static void onMessage(TransferRecipeMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(context.getSender(), msg));
+		context.setPacketHandled(true);
+	}
+
+	private static void handleMessage(@Nullable ServerPlayer sender, TransferRecipeMessage msg) {
+		if (sender == null) {
+			return;
+		}
+
+		RecipeType<?> recipeType = BuiltInRegistries.RECIPE_TYPE.get(msg.recipeTypeId);
+		if (recipeType == null) {
+			return;
+		}
+		CraftingContainerRecipeTransferHandlerServer.setItems(sender, msg.recipeId, recipeType, msg.matchingItems, msg.craftingSlotIndexes, msg.inventorySlotIndexes, msg.maxTransfer);
 	}
 }

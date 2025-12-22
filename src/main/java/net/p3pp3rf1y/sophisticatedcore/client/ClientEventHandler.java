@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
+import com.github.salandora.sophisticatedlibrary.event.api.v0.client.ClientRecipesUpdated;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -23,7 +24,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModFluids;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.AbstractContainerScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.mixin.client.accessor.ScreenAccessor;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketHandler;
@@ -56,7 +56,7 @@ public class ClientEventHandler implements ClientModInitializer {
             ScreenEvents.afterRender(screen).register(ClientEventHandler::onDrawScreen);
         });
 
-        PacketHandler.getChannel().initClientListener();
+		PacketHandler.INSTANCE.initClientListener();
     }
 
     private static void onDrawScreen(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {

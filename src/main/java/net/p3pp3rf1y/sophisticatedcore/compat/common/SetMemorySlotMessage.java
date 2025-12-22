@@ -1,14 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.common;
 
+import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
-import net.p3pp3rf1y.sophisticatedcore.network.SimplePacketBase;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 
-public class SetMemorySlotMessage extends SimplePacketBase {
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
+
+public class SetMemorySlotMessage {
 	private final ItemStack stack;
 	private final int slotNumber;
 
@@ -17,29 +20,29 @@ public class SetMemorySlotMessage extends SimplePacketBase {
 		this.slotNumber = slotNumber;
 	}
 
-	public SetMemorySlotMessage(FriendlyByteBuf buffer) {
-		this(buffer.readItem(), buffer.readShort());
+	public static void encode(SetMemorySlotMessage msg, FriendlyByteBuf buffer) {
+		buffer.writeItem(msg.stack);
+		buffer.writeShort(msg.slotNumber);
 	}
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeItem(stack);
-		buffer.writeShort(slotNumber);
+	public static SetMemorySlotMessage decode(FriendlyByteBuf buffer) {
+		return new SetMemorySlotMessage(buffer.readItem(), buffer.readShort());
 	}
 
-	@Override
-	public boolean handle(Context context) {
-		context.enqueueWork(() -> {
-			ServerPlayer sender = context.getSender();
-			if (sender == null || !(sender.containerMenu instanceof SettingsContainerMenu<?> settingsContainerMenu)) {
-				return;
-			}
-			IStorageWrapper storageWrapper = settingsContainerMenu.getStorageWrapper();
-			storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).setFilter(slotNumber, stack);
-			storageWrapper.getInventoryHandler().onSlotFilterChanged(slotNumber);
-			settingsContainerMenu.sendAdditionalSlotInfo();
-		});
-		return true;
+	public static void onMessage(SetMemorySlotMessage msg, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> handleMessage(context.getSender(), msg));
+		context.setPacketHandled(true);
+	}
+
+	public static void handleMessage(@Nullable ServerPlayer sender, SetMemorySlotMessage msg) {
+		if (sender == null || !(sender.containerMenu instanceof SettingsContainerMenu<?> settingsContainerMenu)) {
+			return;
+		}
+		IStorageWrapper storageWrapper = settingsContainerMenu.getStorageWrapper();
+		storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).setFilter(msg.slotNumber, msg.stack);
+		storageWrapper.getInventoryHandler().onSlotFilterChanged(msg.slotNumber);
+		settingsContainerMenu.sendAdditionalSlotInfo();
 	}
 
 }
