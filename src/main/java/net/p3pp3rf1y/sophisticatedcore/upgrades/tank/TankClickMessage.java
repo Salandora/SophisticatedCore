@@ -46,7 +46,7 @@ public class TankClickMessage {
 			return;
 		}
 		ItemStack cursorStack = containerMenu.getCarried();
-		cursorStack.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler -> {
+		cursorStack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler -> {
 			TankUpgradeWrapper tankWrapper = tankContainer.getUpgradeWrapper();
 			FluidStack tankContents = tankWrapper.getContents();
 			if (tankContents.isEmpty()) {

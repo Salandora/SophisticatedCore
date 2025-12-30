@@ -73,7 +73,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private boolean isValidFluidItem(ItemStack stack, boolean isOutput) {
-		return stack.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).map(fluidHandler ->
+		return stack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM).map(fluidHandler ->
 				isValidFluidHandler(fluidHandler, isOutput)).orElse(false);
 	}
 
@@ -187,10 +187,10 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		AtomicBoolean didSomething = new AtomicBoolean(false);
-		inventory.getStackInSlot(INPUT_SLOT).sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler ->
+		inventory.getStackInSlot(INPUT_SLOT).sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler ->
 				didSomething.set(drainHandler(fluidHandler, stack -> inventory.setStackInSlot(INPUT_SLOT, stack)))
 		);
-		inventory.getStackInSlot(OUTPUT_SLOT).sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler ->
+		inventory.getStackInSlot(OUTPUT_SLOT).sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM).ifPresent(fluidHandler ->
 				didSomething.set(fillHandler(fluidHandler, stack -> inventory.setStackInSlot(OUTPUT_SLOT, stack)))
 		);
 

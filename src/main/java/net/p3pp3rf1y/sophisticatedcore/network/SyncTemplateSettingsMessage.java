@@ -4,9 +4,9 @@ import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsTemplateStorage;
 
@@ -59,7 +59,7 @@ public class SyncTemplateSettingsMessage {
 
 	@Environment(EnvType.CLIENT)
 	private static void handleMessage(SyncTemplateSettingsMessage message) {
-		LocalPlayer player = Minecraft.getInstance().player;
+		Player player = Minecraft.getInstance().player;
 		if (player == null) {
 			return;
 		}

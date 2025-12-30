@@ -483,7 +483,7 @@ public class InventoryHelper {
 				if (slotStack.isEmpty()) {
 					continue;
 				}
-				slotStack.sophisticatedLibrary_getLazyCapability(Capabilities.ItemHandler.ITEM).ifPresent(itemHandlers::add);
+				slotStack.sophisticatedLibrary_getCapability(Capabilities.ItemHandler.ITEM).ifPresent(itemHandlers::add);
 			}
 		});
 		return itemHandlers;

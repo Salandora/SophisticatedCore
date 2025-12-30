@@ -4,9 +4,9 @@ import com.github.salandora.sophisticatedlibrary.common.api.v1.extensions.block.
 import com.github.salandora.sophisticatedlibrary.transfer.api.v1.EmptyItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
 import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedlibrary.util.Capabilities;
 import com.github.salandora.sophisticatedlibrary.util.LazyOptional;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -514,7 +514,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 	@Nonnull
 	public <T, C> LazyOptional<T> getCapability(BlockApiLookup<T, C> cap, @Nullable C opt) {
-		if (cap == ItemStorage.SIDED) {
+		if (cap == Capabilities.ItemHandler.SIDED) {
 			if (opt == null) {
 				if (noSideItemHandlerCap == null) {
 					noSideItemHandlerCap = LazyOptional.of(() -> this).cast();

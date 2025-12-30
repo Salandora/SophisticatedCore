@@ -74,14 +74,6 @@ public class PacketHandler {
 		networkWrapper.sendToClient(player, message);
 	}
 
-	/*public <M> void sendToAllTracking(M message, Entity entity) {
-		networkWrapper.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), message);
-	}
-
-	public <M> void sentToAllTrackingChunkOf(Level level, BlockPos pos, M message) {
-		networkWrapper.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)), message);
-	}*/
-
 	public <M> void sendToAllNear(ServerLevel world, ResourceKey<Level> dimension, Vec3 position, int range, M message) {
 		world.players().forEach(player -> {
 			if (player.level().dimension() == dimension && player.distanceToSqr(position) <= range * range) {

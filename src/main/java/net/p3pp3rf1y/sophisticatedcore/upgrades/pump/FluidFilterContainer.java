@@ -62,7 +62,7 @@ public class FluidFilterContainer {
 			return;
 		}
 
-		carried.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).ifPresent(itemFluidHandler -> {
+		carried.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM).ifPresent(itemFluidHandler -> {
 			FluidStack containedFluid = itemFluidHandler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
 			if (!containedFluid.isEmpty()) {
 				setFluid(index, containedFluid);

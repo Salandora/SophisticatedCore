@@ -206,7 +206,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		if (itemInHand.getCount() != 1 || itemInHand == storageWrapper.getWrappedStorageStack()) {
 			return false;
 		}
-		return itemInHand.sophisticatedLibrary_getLazyCapability(Capabilities.FluidHandler.ITEM).map(itemFluidHandler -> {
+		return itemInHand.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM).map(itemFluidHandler -> {
 			if (isInput()) {
 				return fillFromHand(player, hand, itemFluidHandler, storageFluidHandler);
 			} else {
