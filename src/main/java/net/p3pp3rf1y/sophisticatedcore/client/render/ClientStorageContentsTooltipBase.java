@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.client.render;
 
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidUtil;
+import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.FluidUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;

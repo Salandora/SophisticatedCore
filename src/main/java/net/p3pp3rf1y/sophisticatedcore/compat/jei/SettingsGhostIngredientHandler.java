@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.PacketDistributor;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;

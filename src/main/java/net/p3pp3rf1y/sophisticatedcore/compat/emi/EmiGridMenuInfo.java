@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.PacketDistributor;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
 import dev.emi.emi.api.recipe.handler.EmiCraftContext;

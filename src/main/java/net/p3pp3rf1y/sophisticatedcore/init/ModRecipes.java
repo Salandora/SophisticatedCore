@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
-import com.github.salandora.sophisticatedlibrary.util.DeferredRegister;
+import com.github.salandora.sophisticatedfabriclib.util.DeferredRegister;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.minecraft.core.registries.BuiltInRegistries;

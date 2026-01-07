@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.ItemStackHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;

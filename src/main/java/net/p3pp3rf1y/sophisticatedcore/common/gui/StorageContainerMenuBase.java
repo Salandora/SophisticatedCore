@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
-import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
+import com.github.salandora.sophisticatedfabriclib.inventory.SlotItemHandler;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.PacketDistributor;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;

@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.util.Capabilities;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.ItemStackHandler;
+import com.github.salandora.sophisticatedfabriclib.util.Capabilities;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.core.BlockPos;

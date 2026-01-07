@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
-import com.github.salandora.sophisticatedlibrary.inventory.SlotItemHandler;
+import com.github.salandora.sophisticatedfabriclib.inventory.SlotItemHandler;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;

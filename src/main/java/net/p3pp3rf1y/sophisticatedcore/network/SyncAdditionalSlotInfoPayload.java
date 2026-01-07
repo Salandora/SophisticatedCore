@@ -1,7 +1,7 @@
 
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v1.IPayloadContext;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.IPayloadContext;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;

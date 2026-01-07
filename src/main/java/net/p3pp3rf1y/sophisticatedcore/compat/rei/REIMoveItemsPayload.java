@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v1.IPayloadContext;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.IPayloadContext;
 import me.shedaniel.rei.api.client.registry.transfer.TransferHandler;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.entry.EntryStack;

@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.network;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v1.IPayloadContext;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.InvWrapper;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.PlayerMainInvWrapper;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.RangedWrapper;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.IPayloadContext;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.wrapper.InvWrapper;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.wrapper.PlayerMainInvWrapper;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.wrapper.RangedWrapper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

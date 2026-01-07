@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
-import com.github.salandora.sophisticatedlibrary.event.api.client.ClientRecipesUpdated;
+import com.github.salandora.sophisticatedfabriclib.event.api.v1.client.ClientRecipesUpdated;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

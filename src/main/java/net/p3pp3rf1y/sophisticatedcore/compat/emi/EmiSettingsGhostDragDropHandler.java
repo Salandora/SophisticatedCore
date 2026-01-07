@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v1.PacketDistributor;
+import com.github.salandora.sophisticatedfabriclib.network.api.v1.PacketDistributor;
 import dev.emi.emi.api.EmiDragDropHandler;
 import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.world.inventory.Slot;
