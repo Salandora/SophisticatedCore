@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.common;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.fabric.FabricItemHandlerWrapper;
-import com.github.salandora.sophisticatedlibrary.util.Capabilities;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.wrapper.fabric.FabricItemHandlerWrapper;
+import com.github.salandora.sophisticatedfabriclib.util.Capabilities;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.p3pp3rf1y.sophisticatedcore.controller.ControllerBlockEntityBase;
 

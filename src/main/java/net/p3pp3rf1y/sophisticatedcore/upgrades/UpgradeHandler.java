@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.ItemStackHandler;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;

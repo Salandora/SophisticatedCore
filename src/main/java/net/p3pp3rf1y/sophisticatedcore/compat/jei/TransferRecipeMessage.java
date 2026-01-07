@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
+import com.github.salandora.sophisticatedfabriclib.network.api.v0.NetworkEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

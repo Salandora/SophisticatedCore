@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandlerModifiable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;

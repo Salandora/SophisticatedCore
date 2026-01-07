@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
-import com.github.salandora.sophisticatedlibrary.common.api.v1.client.gui.controls.ScrollPanel;
+import com.github.salandora.sophisticatedfabriclib.common.api.v1.client.gui.controls.ScrollPanel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;

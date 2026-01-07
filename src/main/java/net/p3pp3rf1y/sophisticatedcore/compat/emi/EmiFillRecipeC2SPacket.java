@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.emi;
 
-import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
+import com.github.salandora.sophisticatedfabriclib.network.api.v0.NetworkEvent;
 import com.google.common.collect.Lists;
 import dev.emi.emi.runtime.EmiLog;
 import net.minecraft.network.FriendlyByteBuf;

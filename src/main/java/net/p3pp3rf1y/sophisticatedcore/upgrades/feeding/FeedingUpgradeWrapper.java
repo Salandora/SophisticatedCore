@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.feeding;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.wrapper.PlayerInvWrapper;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.wrapper.PlayerInvWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

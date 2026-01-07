@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
 
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandlerModifiable;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandlerModifiable;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.ItemStackHandler;
 import earth.terrarium.chipped.common.recipes.ChippedRecipe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;

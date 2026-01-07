@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.FluidStack;
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.IFluidHandlerItem;
-import com.github.salandora.sophisticatedlibrary.network.api.v0.NetworkEvent;
-import com.github.salandora.sophisticatedlibrary.util.Capabilities;
+import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.FluidStack;
+import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.IFluidHandlerItem;
+import com.github.salandora.sophisticatedfabriclib.network.api.v0.NetworkEvent;
+import com.github.salandora.sophisticatedfabriclib.util.Capabilities;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;

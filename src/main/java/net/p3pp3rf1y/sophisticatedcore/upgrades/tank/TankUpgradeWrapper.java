@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import com.github.salandora.sophisticatedlibrary.fluid.api.v1.*;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.IItemHandler;
-import com.github.salandora.sophisticatedlibrary.transfer.api.v1.ItemStackHandler;
-import com.github.salandora.sophisticatedlibrary.util.Capabilities;
+import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.*;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandler;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.ItemStackHandler;
+import com.github.salandora.sophisticatedfabriclib.util.Capabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;

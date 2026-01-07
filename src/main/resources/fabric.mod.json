@@ -44,7 +44,7 @@
         "minecraft": "${minecraft_version}",
         "fabricloader": ">=${loader_version}",
         "fabric-api": ">=${fabric_version}",
-        "sophisticatedlibrary": "${sl_version}",
+        "sophisticatedfabriclib": "${sl_version}",
         "forgeconfigapiport": ">=${forge_config_version}",
         "team_reborn_energy": ">=${energy_version}"
     },
