@@ -33,12 +33,12 @@ public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgrade
 		//noop
 	}
 
-	public long getAmount() {
-		return upgradeWrapper.getAmount();
+	public int getEnergyStored() {
+		return upgradeWrapper.getEnergyStored();
 	}
 
-	public long getCapacity() {
-		return upgradeWrapper.getCapacity();
+	public int getMaxEnergyStored() {
+		return upgradeWrapper.getMaxEnergyStored();
 	}
 
 	private static class BatteryIOSlot extends SlotSuppliedHandler implements INameableEmptySlot {

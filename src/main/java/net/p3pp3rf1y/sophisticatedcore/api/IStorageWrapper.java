@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.api;
 
-import team.reborn.energy.api.EnergyStorage;
-
+import com.github.salandora.sophisticatedfabriclib.energy.api.v1.IEnergyStorage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -76,7 +75,7 @@ public interface IStorageWrapper extends ITintable {
 		return Optional.empty();
 	}
 
-	default Optional<EnergyStorage> getEnergyStorage() { return Optional.empty(); }
+	default Optional<IEnergyStorage> getEnergyStorage() { return Optional.empty(); }
 
 	default ItemStack getWrappedStorageStack() {
 		return ItemStack.EMPTY;
