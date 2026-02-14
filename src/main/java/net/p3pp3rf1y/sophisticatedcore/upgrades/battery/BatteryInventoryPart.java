@@ -4,12 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.UpgradeInventoryPartBase;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -78,8 +73,8 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 		int screenX = screen.sophisticatedLibrary_getGuiLeft() + pos.x() + 10;
 		int screenY = screen.sophisticatedLibrary_getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
-			long energyStored = container.getAmount();
-			long maxEnergyStored = container.getCapacity();
+			int energyStored = container.getEnergyStored();
+			int maxEnergyStored = container.getMaxEnergyStored();
 			List<Component> tooltip = new ArrayList<>();
 			tooltip.add(Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("battery.contents_tooltip"), String.format("%,d", energyStored), String.format("%,d", maxEnergyStored)));
 			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
@@ -87,9 +82,9 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 	}
 
 	private void renderCharge(GuiGraphics guiGraphics) {
-		long energyStored = container.getAmount();
+		int energyStored = container.getEnergyStored();
 
-		long maxEnergyStored = container.getCapacity();
+		int maxEnergyStored = container.getMaxEnergyStored();
 
 		int segmentHeight = CHARGE_SEGMENT.getHeight();
 		int numberOfSegments = height / segmentHeight;

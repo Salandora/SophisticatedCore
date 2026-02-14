@@ -159,7 +159,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 
 	private void addEnergyTooltip(IStorageWrapper wrapper) {
 		wrapper.getEnergyStorage().ifPresent(energyStorage -> tooltipLines.add(Component.translatable(getEnergyTooltipTranslation(),
-				Component.literal(CountAbbreviator.abbreviate((int) energyStorage.getAmount())).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.RED)
+				Component.literal(CountAbbreviator.abbreviate((int) energyStorage.getEnergyStored())).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.RED)
 		));
 	}
 

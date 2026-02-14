@@ -57,8 +57,8 @@ public class ModCoreDataComponents {
     public static final Supplier<DataComponentType<SimpleItemContent>> RESULT_ITEM = DATA_COMPONENT_TYPES.register("result_item",
             () -> new DataComponentType.Builder<SimpleItemContent>().persistent(SimpleItemContent.CODEC).networkSynchronized(SimpleItemContent.STREAM_CODEC).build());
 
-    public static final Supplier<DataComponentType<Long>> ENERGY_STORED = DATA_COMPONENT_TYPES.register("energy_stored",
-            () -> new DataComponentType.Builder<Long>().persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.VAR_LONG).build());
+    public static final Supplier<DataComponentType<Integer>> ENERGY_STORED = DATA_COMPONENT_TYPES.register("energy_stored",
+            () -> new DataComponentType.Builder<Integer>().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build());
 
     public static final Supplier<DataComponentType<Boolean>> COMPACT_NON_UNCRAFTABLE = DATA_COMPONENT_TYPES.register("compact_non_uncraftable",
             () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build());

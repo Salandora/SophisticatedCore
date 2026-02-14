@@ -244,7 +244,6 @@ dependencies {
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
 
     modApi("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$project.forge_config_api_port_version")
-    modApi(include("teamreborn:energy:$project.energy_version"))
 
     modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:$project.cloth_config_version")
 
@@ -327,7 +326,6 @@ processResources {
             loader_version      : project.loader_version,
             fabric_version      : project.fabric_version,
             forge_config_version: project.forge_config_api_port_version,
-            energy_version      : project.energy_version,
             jei_version         : project.jei_version,
             sl_version          : mavenVersionToFabric(project.sl_version)
     ]
