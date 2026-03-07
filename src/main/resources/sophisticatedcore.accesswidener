@@ -34,7 +34,7 @@ accessible field net/minecraft/client/renderer/block/model/BlockModel textureMap
 accessible method net/minecraft/client/renderer/block/model/BlockModel bakeFace (Lnet/minecraft/client/renderer/block/model/BlockElement;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;)Lnet/minecraft/client/renderer/block/model/BakedQuad;
 accessible method net/minecraft/client/renderer/block/model/ItemModelGenerator processFrames (ILjava/lang/String;Lnet/minecraft/client/renderer/texture/SpriteContents;)Ljava/util/List;
 
-accessible method net/minecraft/world/entity/player/Player closeContainer ()V
+transitive-accessible method net/minecraft/world/entity/player/Player closeContainer ()V
 
 accessible field net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;
 accessible field net/minecraft/world/inventory/AbstractContainerMenu lastSlots Lnet/minecraft/core/NonNullList;
