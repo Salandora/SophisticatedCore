@@ -14,6 +14,6 @@ accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/
 
 accessible field net/minecraft/server/network/ServerGamePacketListenerImpl connection Lnet/minecraft/network/Connection;
 
-accessible method net/minecraft/world/entity/player/Player closeContainer ()V
+transitive-accessible method net/minecraft/world/entity/player/Player closeContainer ()V
 
 transitive-extendable method net/minecraft/world/inventory/AbstractContainerMenu doClick (IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V
