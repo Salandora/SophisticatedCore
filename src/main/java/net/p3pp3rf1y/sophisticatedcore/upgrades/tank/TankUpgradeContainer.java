@@ -28,13 +28,13 @@ public class TankUpgradeContainer extends UpgradeContainerBase<TankUpgradeWrappe
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedLibrary_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_TANK_INPUT_SLOT_BACKGROUND));
+		}.sophisticatedFabricLibrary_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_TANK_INPUT_SLOT_BACKGROUND));
 		slots.add(new TankIOSlot(() -> this.upgradeWrapper.getInventory(), TankUpgradeWrapper.OUTPUT_SLOT, -100, -100, TranslationHelper.INSTANCE.translUpgradeSlotTooltip("tank_output")) {
 			@Override
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedLibrary_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_TANK_OUTPUT_SLOT_BACKGROUND));
+		}.sophisticatedFabricLibrary_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_TANK_OUTPUT_SLOT_BACKGROUND));
 	}
 
 	@Override

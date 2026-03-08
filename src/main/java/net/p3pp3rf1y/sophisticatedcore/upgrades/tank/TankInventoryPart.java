@@ -63,13 +63,13 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 	@Override
 	public boolean handleMouseReleased(double mouseX, double mouseY, int button) {
-		if (mouseX < screen.sophisticatedLibrary_getGuiLeft() + getTankLeft() || mouseX >= screen.sophisticatedLibrary_getGuiLeft() + getTankLeft() + 18 ||
-				mouseY < screen.sophisticatedLibrary_getGuiTop() + pos.y() || mouseY >= screen.sophisticatedLibrary_getGuiTop() + pos.y() + height) {
+		if (mouseX < screen.sophisticatedFabricLibrary_getGuiLeft() + getTankLeft() || mouseX >= screen.sophisticatedFabricLibrary_getGuiLeft() + getTankLeft() + 18 ||
+				mouseY < screen.sophisticatedFabricLibrary_getGuiTop() + pos.y() || mouseY >= screen.sophisticatedFabricLibrary_getGuiTop() + pos.y() + height) {
 			return false;
 		}
 
 		ItemStack cursorStack = screen.getMenu().getCarried();
-		if (cursorStack.getCount() > 1 || cursorStack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM) == null) {
+		if (cursorStack.getCount() > 1 || cursorStack.sophisticatedFabricLibrary_getCapability(Capabilities.FluidHandler.ITEM) == null) {
 			return false;
 		}
 
@@ -91,8 +91,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 			contents = FluidStack.EMPTY;
 		}
 
-		int screenX = screen.sophisticatedLibrary_getGuiLeft() + pos.x() + 10;
-		int screenY = screen.sophisticatedLibrary_getGuiTop() + pos.y() + 1;
+		int screenX = screen.sophisticatedFabricLibrary_getGuiLeft() + pos.x() + 10;
+		int screenY = screen.sophisticatedFabricLibrary_getGuiTop() + pos.y() + 1;
 		if (mouseX >= screenX && mouseX < screenX + 16 && mouseY >= screenY && mouseY < screenY + height - 2) {
 			List<Component> tooltip = new ArrayList<>();
 			if (!contents.isEmpty()) {

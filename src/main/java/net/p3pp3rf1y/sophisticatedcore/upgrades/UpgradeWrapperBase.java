@@ -46,12 +46,12 @@ public abstract class UpgradeWrapperBase<W extends IUpgradeWrapper, T extends Up
 
 	@Override
 	public boolean isEnabled() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.ENABLED, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.ENABLED, true);
 	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.ENABLED, enabled);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.ENABLED, enabled);
 		save();
 		storageWrapper.getUpgradeHandler().refreshWrappersThatImplementAndTypeWrappers();
 	}

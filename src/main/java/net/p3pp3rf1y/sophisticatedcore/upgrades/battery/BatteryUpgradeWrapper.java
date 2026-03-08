@@ -34,7 +34,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	public static int getEnergyStored(ItemStack upgrade) {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.ENERGY_STORED, 0);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	private void serializeEnergyStored() {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.ENERGY_STORED, energyStored);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.ENERGY_STORED, energyStored);
 		save();
 		forceUpdateBatteryRenderInfo();
 	}
@@ -105,7 +105,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	private boolean isValidEnergyItem(ItemStack stack, boolean isOutput) {
-		IEnergyStorage energyStorage = stack.sophisticatedLibrary_getCapability(Capabilities.EnergyStorage.ITEM);
+		IEnergyStorage energyStorage = stack.sophisticatedFabricLibrary_getCapability(Capabilities.EnergyStorage.ITEM);
 
 		if (energyStorage == null) {
 			return false;
@@ -134,7 +134,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	public void tick(@Nullable Entity entity, Level level, BlockPos pos) {
 		if (energyStored < getMaxEnergyStored()) {
 			ItemStack energyContainer = inventory.getStackInSlot(INPUT_SLOT);
-			IEnergyStorage energyStorage = energyContainer.sophisticatedLibrary_getCapability(Capabilities.EnergyStorage.ITEM);
+			IEnergyStorage energyStorage = energyContainer.sophisticatedFabricLibrary_getCapability(Capabilities.EnergyStorage.ITEM);
 			if (energyStorage != null) {
 				receiveFromStorage(energyContainer, energyStorage);
 
@@ -143,7 +143,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 
 		if (energyStored > 0) {
 			ItemStack energyContainer = inventory.getStackInSlot(OUTPUT_SLOT);
-			IEnergyStorage energyStorage = energyContainer.sophisticatedLibrary_getCapability(Capabilities.EnergyStorage.ITEM);
+			IEnergyStorage energyStorage = energyContainer.sophisticatedFabricLibrary_getCapability(Capabilities.EnergyStorage.ITEM);
 			if (energyStorage != null) {
 				extractToStorage(energyContainer, energyStorage);
 			}

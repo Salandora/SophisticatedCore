@@ -40,7 +40,7 @@ public record TankClickPayload(int upgradeSlot) implements CustomPacketPayload {
 			return;
 		}
 		ItemStack cursorStack = containerMenu.getCarried();
-		IFluidHandlerItem fluidHandler = cursorStack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM);
+		IFluidHandlerItem fluidHandler = cursorStack.sophisticatedFabricLibrary_getCapability(Capabilities.FluidHandler.ITEM);
 		if (fluidHandler == null) {
 			return;
 		}

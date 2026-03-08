@@ -74,7 +74,7 @@ public abstract class REIStorageGhostIngredientHandler<S extends StorageScreenBa
 		public GhostTarget(S screen, ItemStack stack, Slot slot) {
 			this.slot = slot;
 			this.stack = stack;
-			this.area = new Rectangle(screen.sophisticatedLibrary_getGuiLeft() + slot.x, screen.sophisticatedLibrary_getGuiTop() + slot.y, 16, 16);
+			this.area = new Rectangle(screen.sophisticatedFabricLibrary_getGuiLeft() + slot.x, screen.sophisticatedFabricLibrary_getGuiTop() + slot.y, 16, 16);
 		}
 
 		public void accept(I ingredient) {

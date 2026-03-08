@@ -58,12 +58,12 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 	}
 
 	public void setShouldWorkdInGUI(boolean shouldWorkdInGUI) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
 		save();
 	}
 
 	public boolean shouldWorkInGUI() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
 	}
 
 	public void setShouldVoidOverflow(boolean shouldVoidOverflow) {
@@ -72,12 +72,12 @@ public class VoidUpgradeWrapper extends UpgradeWrapperBase<VoidUpgradeWrapper, V
 		}
 
 		this.shouldVoidOverflow = shouldVoidOverflow;
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflow);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflow);
 		save();
 	}
 
 	public void setShouldVoidOverflowDefaultOrLoadFromNbt(boolean shouldVoidOverflowDefault) {
-		shouldVoidOverflow = !upgradeItem.isVoidAnythingEnabled() || upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflowDefault);
+		shouldVoidOverflow = !upgradeItem.isVoidAnythingEnabled() || upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.SHOULD_VOID_OVERFLOW, shouldVoidOverflowDefault);
 	}
 
 	public boolean shouldVoidOverflow() {

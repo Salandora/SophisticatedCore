@@ -24,12 +24,12 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 			protected void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
-					upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
+					upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
 				}
 				save();
 			}
 		};
-		inputInventory.setStackInSlot(0, upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
+		inputInventory.setStackInSlot(0, upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
 	}
 
 	public IItemHandlerModifiable getInputInventory() {
@@ -38,15 +38,15 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 
 	public void setRecipeId(@Nullable ResourceLocation recipeId) {
 		if (recipeId == null) {
-			upgrade.sophisticatedLibrary_remove(ModCoreDataComponents.RECIPE_ID);
+			upgrade.sophisticatedFabricLibrary_remove(ModCoreDataComponents.RECIPE_ID);
 			return;
 		}
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.RECIPE_ID, recipeId);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.RECIPE_ID, recipeId);
 		save();
 	}
 
 	public Optional<ResourceLocation> getRecipeId() {
-		return Optional.ofNullable(upgrade.sophisticatedLibrary_get(ModCoreDataComponents.RECIPE_ID));
+		return Optional.ofNullable(upgrade.sophisticatedFabricLibrary_get(ModCoreDataComponents.RECIPE_ID));
 	}
 
 	@Override
@@ -55,11 +55,11 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 	}
 
 	public boolean shouldShiftClickIntoStorage() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
 	}
 
 	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
 		save();
 	}
 }

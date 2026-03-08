@@ -304,7 +304,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		@Nullable
 		@Override
 		public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-			return inaccessibleSlots.contains(sophisticatedLibrary_getSlotIndex()) ? StorageContainerMenuBase.INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.getOrDefault(sophisticatedLibrary_getSlotIndex(), null);
+			return inaccessibleSlots.contains(sophisticatedFabricLibrary_getSlotIndex()) ? StorageContainerMenuBase.INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.getOrDefault(sophisticatedFabricLibrary_getSlotIndex(), null);
 		}
 	}
 

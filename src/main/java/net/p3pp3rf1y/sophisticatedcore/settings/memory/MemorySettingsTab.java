@@ -9,17 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.Button;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ButtonDefinition;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ButtonDefinitions;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ImageButton;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
-import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.*;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsTab;
 
 import java.util.Optional;
@@ -83,10 +74,10 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	@Override
 	public void drawSlotStackOverlay(GuiGraphics guiGraphics, Slot slot, boolean templateLoadHovered) {
 		if (templateLoadHovered) {
-			if (!getSettingsContainer().getSelectedTemplatesMemorizedStack(slot.sophisticatedLibrary_getSlotIndex()).isEmpty()) {
+			if (!getSettingsContainer().getSelectedTemplatesMemorizedStack(slot.sophisticatedFabricLibrary_getSlotIndex()).isEmpty()) {
 				drawMemorizedStackOverlay(guiGraphics, slot);
 			}
-		} else if (getSettingsContainer().isSlotSelected(slot.sophisticatedLibrary_getSlotIndex())) {
+		} else if (getSettingsContainer().isSlotSelected(slot.sophisticatedFabricLibrary_getSlotIndex())) {
 			drawMemorizedStackOverlay(guiGraphics, slot);
 		}
 	}

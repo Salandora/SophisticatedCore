@@ -37,7 +37,7 @@ public class InventoryHelper {
 	private static final List<Function<Player, IItemHandler>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
 
 	static {
-		registerPlayerInventoryProvider(player -> player.sophisticatedCore_getCapability(Capabilities.ItemHandler.ENTITY));
+		registerPlayerInventoryProvider(player -> player.sophisticatedFabricLibrary_getCapability(Capabilities.ItemHandler.ENTITY));
 	}
 
 	public static void registerPlayerInventoryProvider(Function<Player, IItemHandler> provider) {
@@ -485,7 +485,7 @@ public class InventoryHelper {
 				if (slotStack.isEmpty()) {
 					continue;
 				}
-				IItemHandler containerHandler = slotStack.sophisticatedLibrary_getCapability(Capabilities.ItemHandler.ITEM);
+				IItemHandler containerHandler = slotStack.sophisticatedFabricLibrary_getCapability(Capabilities.ItemHandler.ITEM);
 				if (containerHandler != null) {
 					itemHandlers.add(containerHandler);
 				}

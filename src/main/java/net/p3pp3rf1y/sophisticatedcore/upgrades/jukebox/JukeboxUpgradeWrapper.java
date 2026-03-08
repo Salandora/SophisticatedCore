@@ -63,26 +63,26 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 				return stack.isEmpty() || stack.has(DataComponents.JUKEBOX_PLAYABLE);
 			}
 		};
-		isPlaying = upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
+		isPlaying = upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.IS_PLAYING, false);
 	}
 
 	public boolean isShuffleEnabled() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHUFFLE, false);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.SHUFFLE, false);
 	}
 
 	public void setShuffleEnabled(boolean shuffleEnabled) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHUFFLE, shuffleEnabled);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.SHUFFLE, shuffleEnabled);
 		save();
 
 		initPlaylist(true);
 	}
 
 	public RepeatMode getRepeatMode() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.REPEAT_MODE, RepeatMode.NO);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.REPEAT_MODE, RepeatMode.NO);
 	}
 
 	public void setRepeatMode(RepeatMode repeatMode) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.REPEAT_MODE, repeatMode);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.REPEAT_MODE, repeatMode);
 		save();
 	}
 
@@ -91,11 +91,11 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public int getDiscSlotActive() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.DISC_SLOT_ACTIVE, -1);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.DISC_SLOT_ACTIVE, -1);
 	}
 
 	private void setDiscSlotActive(int discSlotActive) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.DISC_SLOT_ACTIVE, discSlotActive);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.DISC_SLOT_ACTIVE, discSlotActive);
 		save();
 	}
 
@@ -132,7 +132,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 			} else {
 				ServerStorageSoundHandler.startPlayingDisc(serverLevel, posPlaying, storageUuid, song, onFinishedCallback);
 			}
-			upgrade.sophisticatedLibrary_set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
+			upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.DISC_FINISH_TIME, level.getGameTime() + song.value().lengthInTicks());
 		}));
 		setIsPlaying(true);
 	}
@@ -153,7 +153,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 
 	private void setIsPlaying(boolean playing) {
 		isPlaying = playing;
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.IS_PLAYING, playing);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.IS_PLAYING, playing);
 		if (isPlaying) {
 			storageWrapper.getRenderInfo().setUpgradeRenderData(JukeboxUpgradeRenderData.TYPE, new JukeboxUpgradeRenderData(true));
 		} else {
@@ -175,7 +175,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 				ServerStorageSoundHandler.stopPlayingDisc(entity.level(), entity.position(), storageUuid)
 		);
 		setIsPlaying(false);
-		upgrade.sophisticatedLibrary_remove(ModCoreDataComponents.DISC_FINISH_TIME);
+		upgrade.sophisticatedFabricLibrary_remove(ModCoreDataComponents.DISC_FINISH_TIME);
 		setDiscSlotActive(-1);
 		playlist.clear();
 		history.clear();
@@ -284,6 +284,6 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public long getDiscFinishTime() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.DISC_FINISH_TIME, 0L);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.DISC_FINISH_TIME, 0L);
 	}
 }

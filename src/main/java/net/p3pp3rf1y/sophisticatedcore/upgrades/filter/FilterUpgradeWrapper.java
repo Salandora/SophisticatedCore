@@ -24,13 +24,13 @@ public class FilterUpgradeWrapper extends UpgradeWrapperBase<FilterUpgradeWrappe
 	}
 
 	public void setDirection(Direction direction) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.DIRECTION, direction);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.DIRECTION, direction);
 		save();
 		storageWrapper.refreshInventoryForInputOutput();
 	}
 
 	public Direction getDirection() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.DIRECTION, Direction.BOTH);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.DIRECTION, Direction.BOTH);
 	}
 
 	@Override

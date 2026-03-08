@@ -37,7 +37,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	public static SimpleFluidContent getContents(ItemStack upgrade) {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.EMPTY);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.EMPTY);
 	}
 
 	private boolean isValidFluidItem(ItemStack stack, boolean isOutput) {
@@ -119,7 +119,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}
 
 	private void serializeContents() {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.FLUID_CONTENTS, SimpleFluidContent.copyOf(contents));
 		save();
 		forceUpdateTankRenderInfo();
 	}

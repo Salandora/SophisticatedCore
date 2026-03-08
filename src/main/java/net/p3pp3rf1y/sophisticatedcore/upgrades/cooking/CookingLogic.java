@@ -289,47 +289,47 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	public long getBurnTimeFinish() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.BURN_TIME_FINISH, 0L);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.BURN_TIME_FINISH, 0L);
 	}
 
 	private void setBurnTimeFinish(long burnTimeFinish) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.BURN_TIME_FINISH, burnTimeFinish);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.BURN_TIME_FINISH, burnTimeFinish);
 		save();
 	}
 
 	public int getBurnTimeTotal() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.BURN_TIME_TOTAL, 0);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.BURN_TIME_TOTAL, 0);
 	}
 
 	private void setBurnTimeTotal(int burnTimeTotal) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.BURN_TIME_TOTAL, burnTimeTotal);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.BURN_TIME_TOTAL, burnTimeTotal);
 		save();
 	}
 
 	public long getCookTimeFinish() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.COOK_TIME_FINISH, -1L);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.COOK_TIME_FINISH, -1L);
 	}
 
 	private void setCookTimeFinish(long cookTimeFinish) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.COOK_TIME_FINISH, cookTimeFinish);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.COOK_TIME_FINISH, cookTimeFinish);
 		save();
 	}
 
 	public int getCookTimeTotal() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.COOK_TIME_TOTAL, 0);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.COOK_TIME_TOTAL, 0);
 	}
 
 	private void setCookTimeTotal(int cookTimeTotal) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.COOK_TIME_TOTAL, cookTimeTotal);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.COOK_TIME_TOTAL, cookTimeTotal);
 		save();
 	}
 
 	public boolean isCooking() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.IS_COOKING, false);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.IS_COOKING, false);
 	}
 
 	private void setIsCooking(boolean isCooking) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.IS_COOKING, isCooking);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.IS_COOKING, isCooking);
 		save();
 	}
 

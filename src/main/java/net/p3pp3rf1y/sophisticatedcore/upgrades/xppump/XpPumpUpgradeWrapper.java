@@ -65,13 +65,13 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 		EnchantmentHelper.getRandomItemWith(EnchantmentEffectComponents.REPAIR_WITH_XP, player, ItemStack::isDamaged)
 				.ifPresent(item -> {
 					ItemStack itemStack = item.itemStack();
-					if (!itemStack.isEmpty() && itemStack.isDamaged() && itemStack.sophisticatedLibrary_getXpRepairRatio() > 0) {
-						float xpToTryDrain = Math.min(xpPumpUpgradeConfig.maxXpPointsPerMending.get(), itemStack.getDamageValue() / itemStack.sophisticatedLibrary_getXpRepairRatio());
+					if (!itemStack.isEmpty() && itemStack.isDamaged() && itemStack.sophisticatedFabricLibrary_getXpRepairRatio() > 0) {
+						float xpToTryDrain = Math.min(xpPumpUpgradeConfig.maxXpPointsPerMending.get(), itemStack.getDamageValue() / itemStack.sophisticatedFabricLibrary_getXpRepairRatio());
 						if (xpToTryDrain > 0) {
 							storageWrapper.getFluidHandler().ifPresent(fluidHandler -> {
 								FluidStack drained = fluidHandler.drain(ModFluids.EXPERIENCE_TAG, XpHelper.experienceToLiquid(xpToTryDrain), IFluidHandler.FluidAction.EXECUTE, false);
 								float xpDrained = XpHelper.liquidToExperience(drained.getAmount());
-								int durationToRepair = (int) (xpDrained * itemStack.sophisticatedLibrary_getXpRepairRatio());
+								int durationToRepair = (int) (xpDrained * itemStack.sophisticatedFabricLibrary_getXpRepairRatio());
 								itemStack.setDamageValue(itemStack.getDamageValue() - durationToRepair);
 							});
 						}
@@ -139,47 +139,47 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 	}
 
 	public AutomationDirection getDirection() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.AUTOMATION_DIRECTION, AutomationDirection.INPUT);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.AUTOMATION_DIRECTION, AutomationDirection.INPUT);
 	}
 
 	public void setDirection(AutomationDirection direction) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.AUTOMATION_DIRECTION, direction);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.AUTOMATION_DIRECTION, direction);
 		save();
 	}
 
 	public void setLevel(int level) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.LEVEL, level);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.LEVEL, level);
 		save();
 	}
 
 	public int getLevel() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.LEVEL, DEFAULT_LEVEL);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.LEVEL, DEFAULT_LEVEL);
 	}
 
 	public void setLevelsToStore(int levelsToStore) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.LEVELS_TO_STORE, levelsToStore);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.LEVELS_TO_STORE, levelsToStore);
 		save();
 	}
 
 	public int getLevelsToStore() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.LEVELS_TO_STORE, 1);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.LEVELS_TO_STORE, 1);
 	}
 
 	public void setLevelsToTake(int levelsToTake) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.LEVELS_TO_TAKE, levelsToTake);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.LEVELS_TO_TAKE, levelsToTake);
 		save();
 	}
 
 	public int getLevelsToTake() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.LEVELS_TO_TAKE, 1);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.LEVELS_TO_TAKE, 1);
 	}
 
 	public boolean shouldMendItems() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.MEND_ITEMS, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.MEND_ITEMS, true);
 	}
 
 	public void setMendItems(boolean mendItems) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.MEND_ITEMS, mendItems);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.MEND_ITEMS, mendItems);
 		save();
 	}
 }

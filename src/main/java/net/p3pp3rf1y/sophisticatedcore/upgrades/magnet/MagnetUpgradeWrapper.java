@@ -179,7 +179,7 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 			return true;
 		}
 
-		CompoundTag data = pickedUpEntity.sophisticatedLibrary_getCustomData();
+		CompoundTag data = pickedUpEntity.sophisticatedFabricLibrary_getCustomData();
 		return entity != null ? data.contains(PREVENT_REMOTE_MOVEMENT) : data.contains(PREVENT_REMOTE_MOVEMENT) && !data.contains(ALLOW_MACHINE_MOVEMENT);
 	}
 
@@ -202,20 +202,20 @@ public class MagnetUpgradeWrapper extends UpgradeWrapperBase<MagnetUpgradeWrappe
 	}
 
 	public void setPickupItems(boolean pickupItems) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.PICKUP_ITEMS, pickupItems);
 		save();
 	}
 
 	public boolean shouldPickupItems() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.PICKUP_ITEMS, true);
 	}
 
 	public void setPickupXp(boolean pickupXp) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.PICKUP_XP, pickupXp);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.PICKUP_XP, pickupXp);
 		save();
 	}
 
 	public boolean shouldPickupXp() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.PICKUP_XP, true);
 	}
 }

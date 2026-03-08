@@ -254,14 +254,14 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 	public void moveSlotsToView() {
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
 			Slot slot = container.getTagSelectionSlot();
-			slot.x = x - screen.sophisticatedLibrary_getGuiLeft() + 1;
-			slot.y = y - screen.sophisticatedLibrary_getGuiTop() + tagButtonsYOffset + 1;
+			slot.x = x - screen.sophisticatedFabricLibrary_getGuiLeft() + 1;
+			slot.y = y - screen.sophisticatedFabricLibrary_getGuiTop() + tagButtonsYOffset + 1;
 			container.getFilterSlots().forEach(s -> s.x = StorageScreenBase.DISABLED_SLOT_X_POS);
 		} else {
 			int upgradeSlotNumber = 0;
 			for (S slot : container.getFilterSlots()) {
-				slot.x = x - screen.sophisticatedLibrary_getGuiLeft() + 1 + (upgradeSlotNumber % slotsPerRow) * 18;
-				slot.y = y - screen.sophisticatedLibrary_getGuiTop() + slotsTopYOffset + 1 + (upgradeSlotNumber / slotsPerRow) * 18;
+				slot.x = x - screen.sophisticatedFabricLibrary_getGuiLeft() + 1 + (upgradeSlotNumber % slotsPerRow) * 18;
+				slot.y = y - screen.sophisticatedFabricLibrary_getGuiTop() + slotsTopYOffset + 1 + (upgradeSlotNumber / slotsPerRow) * 18;
 				upgradeSlotNumber++;
 			}
 			container.getTagSelectionSlot().x = StorageScreenBase.DISABLED_SLOT_X_POS;

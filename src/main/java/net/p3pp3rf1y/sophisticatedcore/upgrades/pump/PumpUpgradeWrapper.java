@@ -265,12 +265,12 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setIsInput(boolean input) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.IS_INPUT, input);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.IS_INPUT, input);
 		save();
 	}
 
 	public boolean isInput() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.IS_INPUT, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.IS_INPUT, true);
 	}
 
 	public FluidFilterLogic getFluidFilterLogic() {
@@ -278,20 +278,20 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 	}
 
 	public void setInteractWithHand(boolean interactWithHand) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.INTERACT_WITH_HAND, interactWithHand);
 		save();
 	}
 
 	public boolean shouldInteractWithHand() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INTERACT_WITH_HAND, upgradeItem.getInteractWithHandDefault());
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.INTERACT_WITH_HAND, upgradeItem.getInteractWithHandDefault());
 	}
 
 	public void setInteractWithWorld(boolean interactWithWorld) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.INTERACT_WITH_WORLD, interactWithWorld);
 		save();
 	}
 
 	public boolean shouldInteractWithWorld() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.INTERACT_WITH_WORLD, upgradeItem.getInteractWithWorldDefault());
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.INTERACT_WITH_WORLD, upgradeItem.getInteractWithWorldDefault());
 	}
 }

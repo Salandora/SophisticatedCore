@@ -284,7 +284,7 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 		}
 
 		@Override
-		public boolean sophisticatedLibrary_isSameInventory(Slot other) {
+		public boolean sophisticatedFabricLibrary_isSameInventory(Slot other) {
 			return false;
 		}
 

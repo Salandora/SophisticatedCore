@@ -1,6 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.common;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.*;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -44,6 +46,6 @@ public class CommonEventHandler {
 		}
 
 		UseOnContext context = new UseOnContext(player, hand, hitResult);
-		return stack.sophisticatedLibrary_onItemUseFirst(context);
+		return stack.sophisticatedFabricLibrary_onItemUseFirst(context);
 	}
 }

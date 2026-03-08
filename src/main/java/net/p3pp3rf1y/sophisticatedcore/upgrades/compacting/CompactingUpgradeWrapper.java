@@ -99,11 +99,11 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	public boolean shouldCompactNonUncraftable() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, false);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, false);
 	}
 
 	public void setCompactNonUncraftable(boolean shouldCompactNonUncraftable) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, shouldCompactNonUncraftable);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.COMPACT_NON_UNCRAFTABLE, shouldCompactNonUncraftable);
 		save();
 	}
 
@@ -115,12 +115,12 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	}
 
 	public void setShouldWorkdInGUI(boolean shouldWorkdInGUI) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.SHOULD_WORK_IN_GUI, shouldWorkdInGUI);
 		save();
 	}
 
 	public boolean shouldWorkInGUI() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.SHOULD_WORK_IN_GUI, false);
 	}
 
 	@Override

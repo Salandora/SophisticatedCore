@@ -113,12 +113,12 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 		if (!stack.has(DataComponents.FOOD)) {
 			return false;
 		}
-		FoodProperties foodProperties = stack.getItem().sophisticatedLibrary_getFoodProperties(stack, player);
+		FoodProperties foodProperties = stack.getItem().sophisticatedFabricLibrary_getFoodProperties(stack, player);
 		return foodProperties != null && foodProperties.nutrition() >= 1;
 	}
 
 	private boolean isHungryEnoughForFood(int hungerLevel, ItemStack stack, Player player) {
-		FoodProperties foodProperties = stack.getItem().sophisticatedLibrary_getFoodProperties(stack, player);
+		FoodProperties foodProperties = stack.getItem().sophisticatedFabricLibrary_getFoodProperties(stack, player);
 		if (foodProperties == null) {
 			return false;
 		}
@@ -138,20 +138,20 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 	}
 
 	public HungerLevel getFeedAtHungerLevel() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, HungerLevel.HALF);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, HungerLevel.HALF);
 	}
 
 	public void setFeedAtHungerLevel(HungerLevel hungerLevel) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, hungerLevel);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.FEED_AT_HUNGER_LEVEL, hungerLevel);
 		save();
 	}
 
 	public boolean shouldFeedImmediatelyWhenHurt() {
-		return upgrade.sophisticatedLibrary_getOrDefault(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, true);
+		return upgrade.sophisticatedFabricLibrary_getOrDefault(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, true);
 	}
 
 	public void setFeedImmediatelyWhenHurt(boolean feedImmediatelyWhenHurt) {
-		upgrade.sophisticatedLibrary_set(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, feedImmediatelyWhenHurt);
+		upgrade.sophisticatedFabricLibrary_set(ModCoreDataComponents.FEED_IMMEDIATELY_WHEN_HURT, feedImmediatelyWhenHurt);
 		save();
 	}
 }

@@ -82,7 +82,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedLibrary_onLoad() {
+	public void sophisticatedFabricLibrary_onLoad() {
 		// super.sophisticatedCore_onLoad();
 		if (level != null && !level.isClientSide()) {
 			stackStorages.clear();
@@ -729,7 +729,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedLibrary_onChunkUnloaded() {
+	public void sophisticatedFabricLibrary_onChunkUnloaded() {
 		// super.sophisticatedCore_onChunkUnloaded();
 		detachFromStoragesAndUnlinkBlocks();
 	}
