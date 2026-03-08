@@ -71,7 +71,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		}
 
 		ItemStack cursorStack = screen.getMenu().getCarried();
-		if (cursorStack.getCount() > 1 || cursorStack.sophisticatedLibrary_getCapability(Capabilities.FluidHandler.ITEM) == null) {
+		if (cursorStack.getCount() > 1 || cursorStack.sophisticatedFabricLibrary_getCapability(Capabilities.FluidHandler.ITEM) == null) {
 			return false;
 		}
 

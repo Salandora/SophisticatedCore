@@ -90,7 +90,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedLibrary_onLoad() {
+	public void sophisticatedFabricLibrary_onLoad() {
 		// super.sophisticatedCore_onLoad();
 		if (level != null && !level.isClientSide()) {
 			stackStorages.clear();
@@ -531,8 +531,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedLibrary_invalidateCaps() {
-		SophisticatedBlockEntity.super.sophisticatedLibrary_invalidateCaps();
+	public void sophisticatedFabricLibrary_invalidateCaps() {
+		SophisticatedBlockEntity.super.sophisticatedFabricLibrary_invalidateCaps();
 		if (itemHandlerCap != null) {
 			itemHandlerCap.invalidate();
 			itemHandlerCap = null;
@@ -768,8 +768,8 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void sophisticatedLibrary_onChunkUnloaded() {
-		SophisticatedBlockEntity.super.sophisticatedLibrary_onChunkUnloaded();
+	public void sophisticatedFabricLibrary_onChunkUnloaded() {
+		SophisticatedBlockEntity.super.sophisticatedFabricLibrary_onChunkUnloaded();
 		detachFromStoragesAndUnlinkBlocks();
 	}
 

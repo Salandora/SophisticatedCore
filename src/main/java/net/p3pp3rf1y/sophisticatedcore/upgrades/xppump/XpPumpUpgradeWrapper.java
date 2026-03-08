@@ -73,7 +73,7 @@ public class XpPumpUpgradeWrapper extends UpgradeWrapperBase<XpPumpUpgradeWrappe
 					storageWrapper.getFluidHandler().ifPresent(fluidHandler -> {
 						FluidStack drained = fluidHandler.drain(ModFluids.EXPERIENCE_TAG, XpHelper.experienceToLiquid(xpToTryDrain), IFluidHandler.FluidAction.EXECUTE, false);
 						float xpDrained = XpHelper.liquidToExperience(drained.getAmount());
-						int durationToRepair = (int) (xpDrained * itemStack.sophisticatedLibrary_getXpRepairRatio());
+						int durationToRepair = (int) (xpDrained * itemStack.sophisticatedFabricLibrary_getXpRepairRatio());
 						itemStack.setDamageValue(itemStack.getDamageValue() - durationToRepair);
 					});
 				}

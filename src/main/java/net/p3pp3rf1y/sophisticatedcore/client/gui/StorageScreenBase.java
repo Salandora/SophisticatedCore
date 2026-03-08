@@ -540,7 +540,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (canShowHover && ((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, sophisticatedLibrary_getSlotColor(slotId));
+				renderSlotOverlay(guiGraphics, slot, sophisticatedFabricLibrary_getSlotColor(slotId));
 			}
 		}
 	}
@@ -557,7 +557,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 			if (((AbstractContainerScreenAccessor) this).callIsHovering(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
-				renderSlotOverlay(guiGraphics, slot, sophisticatedLibrary_getSlotColor(slotId));
+				renderSlotOverlay(guiGraphics, slot, sophisticatedFabricLibrary_getSlotColor(slotId));
 			}
 		}
 	}
@@ -846,7 +846,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void tryQuickMoveSlot(int button, Slot slot, Slot slot2) {
 		//noinspection ConstantConditions - by this point minecraft isn't null
-		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.sophisticatedLibrary_isSameInventory(slot)) {
+		if (slot2.mayPickup(minecraft.player) && slot2.hasItem() && slot2.sophisticatedFabricLibrary_isSameInventory(slot)) {
 			ItemStack slotItem = slot2.getItem();
 			if (ItemStack.isSameItemSameTags(((AbstractContainerScreenAccessor) this).getLastQuickMoved(), slotItem)) {
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {

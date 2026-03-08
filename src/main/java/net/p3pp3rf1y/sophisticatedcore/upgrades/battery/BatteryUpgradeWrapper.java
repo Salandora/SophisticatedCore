@@ -136,7 +136,7 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	}
 
 	private boolean isValidEnergyItem(ItemStack stack, boolean isOutput) {
-		return stack.sophisticatedLibrary_getCapability(Capabilities.EnergyStorage.ITEM).map(energyStorage -> isOutput || energyStorage.getEnergyStored() > 0).orElse(false);
+		return stack.sophisticatedFabricLibrary_getCapability(Capabilities.EnergyStorage.ITEM).map(energyStorage -> isOutput || energyStorage.getEnergyStored() > 0).orElse(false);
 	}
 
 	@Override
@@ -154,11 +154,11 @@ public class BatteryUpgradeWrapper extends UpgradeWrapperBase<BatteryUpgradeWrap
 	@Override
 	public void tick(@Nullable Entity entity, Level world, BlockPos pos) {
 		if (energyStored < getMaxEnergyStored()) {
-			inventory.getStackInSlot(INPUT_SLOT).sophisticatedLibrary_getCapability(Capabilities.EnergyStorage.ITEM).ifPresent(this::receiveFromStorage);
+			inventory.getStackInSlot(INPUT_SLOT).sophisticatedFabricLibrary_getCapability(Capabilities.EnergyStorage.ITEM).ifPresent(this::receiveFromStorage);
 		}
 
 		if (energyStored > 0) {
-			inventory.getStackInSlot(OUTPUT_SLOT).sophisticatedLibrary_getCapability(Capabilities.EnergyStorage.ITEM).ifPresent(this::extractToStorage);
+			inventory.getStackInSlot(OUTPUT_SLOT).sophisticatedFabricLibrary_getCapability(Capabilities.EnergyStorage.ITEM).ifPresent(this::extractToStorage);
 		}
 	}
 
