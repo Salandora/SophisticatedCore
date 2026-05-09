@@ -81,10 +81,10 @@ public class CapabilityHelper {
 	}
 
 	public static <T> T getFromFluidHandler(ItemStack stack, Function<IFluidHandlerItem, T> get, T defaultValue) {
-		return getFromCapability(Capabilities.FluidHandler.ITEM, new MutableContainerItemContext(stack), get, defaultValue);
+		return getFromCapability(Capabilities.FluidHandler.ITEM, MutableContainerItemContext.ofSingleStack(stack), get, defaultValue);
 	}
 
 	public static void runOnFluidHandler(ItemStack stack, Consumer<IFluidHandlerItem> run) {
-		runOnCapability(stack, Capabilities.FluidHandler.ITEM, new MutableContainerItemContext(stack), run);
+		runOnCapability(stack, Capabilities.FluidHandler.ITEM, MutableContainerItemContext.ofSingleStack(stack), run);
 	}
 }
