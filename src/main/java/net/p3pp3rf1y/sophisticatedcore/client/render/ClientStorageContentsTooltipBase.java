@@ -4,7 +4,6 @@ import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.FluidStack;
 import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.FluidUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -176,7 +175,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 				} else {
 					tooltipLines.add(Component.translatable(getFluidTooltipTranslation(),
 							Component.literal(CountAbbreviator.abbreviate(FluidUtil.toBuckets(fluid.getAmount()))).withStyle(ChatFormatting.WHITE),
-							((MutableComponent) FluidVariantAttributes.getName(fluid.getVariant())).withStyle(ChatFormatting.BLUE)
+							((MutableComponent) fluid.getHoverName()).withStyle(ChatFormatting.BLUE)
 
 					));
 				}
