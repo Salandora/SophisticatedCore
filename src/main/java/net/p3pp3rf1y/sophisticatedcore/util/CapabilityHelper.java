@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.IFluidHandler;
 import com.github.salandora.sophisticatedfabriclib.fluid.api.v1.IFluidHandlerItem;
 import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.IItemHandler;
-import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.MutableContainerItemContext;
+import com.github.salandora.sophisticatedfabriclib.transfer.api.v1.ItemStackContainerItemContext;
 import com.github.salandora.sophisticatedfabriclib.util.Capabilities;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
@@ -81,10 +81,10 @@ public class CapabilityHelper {
 	}
 
 	public static <T> T getFromFluidHandler(ItemStack stack, Function<IFluidHandlerItem, T> get, T defaultValue) {
-		return getFromCapability(Capabilities.FluidHandler.ITEM, MutableContainerItemContext.ofSingleStack(stack), get, defaultValue);
+		return getFromCapability(Capabilities.FluidHandler.ITEM, ItemStackContainerItemContext.ofSingleStack(stack), get, defaultValue);
 	}
 
 	public static void runOnFluidHandler(ItemStack stack, Consumer<IFluidHandlerItem> run) {
-		runOnCapability(stack, Capabilities.FluidHandler.ITEM, MutableContainerItemContext.ofSingleStack(stack), run);
+		runOnCapability(stack, Capabilities.FluidHandler.ITEM, ItemStackContainerItemContext.ofSingleStack(stack), run);
 	}
 }
