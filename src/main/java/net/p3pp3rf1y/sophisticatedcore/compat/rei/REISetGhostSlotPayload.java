@@ -24,9 +24,9 @@ public record REISetGhostSlotPayload(ItemStack stack, int slotNumber) implements
 	}
 
 	public static void handlePayload(REISetGhostSlotPayload payload, ServerPlayNetworking.Context context) {
-		if (!(context.player().containerMenu instanceof StorageContainerMenuBase<?>)) {
+		if (!(context.player().containerMenu instanceof StorageContainerMenuBase<?> storageContainerMenu)) {
 			return;
 		}
-		context.player().containerMenu.getSlot(payload.slotNumber).set(payload.stack);
+		storageContainerMenu.setGhostSlot(payload.slotNumber, payload.stack);
 	}
 }
