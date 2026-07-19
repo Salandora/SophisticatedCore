@@ -64,6 +64,18 @@ repositories {
         url = "https://maven.jamieswhiteshirt.com/libs-release/"
     }
 
+    maven {
+        name = "SophisticatedFabricLibrary GitHubPackages"
+        url = "https://maven.pkg.github.com/Salandora/SophisticatedFabricLib"
+        credentials {
+            username = System.getenv("USERNAME")
+            password = System.getenv("READ_PACKAGES_TOKEN")
+        }
+        content {
+            includeGroupAndSubgroups "com.github.salandora"
+        }
+    }
+
     maven { url = "https://maven.ladysnake.org/releases" } // CCA, for Trinkets
     maven { url = "https://www.cursemaven.com" } // Balm, CraftingTweaks
     maven { url = "https://modmaven.dev" } // Jei
