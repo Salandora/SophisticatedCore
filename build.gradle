@@ -45,7 +45,7 @@ repositories {
         name = "Fuzs Mod Resources"
         url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
     }
-    maven { url = "https://maven.nova-committee.cn/releases" } // Modern KeyBinding
+    //maven { url = "https://maven.nova-committee.cn/releases" } // Modern KeyBinding
     maven { url = "https://maven.terraformersmc.com/releases/" } // Emi
     maven { url = "https://maven.shedaniel.me/" } // REI and deps
     exclusiveContent {
@@ -206,7 +206,9 @@ dependencies {
         exclude group: "com.terraformersmc", module: "modmenu"
     }
 
+    // Trinkets
     modCompileOnly("dev.emi:trinkets:$project.trinkets_version")
+    //modCompileOnly("curse.maven:trinkets-341284:5173501")
 
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.+'
