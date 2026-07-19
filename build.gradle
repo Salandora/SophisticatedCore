@@ -202,7 +202,9 @@ dependencies {
     modCompileOnly("curse.maven:craftingtweaks-502516:${project.crafting_tweaks_cf_file_id}")
     modCompileOnly("curse.maven:balm-500525:${project.balm_cf_file_id}")
 
-    modCompileOnly("earth.terrarium.chipped:Chipped-fabric-${minecraft_version}:${project.chipped_version}")
+    modCompileOnly("earth.terrarium.chipped:Chipped-fabric-${minecraft_version}:${project.chipped_version}") {
+        exclude group: "com.terraformersmc", module: "modmenu"
+    }
 
     modCompileOnly("dev.emi:trinkets:$project.trinkets_version")
 
