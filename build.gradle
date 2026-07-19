@@ -55,15 +55,6 @@ repositories {
             includeGroup "curse.maven"
         }
     }
-    exclusiveContent {
-        forRepositories(
-                maven { url = "https://mvn.devos.one/snapshots/" },
-                maven { url = "https://mvn.devos.one/releases/" }
-        )
-        filter {
-            includeGroup "io.github.fabricators_of_create.Porting-Lib"
-        }
-    }
 
     maven {
         name = 'ParchmentMC'
@@ -72,14 +63,14 @@ repositories {
     maven { url = "https://maven.fabricmc.net/" } // FAPI, Loader
     maven { url = "https://maven.quiltmc.org/repository/release" } // QM
     maven {
-        name = "SophisticatedLibrary GitHubPackages"
-        url = "https://maven.pkg.github.com/Salandora/SophisticatedLibrary"
+        name = "SophisticatedFabricLibrary GitHubPackages"
+        url = "https://maven.pkg.github.com/Salandora/SophisticatedFabricLib"
         credentials {
             username = System.getenv("USERNAME")
             password = System.getenv("READ_PACKAGES_TOKEN")
         }
         content {
-            includeGroupAndSubgroups "sophisticatedlibrary"
+            includeGroupAndSubgroups "com.github.salandora"
         }
     }
     maven { // Forge Config API Port
