@@ -572,7 +572,7 @@ publishMods {
         minecraftVersionList(project.release_versions)
 
         // Dependencies
-        requires("fabric-api", "forge-config-api-port")
+        requires("fabric-api", "forge-config-api-port", "sophisticated-fabric-lib")
     }
     modrinth {
         accessToken = System.getenv("MODRINTH_TOKEN")
@@ -582,7 +582,7 @@ publishMods {
         minecraftVersionList(project.release_versions)
 
         // Dependencies
-        requires("fabric-api", "forge-config-api-port")
+        requires("fabric-api", "forge-config-api-port", "sophisticated-fabric-lib")
     }
 }
 tasks.publishMods {
