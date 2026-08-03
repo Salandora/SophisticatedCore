@@ -40,6 +40,8 @@ import java.util.function.Function;
 
 public abstract class ControllerBlockEntityBase extends BlockEntity implements IItemHandlerSimpleInserter {
 	public static final int SEARCH_RANGE = 15;
+	//safe to share as it rejects both insert and extract and thus never takes a transaction snapshot - keep it static, it is returned once per advertised slot of every unreachable storage on every hopper/pipe scan
+	private static final SingleSlotStorage<ItemVariant> UNAVAILABLE_SLOT = EmptyItemHandler.INSTANCE.getSlot(0);
 	private List<BlockPos> storagePositions = new ArrayList<>();
 	private List<Integer> baseIndexes = new ArrayList<>();
 	private int totalSlots = 0;
@@ -614,15 +616,15 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		int handlerIndex = getIndexForSlot(slot);
 		SlottedStackStorage handler = getHandlerFromIndex(handlerIndex);
 		if (handler == null) {
-			throw new IndexOutOfBoundsException("HandlerIndex out of range: " + handlerIndex);
+			return UNAVAILABLE_SLOT;
 		}
 
-		slot = getSlotFromIndex(slot, handlerIndex);
-		if (!validateHandlerSlotIndex(handler, handlerIndex, slot, "getStackInSlot")) {
-			throw new IndexOutOfBoundsException("Slot in handler out of range: " + slot);
+		int localSlot = getSlotFromIndex(slot, handlerIndex);
+		if (!validateHandlerSlotIndex(handler, handlerIndex, localSlot, "getSlot(int slot)")) {
+			return UNAVAILABLE_SLOT;
 		}
 
-		return handler.getSlot(slot);
+		return handler.getSlot(localSlot);
 	}
 
 	@Nonnull
